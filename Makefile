@@ -3,7 +3,13 @@ sources := $(wildcard *.c)
 headers := $(wildcard *.h)
 objects := $(patsubst %.c,%.o,$(sources))
 depfiles := $(patsubst %.c,%.d,$(sources))
-default: $(objects)
+common_objects := \
+star.o \
+tables.o \
+up_from_down.o \
+ints.o
+all: $(objects)
+test_up_from_down: test_up_from_down.o $(common_objects)
 clean:
 	rm -f $(objects) $(depfiles)
 

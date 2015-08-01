@@ -55,6 +55,20 @@ double const* const the_box_coords[4] = {
   box_3d_coord
 };
 
+unsigned const the_box_nelems[4] = {
+  1,
+  1,
+  2,
+  6
+};
+
+unsigned const the_box_nverts[4] = {
+  1,
+  2,
+  4,
+  8
+};
+
 unsigned const the_down_degrees[4][4] = {
   { 1, 0, 0, 0},
   { 2, 1, 0, 0},
