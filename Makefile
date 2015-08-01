@@ -1,5 +1,6 @@
 CFLAGS = -Weverything
-sources := $(wildcard *.c)
+sources := $(wildcard src/*.c)
+headers := $(wildcard src/*.h)
 objects := $(patsubst %.c,%.o,$(sources))
 default: $(objects)
 clean:
