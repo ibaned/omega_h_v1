@@ -1,8 +1,25 @@
 CFLAGS = -Weverything
-sources := $(wildcard src/*.c)
-headers := $(wildcard src/*.h)
+sources := $(wildcard *.c)
+headers := $(wildcard *.h)
 objects := $(patsubst %.c,%.o,$(sources))
+depfiles := $(patsubst %.c,%.d,$(sources))
 default: $(objects)
 clean:
-	rm -f *.o
+	rm -f $(objects) $(depfiles)
+
+#copied this mess from the GNU make documentation
+#it generates dependency files from source files,
+#and uses SED atrocities to change the rules
+#such that output is both an object file and a
+#dependency file
+%.d: %.c
+	set -e; rm -f $@; \
+	$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+#include the auto-generated dependency file for
+#each source file
+include $(depfiles)
+
 .PHONY: default clean
