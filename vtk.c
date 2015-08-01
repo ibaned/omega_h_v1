@@ -18,11 +18,12 @@ void write_vtk(
     double const* coords)
 {
   FILE* f = fopen(filename, "w");
-  fprintf(f, "<VTKFile type=\"UnstructuredGrid\" version=\"3.0\">\n");
+  fprintf(f, "<VTKFile type=\"UnstructuredGrid\">\n");
   fprintf(f, "<UnstructuredGrid>\n");
   fprintf(f, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\">\n", nvert, nelem);
   fprintf(f, "<Points>\n");
-  fprintf(f, "<DataArray type=\"Float64\" NumberOfComponents=\"3\" format=\"ascii\">\n");
+  fprintf(f, "<DataArray type=\"Float64\" Name=\"coordinates\""
+             " NumberOfComponents=\"3\" format=\"ascii\">\n");
   for (unsigned i = 0; i < nvert; ++i) {
     double const* p = coords + i * 3;
     fprintf(f, "%f %f %f\n", p[0], p[1], p[2]);
@@ -49,7 +50,11 @@ void write_vtk(
     fprintf(f, "%u\n", type);
   fprintf(f, "</DataArray>\n");
   fprintf(f, "</Cells>\n");
-  fprintf(f, "</Piece>");
+  fprintf(f, "<PointData>\n");
+  fprintf(f, "</PointData>\n");
+  fprintf(f, "<CellData>\n");
+  fprintf(f, "</CellData>\n");
+  fprintf(f, "</Piece>\n");
   fprintf(f, "</UnstructuredGrid>\n");
   fprintf(f, "</VTKFile>\n");
   fclose(f);

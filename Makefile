@@ -7,9 +7,11 @@ common_objects := \
 star.o \
 tables.o \
 up_from_down.o \
-ints.o
+ints.o \
+vtk.o
 all: $(objects)
 test_up_from_down: test_up_from_down.o $(common_objects)
+test_vtk: test_vtk.o $(common_objects)
 clean:
 	rm -f $(objects) $(depfiles)
 
