@@ -1,3 +1,4 @@
+CFLAGS = -Weverything
 sources := $(wildcard *.c)
 objects := $(patsubst %.c,%.o,$(sources))
 default: $(objects)
