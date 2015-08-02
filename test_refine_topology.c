@@ -7,7 +7,7 @@ int main()
 {
   unsigned elem_dim = 2;
   unsigned split_dim = 2;
-  unsigned ent_dim = 1;
+  unsigned ent_dim = 2;
   unsigned nelem = 1;
   unsigned const elem_verts[3] = {0,1,2};
   unsigned const elem_split_offset[2] = {0,1};
