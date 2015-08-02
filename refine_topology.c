@@ -29,6 +29,7 @@ struct refined_topology refine_topology(
     return out;
   out.nent = nselem * split_degree;
   unsigned nent_vert = the_down_degrees[ent_dim][0];
+  unsigned nbase_vert = nent_vert - 1;
   unsigned nelem_vert = the_down_degrees[elem_dim][0];
   out.ent_verts = malloc(sizeof(unsigned) * nselem * nent_vert);
   unsigned const* const* any_split_opposite =
@@ -48,9 +49,9 @@ struct refined_topology refine_topology(
       unsigned opposite = split_opposite[j];
       unsigned base = opposite_base[opposite];
       unsigned const* base_vert = any_base_vert[base];
-      for (unsigned k = 0; k < nelem_vert; ++k)
+      for (unsigned k = 0; k < nbase_vert; ++k)
         ent_vert[k] = elem_vert[base_vert[k]];
-      ent_vert[nelem_vert] = split_vert;
+      ent_vert[nbase_vert] = split_vert;
       ent_vert += nent_vert;
     }
   }
