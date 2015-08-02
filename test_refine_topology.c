@@ -6,7 +6,7 @@
 int main()
 {
   unsigned elem_dim = 3;
-  unsigned split_dim = 1;
+  unsigned split_dim = 2;
   unsigned ent_dim = 3;
   unsigned nelem = 1;
   unsigned const elem_verts[4] = {0,1,2,3};
