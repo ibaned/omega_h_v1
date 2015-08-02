@@ -31,10 +31,13 @@ double triangle_quality(double const coords[3][3])
 {
   unsigned const* const* fev = the_canonical_orders[2][1][0];
   double sum_lsq = 0;
-  for (unsigned i = 0; i < 3; ++i)
-    sum_lsq += vector_squared_distance(coords[fev[i][1]], coords[fev[i][0]], 3);
+  for (unsigned i = 0; i < 3; ++i) {
+    double lsq = vector_squared_distance(coords[fev[i][1]], coords[fev[i][0]], 3);
+    sum_lsq += lsq;
+  }
   double lrms = sqrt(sum_lsq / 3);
-  double quality = triangle_area(coords) / lrms;
+  double a = triangle_area(coords);
+  double quality = a / (lrms * lrms);
   return quality / PERFECT_TRIANGLE_QUALITY;
 }
 
@@ -50,7 +53,9 @@ double tet_quality(double const coords[4][3])
     sum_asq += a * a;
   }
   double arms = sqrt(sum_asq / 4);
-  double quality = tet_volume(coords) / arms;
+  double v = tet_volume(coords);
+  double root_arms = sqrt(arms);
+  double quality = v / CUBE(root_arms);
   return quality / PERFECT_TET_QUALITY;
 }
 
