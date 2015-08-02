@@ -9,7 +9,8 @@ tables.o \
 up_from_down.o \
 ints.o \
 vtk.o \
-refine_topology.o
+refine_topology.o \
+splits_to_elements.o
 all: $(objects)
 test_up_from_down: test_up_from_down.o $(common_objects)
 test_vtk: test_vtk.o $(common_objects)
