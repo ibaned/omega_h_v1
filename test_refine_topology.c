@@ -5,13 +5,13 @@
 
 int main()
 {
-  unsigned elem_dim = 1;
+  unsigned elem_dim = 2;
   unsigned split_dim = 1;
   unsigned ent_dim = 1;
   unsigned nelem = 1;
-  unsigned const elem_verts[2] = {0,1};
+  unsigned const elem_verts[3] = {0,1,2};
   unsigned const elem_split_offset[2] = {0,1};
-  unsigned const elem_split_vert[1] = {2};
+  unsigned const elem_split_vert[1] = {3};
   unsigned const elem_split_direction[1] = {0};
   struct refined_topology out = refine_topology(
       elem_dim,
