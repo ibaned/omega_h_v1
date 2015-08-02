@@ -170,3 +170,19 @@ unsigned const* const* const* const* const the_canonical_orders[4] = {
   f__,
   r__
 };
+
+static unsigned const oev[2] = {1,0};
+static unsigned const* const oe_[1] = {oev};
+static unsigned const ofv[3] = {1,2,0};
+static unsigned const ofe[3] = {2,0,1};
+static unsigned const* const of_[2] = {ofv,ofe};
+static unsigned const orv[4] = {2,3,1,0};
+static unsigned const ore[6] = {5,3,4,1,2,0};
+static unsigned const orf[4] = {3,2,0,1};
+static unsigned const* const or_[3] = {orv,ore,orf};
+unsigned const* const* const the_opposite_orders[4] = {
+  0,
+  oe_,
+  of_,
+  or_
+};
