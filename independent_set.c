@@ -1,4 +1,5 @@
 #include "independent_set.h"
+#include "ints.h"
 #include <stdlib.h>
 
 #define MAX_ITERATIONS 100
@@ -62,7 +63,7 @@ unsigned* find_independent_set(
           old_state,
           state,
           i);
-    if (ints_max(state) < UNKNOWN) {
+    if (ints_max(state, nverts) < UNKNOWN) {
       free(old_state);
       return state;
     }
