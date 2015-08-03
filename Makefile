@@ -1,4 +1,4 @@
-CFLAGS = -Weverything -Wno-float-equal
+CFLAGS = -Werror -Weverything -Wno-float-equal
 sources := $(wildcard *.c)
 headers := $(wildcard *.h)
 objects := $(patsubst %.c,%.o,$(sources))
