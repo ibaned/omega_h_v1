@@ -27,6 +27,8 @@ static unsigned get_ent_star(
     unsigned up = up_edges[i];
     for (unsigned j = 0; j < down_degree; ++j) {
       unsigned star_down = down_edges[up * down_degree + j];
+      if (star_down == down)
+        continue;
       size = add_unique(ent_star, size, star_down);
     }
   }
