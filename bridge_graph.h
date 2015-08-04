@@ -1,5 +1,5 @@
-#ifndef BRIDGE_H
-#define BRIDGE_H
+#ifndef BRIDGE_GRAPH_H
+#define BRIDGE_GRAPH_H
 
 void bridge_graph(
     unsigned nverts,

@@ -1,4 +1,4 @@
-#include "bridge.h"
+#include "bridge_graph.h"
 #include "ints.h"
 #include <assert.h>
 #include <stdlib.h>

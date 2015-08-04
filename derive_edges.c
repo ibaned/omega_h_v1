@@ -1,7 +1,7 @@
 #include "derive_edges.h"
 #include "up_from_down.h"
 #include "star.h"
-#include "bridge.h"
+#include "bridge_graph.h"
 #include <stdlib.h>
 
 struct derived_edges derive_edges(
