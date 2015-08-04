@@ -15,13 +15,14 @@ quality.o \
 size.o \
 derive_edges.o \
 bridge_graph.o
+
 all: $(objects)
 
-%: %.o $(common_objects)
+%.exe: %.o $(common_objects)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
-	rm -f *.dep* *.o
+	rm -f *.dep* *.o *.exe
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
