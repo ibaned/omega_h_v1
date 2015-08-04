@@ -1,4 +1,4 @@
-#include "independent_set.h"
+#include "find_independent_set.h"
 #include "ints.h"
 #include <stdlib.h>
 

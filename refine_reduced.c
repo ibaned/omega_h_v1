@@ -5,7 +5,7 @@
 #include "up_from_down.h"
 #include "star.h"
 #include "reflect_down.h"
-#include "independent_set.h"
+#include "find_independent_set.h"
 #include "ints.h"
 #include "splits_to_elements.h"
 #include "refine_topology.h"
