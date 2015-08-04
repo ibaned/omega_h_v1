@@ -70,21 +70,25 @@ struct reduced_mesh refine_reduced(
       &elems_of_edges_offsets,
       &elems_of_edges,
       0);
-  struct star edge_edges = get_star(
+  unsigned* edges_of_edges_offsets;
+  unsigned* edges_of_edges;
+  get_star(
       1,
       elem_dim,
       nedges,
       elems_of_edges_offsets,
       elems_of_edges,
-      edges_of_elems);
+      edges_of_elems,
+      &edges_of_edges_offsets,
+      &edges_of_edges);
   unsigned* indset = find_indset(
       nedges,
-      edge_edges.offsets,
-      edge_edges.edges,
+      edges_of_edges_offsets,
+      edges_of_edges,
       candidates,
       edge_sizes);
-  free(edge_edges.offsets);
-  free(edge_edges.edges);
+  free(edges_of_edges_offsets);
+  free(edges_of_edges);
   free(candidates);
   free(edge_sizes);
   unsigned* gen_offset_of_edges = ints_exscan(indset, nedges);

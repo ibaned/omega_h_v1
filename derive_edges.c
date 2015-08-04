@@ -23,21 +23,25 @@ void derive_edges(
       &elems_of_verts_offsets,
       &elems_of_verts,
       0);
-  struct star vert_verts = get_star(
+  unsigned* verts_of_verts_offsets;
+  unsigned* verts_of_verts;
+  get_star(
       0,
       elem_dim,
       nverts,
       elems_of_verts_offsets,
       elems_of_verts,
-      verts_of_elems);
+      verts_of_elems,
+      &verts_of_verts_offsets,
+      &verts_of_verts);
   free(elems_of_verts_offsets);
   free(elems_of_verts);
   bridge_graph(
       nverts,
-      vert_verts.offsets,
-      vert_verts.edges,
+      verts_of_verts_offsets,
+      verts_of_verts,
       nedges_out,
       verts_of_edges_out);
-  free(vert_verts.offsets);
-  free(vert_verts.edges);
+  free(verts_of_verts_offsets);
+  free(verts_of_verts);
 }

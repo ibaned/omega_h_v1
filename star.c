@@ -13,64 +13,67 @@ static unsigned add_unique(unsigned* a, unsigned n, unsigned e)
 }
 
 static unsigned get_ent_star(
-    unsigned const* up_offsets,
-    unsigned const* up_edges,
-    unsigned const* down_edges,
-    unsigned down_degree,
-    unsigned down,
-    unsigned* ent_star)
+    unsigned const* highs_of_lows_offsets,
+    unsigned const* highs_of_lows,
+    unsigned const* lows_of_highs,
+    unsigned lows_per_high,
+    unsigned low,
+    unsigned* star)
 {
-  unsigned first_up = up_offsets[down];
-  unsigned last_up = up_offsets[down + 1];
+  unsigned first_up = highs_of_lows_offsets[low];
+  unsigned last_up = highs_of_lows_offsets[low + 1];
   unsigned size = 0;
   for (unsigned i = first_up; i < last_up; ++i) {
-    unsigned up = up_edges[i];
-    for (unsigned j = 0; j < down_degree; ++j) {
-      unsigned star_down = down_edges[up * down_degree + j];
-      if (star_down == down)
+    unsigned high = highs_of_lows[i];
+    for (unsigned j = 0; j < lows_per_high; ++j) {
+      unsigned star_low = lows_of_highs[high * lows_per_high + j];
+      if (star_low == low)
         continue;
-      size = add_unique(ent_star, size, star_down);
+      size = add_unique(star, size, star_low);
     }
   }
   return size;
 }
 
-struct star get_star(
-    unsigned down_dim,
-    unsigned up_dim,
-    unsigned ndown,
-    unsigned const* up_offsets,
-    unsigned const* up_edges,
-    unsigned const* down_edges)
+void get_star(
+    unsigned low_dim,
+    unsigned high_dim,
+    unsigned nlows,
+    unsigned const* highs_of_lows_offsets,
+    unsigned const* highs_of_lows,
+    unsigned const* lows_of_highs,
+    unsigned** star_offsets_out,
+    unsigned** star_out)
 {
-  struct star out;
   unsigned star_buf[MAX_UP * MAX_DOWN];
-  unsigned down_degree = the_down_degrees[up_dim][down_dim];
-  unsigned* degrees = malloc(sizeof(unsigned) * ndown);
-  ints_zero(degrees, ndown);
-  for (unsigned i = 0; i < ndown; ++i)
+  unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
+  unsigned* degrees = malloc(sizeof(unsigned) * nlows);
+  ints_zero(degrees, nlows);
+  for (unsigned i = 0; i < nlows; ++i)
     degrees[i] = get_ent_star(
-        up_offsets,
-        up_edges,
-        down_edges,
-        down_degree,
+        highs_of_lows_offsets,
+        highs_of_lows,
+        lows_of_highs,
+        lows_per_high,
         i,
         star_buf);
-  out.offsets = ints_exscan(degrees, ndown);
-  unsigned nedges = out.offsets[ndown];
-  out.edges = malloc(sizeof(unsigned) * nedges);
-  for (unsigned i = 0; i < ndown; ++i) {
+  unsigned* star_offsets = ints_exscan(degrees, nlows);
+  free(degrees);
+  unsigned sum_degrees = star_offsets[nlows];
+  unsigned* star = malloc(sizeof(unsigned) * sum_degrees);
+  for (unsigned i = 0; i < nlows; ++i) {
     get_ent_star(
-        up_offsets,
-        up_edges,
-        down_edges,
-        down_degree,
+        highs_of_lows_offsets,
+        highs_of_lows,
+        lows_of_highs,
+        lows_per_high,
         i,
         star_buf);
-    unsigned first_star = out.offsets[i];
-    unsigned last_star = out.offsets[i + 1];
+    unsigned first_star = star_offsets[i];
+    unsigned last_star = star_offsets[i + 1];
     for (unsigned j = first_star; j < last_star; ++j)
-      out.edges[j] = star_buf[j - first_star];
+      star[j] = star_buf[j - first_star];
   }
-  return out;
+  *star_offsets_out = star_offsets;
+  *star_out = star;
 }

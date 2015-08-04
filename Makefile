@@ -22,7 +22,7 @@ test_refine_topology: test_refine_topology.o $(common_objects)
 test_quality: test_quality.o $(common_objects)
 test_derive_edges: test_derive_edges.o $(common_objects)
 clean:
-	rm -f *.deps* *.o
+	rm -f *.dep* *.o
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
