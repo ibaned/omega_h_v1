@@ -26,14 +26,18 @@ struct derived_edges derive_edges(
       elem_verts);
   free(vert_elems.offsets);
   free(vert_elems.edges);
-  struct bridged_graph bg = bridge_graph(
+  unsigned nedges;
+  unsigned* verts_of_edges;
+  bridge_graph(
       nvert,
       vert_verts.offsets,
-      vert_verts.edges);
+      vert_verts.edges,
+      &nedges,
+      &verts_of_edges);
   free(vert_verts.offsets);
   free(vert_verts.edges);
   return (struct derived_edges) {
-    .nedge = bg.nedge,
-    .edge_verts = bg.edge_verts
+    .nedge = nedges,
+    .edge_verts = verts_of_edges
   };
 }
