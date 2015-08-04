@@ -110,7 +110,9 @@ struct reduced_mesh refine_reduced(
       &gen_offset_of_elems,
       &gen_direction_of_elems,
       &gen_vert_of_elems);
-  struct refined_topology rt = refine_topology(
+  unsigned ngen_elems;
+  unsigned* verts_of_gen_elems;
+  refine_topology(
       elem_dim,
       1,
       elem_dim,
@@ -118,7 +120,9 @@ struct reduced_mesh refine_reduced(
       elem_verts,
       gen_offset_of_elems,
       gen_vert_of_elems,
-      gen_direction_of_elems);
+      gen_direction_of_elems,
+      &ngen_elems,
+      &verts_of_gen_elems);
   free(gen_offset_of_elems);
   free(gen_vert_of_elems);
   free(gen_direction_of_elems);
@@ -129,7 +133,6 @@ struct reduced_mesh refine_reduced(
       gen_offset_of_edges,
       3,
       coords);
-  (void)rt;
   (void)gen_coords;
   struct reduced_mesh rm;
   return rm;
