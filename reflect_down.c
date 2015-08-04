@@ -28,19 +28,19 @@ unsigned* reflect_down(
       unsigned high_buf_size = 0;
       for (unsigned k = 0; k < verts_per_low; ++k) {
         unsigned vert = up_vert[high_verts_of_low[k]];
-        unsigned first_down = lows_of_verts_offsets[vert];
-        unsigned end_down = lows_of_verts_offsets[vert + 1];
+        unsigned first_use = lows_of_verts_offsets[vert];
+        unsigned end_use = lows_of_verts_offsets[vert + 1];
         if (high_buf_size)
           high_buf_size = intersect(
               high_buf,
               high_buf_size,
-              lows_of_verts + first_down,
-              end_down - first_down);
+              lows_of_verts + first_use,
+              end_use - first_use);
         else
           high_buf_size = copy(
-              lows_of_verts + first_down,
+              lows_of_verts + first_use,
               high_buf,
-              end_down - first_down);
+              end_use - first_use);
         assert(high_buf_size);
       }
       assert(high_buf_size == 1);
