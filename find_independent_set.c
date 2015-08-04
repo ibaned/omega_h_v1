@@ -35,6 +35,8 @@ static void at_vert(
     }
   double myg = goodness[i];
   for (unsigned j = first_adj; j < end_adj; ++j) {
+    if (old_state[adj[j]] == NOT_IN_SET)
+      continue;
     double og = goodness[adj[j]];
     if (myg == og && adj[j] < i)
       return;
