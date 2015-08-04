@@ -4,24 +4,24 @@
 #include <stdlib.h>
 
 double* refine_nodal(
-    unsigned split_dim,
-    unsigned nsplit,
-    unsigned const* split_verts,
-    unsigned const* split_offsets,
-    unsigned ncomp,
+    unsigned src_dim,
+    unsigned nsrcs,
+    unsigned const* verts_of_srcs,
+    unsigned const* gen_offset_of_srcs,
+    unsigned comps_per_vert,
     double const* field)
 {
-  double* out = malloc(sizeof(double) * ncomp * nsplit);
-  unsigned nsplit_vert = the_down_degrees[split_dim][0];
-  for (unsigned i = 0; i < nsplit; ++i) {
-    if (split_offsets[i] == split_offsets[i + 1])
+  double* out = malloc(sizeof(double) * comps_per_vert * nsrcs);
+  unsigned verts_per_src = the_down_degrees[src_dim][0];
+  for (unsigned i = 0; i < nsrcs; ++i) {
+    if (gen_offset_of_srcs[i] == gen_offset_of_srcs[i + 1])
       continue;
     average_element_field(
-        nsplit_vert,
-        split_verts,
+        verts_per_src,
+        verts_of_srcs + i * verts_per_src,
         field,
-        ncomp,
-        out + split_offsets[i] * ncomp);
+        comps_per_vert,
+        out + gen_offset_of_srcs[i] * comps_per_vert);
   }
   return out;
 }

@@ -2,11 +2,11 @@
 #define REFINE_NODAL_H
 
 double* refine_nodal(
-    unsigned split_dim,
-    unsigned nsplit,
-    unsigned const* split_verts,
-    unsigned const* split_offsets,
-    unsigned ncomp,
+    unsigned src_dim,
+    unsigned nsrcs,
+    unsigned const* verts_of_srcs,
+    unsigned const* gen_offset_of_srcs,
+    unsigned comps_per_vert,
     double const* field);
 
 #endif
