@@ -2,6 +2,12 @@
 #include "ints.h"
 #include <stdlib.h>
 
+/* the runtime of the independent set algorithm
+ * as written below is O(iterations * vertices).
+ * as such we would want iterations to be small
+ * and this constant is a hard ceiling above
+ * which the function aborts the program
+ */
 #define MAX_ITERATIONS 100
 
 enum {
@@ -12,7 +18,7 @@ enum {
 
 static void at_vert(
     unsigned const* offsets,
-    unsigned const* edges,
+    unsigned const* adj,
     double const* goodness,
     unsigned const* old_state,
     unsigned* state,
@@ -20,17 +26,17 @@ static void at_vert(
 {
   if (old_state[i] != UNKNOWN)
     return;
-  unsigned first_edge = offsets[i];
-  unsigned end_edge = offsets[i + 1];
-  for (unsigned j = first_edge; j < end_edge; ++j)
-    if (old_state[edges[j]] == IN_SET) {
+  unsigned first_adj = offsets[i];
+  unsigned end_adj = offsets[i + 1];
+  for (unsigned j = first_adj; j < end_adj; ++j)
+    if (old_state[adj[j]] == IN_SET) {
       state[i] = NOT_IN_SET;
       return;
     }
   double myg = goodness[i];
-  for (unsigned j = first_edge; j < end_edge; ++j) {
-    double og = goodness[edges[j]];
-    if (myg == og && edges[j] < i)
+  for (unsigned j = first_adj; j < end_adj; ++j) {
+    double og = goodness[adj[j]];
+    if (myg == og && adj[j] < i)
       return;
     if (myg < og)
       return;
@@ -41,7 +47,7 @@ static void at_vert(
 unsigned* find_independent_set(
     unsigned nverts,
     unsigned const* offsets,
-    unsigned const* edges,
+    unsigned const* adj,
     unsigned const* filter,
     double const* goodness)
 {
@@ -58,7 +64,7 @@ unsigned* find_independent_set(
     for (unsigned i = 0; i < nverts; ++i)
       at_vert(
           offsets,
-          edges,
+          adj,
           goodness,
           old_state,
           state,
