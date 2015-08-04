@@ -3,6 +3,7 @@
 
 #define MAX_DOWN 6
 #define MAX_UP 32
+#define INVALID (~((unsigned)0))
 
 extern unsigned const* const the_box_conns[4];
 extern double const* const the_box_coords[4];
