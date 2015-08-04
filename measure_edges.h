@@ -3,7 +3,7 @@
 
 double* measure_edges(
     unsigned nedges,
-    unsigned const* edge_verts,
+    unsigned const* verts_of_edges,
     double const* coords,
     double const* size);
 
