@@ -1,5 +1,5 @@
-#ifndef INDEPENDENT_SET_H
-#define INDEPENDENT_SET_H
+#ifndef INDSET_H
+#define INDSET_H
 
 /* given an undirected graph (usually obtained from get_star),
  * an initial filtered subset of the vertices,
@@ -12,7 +12,7 @@
  * decreasing goodness.
  */
 
-unsigned* find_independent_set(
+unsigned* find_indset(
     unsigned nverts,
     unsigned const* offsets,
     unsigned const* adj,

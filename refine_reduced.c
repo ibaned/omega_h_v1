@@ -5,7 +5,7 @@
 #include "up_from_down.h"
 #include "star.h"
 #include "reflect_down.h"
-#include "find_independent_set.h"
+#include "indset.h"
 #include "ints.h"
 #include "splits_to_elements.h"
 #include "refine_topology.h"
@@ -77,7 +77,7 @@ struct reduced_mesh refine_reduced(
       elems_of_edges_offsets,
       elems_of_edges,
       edges_of_elems);
-  unsigned* indset = find_independent_set(
+  unsigned* indset = find_indset(
       nedges,
       edge_edges.offsets,
       edge_edges.edges,

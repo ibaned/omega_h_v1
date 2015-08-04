@@ -1,4 +1,4 @@
-#include "find_independent_set.h"
+#include "indset.h"
 #include "ints.h"
 #include <stdlib.h>
 
@@ -46,7 +46,7 @@ static void at_vert(
   state[i] = IN_SET;
 }
 
-unsigned* find_independent_set(
+unsigned* find_indset(
     unsigned nverts,
     unsigned const* offsets,
     unsigned const* adj,
