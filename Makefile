@@ -16,11 +16,10 @@ size.o \
 derive_edges.o \
 bridge_graph.o
 all: $(objects)
-test_up_from_down: test_up_from_down.o $(common_objects)
-test_vtk: test_vtk.o $(common_objects)
-test_refine_topology: test_refine_topology.o $(common_objects)
-test_quality: test_quality.o $(common_objects)
-test_derive_edges: test_derive_edges.o $(common_objects)
+
+%: %.o $(common_objects)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
 clean:
 	rm -f *.dep* *.o
 
