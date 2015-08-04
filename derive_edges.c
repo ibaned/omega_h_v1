@@ -12,22 +12,26 @@ void derive_edges(
     unsigned* nedges_out,
     unsigned** verts_of_edges_out)
 {
-  struct up_adj vert_elems = up_from_down(
+  unsigned* elems_of_verts_offsets;
+  unsigned* elems_of_verts;
+  up_from_down(
       elem_dim,
       0,
       nelems,
       nverts,
-      verts_of_elems);
-  free(vert_elems.directions); /* don't care about these */
+      verts_of_elems,
+      &elems_of_verts_offsets,
+      &elems_of_verts,
+      0);
   struct star vert_verts = get_star(
       0,
       elem_dim,
       nverts,
-      vert_elems.offsets,
-      vert_elems.edges,
+      elems_of_verts_offsets,
+      elems_of_verts,
       verts_of_elems);
-  free(vert_elems.offsets);
-  free(vert_elems.edges);
+  free(elems_of_verts_offsets);
+  free(elems_of_verts);
   bridge_graph(
       nverts,
       vert_verts.offsets,

@@ -1,17 +1,20 @@
 #ifndef UP_FROM_DOWN_H
 #define UP_FROM_DOWN_H
 
-struct up_adj {
-  unsigned* offsets;
-  unsigned* edges;
-  unsigned* directions;
-};
+/* given a downward adjacency graph,
+ * computes its inverse upward adjacency graph,
+ * including information about the relative
+ * orientation of entities (directions)
+ */
 
-struct up_adj up_from_down(
-    unsigned up_dim,
-    unsigned down_dim,
-    unsigned nup,
-    unsigned ndown,
-    unsigned const* down_edges);
+void up_from_down(
+    unsigned high_dim,
+    unsigned low_dim,
+    unsigned nhighs,
+    unsigned nlows,
+    unsigned const* lows_of_highs,
+    unsigned** offsets_out,
+    unsigned** highs_of_lows_out,
+    unsigned** directions_out);
 
 #endif

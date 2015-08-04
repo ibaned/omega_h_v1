@@ -40,33 +40,43 @@ struct reduced_mesh refine_reduced(
   unsigned* candidates = malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nedges; ++i)
     candidates[i] = edge_sizes[i] > 1.0;
-  struct up_adj vert_edges = up_from_down(
+  unsigned* edges_of_verts_offsets;
+  unsigned* edges_of_verts;
+  up_from_down(
       1,
       0,
       nedges,
       nvert,
-      verts_of_edges);
-  unsigned* elem_edges = reflect_down(
+      verts_of_edges,
+      &edges_of_verts_offsets,
+      &edges_of_verts,
+      0);
+  unsigned* edges_of_elems = reflect_down(
       elem_dim,
       1,
       nelem,
       nedges,
       elem_verts,
-      vert_edges.offsets,
-      vert_edges.edges);
-  struct up_adj edge_elems = up_from_down(
+      edges_of_verts_offsets,
+      edges_of_verts);
+  unsigned* elems_of_edges_offsets;
+  unsigned* elems_of_edges;
+  up_from_down(
       elem_dim,
       1,
       nelem,
       nedges,
-      elem_edges);
+      edges_of_elems,
+      &elems_of_edges_offsets,
+      &elems_of_edges,
+      0);
   struct star edge_edges = get_star(
       1,
       elem_dim,
       nedges,
-      edge_elems.offsets,
-      edge_elems.edges,
-      elem_edges);
+      elems_of_edges_offsets,
+      elems_of_edges,
+      edges_of_elems);
   unsigned* indset = find_independent_set(
       nedges,
       edge_edges.offsets,
@@ -87,7 +97,7 @@ struct reduced_mesh refine_reduced(
       elem_dim,
       1,
       nelem,
-      elem_edges,
+      edges_of_elems,
       split_offsets,
       split_new_verts);
   struct refined_topology rt = refine_topology(

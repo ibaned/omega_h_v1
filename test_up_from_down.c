@@ -6,23 +6,29 @@
 int main()
 {
   unsigned dim = 3;
-  unsigned nup = the_box_nelems[dim];
-  unsigned ndown = the_box_nverts[dim];
-  struct up_adj out = up_from_down(
+  unsigned nelems = the_box_nelems[dim];
+  unsigned nverts = the_box_nverts[dim];
+  unsigned* offsets;
+  unsigned* adj;
+  unsigned* directions;
+  up_from_down(
       dim,
       0,
-      nup,
-      ndown,
-      the_box_conns[dim]);
-  for (unsigned i = 0; i < ndown; ++i) {
+      nelems,
+      nverts,
+      the_box_conns[dim],
+      &offsets,
+      &adj,
+      &directions);
+  for (unsigned i = 0; i < nverts; ++i) {
     printf("[%u] =", i);
-    unsigned first_up = out.offsets[i];
-    unsigned last_up = out.offsets[i + 1];
-    for (unsigned j = first_up; j < last_up; ++j)
-      printf(" %u(%u)", out.edges[j], out.directions[j]);
+    unsigned first_adj = offsets[i];
+    unsigned last_adj = offsets[i + 1];
+    for (unsigned j = first_adj; j < last_adj; ++j)
+      printf(" %u(%u)", adj[j], directions[j]);
     printf("\n");
   }
-  free(out.offsets);
-  free(out.edges);
-  free(out.directions);
+  free(offsets);
+  free(adj);
+  free(directions);
 }
