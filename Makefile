@@ -2,7 +2,7 @@ CFLAGS = -Werror -Weverything -Wno-float-equal
 sources := $(wildcard *.c)
 headers := $(wildcard *.h)
 objects := $(patsubst %.c,%.o,$(sources))
-depfiles := $(patsubst %.c,%.d,$(sources))
+depfiles := $(patsubst %.c,%.dep,$(sources))
 common_objects := \
 star.o \
 tables.o \
@@ -22,14 +22,14 @@ test_refine_topology: test_refine_topology.o $(common_objects)
 test_quality: test_quality.o $(common_objects)
 test_derive_edges: test_derive_edges.o $(common_objects)
 clean:
-	rm -f $(objects) $(depfiles)
+	rm -f *.d* *.o
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
 #and uses SED atrocities to change the rules
 #such that output is both an object file and a
 #dependency file
-%.d: %.c
+%.dep: %.c
 	set -e; rm -f $@; \
 	$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \

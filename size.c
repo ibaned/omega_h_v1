@@ -27,7 +27,7 @@ double tet_volume(double const coords[4][3])
   return dot_product(x, v[2], 3) / 6.0;
 }
 
-size_function const the_size_functions[4] = {
+element_measure const the_element_measures[4] = {
   0,
   edge_length,
   triangle_area,

@@ -1,0 +1,8 @@
+clean up variable names:
+1) nelem vs nelems
+2) distinguish mesh and graph edges
+   probably instead of graph edges
+   we could say "adj"
+3) verts_of_elems instead of elem_verts
+4) some way to distinguish local indices
+   versus global indices

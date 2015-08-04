@@ -4,9 +4,9 @@ static unsigned const box_1d_conn[1 * 2] = {
   0, 1
 };
 
-static double const box_1d_coord[2 * 1] = {
-  0,
-  1
+static double const box_1d_coord[2 * 3] = {
+  0, 0, 0,
+  1, 0, 0
 };
 
 static unsigned const box_2d_conn[2 * 3] = {
@@ -14,11 +14,11 @@ static unsigned const box_2d_conn[2 * 3] = {
   2, 3, 0
 };
 
-static double const box_2d_coord[4 * 2] = {
-  0, 0,
-  1, 0,
-  1, 1,
-  0, 1
+static double const box_2d_coord[4 * 3] = {
+  0, 0, 0,
+  1, 0, 0,
+  1, 1, 0,
+  0, 1, 0
 };
 
 static unsigned const box_3d_conn[6 * 4] = {
