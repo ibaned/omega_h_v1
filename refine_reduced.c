@@ -87,36 +87,42 @@ struct reduced_mesh refine_reduced(
   free(edge_edges.edges);
   free(candidates);
   free(edge_sizes);
-  unsigned* split_offsets = ints_exscan(indset, nedges);
+  unsigned* gen_offset_of_edges = ints_exscan(indset, nedges);
   free(candidates);
-  unsigned* split_new_verts = malloc(sizeof(unsigned) * nedges);
+  unsigned* gen_vert_of_edges = malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nedges; ++i)
-    if (split_offsets[i] != split_offsets[i + 1])
-      split_new_verts[i] = nvert + split_offsets[i];
-  struct splits_to_elements s2e = project_splits_to_elements(
+    if (gen_offset_of_edges[i] != gen_offset_of_edges[i + 1])
+      gen_vert_of_edges[i] = nvert + gen_offset_of_edges[i];
+  unsigned* gen_offset_of_elems;
+  unsigned* gen_direction_of_elems;
+  unsigned* gen_vert_of_elems;
+  project_splits_to_elements(
       elem_dim,
       1,
       nelem,
       edges_of_elems,
-      split_offsets,
-      split_new_verts);
+      gen_offset_of_edges,
+      gen_vert_of_edges,
+      &gen_offset_of_elems,
+      &gen_direction_of_elems,
+      &gen_vert_of_elems);
   struct refined_topology rt = refine_topology(
       elem_dim,
       1,
       elem_dim,
       nelem,
       elem_verts,
-      s2e.elem_split_offset,
-      s2e.elem_split_vert,
-      s2e.elem_split_direction);
-  free(s2e.elem_split_offset);
-  free(s2e.elem_split_vert);
-  free(s2e.elem_split_direction);
+      gen_offset_of_elems,
+      gen_vert_of_elems,
+      gen_direction_of_elems);
+  free(gen_offset_of_elems);
+  free(gen_vert_of_elems);
+  free(gen_direction_of_elems);
   double* gen_coords = refine_nodal(
       1,
       nedges,
       verts_of_edges,
-      split_offsets,
+      gen_offset_of_edges,
       3,
       coords);
   (void)rt;

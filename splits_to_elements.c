@@ -4,34 +4,37 @@
 #include <stdlib.h>
 #include <assert.h>
 
-struct splits_to_elements project_splits_to_elements(
+void project_splits_to_elements(
     unsigned elem_dim,
-    unsigned split_dim,
-    unsigned nelem,
-    unsigned const* elem_splits,
-    unsigned const* split_offsets,
-    unsigned const* split_new_verts)
+    unsigned src_dim,
+    unsigned nelems,
+    unsigned const* srcs_of_elems,
+    unsigned const* gen_offset_of_srcs,
+    unsigned const* gen_vert_of_srcs,
+    unsigned** gen_offset_of_elems_out,
+    unsigned** gen_direction_of_elems_out,
+    unsigned** gen_vert_of_elems_out)
 {
-  assert(elem_dim >= split_dim);
-  unsigned nelem_split = the_down_degrees[elem_dim][split_dim];
-  struct splits_to_elements out;
-  unsigned* elem_will_split = malloc(sizeof(unsigned) * nelem);
-  ints_zero(elem_will_split, nelem);
-  out.elem_split_vert = malloc(sizeof(unsigned) * nelem);
-  out.elem_split_direction = malloc(sizeof(unsigned) * nelem);
-  for (unsigned i = 0; i < nelem; ++i) {
-    unsigned const* elem_split = elem_splits + i * nelem_split;
-    for (unsigned j = 0; j < nelem_split; ++j) {
-      unsigned split = elem_split[j];
-      if (split_offsets[split] == split_offsets[split + 1])
+  assert(elem_dim >= src_dim);
+  unsigned srcs_per_elem = the_down_degrees[elem_dim][src_dim];
+  unsigned* elem_will_split = malloc(sizeof(unsigned) * nelems);
+  ints_zero(elem_will_split, nelems);
+  unsigned* gen_vert_of_elems = malloc(sizeof(unsigned) * nelems);
+  unsigned* gen_direction_of_elems = malloc(sizeof(unsigned) * nelems);
+  for (unsigned i = 0; i < nelems; ++i) {
+    unsigned const* srcs_of_elem = srcs_of_elems + i * srcs_per_elem;
+    for (unsigned j = 0; j < srcs_per_elem; ++j) {
+      unsigned src = srcs_of_elem[j];
+      if (gen_offset_of_srcs[src] == gen_offset_of_srcs[src + 1])
         continue;
       elem_will_split[i] = 1;
-      out.elem_split_vert[i] = split_new_verts[split];
-      out.elem_split_direction[i] = j;
+      gen_vert_of_elems[i] = gen_vert_of_srcs[src];
+      gen_direction_of_elems[i] = j;
       break;
     }
   }
-  out.elem_split_offset = ints_exscan(elem_will_split, nelem);
+  *gen_offset_of_elems_out = ints_exscan(elem_will_split, nelems);
+  *gen_direction_of_elems_out = gen_direction_of_elems;
+  *gen_vert_of_elems_out = gen_vert_of_elems;
   free(elem_will_split);
-  return out;
 }
