@@ -1,8 +1,17 @@
 #include "reflect_down.h"
-#include "intersect.h"
 #include "tables.h"
 #include <stdlib.h>
 #include <assert.h>
+
+static unsigned copy(
+    unsigned const a[],
+    unsigned b[],
+    unsigned n)
+{
+  for (unsigned i = 0; i < n; ++i)
+    b[i] = a[i];
+  return n;
+}
 
 static unsigned copy_except(
     unsigned const a[],
@@ -68,22 +77,27 @@ unsigned* reflect_down(
         unsigned vert = verts_of_high[high_verts_of_low[k]];
         unsigned first_use = lows_of_verts_offsets[vert];
         unsigned end_use = lows_of_verts_offsets[vert + 1];
-        if (high_buf_size)
+        if (k) {
           high_buf_size = intersect(
               high_buf,
               high_buf_size,
               lows_of_verts + first_use,
               end_use - first_use);
-        else
+        } else if (high_dim == low_dim) {
           high_buf_size = copy_except(
               lows_of_verts + first_use,
               high_buf,
               end_use - first_use,
               exclude_high);
-        assert(high_buf_size);
+        } else {
+          high_buf_size = copy(
+              lows_of_verts + first_use,
+              high_buf,
+              end_use - first_use);
+        }
       }
-      assert(high_buf_size == 1);
-      lows_of_high[j] = high_buf[0];
+      assert(high_buf_size <= 1);
+      lows_of_high[j] = ((high_buf_size) ? high_buf[0] : INVALID);
     }
   }
   return lows_of_highs;
