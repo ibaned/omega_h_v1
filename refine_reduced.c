@@ -9,6 +9,7 @@
 #include "ints.h"
 #include "splits_to_elements.h"
 #include "refine_topology.h"
+#include "concat.h"
 #include <stdlib.h>
 
 static void derive_adjacencies(
@@ -127,7 +128,11 @@ struct reduced_mesh refine_reduced(
   free(gen_direction_of_elems);
   double* gen_coords = refine_nodal(1, nedges, verts_of_edges,
       gen_offset_of_edges, 3, coords);
+  unsigned concat_sizes[2] = {nverts, nedges};
+  double const* concat_coords[2] = {coords, gen_coords};
+  double* new_coords = concat_doubles(2, 3, concat_sizes, concat_coords);
   free(gen_coords);
+  (void) new_coords;
   struct reduced_mesh rm;
   return rm;
 }
