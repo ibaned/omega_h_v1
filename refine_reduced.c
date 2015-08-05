@@ -9,7 +9,9 @@
 #include "ints.h"
 #include "splits_to_elements.h"
 #include "refine_topology.h"
+#include "subset.h"
 #include "concat.h"
+#include "tables.h"
 #include <stdlib.h>
 
 static void derive_adjacencies(
@@ -132,7 +134,27 @@ struct reduced_mesh refine_reduced(
   double const* concat_coords[2] = {coords, gen_coords};
   double* new_coords = concat_doubles(2, 3, concat_sizes, concat_coords);
   free(gen_coords);
+  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
+  unsigned* gen_elems = ints_unscan(gen_offset_of_elems, nelems);
+  free(gen_offset_of_elems);
+  unsigned* same_elems = ints_negate(gen_elems, nelems);
+  free(gen_elems);
+  unsigned* same_offset_of_elems = ints_exscan(same_elems, nelems);
+  free(same_elems);
+  unsigned nsame_elems = same_offset_of_elems[nelems];
+  unsigned* verts_of_same_elems = ints_subset(nelems, verts_per_elem,
+      verts_of_elems, same_offset_of_elems);
+  free(same_offset_of_elems);
+  concat_sizes[0] = nsame_elems;
+  concat_sizes[0] = ngen_elems;
+  unsigned const* concat_verts_of_elems[2] = {
+    verts_of_same_elems, verts_of_gen_elems };
+  unsigned* new_verts_of_elems = concat_ints(2, verts_per_elem,
+      concat_sizes, concat_verts_of_elems);
+  free(verts_of_same_elems);
+  free(verts_of_gen_elems);
   (void) new_coords;
+  (void) new_verts_of_elems;
   struct reduced_mesh rm;
   return rm;
 }

@@ -13,6 +13,15 @@ void ints_copy(unsigned const* a, unsigned* b, unsigned n)
     b[i] = a[i];
 }
 
+unsigned ints_max(unsigned const* a, unsigned n)
+{
+  unsigned max = 0;
+  for (unsigned i = 0; i < n; ++i)
+    if (a[i] > max)
+      max = a[i];
+  return max;
+}
+
 unsigned* ints_exscan(unsigned const* a, unsigned n)
 {
   unsigned* o = malloc(sizeof(unsigned) * (n + 1));
@@ -25,11 +34,18 @@ unsigned* ints_exscan(unsigned const* a, unsigned n)
   return o;
 }
 
-unsigned ints_max(unsigned const* a, unsigned n)
+unsigned* ints_unscan(unsigned const* a, unsigned n)
 {
-  unsigned max = 0;
+  unsigned* o = malloc(sizeof(unsigned) * n);
   for (unsigned i = 0; i < n; ++i)
-    if (a[i] > max)
-      max = a[i];
-  return max;
+    o[i] = a[i + 1] - a[i];
+  return o;
+}
+
+unsigned* ints_negate(unsigned const* a, unsigned n)
+{
+  unsigned* o = malloc(sizeof(unsigned) * n);
+  for (unsigned i = 0; i < n; ++i)
+    o[i] = !a[i];
+  return o;
 }
