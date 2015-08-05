@@ -82,13 +82,17 @@ static unsigned* choose_edges(
   return indset;
 }
 
-struct reduced_mesh refine_reduced(
+void refine_reduced(
     unsigned elem_dim,
     unsigned nelems,
     unsigned nverts,
     unsigned const* verts_of_elems,
     double const* coords,
-    double (*size_function)(double const x[]))
+    double (*size_function)(double const x[]),
+    unsigned* nelems_out,
+    unsigned* nverts_out,
+    unsigned** verts_of_elems_out,
+    double** coords_out)
 {
   unsigned nedges;
   unsigned* verts_of_edges;
@@ -109,6 +113,7 @@ struct reduced_mesh refine_reduced(
       coords,
       size_function);
   unsigned* gen_offset_of_edges = ints_exscan(indset, nedges);
+  unsigned nsplit_edges = gen_offset_of_edges[nedges];
   free(indset);
   unsigned* gen_vert_of_edges = malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nedges; ++i)
@@ -130,9 +135,10 @@ struct reduced_mesh refine_reduced(
   free(gen_direction_of_elems);
   double* gen_coords = refine_nodal(1, nedges, verts_of_edges,
       gen_offset_of_edges, 3, coords);
-  unsigned concat_sizes[2] = {nverts, nedges};
+  unsigned concat_sizes[2] = {nverts, nsplit_edges};
+  *nverts_out = nverts + nsplit_edges;
   double const* concat_coords[2] = {coords, gen_coords};
-  double* new_coords = concat_doubles(2, 3, concat_sizes, concat_coords);
+  *coords_out = concat_doubles(2, 3, concat_sizes, concat_coords);
   free(gen_coords);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned* gen_elems = ints_unscan(gen_offset_of_elems, nelems);
@@ -146,15 +152,12 @@ struct reduced_mesh refine_reduced(
       verts_of_elems, same_offset_of_elems);
   free(same_offset_of_elems);
   concat_sizes[0] = nsame_elems;
-  concat_sizes[0] = ngen_elems;
+  concat_sizes[1] = ngen_elems;
+  *nelems_out = nsame_elems + ngen_elems;
   unsigned const* concat_verts_of_elems[2] = {
     verts_of_same_elems, verts_of_gen_elems };
-  unsigned* new_verts_of_elems = concat_ints(2, verts_per_elem,
+  *verts_of_elems_out = concat_ints(2, verts_per_elem,
       concat_sizes, concat_verts_of_elems);
   free(verts_of_same_elems);
   free(verts_of_gen_elems);
-  (void) new_coords;
-  (void) new_verts_of_elems;
-  struct reduced_mesh rm;
-  return rm;
 }
