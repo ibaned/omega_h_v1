@@ -1,9 +1,11 @@
 CFLAGS = -std=c99 -Werror -Wall
 LDLIBS = -lm
+
 sources := $(wildcard *.c)
 headers := $(wildcard *.h)
 objects := $(patsubst %.c,%.o,$(sources))
 depfiles := $(patsubst %.c,%.dep,$(sources))
+
 common_objects := \
 star.o \
 tables.o \
