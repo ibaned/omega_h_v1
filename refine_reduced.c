@@ -130,7 +130,6 @@ void refine_reduced(
   refine_topology(elem_dim, 1, elem_dim, nelems, verts_of_elems,
       gen_offset_of_elems, gen_vert_of_elems, gen_direction_of_elems,
       &ngen_elems, &verts_of_gen_elems);
-  free(gen_offset_of_elems);
   free(gen_vert_of_elems);
   free(gen_direction_of_elems);
   double* gen_coords = refine_nodal(1, nedges, verts_of_edges,
