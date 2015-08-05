@@ -3,12 +3,12 @@
 
 void refine_reduced(
     unsigned elem_dim,
-    unsigned nelem,
-    unsigned nvert,
-    unsigned const* elem_verts,
+    unsigned nelems,
+    unsigned nverts,
+    unsigned const* verts_of_elems,
     double const* coords,
     double (*size_function)(double const x[]),
-    unsigned* nelem_out,
+    unsigned* nelems_out,
     unsigned* nverts_out,
     unsigned** verts_of_elems_out,
     double** coords_out);

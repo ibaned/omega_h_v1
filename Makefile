@@ -17,7 +17,14 @@ splits_to_elements.o \
 quality.o \
 size.o \
 derive_edges.o \
-bridge_graph.o
+bridge_graph.o \
+refine_reduced.o \
+concat.o \
+indset.o \
+measure_edges.o \
+subset.o \
+reflect_down.o \
+refine_nodal.o
 
 all: $(objects)
 
