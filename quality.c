@@ -42,6 +42,8 @@ double triangle_quality(double const coords[3][3])
   return quality / PERFECT_TRIANGLE_QUALITY;
 }
 
+typedef double const (*gcc_sucks_t)[3];
+
 double tet_quality(double const coords[4][3])
 {
   unsigned const* const* rfv = the_canonical_orders[3][2][0];
@@ -50,7 +52,8 @@ double tet_quality(double const coords[4][3])
     double tri_coords[3][3];
     for (unsigned j = 0; j < 3; ++j)
       copy_vector(coords[rfv[i][j]], tri_coords[j], 3);
-    double a = triangle_area(tri_coords);
+    gcc_sucks_t gcc_sucks = (gcc_sucks_t) tri_coords;
+    double a = triangle_area(gcc_sucks);
     sum_asq += a * a;
   }
   double arms = sqrt(sum_asq / 4);

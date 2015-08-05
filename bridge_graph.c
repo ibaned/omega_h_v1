@@ -37,6 +37,7 @@ void bridge_graph(
         ++edge;
       }
   }
+  free(bridge_offsets);
   *nedges_out = nedges;
   *verts_of_edges_out = verts_of_edges;
 }

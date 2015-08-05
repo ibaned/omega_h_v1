@@ -1,4 +1,5 @@
-CFLAGS = -Werror -Weverything -Wno-float-equal
+CFLAGS = -std=c99 -Werror -Wall
+LDLIBS = -lm
 sources := $(wildcard *.c)
 headers := $(wildcard *.h)
 objects := $(patsubst %.c,%.o,$(sources))
