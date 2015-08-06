@@ -26,7 +26,9 @@ subset.o \
 reflect_down.o \
 refine_nodal.o \
 rv_mesh.o \
-refine_qualities.o
+refine_qualities.o \
+doubles.o \
+element_qualities.o
 
 all: $(objects)
 

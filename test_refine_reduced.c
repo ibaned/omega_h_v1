@@ -2,6 +2,8 @@
 #include "tables.h"
 #include "algebra.h"
 #include "vtk.h"
+#include "element_qualities.h"
+#include "doubles.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -21,6 +23,14 @@ int main()
   for (unsigned it = 0; 1; ++it) {
     struct rv_mesh out = refine_reduced(m, simple);
     printf("%u elements, %u vertices\n", out.nelems, out.nverts);
+    double* quals = element_qualities(
+        out.elem_dim,
+        out.nelems,
+        out.verts_of_elems,
+        out.coords);
+    double minqual = doubles_min(quals, m.nelems);
+    free(quals);
+    printf("min quality %f\n", minqual);
     if (out.nelems == m.nelems) {
       free_rv_mesh(out);
       break;
