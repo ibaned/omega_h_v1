@@ -5,6 +5,7 @@
  * as well as the adjacencies from (high) to vertices
  * and from vertices to (low),
  * this function derives the downward adjacency from (high) to (low).
+ *
  * it will also handle the special case (high == low == element),
  * in which case it is computing the dual or element-to-element graph,
  * and it may not find an element in a given direction,
