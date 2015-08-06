@@ -88,7 +88,7 @@ static unsigned* choose_edges(
   free(edges_of_edges_offsets);
   free(edges_of_edges);
   free(candidates);
-  free(edge_sizes);
+  free(edge_quals);
   return indset;
 }
 
