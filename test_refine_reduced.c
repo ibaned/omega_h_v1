@@ -10,7 +10,7 @@ static double sf(double const x[])
 
 int main()
 {
-  unsigned dim = 2;
+  unsigned dim = 3;
   unsigned nelems;
   unsigned nverts;
   unsigned* verts_of_elems;
