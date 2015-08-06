@@ -1,0 +1,4 @@
+#ifndef COARSEN_TOPOLOGY_H
+#define COARSEN_TOPOLOGY_H
+
+#endif
