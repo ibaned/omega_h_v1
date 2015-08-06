@@ -21,8 +21,6 @@ static void derive_adjacencies(
     unsigned const* verts_of_elems,
     unsigned* nedges_out,
     unsigned** verts_of_edges_out,
-    unsigned** edges_of_verts_offsets_out,
-    unsigned** edges_of_verts_out,
     unsigned** edges_of_elems_out,
     unsigned** elems_of_edges_offsets_out,
     unsigned** elems_of_edges_out)
@@ -32,14 +30,16 @@ static void derive_adjacencies(
       nedges_out, verts_of_edges_out);
   unsigned nedges = *nedges_out;
   unsigned const* verts_of_edges = *verts_of_edges_out;
+  unsigned* edges_of_verts_offsets;
+  unsigned* edges_of_verts;
   up_from_down(1, 0, nedges, nverts,
       verts_of_edges,
-      edges_of_verts_offsets_out, edges_of_verts_out, 0);
-  unsigned const* edges_of_verts_offsets = *edges_of_verts_offsets_out;
-  unsigned const* edges_of_verts = *edges_of_verts_out;
+      &edges_of_verts_offsets, &edges_of_verts, 0);
   *edges_of_elems_out = reflect_down(elem_dim, 1, nelems, nedges,
       verts_of_elems,
       edges_of_verts_offsets, edges_of_verts);
+  free(edges_of_verts_offsets);
+  free(edges_of_verts);
   unsigned const* edges_of_elems = *edges_of_elems_out;
   up_from_down(elem_dim, 1, nelems, nedges,
       edges_of_elems,
@@ -96,15 +96,12 @@ void refine_reduced(
 {
   unsigned nedges;
   unsigned* verts_of_edges;
-  unsigned* edges_of_verts_offsets;
-  unsigned* edges_of_verts;
   unsigned* edges_of_elems;
   unsigned* elems_of_edges_offsets;
   unsigned* elems_of_edges;
   derive_adjacencies(elem_dim, nelems, nverts, verts_of_elems,
       &nedges,
       &verts_of_edges,
-      &edges_of_verts_offsets, &edges_of_verts,
       &edges_of_elems,
       &elems_of_edges_offsets, &elems_of_edges);
   unsigned* indset = choose_edges(elem_dim, nedges, nverts, verts_of_edges,
@@ -112,6 +109,8 @@ void refine_reduced(
       elems_of_edges_offsets, elems_of_edges,
       coords,
       size_function);
+  free(elems_of_edges_offsets);
+  free(elems_of_edges);
   unsigned* gen_offset_of_edges = ints_exscan(indset, nedges);
   unsigned nsplit_edges = gen_offset_of_edges[nedges];
   free(indset);
@@ -125,16 +124,19 @@ void refine_reduced(
   project_splits_to_elements(elem_dim, 1, nelems,
       edges_of_elems, gen_offset_of_edges, gen_vert_of_edges,
       &gen_offset_of_elems, &gen_direction_of_elems, &gen_vert_of_elems);
+  free(edges_of_elems);
+  free(gen_vert_of_edges);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
   refine_topology(elem_dim, 1, elem_dim, nelems, verts_of_elems,
       gen_offset_of_elems, gen_vert_of_elems, gen_direction_of_elems,
       &ngen_elems, &verts_of_gen_elems);
-  free(gen_offset_of_elems);
   free(gen_vert_of_elems);
   free(gen_direction_of_elems);
   double* gen_coords = refine_nodal(1, nedges, verts_of_edges,
       gen_offset_of_edges, 3, coords);
+  free(verts_of_edges);
+  free(gen_offset_of_edges);
   unsigned concat_sizes[2] = {nverts, nsplit_edges};
   *nverts_out = nverts + nsplit_edges;
   double const* concat_coords[2] = {coords, gen_coords};

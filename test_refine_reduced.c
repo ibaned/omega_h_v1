@@ -1,6 +1,8 @@
 #include "refine_reduced.h"
 #include "tables.h"
+#include "vtk.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 static double sf(double const x[])
 {
@@ -26,6 +28,8 @@ int main()
       &nverts,
       &verts_of_elems,
       &coords);
+  printf("%u elements, %u vertices\n", nelems, nverts);
+  write_vtk("refined.vtu", dim, nelems, nverts, verts_of_elems, coords);
   free(verts_of_elems);
   free(coords);
 }
