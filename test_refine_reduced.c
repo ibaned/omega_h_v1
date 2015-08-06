@@ -12,7 +12,7 @@ static double sf(double const x[])
 
 int main()
 {
-  struct rv_mesh m = new_box_rv_mesh(2);
+  struct rv_mesh m = new_box_rv_mesh(3);
   while (1) {
     struct rv_mesh out = refine_reduced(m, sf);
     printf("%u elements, %u vertices\n", out.nelems, out.nverts);
