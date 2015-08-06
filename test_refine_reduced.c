@@ -1,17 +1,22 @@
 #include "refine_reduced.h"
 #include "tables.h"
+#include "algebra.h"
 #include "vtk.h"
 #include <stdlib.h>
 #include <stdio.h>
 
 static double simple(double const x[])
 {
-  return 1e-2 + 1e-1 * x[0];
+  double coarse = 0.5;
+  double fine = 0.025;
+  double radius = vector_norm(x, 3);
+  double d = fabs(radius - 0.5);
+  return coarse * d + fine * (1 - d);
 }
 
 int main()
 {
-  struct rv_mesh m = new_box_rv_mesh(2);
+  struct rv_mesh m = new_box_rv_mesh(3);
   char fname[64];
   for (unsigned it = 0; 1; ++it) {
     struct rv_mesh out = refine_reduced(m, simple);
