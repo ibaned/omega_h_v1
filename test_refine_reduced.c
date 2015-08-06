@@ -12,24 +12,11 @@ static double sf(double const x[])
 
 int main()
 {
-  unsigned dim = 3;
-  unsigned nelems;
-  unsigned nverts;
-  unsigned* verts_of_elems;
-  double* coords;
-  refine_reduced(
-      dim,
-      the_box_nelems[dim],
-      the_box_nverts[dim],
-      the_box_conns[dim],
-      the_box_coords[dim],
-      sf,
-      &nelems,
-      &nverts,
-      &verts_of_elems,
-      &coords);
-  printf("%u elements, %u vertices\n", nelems, nverts);
-  write_vtk("refined.vtu", dim, nelems, nverts, verts_of_elems, coords);
-  free(verts_of_elems);
-  free(coords);
+  struct rv_mesh in = new_box_rv_mesh(3);
+  struct rv_mesh out = refine_reduced(in, sf);
+  free_rv_mesh(in);
+  printf("%u elements, %u vertices\n", out.nelems, out.nverts);
+  write_vtk("refined.vtu", out.elem_dim, out.nelems, out.nverts,
+      out.verts_of_elems, out.coords);
+  free_rv_mesh(out);
 }

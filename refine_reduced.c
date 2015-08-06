@@ -82,32 +82,26 @@ static unsigned* choose_edges(
   return indset;
 }
 
-void refine_reduced(
-    unsigned elem_dim,
-    unsigned nelems,
-    unsigned nverts,
-    unsigned const* verts_of_elems,
-    double const* coords,
-    double (*size_function)(double const x[]),
-    unsigned* nelems_out,
-    unsigned* nverts_out,
-    unsigned** verts_of_elems_out,
-    double** coords_out)
+struct rv_mesh refine_reduced(
+    struct rv_mesh in,
+    double (*size_function)(double const x[]))
 {
+  struct rv_mesh out;
+  out.elem_dim = in.elem_dim;
   unsigned nedges;
   unsigned* verts_of_edges;
   unsigned* edges_of_elems;
   unsigned* elems_of_edges_offsets;
   unsigned* elems_of_edges;
-  derive_adjacencies(elem_dim, nelems, nverts, verts_of_elems,
+  derive_adjacencies(in.elem_dim, in.nelems, in.nverts, in.verts_of_elems,
       &nedges,
       &verts_of_edges,
       &edges_of_elems,
       &elems_of_edges_offsets, &elems_of_edges);
-  unsigned* indset = choose_edges(elem_dim, nedges, nverts, verts_of_edges,
+  unsigned* indset = choose_edges(in.elem_dim, nedges, in.nverts, verts_of_edges,
       edges_of_elems,
       elems_of_edges_offsets, elems_of_edges,
-      coords,
+      in.coords,
       size_function);
   free(elems_of_edges_offsets);
   free(elems_of_edges);
@@ -117,49 +111,50 @@ void refine_reduced(
   unsigned* gen_vert_of_edges = malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nedges; ++i)
     if (gen_offset_of_edges[i] != gen_offset_of_edges[i + 1])
-      gen_vert_of_edges[i] = nverts + gen_offset_of_edges[i];
+      gen_vert_of_edges[i] = in.nverts + gen_offset_of_edges[i];
   unsigned* gen_offset_of_elems;
   unsigned* gen_direction_of_elems;
   unsigned* gen_vert_of_elems;
-  project_splits_to_elements(elem_dim, 1, nelems,
+  project_splits_to_elements(in.elem_dim, 1, in.nelems,
       edges_of_elems, gen_offset_of_edges, gen_vert_of_edges,
       &gen_offset_of_elems, &gen_direction_of_elems, &gen_vert_of_elems);
   free(edges_of_elems);
   free(gen_vert_of_edges);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
-  refine_topology(elem_dim, 1, elem_dim, nelems, verts_of_elems,
+  refine_topology(in.elem_dim, 1, in.elem_dim, in.nelems, in.verts_of_elems,
       gen_offset_of_elems, gen_vert_of_elems, gen_direction_of_elems,
       &ngen_elems, &verts_of_gen_elems);
   free(gen_vert_of_elems);
   free(gen_direction_of_elems);
   double* gen_coords = refine_nodal(1, nedges, verts_of_edges,
-      gen_offset_of_edges, 3, coords);
+      gen_offset_of_edges, 3, in.coords);
   free(verts_of_edges);
   free(gen_offset_of_edges);
-  unsigned concat_sizes[2] = {nverts, nsplit_edges};
-  *nverts_out = nverts + nsplit_edges;
-  double const* concat_coords[2] = {coords, gen_coords};
-  *coords_out = concat_doubles(2, 3, concat_sizes, concat_coords);
+  unsigned concat_sizes[2] = {in.nverts, nsplit_edges};
+  out.nverts = in.nverts + nsplit_edges;
+  double const* concat_coords[2] = {in.coords, gen_coords};
+  out.coords = concat_doubles(2, 3, concat_sizes, concat_coords);
   free(gen_coords);
-  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned* gen_elems = ints_unscan(gen_offset_of_elems, nelems);
+  unsigned verts_per_elem = the_down_degrees[in.elem_dim][0];
+  unsigned* gen_elems = ints_unscan(gen_offset_of_elems, in.nelems);
   free(gen_offset_of_elems);
-  unsigned* same_elems = ints_negate(gen_elems, nelems);
+  unsigned* same_elems = ints_negate(gen_elems, in.nelems);
   free(gen_elems);
-  unsigned* same_offset_of_elems = ints_exscan(same_elems, nelems);
+  unsigned* same_offset_of_elems = ints_exscan(same_elems, in.nelems);
   free(same_elems);
-  unsigned nsame_elems = same_offset_of_elems[nelems];
-  unsigned* verts_of_same_elems = ints_subset(nelems, verts_per_elem,
-      verts_of_elems, same_offset_of_elems);
+  unsigned nsame_elems = same_offset_of_elems[in.nelems];
+  out.nelems = nsame_elems + ngen_elems;
+  unsigned* verts_of_same_elems = ints_subset(in.nelems, verts_per_elem,
+      in.verts_of_elems, same_offset_of_elems);
   free(same_offset_of_elems);
   concat_sizes[0] = nsame_elems;
   concat_sizes[1] = ngen_elems;
-  *nelems_out = nsame_elems + ngen_elems;
   unsigned const* concat_verts_of_elems[2] = {
     verts_of_same_elems, verts_of_gen_elems };
-  *verts_of_elems_out = concat_ints(2, verts_per_elem,
+  out.verts_of_elems = concat_ints(2, verts_per_elem,
       concat_sizes, concat_verts_of_elems);
   free(verts_of_same_elems);
   free(verts_of_gen_elems);
+  return out;
 }
