@@ -6,12 +6,12 @@
 
 static double simple(double const x[])
 {
-  return 1.001;
+  return 1e-2 + 1e-1 * x[0];
 }
 
 int main()
 {
-  struct rv_mesh m = new_box_rv_mesh(3);
+  struct rv_mesh m = new_box_rv_mesh(2);
   char fname[64];
   for (unsigned it = 0; 1; ++it) {
     struct rv_mesh out = refine_reduced(m, simple);

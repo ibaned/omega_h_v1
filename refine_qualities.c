@@ -36,15 +36,16 @@ double* refine_qualities(
     if (!candidate_srcs[i])
       continue;
     unsigned first_use = elems_of_srcs_offsets[i];
-    unsigned end_use = elems_of_srcs_offsets[i];
+    unsigned end_use = elems_of_srcs_offsets[i + 1];
+    unsigned const* verts_of_src = verts_of_srcs + i * verts_per_src;
     double split_x[3];
-    average_element_field(verts_per_src,
-        verts_of_srcs + i * verts_per_src,
+    average_element_field(verts_per_src, verts_of_src,
         coords, 3, split_x);
     double minq = 1;
     for (unsigned j = first_use; j < end_use; ++j) {
       unsigned direction = elems_of_srcs_directions[j];
-      unsigned const* verts_of_elem = verts_of_elems + j * verts_per_elem;
+      unsigned elem = elems_of_srcs[j];
+      unsigned const* verts_of_elem = verts_of_elems + elem * verts_per_elem;
       unsigned const* elem_verts_of_src = elem_verts_of_srcs[direction];
       for (unsigned k = 0; k < verts_per_src; ++k) {
         unsigned opp = elem_verts_of_src[k];
