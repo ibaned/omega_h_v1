@@ -62,7 +62,7 @@ unsigned* reflect_down(
   unsigned verts_per_high = the_down_degrees[high_dim][0];
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned verts_per_low = the_down_degrees[low_dim][0];
-  unsigned* lows_of_highs = malloc(sizeof(unsigned) * nlows * verts_per_low);
+  unsigned* lows_of_highs = malloc(sizeof(unsigned) * nhighs * lows_per_high);
   unsigned const* const* high_verts_of_lows =
     the_canonical_orders[high_dim][low_dim][0];
   for (unsigned i = 0; i < nhighs; ++i) {
