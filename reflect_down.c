@@ -90,6 +90,7 @@ unsigned* reflect_down(
               end_use - first_use,
               exclude_high);
         } else {
+          assert(end_use - first_use <= MAX_UP);
           high_buf_size = copy(
               lows_of_verts + first_use,
               high_buf,
