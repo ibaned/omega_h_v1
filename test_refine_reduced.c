@@ -4,17 +4,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static double linear(double const x[])
+static double simple(double const x[])
 {
-  return 1e-2 + (1e-1) * x[0];
+  return 0.125001;
 }
 
 int main()
 {
-  struct rv_mesh m = new_box_rv_mesh(2);
+  struct rv_mesh m = new_box_rv_mesh(3);
   char fname[64];
   for (unsigned it = 0; 1; ++it) {
-    struct rv_mesh out = refine_reduced(m, linear);
+    struct rv_mesh out = refine_reduced(m, simple);
     printf("%u elements, %u vertices\n", out.nelems, out.nverts);
     if (out.nelems == m.nelems) {
       free_rv_mesh(out);
