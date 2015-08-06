@@ -6,7 +6,7 @@
 
 static double simple(double const x[])
 {
-  return 0.125001;
+  return 1.001;
 }
 
 int main()

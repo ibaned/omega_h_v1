@@ -25,7 +25,8 @@ measure_edges.o \
 subset.o \
 reflect_down.o \
 refine_nodal.o \
-rv_mesh.o
+rv_mesh.o \
+refine_qualities.o
 
 all: $(objects)
 

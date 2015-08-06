@@ -9,6 +9,7 @@
 #include "ints.h"
 #include "splits_to_elements.h"
 #include "refine_topology.h"
+#include "refine_qualities.h"
 #include "subset.h"
 #include "concat.h"
 #include "tables.h"
@@ -23,7 +24,8 @@ static void derive_adjacencies(
     unsigned** verts_of_edges_out,
     unsigned** edges_of_elems_out,
     unsigned** elems_of_edges_offsets_out,
-    unsigned** elems_of_edges_out)
+    unsigned** elems_of_edges_out,
+    unsigned** elems_of_edges_directions_out)
 {
   derive_edges(elem_dim, nelems, nverts,
       verts_of_elems,
@@ -43,17 +45,20 @@ static void derive_adjacencies(
   unsigned const* edges_of_elems = *edges_of_elems_out;
   up_from_down(elem_dim, 1, nelems, nedges,
       edges_of_elems,
-      elems_of_edges_offsets_out, elems_of_edges_out, 0);
+      elems_of_edges_offsets_out, elems_of_edges_out,
+      elems_of_edges_directions_out);
 }
 
 static unsigned* choose_edges(
     unsigned elem_dim,
     unsigned nedges,
     unsigned nverts,
+    unsigned const* verts_of_elems,
     unsigned const* verts_of_edges,
     unsigned const* edges_of_elems,
     unsigned const* elems_of_edges_offsets,
     unsigned const* elems_of_edges,
+    unsigned const* elems_of_edges_directions,
     double const* coords,
     double (*size_function)(double const x[]))
 {
@@ -65,6 +70,11 @@ static unsigned* choose_edges(
   unsigned* candidates = malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nedges; ++i)
     candidates[i] = edge_sizes[i] > 1.0;
+  free(edge_sizes);
+  double* edge_quals = refine_qualities(elem_dim, 1, nedges,
+      verts_of_edges, verts_of_elems,
+      elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
+      candidates, coords);
   unsigned* edges_of_edges_offsets;
   unsigned* edges_of_edges;
   get_star(1, elem_dim, nedges,
@@ -74,7 +84,7 @@ static unsigned* choose_edges(
   unsigned* indset = find_indset(nedges,
       edges_of_edges_offsets, edges_of_edges,
       candidates,
-      edge_sizes);
+      edge_quals);
   free(edges_of_edges_offsets);
   free(edges_of_edges);
   free(candidates);
@@ -93,18 +103,22 @@ struct rv_mesh refine_reduced(
   unsigned* edges_of_elems;
   unsigned* elems_of_edges_offsets;
   unsigned* elems_of_edges;
+  unsigned* elems_of_edges_directions;
   derive_adjacencies(in.elem_dim, in.nelems, in.nverts, in.verts_of_elems,
       &nedges,
       &verts_of_edges,
       &edges_of_elems,
-      &elems_of_edges_offsets, &elems_of_edges);
-  unsigned* indset = choose_edges(in.elem_dim, nedges, in.nverts, verts_of_edges,
-      edges_of_elems,
+      &elems_of_edges_offsets, &elems_of_edges,
+      &elems_of_edges_directions);
+  unsigned* indset = choose_edges(in.elem_dim, nedges, in.nverts,
+      in.verts_of_elems, verts_of_edges, edges_of_elems,
       elems_of_edges_offsets, elems_of_edges,
+      elems_of_edges_directions,
       in.coords,
       size_function);
   free(elems_of_edges_offsets);
   free(elems_of_edges);
+  free(elems_of_edges_directions);
   unsigned* gen_offset_of_edges = ints_exscan(indset, nedges);
   unsigned nsplit_edges = gen_offset_of_edges[nedges];
   free(indset);
