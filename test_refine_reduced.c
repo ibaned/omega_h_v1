@@ -7,7 +7,7 @@
 static double sf(double const x[])
 {
   (void) x;
-  return 1.001;
+  return 0.501;
 }
 
 int main()
