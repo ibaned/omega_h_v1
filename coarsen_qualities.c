@@ -8,7 +8,7 @@
 double* coarsen_qualities(
     unsigned elem_dim,
     unsigned nedges,
-    unsigned const* col_codes,
+    unsigned* col_codes,
     unsigned const* verts_of_elems,
     unsigned const* verts_of_edges,
     unsigned const* elems_of_verts_offsets,
@@ -59,7 +59,10 @@ double* coarsen_qualities(
         if (q < minq)
           minq = q;
       }
-      out[i * 2 + j] = minq;
+      if (minq <= 0)
+        col_codes[i] &= ~(1<<j);
+      else
+        out[i * 2 + j] = minq;
     }
   }
   return out;
