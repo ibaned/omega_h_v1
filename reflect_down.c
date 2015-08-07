@@ -1,5 +1,6 @@
 #include "reflect_down.h"
 #include "tables.h"
+#include "ints.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -24,17 +25,6 @@ static unsigned copy_except(
     if (a[i] != exclude_this)
       b[j++] = a[i];
   return j;
-}
-
-static unsigned has(
-    unsigned const a[],
-    unsigned n,
-    unsigned e)
-{
-  for (unsigned i = 0; i < n; ++i)
-    if (a[i] == e)
-      return 1;
-  return 0;
 }
 
 static unsigned intersect(

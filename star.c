@@ -1,16 +1,8 @@
 #include "star.h"
 #include "tables.h"
 #include "ints.h"
+#include "add_unique.h"
 #include <stdlib.h>
-
-static unsigned add_unique(unsigned* a, unsigned n, unsigned e)
-{
-  for (unsigned i = 0; i < n; ++i)
-    if (a[i] == e)
-      return n;
-  a[n] = e;
-  return n + 1;
-}
 
 static unsigned get_ent_star(
     unsigned const* highs_of_lows_offsets,
