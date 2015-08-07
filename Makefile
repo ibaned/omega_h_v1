@@ -16,7 +16,6 @@ refine_topology.o \
 splits_to_elements.o \
 quality.o \
 size.o \
-derive_edges.o \
 bridge_graph.o \
 refine_reduced.o \
 concat.o \
@@ -25,7 +24,6 @@ measure_edges.o \
 subset.o \
 reflect_down.o \
 refine_nodal.o \
-rv_mesh.o \
 refine_qualities.o \
 doubles.o \
 element_qualities.o
@@ -33,6 +31,9 @@ element_qualities.o
 all: $(objects)
 
 %.exe: %.o $(common_objects)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+test_refine_reduced.exe: test_refine_reduced.o $(common_objects)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:

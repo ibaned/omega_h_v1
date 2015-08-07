@@ -18,28 +18,26 @@ static double simple(double const x[])
 
 int main()
 {
-  struct rv_mesh m = new_box_rv_mesh(3);
+  unsigned const elem_dim = 3;
+  unsigned nelems;
+  unsigned nverts;
+  unsigned* verts_of_elems;
+  double* coords;
+  get_box_copy(elem_dim, &nelems, &nverts, &verts_of_elems, &coords);
   char fname[64];
   for (unsigned it = 0; 1; ++it) {
-    struct rv_mesh out = refine_reduced(m, simple);
-    printf("%u elements, %u vertices\n", out.nelems, out.nverts);
-    double* quals = element_qualities(
-        out.elem_dim,
-        out.nelems,
-        out.verts_of_elems,
-        out.coords);
-    double minqual = doubles_min(quals, m.nelems);
+    if (!refine_reduced(elem_dim,
+          &nelems, &nverts, &verts_of_elems, &coords,
+          simple))
+      break;
+    printf("%u elements, %u vertices\n", nelems, nverts);
+    double* quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);
+    double minqual = doubles_min(quals, nelems);
     free(quals);
     printf("min quality %f\n", minqual);
-    if (out.nelems == m.nelems) {
-      free_rv_mesh(out);
-      break;
-    }
-    free_rv_mesh(m);
-    m = out;
     sprintf(fname, "out_%u.vtu", it);
-    write_vtk(fname, m.elem_dim, m.nelems, m.nverts,
-        m.verts_of_elems, m.coords);
+    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords);
   }
-  free_rv_mesh(m);
+  free(verts_of_elems);
+  free(coords);
 }
