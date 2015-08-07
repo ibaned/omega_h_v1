@@ -1,7 +1,6 @@
 #include "star.h"
 #include "tables.h"
 #include "ints.h"
-#include "add_unique.h"
 #include <stdlib.h>
 
 static unsigned get_ent_star(

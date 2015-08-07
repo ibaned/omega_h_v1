@@ -1,5 +1,5 @@
 #include "collapse_classif.h"
-#include "collapse.h"
+#include "collapse_codes.h"
 #include "tables.h"
 #include "ints.h"
 

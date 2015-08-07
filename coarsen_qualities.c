@@ -1,5 +1,5 @@
 #include "coarsen_qualities.h"
-#include "collapse.h"
+#include "collapse_codes.h"
 #include "tables.h"
 #include "quality.h"
 #include "algebra.h"
