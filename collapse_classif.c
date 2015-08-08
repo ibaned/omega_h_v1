@@ -26,6 +26,19 @@ void check_collapse_classif(
   for (unsigned i = 0; i < nedges; ++i) {
     if (col_codes[i] == DONT_COLLAPSE)
       continue;
+    unsigned const* verts_of_edge = verts_of_edges + i * 2;
+    for (unsigned j = 0; j < 2; ++j) {
+      if (!(col_codes[i] & (1<<j)))
+        continue;
+      unsigned col_vert = verts_of_edge[j];
+      unsigned gen_vert = verts_of_edge[1 - j];
+      unsigned col_dim = class_dim_of_verts[col_vert];
+      unsigned gen_dim = class_dim_of_verts[gen_vert];
+      if (col_dim < gen_dim)
+        col_codes[i] &= ~(1<<j);
+    }
+    if (col_codes[i] == DONT_COLLAPSE)
+      continue;
     unsigned ring_buf[MAX_UP];
     unsigned ring_buf_size = 0;
     unsigned first_elem_use = elems_of_edges_offsets[i];
@@ -41,7 +54,6 @@ void check_collapse_classif(
         ring_buf_size = add_unique(ring_buf, ring_buf_size, vert);
       }
     }
-    unsigned const* verts_of_edge = verts_of_edges + i * 2;
     for (unsigned j = 0; j < 2; ++j) {
       if (!(col_codes[i] & (1<<j)))
         continue;
