@@ -55,6 +55,7 @@ int refine_reduced(
   unsigned something_to_do = ints_max(candidates, nedges);
   if (!something_to_do) {
     free(verts_of_edges);
+    free(candidates);
     return 0;
   }
   unsigned* edges_of_verts_offsets;
@@ -82,6 +83,7 @@ int refine_reduced(
       candidates, edge_quals);
   free(elems_of_edges_offsets);
   free(elems_of_edges);
+  free(edges_of_edges_offsets);
   free(edges_of_edges);
   free(candidates);
   free(edge_quals);
