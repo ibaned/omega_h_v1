@@ -117,12 +117,8 @@ int refine_reduced(
   double* coords_out = concat_doubles(2, 3, concat_sizes, concat_coords);
   free(gen_coords);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned* gen_elems = ints_unscan(gen_offset_of_elems, nelems);
+  unsigned* same_offset_of_elems = ints_negate_offsets(gen_offset_of_elems, nelems);
   free(gen_offset_of_elems);
-  unsigned* same_elems = ints_negate(gen_elems, nelems);
-  free(gen_elems);
-  unsigned* same_offset_of_elems = ints_exscan(same_elems, nelems);
-  free(same_elems);
   unsigned nsame_elems = same_offset_of_elems[nelems];
   unsigned nelems_out = nsame_elems + ngen_elems;
   unsigned* verts_of_same_elems = ints_subset(nelems, verts_per_elem,

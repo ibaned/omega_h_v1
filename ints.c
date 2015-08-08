@@ -49,3 +49,13 @@ unsigned* ints_negate(unsigned const* a, unsigned n)
     o[i] = !a[i];
   return o;
 }
+
+unsigned* ints_negate_offsets(unsigned const* a, unsigned n)
+{
+  unsigned* unscanned = ints_unscan(a, n);
+  unsigned* negated = ints_negate(unscanned, n);
+  free(unscanned);
+  unsigned* out = ints_exscan(negated, n);
+  free(negated);
+  return out;
+}
