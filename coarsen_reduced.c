@@ -99,13 +99,15 @@ int coarsen_reduced(
   unsigned* gen_offset_of_elems;
   unsigned* gen_vert_of_elems;
   unsigned* gen_direction_of_elems;
+  unsigned* offset_of_same_elems;
   collapses_to_elements(elem_dim, nelems, verts_of_elems, gen_offset_of_verts,
       gen_vert_of_verts, &gen_offset_of_elems, &gen_vert_of_elems,
-      &gen_direction_of_elems);
+      &gen_direction_of_elems, &offset_of_same_elems);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
   coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,
       gen_vert_of_elems, gen_direction_of_elems, &ngen_elems,
       &verts_of_gen_elems);
+  (void) offset_of_same_elems;
   return 1;
 }

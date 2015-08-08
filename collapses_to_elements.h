@@ -9,6 +9,7 @@ void collapses_to_elements(
     unsigned const* gen_vert_of_verts,
     unsigned** gen_offset_of_elems_out,
     unsigned** gen_vert_of_elems_out,
-    unsigned** gen_direction_of_elems_out);
+    unsigned** gen_direction_of_elems_out,
+    unsigned** offset_of_same_elems_out);
 
 #endif
