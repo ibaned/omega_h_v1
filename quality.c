@@ -27,7 +27,7 @@
 #define PERFECT_TET_QUALITY \
   ((sqrt(2.0) / 12.0) / CUBE(sqrt(PERFECT_TRIANGLE_QUALITY)))
 
-double triangle_quality(double const coords[3][3])
+double triangle_quality(double coords[3][3])
 {
   unsigned const* const* fev = the_canonical_orders[2][1][0];
   double sum_lsq = 0;
@@ -42,9 +42,7 @@ double triangle_quality(double const coords[3][3])
   return quality / PERFECT_TRIANGLE_QUALITY;
 }
 
-typedef double const (*gcc_sucks_t)[3];
-
-double tet_quality(double const coords[4][3])
+double tet_quality(double coords[4][3])
 {
   unsigned const* const* rfv = the_canonical_orders[3][2][0];
   double sum_asq = 0;
@@ -52,8 +50,7 @@ double tet_quality(double const coords[4][3])
     double tri_coords[3][3];
     for (unsigned j = 0; j < 3; ++j)
       copy_vector(coords[rfv[i][j]], tri_coords[j], 3);
-    gcc_sucks_t gcc_sucks = (gcc_sucks_t) tri_coords;
-    double a = triangle_area(gcc_sucks);
+    double a = triangle_area(tri_coords);
     sum_asq += a * a;
   }
   double arms = sqrt(sum_asq / 4);

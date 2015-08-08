@@ -1,12 +1,12 @@
 #include "size.h"
 #include "algebra.h"
 
-double edge_length(double const coords[2][3])
+double edge_length(double coords[2][3])
 {
   return vector_distance(coords[1], coords[0], 3);
 }
 
-double triangle_area(double const coords[3][3])
+double triangle_area(double coords[3][3])
 {
   double v[2][3];
   subtract_vectors(coords[1], coords[0], v[0], 3);
@@ -16,7 +16,7 @@ double triangle_area(double const coords[3][3])
   return vector_norm(x, 3) / 2.0;
 }
 
-double tet_volume(double const coords[4][3])
+double tet_volume(double coords[4][3])
 {
   double v[3][3];
   subtract_vectors(coords[1], coords[0], v[0], 3);
