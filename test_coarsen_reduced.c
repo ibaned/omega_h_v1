@@ -9,7 +9,7 @@
 static double fine(double const x[])
 {
   (void) x;
-  return 0.5001;
+  return 0.2001;
 }
 
 static double coarse(double const x[])
@@ -36,10 +36,13 @@ int main()
   unsigned* class_dim = classif_box(elem_dim, nverts, coords);
   write_vtk("class.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
       class_dim);
-  coarsen_reduced(elem_dim, &nelems, &nverts, &verts_of_elems,
-      &coords, &class_dim, coarse);
-  write_vtk("coarse.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
-      class_dim);
+  it = 0;
+  while (coarsen_reduced(elem_dim, &nelems, &nverts,
+             &verts_of_elems, &coords, &class_dim, coarse)) {
+    sprintf(fname, "cor_%u.vtu", it++);
+    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords,
+        class_dim);
+  }
   free(verts_of_elems);
   free(coords);
   free(class_dim);
