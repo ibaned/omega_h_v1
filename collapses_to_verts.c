@@ -11,11 +11,11 @@ void collapses_to_verts(
     unsigned const* edges_of_verts_directions,
     unsigned const* col_codes,
     double const* col_quals_of_edges,
-    unsigned** gen_offset_of_verts_out,
+    unsigned** candidates_out,
     unsigned** gen_vert_of_verts_out,
     double** col_qual_of_verts_out)
 {
-  unsigned* col_verts = malloc(sizeof(unsigned) * nverts);
+  unsigned* candidates = malloc(sizeof(unsigned) * nverts);
   unsigned* gen_vert_of_verts = malloc(sizeof(unsigned) * nverts);
   double* col_qual_of_verts = malloc(sizeof(double) * nverts);
   for (unsigned i = 0; i < nverts; ++i) {
@@ -40,13 +40,13 @@ void collapses_to_verts(
         gen_vert = other_vert;
       }
     }
-    col_verts[i] = is_collapsing;
+    candidates[i] = is_collapsing;
     if (is_collapsing) {
       gen_vert_of_verts[i] = gen_vert;
       col_qual_of_verts[i] = maxq;
     }
   }
-  *gen_offset_of_verts_out = ints_exscan(col_verts, nverts);
+  *candidates_out = candidates;
   *gen_vert_of_verts_out = gen_vert_of_verts;
   *col_qual_of_verts_out = col_qual_of_verts;
 }

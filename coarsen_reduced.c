@@ -55,11 +55,12 @@ int coarsen_reduced(
       col_codes[i] = DONT_COLLAPSE;
   }
   free(edge_sizes);
-  unsigned something_to_do = ints_max(col_codes, nedges);
-  if (!something_to_do) {
-    free(verts_of_edges);
+  if (ints_max(col_codes, nedges) == DONT_COLLAPSE) {
+    /* early return #1: no edges are small */
     free(verts_of_verts_offsets);
     free(verts_of_verts);
+    free(verts_of_edges);
+    free(col_codes);
     return 0;
   }
   unsigned* edges_of_verts_offsets;
@@ -69,34 +70,57 @@ int coarsen_reduced(
       &edges_of_verts_offsets, &edges_of_verts, &edges_of_verts_directions);
   unsigned* edges_of_elems = reflect_down(elem_dim, 1, nelems, nedges,
       verts_of_elems, edges_of_verts_offsets, edges_of_verts);
-  free(edges_of_verts_offsets);
-  free(edges_of_verts);
   unsigned* elems_of_edges_offsets;
   unsigned* elems_of_edges;
   unsigned* elems_of_edges_directions;
   up_from_down(elem_dim, 1, nelems, nedges, edges_of_elems,
       &elems_of_edges_offsets, &elems_of_edges, &elems_of_edges_directions);
+  free(edges_of_elems);
   check_collapse_classif(elem_dim, nedges, col_codes, class_dim,
       verts_of_elems, verts_of_edges, verts_of_verts_offsets, verts_of_verts,
       elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions);
+  free(elems_of_edges_offsets);
+  free(elems_of_edges);
+  free(elems_of_edges_directions);
   double* quals_of_edges = coarsen_qualities(elem_dim, nedges, col_codes,
       verts_of_elems, verts_of_edges, elems_of_verts_offsets,
       elems_of_verts, elems_of_verts_directions, coords);
-  unsigned* gen_offset_of_verts;
+  free(elems_of_verts_offsets);
+  free(elems_of_verts);
+  free(elems_of_verts_directions);
+  if (ints_max(col_codes, nedges) == DONT_COLLAPSE) {
+    /* early return #2: all small edges failed their classif/quality checks */
+    free(verts_of_verts_offsets);
+    free(verts_of_verts);
+    free(verts_of_edges);
+    free(col_codes);
+    free(edges_of_verts_offsets);
+    free(edges_of_verts);
+    free(edges_of_verts_directions);
+    free(quals_of_edges);
+    return 0;
+  }
+  /* from this point forward, some edges will definitely collapse */
+  unsigned* candidates;
   unsigned* gen_vert_of_verts;
   double* qual_of_verts;
   collapses_to_verts(nverts, verts_of_edges, edges_of_verts_offsets,
       edges_of_verts, edges_of_verts_directions, col_codes, quals_of_edges,
-      &gen_offset_of_verts, &gen_vert_of_verts, &qual_of_verts);
+      &candidates, &gen_vert_of_verts, &qual_of_verts);
+  free(edges_of_verts_offsets);
+  free(edges_of_verts);
+  free(edges_of_verts_directions);
+  free(verts_of_edges);
   free(quals_of_edges);
   free(col_codes);
-  unsigned* candidates = ints_unscan(gen_offset_of_verts, nverts);
   unsigned* indset = find_indset(nverts, verts_of_verts_offsets, verts_of_verts,
       candidates, qual_of_verts);
+  free(verts_of_verts_offsets);
+  free(verts_of_verts);
   free(candidates);
   free(qual_of_verts);
-  free(gen_offset_of_verts);
-  gen_offset_of_verts = ints_exscan(indset, nverts);
+  unsigned* gen_offset_of_verts = ints_exscan(indset, nverts);
+  free(indset);
   unsigned* gen_offset_of_elems;
   unsigned* gen_vert_of_elems;
   unsigned* gen_direction_of_elems;
@@ -104,6 +128,7 @@ int coarsen_reduced(
   collapses_to_elements(elem_dim, nelems, verts_of_elems, gen_offset_of_verts,
       gen_vert_of_verts, &gen_offset_of_elems, &gen_vert_of_elems,
       &gen_direction_of_elems, &offset_of_same_elems);
+  free(gen_vert_of_verts);
   unsigned* offset_of_same_verts = ints_negate_offsets(
       gen_offset_of_verts, nverts);
   unsigned nverts_out = offset_of_same_verts[nverts];
@@ -117,11 +142,16 @@ int coarsen_reduced(
   coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,
       gen_vert_of_elems, gen_direction_of_elems, &ngen_elems,
       &verts_of_gen_elems);
+  free(gen_offset_of_elems);
+  free(gen_vert_of_elems);
+  free(gen_direction_of_elems);
   unsigned nelems_out;
   unsigned* verts_of_elems_out;
   concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,
       offset_of_same_elems, verts_of_gen_elems,
       &nelems_out, &verts_of_elems_out);
+  free(offset_of_same_elems);
+  free(verts_of_gen_elems);
   *p_nelems = nelems_out;
   *p_nverts = nverts_out;
   free(*p_verts_of_elems);
