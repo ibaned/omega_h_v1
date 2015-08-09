@@ -4,16 +4,20 @@
 #include "coarsen_reduced.h"
 #include "vtk.h"
 #include "verify.h"
+#include "algebra.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-static double fine(double const x[])
+static double fine_fun(double const x[])
 {
-  (void) x;
-  return 0.5001;
+  double coarse = 0.5;
+  double fine = 0.05;
+  double radius = vector_norm(x, 3);
+  double d = fabs(radius - 0.5);
+  return coarse * d + fine * (1 - d);
 }
 
-static double coarse(double const x[])
+static double coarse_fun(double const x[])
 {
   (void) x;
   return 2.0001;
@@ -21,7 +25,7 @@ static double coarse(double const x[])
 
 int main()
 {
-  unsigned elem_dim = 3;
+  unsigned elem_dim = 2;
   unsigned nelems;
   unsigned nverts;
   unsigned* verts_of_elems;
@@ -30,7 +34,7 @@ int main()
   char fname[64];
   unsigned it = 0;
   while (refine_reduced(elem_dim, &nelems, &nverts,
-             &verts_of_elems, &coords, fine)) {
+             &verts_of_elems, &coords, fine_fun)) {
     sprintf(fname, "ref_%u.vtu", it++);
     write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords, 0);
   }
@@ -39,7 +43,7 @@ int main()
       class_dim);
   it = 0;
   while (coarsen_reduced(elem_dim, &nelems, &nverts,
-             &verts_of_elems, &coords, &class_dim, coarse)) {
+             &verts_of_elems, &coords, &class_dim, coarse_fun)) {
     verify(elem_dim, nelems, nverts, verts_of_elems, coords);
     sprintf(fname, "cor_%u.vtu", it++);
     write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords,
