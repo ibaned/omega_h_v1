@@ -9,7 +9,7 @@
 static double fine(double const x[])
 {
   (void) x;
-  return 0.2501;
+  return 0.5001;
 }
 
 static double coarse(double const x[])
