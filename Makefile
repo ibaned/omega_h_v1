@@ -25,7 +25,8 @@ reflect_down.o \
 refine_nodal.o \
 refine_qualities.o \
 doubles.o \
-element_qualities.o
+element_qualities.o \
+classif_box.o
 
 all: $(objects)
 

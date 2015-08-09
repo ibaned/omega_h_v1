@@ -24,9 +24,12 @@ int main()
   unsigned it = 0;
   while (refine_reduced(elem_dim, &nelems, &nverts,
              &verts_of_elems, &coords, fine)) {
-    sprintf(fname, "out_%u.vtu", it++);
+    sprintf(fname, "ref_%u.vtu", it++);
     write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords, 0);
   }
+  unsigned* classif_dim = classif_box(elem_dim, nverts, coords);
+  write_vtk("class.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
+      classif_dim);
   free(verts_of_elems);
   free(coords);
 }
