@@ -117,21 +117,15 @@ int refine_reduced(
   double const* concat_coords[2] = {coords, gen_coords};
   double* coords_out = concat_doubles(2, 3, concat_sizes, concat_coords);
   free(gen_coords);
-  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned* same_offset_of_elems = ints_negate_offsets(gen_offset_of_elems, nelems);
+  unsigned* offset_of_same_elems = ints_negate_offsets(
+      gen_offset_of_elems, nelems);
   free(gen_offset_of_elems);
-  unsigned nsame_elems = same_offset_of_elems[nelems];
-  unsigned nelems_out = nsame_elems + ngen_elems;
-  unsigned* verts_of_same_elems = ints_subset(nelems, verts_per_elem,
-      verts_of_elems, same_offset_of_elems);
-  free(same_offset_of_elems);
-  concat_sizes[0] = nsame_elems;
-  concat_sizes[1] = ngen_elems;
-  unsigned const* concat_verts_of_elems[2] = {
-    verts_of_same_elems, verts_of_gen_elems };
-  unsigned* verts_of_elems_out = concat_ints(2, verts_per_elem,
-      concat_sizes, concat_verts_of_elems);
-  free(verts_of_same_elems);
+  unsigned nelems_out;
+  unsigned* verts_of_elems_out;
+  concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,
+      offset_of_same_elems, verts_of_gen_elems,
+      &nelems_out, &verts_of_elems_out);
+  free(offset_of_same_elems);
   free(verts_of_gen_elems);
   *p_nelems = nelems_out;
   *p_nverts = nverts_out;

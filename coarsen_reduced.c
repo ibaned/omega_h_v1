@@ -12,6 +12,7 @@
 #include "indset.h"
 #include "collapses_to_elements.h"
 #include "coarsen_topology.h"
+#include "concat.h"
 #include <stdlib.h>
 
 int coarsen_reduced(
@@ -108,6 +109,5 @@ int coarsen_reduced(
   coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,
       gen_vert_of_elems, gen_direction_of_elems, &ngen_elems,
       &verts_of_gen_elems);
-  (void) offset_of_same_elems;
   return 1;
 }
