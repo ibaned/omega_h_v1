@@ -13,6 +13,7 @@
 #include "collapses_to_elements.h"
 #include "coarsen_topology.h"
 #include "concat.h"
+#include "tables.h"
 #include <stdlib.h>
 
 int coarsen_reduced(
@@ -136,7 +137,6 @@ int coarsen_reduced(
   double* coords_out = doubles_subset(nverts, 3, coords, offset_of_same_verts);
   unsigned* class_dim_out = ints_subset(nverts, 1, class_dim,
       offset_of_same_verts);
-  free(offset_of_same_verts);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
   coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,
@@ -152,6 +152,11 @@ int coarsen_reduced(
       &nelems_out, &verts_of_elems_out);
   free(offset_of_same_elems);
   free(verts_of_gen_elems);
+  /* remap element vertices to account for vertex removal */
+  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
+  for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i)
+    verts_of_elems_out[i] = offset_of_same_verts[verts_of_elems_out[i]];
+  free(offset_of_same_verts);
   *p_nelems = nelems_out;
   *p_nverts = nverts_out;
   free(*p_verts_of_elems);
