@@ -7,6 +7,7 @@ void write_vtk(
    unsigned nelem,
    unsigned nvert,
    unsigned const* elem_to_vert,
-   double const* coords);
+   double const* coords,
+   unsigned const* class_dim);
 
 #endif

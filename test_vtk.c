@@ -9,5 +9,6 @@ int main()
       the_box_nelems[dim],
       the_box_nverts[dim],
       the_box_conns[dim],
-      the_box_coords[dim]);
+      the_box_coords[dim],
+      0);
 }

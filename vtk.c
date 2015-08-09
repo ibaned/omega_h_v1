@@ -15,7 +15,8 @@ void write_vtk(
     unsigned nelem,
     unsigned nvert,
     unsigned const* elem_to_vert,
-    double const* coords)
+    double const* coords,
+    unsigned const* class_dim)
 {
   FILE* f = fopen(filename, "w");
   fprintf(f, "<VTKFile type=\"UnstructuredGrid\">\n");
@@ -51,6 +52,13 @@ void write_vtk(
   fprintf(f, "</DataArray>\n");
   fprintf(f, "</Cells>\n");
   fprintf(f, "<PointData>\n");
+  if (class_dim) {
+    fprintf(f, "<DataArray type=\"UInt32\" Name=\"class_dim\""
+               " NumberOfComponents=\"1\" format=\"ascii\">\n");
+    for (unsigned i = 0; i < nvert; ++i)
+      fprintf(f, "%u\n", class_dim[i]);
+    fprintf(f, "</DataArray>\n");
+  }
   fprintf(f, "</PointData>\n");
   fprintf(f, "<CellData>\n");
   fprintf(f, "</CellData>\n");

@@ -25,7 +25,7 @@ int main()
   while (refine_reduced(elem_dim, &nelems, &nverts,
              &verts_of_elems, &coords, fine)) {
     sprintf(fname, "out_%u.vtu", it++);
-    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords);
+    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords, 0);
   }
   free(verts_of_elems);
   free(coords);

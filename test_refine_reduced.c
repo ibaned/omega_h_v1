@@ -36,7 +36,7 @@ int main()
     free(quals);
     printf("min quality %f\n", minqual);
     sprintf(fname, "out_%u.vtu", it);
-    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords);
+    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords, 0);
   }
   free(verts_of_elems);
   free(coords);
