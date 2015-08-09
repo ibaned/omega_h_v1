@@ -2,6 +2,7 @@
 #include "tables.h"
 #include "ints.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 void collapses_to_elements(
     unsigned elem_dim,
@@ -38,12 +39,12 @@ void collapses_to_elements(
     }
     elem_is_same[i] = 0;
     unsigned gen_vert = gen_vert_of_verts[col_vert];
-    for (unsigned j = 0; j < verts_per_elem; ++j) {
+    unsigned elem_will_die = 0;
+    for (unsigned j = 0; j < verts_per_elem; ++j)
       if (verts_of_elem[j] == gen_vert)
-        /* has both vertices of the collapsing edge,
-           will be destroyed by the collapse */
-        continue;
-    }
+        elem_will_die = 1;
+    if (elem_will_die)
+      continue;
     elem_will_gen[i] = 1;
     gen_vert_of_elems[i] = gen_vert;
     gen_direction_of_elems[i] = direction;
