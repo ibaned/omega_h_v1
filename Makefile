@@ -1,5 +1,4 @@
-CFLAGS = -g -std=c99 -Werror -Wall -fsanitize=address
-LDFLAGS = -fsanitize=address
+CFLAGS = -O2 -std=c99 -Werror -Wall
 LDLIBS = -lm
 
 sources := $(wildcard *.c)
