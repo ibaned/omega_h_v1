@@ -2,6 +2,7 @@
 #include "collapse_codes.h"
 #include "tables.h"
 #include "ints.h"
+#include <assert.h>
 
 void check_collapse_classif(
     unsigned elem_dim,
@@ -16,6 +17,7 @@ void check_collapse_classif(
     unsigned const* elems_of_edges,
     unsigned const* elems_of_edges_directions)
 {
+  assert(elem_dim >= 2);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned opp_dim = get_opposite_dim(elem_dim, 1);
   unsigned verts_per_opp = the_down_degrees[opp_dim][0];
@@ -27,13 +29,16 @@ void check_collapse_classif(
     if (col_codes[i] == DONT_COLLAPSE)
       continue;
     unsigned const* verts_of_edge = verts_of_edges + i * 2;
+    unsigned class_dims_of_edge[2];
+    class_dims_of_edge[0] = class_dim_of_verts[verts_of_edge[0]];
+    class_dims_of_edge[1] = class_dim_of_verts[verts_of_edge[1]];
+    if (class_dims_of_edge[0] == class_dims_of_edge[1])
+      continue; /* equal orders, rest doesn't matter ? */
     for (unsigned j = 0; j < 2; ++j) {
       if (!(col_codes[i] & (1<<j)))
         continue;
-      unsigned col_vert = verts_of_edge[j];
-      unsigned gen_vert = verts_of_edge[1 - j];
-      unsigned col_dim = class_dim_of_verts[col_vert];
-      unsigned gen_dim = class_dim_of_verts[gen_vert];
+      unsigned col_dim = class_dims_of_edge[j];
+      unsigned gen_dim = class_dims_of_edge[1 - j];
       if (col_dim < gen_dim)
         col_codes[i] &= ~(1<<j);
     }
@@ -42,7 +47,7 @@ void check_collapse_classif(
     unsigned ring_buf[MAX_UP];
     unsigned ring_buf_size = 0;
     unsigned first_elem_use = elems_of_edges_offsets[i];
-    unsigned end_elem_use = elems_of_edges_offsets[i];
+    unsigned end_elem_use = elems_of_edges_offsets[i + 1];
     for (unsigned j = first_elem_use; j < end_elem_use; ++j) {
       unsigned elem = elems_of_edges[j];
       unsigned direction = elems_of_edges_directions[j];
@@ -54,17 +59,21 @@ void check_collapse_classif(
         ring_buf_size = add_unique(ring_buf, ring_buf_size, vert);
       }
     }
+    assert(ring_buf_size);
     for (unsigned j = 0; j < 2; ++j) {
       if (!(col_codes[i] & (1<<j)))
         continue;
       unsigned col_vert = verts_of_edge[j];
+      unsigned gen_vert = verts_of_edge[1 - j];
       unsigned first_vert_use = verts_of_verts_offsets[col_vert];
       unsigned end_vert_use = verts_of_verts_offsets[col_vert + 1];
-      unsigned col_class_dim = class_dim_of_verts[col_vert];
+      unsigned col_class_dim = class_dims_of_edge[j];
       unsigned has_lesser = 0;
       unsigned has_equal = 0;
       for (unsigned k = first_vert_use; k < end_vert_use; ++k) {
         unsigned vert = verts_of_verts[k];
+        if (vert == gen_vert || has(ring_buf, ring_buf_size, vert))
+          continue;
         unsigned class_dim = class_dim_of_verts[vert];
         if (class_dim == col_class_dim)
           has_equal = 1;
