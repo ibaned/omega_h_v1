@@ -8,6 +8,11 @@ unsigned* ints_exscan(unsigned const* a, unsigned n);
 unsigned* ints_unscan(unsigned const* a, unsigned n);
 unsigned* ints_negate(unsigned const* a, unsigned n);
 unsigned* ints_negate_offsets(unsigned const* a, unsigned n);
+unsigned* ints_subset(
+    unsigned n,
+    unsigned width,
+    unsigned const* a,
+    unsigned const* offsets);
 
 static inline unsigned has(unsigned const a[], unsigned n, unsigned e)
 {

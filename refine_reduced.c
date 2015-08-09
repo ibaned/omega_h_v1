@@ -9,7 +9,6 @@
 #include "splits_to_elements.h"
 #include "refine_topology.h"
 #include "refine_qualities.h"
-#include "subset.h"
 #include "concat.h"
 #include "tables.h"
 #include "bridge_graph.h"
