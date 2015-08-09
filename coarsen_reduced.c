@@ -104,10 +104,31 @@ int coarsen_reduced(
   collapses_to_elements(elem_dim, nelems, verts_of_elems, gen_offset_of_verts,
       gen_vert_of_verts, &gen_offset_of_elems, &gen_vert_of_elems,
       &gen_direction_of_elems, &offset_of_same_elems);
+  unsigned* offset_of_same_verts = ints_negate_offsets(
+      gen_offset_of_verts, nverts);
+  unsigned nverts_out = offset_of_same_verts[nverts];
+  free(gen_offset_of_verts);
+  double* coords_out = doubles_subset(nverts, 3, coords, offset_of_same_verts);
+  unsigned* class_dim_out = ints_subset(nverts, 1, class_dim,
+      offset_of_same_verts);
+  free(offset_of_same_verts);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
   coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,
       gen_vert_of_elems, gen_direction_of_elems, &ngen_elems,
       &verts_of_gen_elems);
+  unsigned nelems_out;
+  unsigned* verts_of_elems_out;
+  concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,
+      offset_of_same_elems, verts_of_gen_elems,
+      &nelems_out, &verts_of_elems_out);
+  *p_nelems = nelems_out;
+  *p_nverts = nverts_out;
+  free(*p_verts_of_elems);
+  *p_verts_of_elems = verts_of_elems_out;
+  free(*p_coords);
+  *p_coords = coords_out;
+  free(*p_class_dim);
+  *p_class_dim = class_dim_out;
   return 1;
 }
