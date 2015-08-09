@@ -26,7 +26,13 @@ refine_nodal.o \
 refine_qualities.o \
 doubles.o \
 element_qualities.o \
-classif_box.o
+classif_box.o \
+coarsen_reduced.o \
+collapse_classif.o \
+coarsen_qualities.o \
+coarsen_topology.o \
+collapses_to_verts.o \
+collapses_to_elements.o
 
 all: $(objects)
 
