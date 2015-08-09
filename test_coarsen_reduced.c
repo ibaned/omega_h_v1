@@ -27,9 +27,10 @@ int main()
     sprintf(fname, "ref_%u.vtu", it++);
     write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords, 0);
   }
-  unsigned* classif_dim = classif_box(elem_dim, nverts, coords);
+  unsigned* class_dim = classif_box(elem_dim, nverts, coords);
   write_vtk("class.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
-      classif_dim);
+      class_dim);
+  free(class_dim);
   free(verts_of_elems);
   free(coords);
 }
