@@ -1,4 +1,5 @@
-CFLAGS = -O2 -std=c99 -Werror -Wall
+CFLAGS = -g -std=c99 -Werror -Wall -fsanitize=address
+LDFLAGS = -fsanitize=address
 LDLIBS = -lm
 
 sources := $(wildcard *.c)
@@ -32,7 +33,8 @@ collapse_classif.o \
 coarsen_qualities.o \
 coarsen_topology.o \
 collapses_to_verts.o \
-collapses_to_elements.o
+collapses_to_elements.o \
+verify.o
 
 all: $(objects)
 

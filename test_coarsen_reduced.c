@@ -3,13 +3,14 @@
 #include "classif_box.h"
 #include "coarsen_reduced.h"
 #include "vtk.h"
+#include "verify.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 static double fine(double const x[])
 {
   (void) x;
-  return 0.2001;
+  return 0.5001;
 }
 
 static double coarse(double const x[])
@@ -20,7 +21,7 @@ static double coarse(double const x[])
 
 int main()
 {
-  unsigned elem_dim = 2;
+  unsigned elem_dim = 3;
   unsigned nelems;
   unsigned nverts;
   unsigned* verts_of_elems;
@@ -39,6 +40,7 @@ int main()
   it = 0;
   while (coarsen_reduced(elem_dim, &nelems, &nverts,
              &verts_of_elems, &coords, &class_dim, coarse)) {
+    verify(elem_dim, nelems, nverts, verts_of_elems, coords);
     sprintf(fname, "cor_%u.vtu", it++);
     write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords,
         class_dim);
