@@ -14,7 +14,7 @@ static void* concat_general(
     total_bytes += sizes[i];
   total_bytes *= width * typesize;
   void* out = malloc(total_bytes);
-  void* p = out;
+  char* p = out;
   for (unsigned i = 0; i < narrs; ++i) {
     unsigned arr_bytes = sizes[i] * width * typesize;
     memcpy(p, arrs[i], arr_bytes);
@@ -41,4 +41,43 @@ double* concat_doubles(
 {
   return concat_general(sizeof(double), narrs, width, sizes,
       (void const* const*) arrs);
+}
+
+void* general_subset(
+    unsigned typesize,
+    unsigned n,
+    unsigned width,
+    void const* a,
+    unsigned const* offsets)
+{
+  unsigned nsub = offsets[n];
+  void* out = malloc(typesize * nsub * width);
+  unsigned stride = typesize * width;
+  char const* ip = a;
+  char* op = out;
+  for (unsigned i = 0; i < n; ++i, ip += stride) {
+    if (offsets[i] == offsets[i + 1])
+      continue;
+    memcpy(op, ip, stride);
+    op += stride;
+  }
+  return out;
+}
+
+unsigned* ints_subset(
+    unsigned n,
+    unsigned width,
+    unsigned const* a,
+    unsigned const* offsets)
+{
+  return general_subset(sizeof(unsigned), n, width, a, offsets);
+}
+
+double* doubles_subset(
+    unsigned n,
+    unsigned width,
+    double const* a,
+    unsigned const* offsets)
+{
+  return general_subset(sizeof(double), n, width, a, offsets);
 }
