@@ -25,9 +25,6 @@ void verify(
     assert(coords[i] < (1 + EPSILON));
     assert(coords[i] > -EPSILON);
   }
-  double* quals = element_qualities(
-      elem_dim, nelems, verts_of_elems, coords);
-  double minq = doubles_min(quals, nelems);
-  free(quals);
+  double minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
   assert(minq > 0);
 }

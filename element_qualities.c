@@ -2,6 +2,7 @@
 #include "tables.h"
 #include "algebra.h"
 #include "quality.h"
+#include "doubles.h"
 #include <stdlib.h>
 
 double* element_qualities(
@@ -23,4 +24,16 @@ double* element_qualities(
     out[i] = qf(elem_x);
   }
   return out;
+}
+
+double min_element_quality(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* verts_of_elems,
+    double const* coords)
+{
+  double* quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);
+  double mq = doubles_min(quals, nelems);
+  free(quals);
+  return mq;
 }
