@@ -14,7 +14,8 @@ double* coarsen_qualities(
     unsigned const* elems_of_verts_offsets,
     unsigned const* elems_of_verts,
     unsigned const* elems_of_verts_directions,
-    double const* coords)
+    double const* coords,
+    double quality_limit)
 {
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = elem_dim - 1;
@@ -59,7 +60,7 @@ double* coarsen_qualities(
         if (q < minq)
           minq = q;
       }
-      if (minq <= 0)
+      if (minq < quality_limit)
         col_codes[i] &= ~(1<<j);
       else
         out[i * 2 + j] = minq;

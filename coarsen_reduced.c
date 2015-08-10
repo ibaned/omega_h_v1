@@ -14,6 +14,7 @@
 #include "coarsen_topology.h"
 #include "concat.h"
 #include "tables.h"
+#include "element_qualities.h"
 #include <stdlib.h>
 
 int coarsen_reduced(
@@ -83,9 +84,10 @@ int coarsen_reduced(
   free(elems_of_edges_offsets);
   free(elems_of_edges);
   free(elems_of_edges_directions);
+  double minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
   double* quals_of_edges = coarsen_qualities(elem_dim, nedges, col_codes,
       verts_of_elems, verts_of_edges, elems_of_verts_offsets,
-      elems_of_verts, elems_of_verts_directions, coords);
+      elems_of_verts, elems_of_verts_directions, coords, minq);
   free(elems_of_verts_offsets);
   free(elems_of_verts);
   free(elems_of_verts_directions);
