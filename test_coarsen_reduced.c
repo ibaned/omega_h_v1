@@ -25,7 +25,7 @@ static double coarse_fun(double const x[])
 
 int main()
 {
-  unsigned elem_dim = 2;
+  unsigned elem_dim = 3;
   unsigned nelems;
   unsigned nverts;
   unsigned* verts_of_elems;
