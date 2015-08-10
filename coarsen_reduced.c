@@ -17,6 +17,8 @@
 #include "element_qualities.h"
 #include <stdlib.h>
 
+#include <stdio.h>
+
 int coarsen_reduced(
     unsigned elem_dim,
     unsigned* p_nelems,
@@ -24,7 +26,8 @@ int coarsen_reduced(
     unsigned** p_verts_of_elems,
     double** p_coords,
     unsigned** p_class_dim,
-    double (*size_function)(double const x[]))
+    double (*size_function)(double const x[]),
+    double quality_floor)
 {
   unsigned nelems = *p_nelems;
   unsigned nverts = *p_nverts;
@@ -84,10 +87,9 @@ int coarsen_reduced(
   free(elems_of_edges_offsets);
   free(elems_of_edges);
   free(elems_of_edges_directions);
-  double minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
   double* quals_of_edges = coarsen_qualities(elem_dim, nedges, col_codes,
       verts_of_elems, verts_of_edges, elems_of_verts_offsets,
-      elems_of_verts, elems_of_verts_directions, coords, minq);
+      elems_of_verts, elems_of_verts_directions, coords, quality_floor);
   free(elems_of_verts_offsets);
   free(elems_of_verts);
   free(elems_of_verts_directions);

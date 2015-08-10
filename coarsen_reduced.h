@@ -8,6 +8,7 @@ int coarsen_reduced(
     unsigned** p_verts_of_elems,
     double** p_coords,
     unsigned** p_class_dim,
-    double (*size_function)(double const x[]));
+    double (*size_function)(double const x[]),
+    double quality_floor);
 
 #endif
