@@ -17,8 +17,6 @@
 #include "element_qualities.h"
 #include <stdlib.h>
 
-#include <stdio.h>
-
 int coarsen_reduced(
     unsigned elem_dim,
     unsigned* p_nelems,
