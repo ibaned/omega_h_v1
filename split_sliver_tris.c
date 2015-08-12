@@ -1,6 +1,5 @@
 #include "split_sliver_tris.h"
 #include "bad_elem_keys.h"
-#include "derive_edges.h"
 #include "ints.h"
 #include <assert.h>
 #include <stdlib.h>
@@ -33,9 +32,8 @@ int split_sliver_tris(
     free(key_of_tris);
     return 0;
   }
-  unsigned nedges;
-  unsigned* verts_of_edges;
-  derive_edges(elem_dim, nelems, nverts, verts_of_elems,
-      &nedges, &verts_of_edges);
+  (void) nelems;
+  (void) nverts;
+  (void) verts_of_elems;
   return 1;
 }
