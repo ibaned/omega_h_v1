@@ -3,6 +3,11 @@
 #include "ints.h"
 #include <stdlib.h>
 
+/* This is the #2 most expensive function, takes up 30% of
+   refinement time !
+   If you are going to optimize, optimize here !
+ */
+
 static unsigned get_ent_star(
     unsigned const* highs_of_lows_offsets,
     unsigned const* highs_of_lows,

@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
+/* This is the #1 most expensive function, takes up 50% of
+   refinement time !
+   If you are going to optimize, optimize here !
+ */
+
 static unsigned copy(
     unsigned const a[],
     unsigned b[],
