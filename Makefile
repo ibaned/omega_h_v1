@@ -22,7 +22,6 @@ refine_reduced.o \
 concat.o \
 indset.o \
 measure_edges.o \
-derive_edges.o \
 reflect_down.o \
 refine_nodal.o \
 refine_qualities.o \
