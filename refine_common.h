@@ -10,6 +10,12 @@ void refine_common(
     unsigned src_dim,
     unsigned nsrcs,
     unsigned const* verts_of_srcs,
-    unsigned const* candidates);
+    unsigned const* candidates,
+    unsigned const* srcs_of_elems,
+    unsigned const* elems_of_srcs_offsets,
+    unsigned const* elems_of_srcs,
+    unsigned const* elems_of_srcs_directions,
+    unsigned const* srcs_of_srcs_offsets,
+    unsigned const* srcs_of_srcs);
 
 #endif

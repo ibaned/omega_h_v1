@@ -21,39 +21,23 @@ void refine_common(
     unsigned src_dim,
     unsigned nsrcs,
     unsigned const* verts_of_srcs,
-    unsigned const* candidates)
+    unsigned const* candidates,
+    unsigned const* srcs_of_elems,
+    unsigned const* elems_of_srcs_offsets,
+    unsigned const* elems_of_srcs,
+    unsigned const* elems_of_srcs_directions,
+    unsigned const* srcs_of_srcs_offsets,
+    unsigned const* srcs_of_srcs)
 {
   unsigned nelems = *p_nelems;
   unsigned nverts = *p_nverts;
   unsigned const* verts_of_elems = *p_verts_of_elems;
   double const* coords = *p_coords;
-  unsigned* srcs_of_verts_offsets;
-  unsigned* srcs_of_verts;
-  up_from_down(src_dim, 0, nsrcs, nverts, verts_of_srcs,
-      &srcs_of_verts_offsets, &srcs_of_verts, 0);
-  unsigned* srcs_of_elems = reflect_down(elem_dim, src_dim, nelems, nsrcs,
-      verts_of_elems, srcs_of_verts_offsets, srcs_of_verts);
-  free(srcs_of_verts_offsets);
-  free(srcs_of_verts);
-  unsigned* elems_of_srcs_offsets;
-  unsigned* elems_of_srcs;
-  unsigned* elems_of_srcs_directions;
-  up_from_down(elem_dim, src_dim, nelems, nsrcs, srcs_of_elems,
-      &elems_of_srcs_offsets, &elems_of_srcs, &elems_of_srcs_directions);
   double* src_quals = refine_qualities(elem_dim, src_dim, nsrcs, verts_of_srcs,
       verts_of_elems, elems_of_srcs_offsets, elems_of_srcs,
       elems_of_srcs_directions, candidates, coords);
-  free(elems_of_srcs_directions);
-  unsigned* srcs_of_srcs_offsets;
-  unsigned* srcs_of_srcs;
-  get_star(src_dim, elem_dim, nsrcs, elems_of_srcs_offsets, elems_of_srcs,
-      srcs_of_elems, &srcs_of_srcs_offsets, &srcs_of_srcs);
   unsigned* indset = find_indset(nsrcs, srcs_of_srcs_offsets, srcs_of_srcs,
       candidates, src_quals);
-  free(elems_of_srcs_offsets);
-  free(elems_of_srcs);
-  free(srcs_of_srcs_offsets);
-  free(srcs_of_srcs);
   free(src_quals);
   unsigned* gen_offset_of_srcs = ints_exscan(indset, nsrcs);
   free(indset);
@@ -68,7 +52,6 @@ void refine_common(
   project_splits_to_elements(elem_dim, src_dim, nelems,
       srcs_of_elems, gen_offset_of_srcs, gen_vert_of_srcs,
       &gen_offset_of_elems, &gen_direction_of_elems, &gen_vert_of_elems);
-  free(srcs_of_elems);
   free(gen_vert_of_srcs);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;

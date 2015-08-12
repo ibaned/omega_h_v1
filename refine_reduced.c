@@ -2,6 +2,7 @@
 #include "refine_common.h"
 #include "up_from_down.h"
 #include "measure_edges.h"
+#include "reflect_down.h"
 #include "bridge_graph.h"
 #include "star.h"
 #include "ints.h"
@@ -50,8 +51,33 @@ int refine_reduced(
     free(candidates);
     return 0;
   }
+  unsigned* edges_of_verts_offsets;
+  unsigned* edges_of_verts;
+  up_from_down(1, 0, nedges, nverts, verts_of_edges,
+      &edges_of_verts_offsets, &edges_of_verts, 0);
+  unsigned* edges_of_elems = reflect_down(elem_dim, 1, nelems, nedges,
+      verts_of_elems, edges_of_verts_offsets, edges_of_verts);
+  free(edges_of_verts_offsets);
+  free(edges_of_verts);
+  unsigned* elems_of_edges_offsets;
+  unsigned* elems_of_edges;
+  unsigned* elems_of_edges_directions;
+  up_from_down(elem_dim, 1, nelems, nedges, edges_of_elems,
+      &elems_of_edges_offsets, &elems_of_edges, &elems_of_edges_directions);
+  free(elems_of_edges_directions);
+  unsigned* edges_of_edges_offsets;
+  unsigned* edges_of_edges;
+  get_star(1, elem_dim, nedges, elems_of_edges_offsets, elems_of_edges,
+      edges_of_elems, &edges_of_edges_offsets, &edges_of_edges);
   refine_common(elem_dim, p_nelems, p_nverts, p_verts_of_elems, p_coords,
-      1, nedges, verts_of_edges, candidates);
+      1, nedges, verts_of_edges, candidates, edges_of_elems,
+      elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
+      edges_of_edges_offsets, edges_of_edges);
+  free(elems_of_edges_offsets);
+  free(elems_of_edges);
+  free(elems_of_edges_directions);
+  free(edges_of_edges_offsets);
+  free(edges_of_edges);
   free(verts_of_edges);
   free(candidates);
   return 1;
