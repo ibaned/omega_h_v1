@@ -9,6 +9,13 @@ static unsigned const vtk_types[4] = {
   10
 };
 
+/* this function can be a time hog,
+ * no fault of our own really, just printf and friends
+ * are fairly slow.
+ * if you're so inclined, add binary functionality
+ * (the VTK format supports it)
+ */
+
 void write_vtk(
     char const* filename,
     unsigned elem_dim,
