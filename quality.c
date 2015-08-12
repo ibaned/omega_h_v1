@@ -3,6 +3,8 @@
 #include "algebra.h"
 #include "tables.h"
 
+#include <assert.h>
+
 /* scale-invariant stiffness matrix conditioning quality measures
  * from:
  *
@@ -67,6 +69,32 @@ quality_function const the_quality_functions[4] = {
   tet_quality
 };
 
+static void edge_lengths(
+    unsigned elem_dim,
+    double coords[][3],
+    double l[])
+{
+  unsigned ne = the_down_degrees[elem_dim][1];
+  unsigned const* const* lev = the_canonical_orders[elem_dim][1][0];
+  for (unsigned i = 0; i < ne; ++i)
+    l[i] = vector_distance(
+        coords[lev[i][1]], coords[lev[i][0]], 3);
+}
+
+static double edge_length_ratio(
+    double l[],
+    unsigned n)
+{
+  double maxl = l[0];
+  double minl = l[0];
+  for (unsigned i = 1; i < 3; ++i) {
+    if (l[i] > maxl)
+      maxl = l[i];
+    if (l[i] < minl)
+      minl = l[i];
+  }
+  return minl / maxl;
+}
 
 enum tri_qual triangle_quality_type(
     double coords[3][3],
@@ -77,20 +105,9 @@ enum tri_qual triangle_quality_type(
   double q = triangle_quality(coords);
   if (q >= qual_floor)
     return GOOD_TRI;
-  unsigned const* const* fev = the_canonical_orders[2][1][0];
   double l[3];
-  for (unsigned i = 0; i < 3; ++i)
-    l[i] = vector_distance(
-        coords[fev[i][1]], coords[fev[i][0]], 3);
-  double maxl = l[0];
-  double minl = l[0];
-  for (unsigned i = 1; i < 3; ++i) {
-    if (l[i] > maxl)
-      maxl = l[i];
-    if (l[i] < minl)
-      minl = l[i];
-  }
-  double r = minl / maxl;
+  edge_lengths(2, coords, l);
+  double r = edge_length_ratio(l, 3);
   if (r < edge_ratio_floor)
     return SHORT_EDGE_TRI;
   if (!key_edge_out)
@@ -109,3 +126,51 @@ enum tri_qual triangle_quality_type(
   return SLIVER_TRI;
 }
 
+static struct {
+  enum tet_qual qt;
+  unsigned ke;
+} const tet_quality_table[8] = {
+  {0,0}, /* impossible for positive volume */
+  {CAP_TET,    1}, /* 001 */
+  {CAP_TET,    2}, /* 010 */
+  {SLIVER_TET, 1}, /* 011 */
+  {CAP_TET,    3}, /* 100 */
+  {SLIVER_TET, 0}, /* 101 */
+  {SLIVER_TET, 2}, /* 110 */
+  {CAP_TET,    0}, /* 111 */
+};
+
+enum tet_qual tet_quality_type(
+    double coords[4][3],
+    double qual_floor,
+    double edge_ratio_floor,
+    unsigned* key_ent_out)
+{
+  double q = tet_quality(coords);
+  if (q >= qual_floor)
+    return GOOD_TET;
+  double l[6];
+  edge_lengths(3, coords, l);
+  double r = edge_length_ratio(l, 6);
+  if (r < edge_ratio_floor)
+    return SHORT_EDGE_TET;
+  double m[3][3];
+  subtract_vectors(coords[1], coords[0], m[0], 3);
+  subtract_vectors(coords[2], coords[0], m[1], 3);
+  cross_product(m[0], m[1], m[2]);
+  double minv[3][3];
+  invert_3x3(m, minv);
+  double v[3];
+  subtract_vectors(coords[3], coords[0], v, 3);
+  double b[3];
+  mv_3x3(minv, v, b);
+  b[2] = 1.0 - b[0] - b[1];
+  int c = 0;
+  for (unsigned i = 0; i < 3; ++i)
+    if (b[i] > 0)
+      c |= (1<<i);
+  assert(c);
+  if (key_ent_out)
+    *key_ent_out = tet_quality_table[c].ke;
+  return tet_quality_table[c].qt;
+}
