@@ -1,7 +1,9 @@
 #include "refine_reduced.h"
-#include "derive_edges.h"
-#include "measure_edges.h"
 #include "refine_common.h"
+#include "up_from_down.h"
+#include "measure_edges.h"
+#include "bridge_graph.h"
+#include "star.h"
 #include "ints.h"
 #include <stdlib.h>
 
@@ -17,10 +19,22 @@ int refine_reduced(
   unsigned nverts = *p_nverts;
   unsigned const* verts_of_elems = *p_verts_of_elems;
   double const* coords = *p_coords;
+  unsigned* elems_of_verts_offsets;
+  unsigned* elems_of_verts;
+  up_from_down(elem_dim, 0, nelems, nverts, verts_of_elems,
+      &elems_of_verts_offsets, &elems_of_verts, 0);
+  unsigned* verts_of_verts_offsets;
+  unsigned* verts_of_verts;
+  get_star(0, elem_dim, nverts, elems_of_verts_offsets, elems_of_verts,
+      verts_of_elems, &verts_of_verts_offsets, &verts_of_verts);
+  free(elems_of_verts_offsets);
+  free(elems_of_verts);
   unsigned nedges;
   unsigned* verts_of_edges;
-  derive_edges(elem_dim, nelems, nverts, verts_of_elems,
+  bridge_graph(nverts, verts_of_verts_offsets, verts_of_verts,
       &nedges, &verts_of_edges);
+  free(verts_of_verts_offsets);
+  free(verts_of_verts);
   double* sizes = malloc(sizeof(double) * nverts);
   for (unsigned i = 0; i < nverts; ++i)
     sizes[i] = size_function(coords + i * 3);
