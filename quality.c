@@ -96,7 +96,7 @@ static double edge_length_ratio(
   return minl / maxl;
 }
 
-enum tri_qual triangle_quality_type(
+enum quality_type triangle_quality_type(
     double coords[3][3],
     double qual_floor,
     double edge_ratio_floor,
@@ -104,14 +104,14 @@ enum tri_qual triangle_quality_type(
 {
   double q = triangle_quality(coords);
   if (q >= qual_floor)
-    return GOOD_TRI;
+    return GOOD_ELEM;
   double l[3];
   edge_lengths(2, coords, l);
   double r = edge_length_ratio(l, 3);
   if (r < edge_ratio_floor)
-    return SHORT_EDGE_TRI;
+    return SHORT_EDGE_ELEM;
   if (!key_edge_out)
-    return SLIVER_TRI;
+    return SLIVER_ELEM;
   double v[2][3];
   subtract_vectors(coords[1], coords[0], v[0], 3);
   subtract_vectors(coords[2], coords[0], v[1], 3);
@@ -123,24 +123,24 @@ enum tri_qual triangle_quality_type(
     *key_edge_out = 2;
   else
     *key_edge_out = 0;
-  return SLIVER_TRI;
+  return SLIVER_ELEM;
 }
 
 static struct {
-  enum tet_qual qt;
+  enum quality_type qt;
   unsigned ke;
 } const tet_quality_table[8] = {
   {0,0}, /* impossible for positive volume */
-  {CAP_TET,    1}, /* 001 */
-  {CAP_TET,    2}, /* 010 */
-  {SLIVER_TET, 1}, /* 011 */
-  {CAP_TET,    3}, /* 100 */
-  {SLIVER_TET, 0}, /* 101 */
-  {SLIVER_TET, 2}, /* 110 */
-  {CAP_TET,    0}, /* 111 */
+  {CAP_TET,     1}, /* 001 */
+  {CAP_TET,     2}, /* 010 */
+  {SLIVER_ELEM, 1}, /* 011 */
+  {CAP_TET,     3}, /* 100 */
+  {SLIVER_ELEM, 0}, /* 101 */
+  {SLIVER_ELEM, 2}, /* 110 */
+  {CAP_TET,     0}, /* 111 */
 };
 
-enum tet_qual tet_quality_type(
+enum quality_type tet_quality_type(
     double coords[4][3],
     double qual_floor,
     double edge_ratio_floor,
@@ -148,12 +148,12 @@ enum tet_qual tet_quality_type(
 {
   double q = tet_quality(coords);
   if (q >= qual_floor)
-    return GOOD_TET;
+    return GOOD_ELEM;
   double l[6];
   edge_lengths(3, coords, l);
   double r = edge_length_ratio(l, 6);
   if (r < edge_ratio_floor)
-    return SHORT_EDGE_TET;
+    return SHORT_EDGE_ELEM;
   double m[3][3];
   subtract_vectors(coords[1], coords[0], m[0], 3);
   subtract_vectors(coords[2], coords[0], m[1], 3);
@@ -174,3 +174,10 @@ enum tet_qual tet_quality_type(
     *key_ent_out = tet_quality_table[c].ke;
   return tet_quality_table[c].qt;
 }
+
+quality_type_function const the_quality_type_functions[4] = {
+  0,
+  0,
+  triangle_quality_type,
+  tet_quality_type
+};

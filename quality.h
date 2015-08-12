@@ -1,16 +1,10 @@
 #ifndef QUALITY_H
 #define QUALITY_H
 
-enum tri_qual {
-  GOOD_TRI,
-  SHORT_EDGE_TRI,
-  SLIVER_TRI
-};
-
-enum tet_qual {
-  GOOD_TET,
-  SHORT_EDGE_TET,
-  SLIVER_TET,
+enum quality_type {
+  GOOD_ELEM,
+  SHORT_EDGE_ELEM,
+  SLIVER_ELEM,
   CAP_TET
 };
 
@@ -21,16 +15,24 @@ double tet_quality(double coords[4][3]);
 
 extern quality_function const the_quality_functions[4];
 
-enum tri_qual triangle_quality_type(
+enum quality_type triangle_quality_type(
     double coords[3][3],
     double qual_floor,
     double edge_ratio_floor,
     unsigned* key_edge_out);
 
-enum tet_qual tet_quality_type(
+enum quality_type tet_quality_type(
     double coords[4][3],
     double qual_floor,
     double edge_ratio_floor,
     unsigned* key_ent_out);
+
+typedef enum quality_type (*quality_type_function)(
+    double coords[][3],
+    double qual_floor,
+    double edge_ratio_floor,
+    unsigned* key_out);
+
+extern quality_type_function const the_quality_type_functions[4];
 
 #endif
