@@ -17,6 +17,7 @@ splits_to_elements.o \
 quality.o \
 size.o \
 bridge_graph.o \
+refine_common.o \
 refine_reduced.o \
 concat.o \
 indset.o \
