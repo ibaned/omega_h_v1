@@ -9,6 +9,7 @@ void bad_elem_keys(
     unsigned nelems,
     unsigned const* verts_of_elems,
     double const* coords,
+    enum quality_type target,
     double qual_floor,
     double edge_ratio_floor,
     unsigned** bad_elems_out,
@@ -27,7 +28,7 @@ void bad_elem_keys(
     }
     unsigned key;
     enum quality_type qt = qtf(elem_coords, qual_floor, edge_ratio_floor, &key);
-    if (qt == GOOD_ELEM || qt == SHORT_EDGE_ELEM)
+    if (qt != target)
       bad_elems[i] = 0;
     else {
       bad_elems[i] = 1;
