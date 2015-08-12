@@ -64,7 +64,6 @@ int refine_reduced(
   unsigned* elems_of_edges_directions;
   up_from_down(elem_dim, 1, nelems, nedges, edges_of_elems,
       &elems_of_edges_offsets, &elems_of_edges, &elems_of_edges_directions);
-  free(elems_of_edges_directions);
   unsigned* edges_of_edges_offsets;
   unsigned* edges_of_edges;
   get_star(1, elem_dim, nedges, elems_of_edges_offsets, elems_of_edges,
@@ -73,6 +72,7 @@ int refine_reduced(
       1, nedges, verts_of_edges, candidates, edges_of_elems,
       elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
       edges_of_edges_offsets, edges_of_edges);
+  free(edges_of_elems);
   free(elems_of_edges_offsets);
   free(elems_of_edges);
   free(elems_of_edges_directions);
