@@ -66,3 +66,46 @@ quality_function const the_quality_functions[4] = {
   triangle_quality,
   tet_quality
 };
+
+
+enum tri_qual triangle_quality_type(
+    double coords[3][3],
+    double qual_floor,
+    double edge_ratio_floor,
+    unsigned* key_edge_out)
+{
+  double q = triangle_quality(coords);
+  if (q >= qual_floor)
+    return GOOD_TRI;
+  unsigned const* const* fev = the_canonical_orders[2][1][0];
+  double l[3];
+  for (unsigned i = 0; i < 3; ++i)
+    l[i] = vector_distance(
+        coords[fev[i][1]], coords[fev[i][0]], 3);
+  double maxl = l[0];
+  double minl = l[0];
+  for (unsigned i = 1; i < 3; ++i) {
+    if (l[i] > maxl)
+      maxl = l[i];
+    if (l[i] < minl)
+      minl = l[i];
+  }
+  double r = minl / maxl;
+  if (r < edge_ratio_floor)
+    return SHORT_EDGE_TRI;
+  if (!key_edge_out)
+    return SLIVER_TRI;
+  double v[2][3];
+  subtract_vectors(coords[1], coords[0], v[0], 3);
+  subtract_vectors(coords[2], coords[0], v[1], 3);
+  /* scalar projection of (v2 - v0) onto (v1 - v0) */
+  double sp = dot_product(v[1], v[0], 3) / l[0];
+  if (sp < 0)
+    *key_edge_out = 1;
+  else if (sp > l[0])
+    *key_edge_out = 2;
+  else
+    *key_edge_out = 0;
+  return SLIVER_TRI;
+}
+
