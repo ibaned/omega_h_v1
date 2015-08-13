@@ -29,7 +29,7 @@ doubles.o \
 element_qualities.o \
 classif_box.o \
 coarsen_by_size.o \
-collapse_classif.o \
+check_collapse_class.o \
 coarsen_qualities.o \
 coarsen_topology.o \
 collapses_to_verts.o \
