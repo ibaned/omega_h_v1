@@ -1,5 +1,5 @@
 #include "tables.h"
-#include "refine_reduced.h"
+#include "refine_by_size.h"
 #include "classif_box.h"
 #include "coarsen_reduced.h"
 #include "vtk.h"
@@ -34,7 +34,7 @@ int main()
   get_box_copy(elem_dim, &nelems, &nverts, &verts_of_elems, &coords);
   char fname[64];
   unsigned it = 0;
-  while (refine_reduced(elem_dim, &nelems, &nverts,
+  while (refine_by_size(elem_dim, &nelems, &nverts,
              &verts_of_elems, &coords, fine_fun)) {
     sprintf(fname, "ref_%u.vtu", it++);
     write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords, 0);

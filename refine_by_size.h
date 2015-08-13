@@ -1,7 +1,7 @@
-#ifndef REFINE_REDUCED_H
-#define REFINE_REDUCED_H
+#ifndef REFINE_BY_SIZE_H
+#define REFINE_BY_SIZE_H
 
-int refine_reduced(
+unsigned refine_by_size(
     unsigned elem_dim,
     unsigned* p_nelems,
     unsigned* p_nverts,

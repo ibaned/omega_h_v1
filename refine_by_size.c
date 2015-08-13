@@ -1,4 +1,4 @@
-#include "refine_reduced.h"
+#include "refine_by_size.h"
 #include "refine_common.h"
 #include "up_from_down.h"
 #include "measure_edges.h"
@@ -8,7 +8,7 @@
 #include "ints.h"
 #include <stdlib.h>
 
-int refine_reduced(
+unsigned refine_by_size(
     unsigned elem_dim,
     unsigned* p_nelems,
     unsigned* p_nverts,

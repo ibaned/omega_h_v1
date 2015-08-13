@@ -1,4 +1,4 @@
-#include "refine_reduced.h"
+#include "refine_by_size.h"
 #include "tables.h"
 #include "algebra.h"
 #include "vtk.h"
@@ -26,7 +26,7 @@ int main()
   get_box_copy(elem_dim, &nelems, &nverts, &verts_of_elems, &coords);
   char fname[64];
   for (unsigned it = 0; 1; ++it) {
-    if (!refine_reduced(elem_dim,
+    if (!refine_by_size(elem_dim,
           &nelems, &nverts, &verts_of_elems, &coords,
           simple))
       break;

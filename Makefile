@@ -18,7 +18,7 @@ quality.o \
 size.o \
 bridge_graph.o \
 refine_common.o \
-refine_reduced.o \
+refine_by_size.o \
 concat.o \
 indset.o \
 measure_edges.o \
@@ -44,7 +44,7 @@ all: $(objects)
 %.exe: %.o $(common_objects)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-test_refine_reduced.exe: test_refine_reduced.o $(common_objects)
+test_refine_by_size.exe: test_refine_by_size.o $(common_objects)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
