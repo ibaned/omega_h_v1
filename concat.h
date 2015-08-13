@@ -14,16 +14,18 @@ double* doubles_subset(
     unsigned const* offsets);
 
 unsigned* concat_ints(
-    unsigned narrs,
     unsigned width,
-    unsigned const* sizes,
-    unsigned const* const* arrs);
+    unsigned const a[],
+    unsigned na,
+    unsigned const b[],
+    unsigned nb);
 
 double* concat_doubles(
-    unsigned narrs,
     unsigned width,
-    unsigned const* sizes,
-    double const* const* arrs);
+    double const a[],
+    unsigned na,
+    double const b[],
+    unsigned nb);
 
 void concat_verts_of_elems(
     unsigned elem_dim,

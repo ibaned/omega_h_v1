@@ -61,17 +61,15 @@ void refine_common(
   double* gen_coords = refine_nodal(src_dim, nsrcs, verts_of_srcs,
       gen_offset_of_srcs, 3, coords);
   free(gen_offset_of_srcs);
-  unsigned concat_sizes[2] = {nverts, nsplit_srcs};
-  unsigned nverts_out = nverts + nsplit_srcs;
-  double const* concat_coords[2] = {coords, gen_coords};
-  double* coords_out = concat_doubles(2, 3, concat_sizes, concat_coords);
+  double* coords_out = concat_doubles(3, coords, nverts,
+      gen_coords, nsplit_srcs);
   free(gen_coords);
   if (p_class_dim) {
     unsigned const* class_dim = *p_class_dim;
     unsigned* gen_class_dim = refine_classif(src_dim, nsrcs, verts_of_srcs,
         gen_offset_of_srcs, class_dim);
-    unsigned const* ccd[2] = {class_dim, gen_class_dim};
-    unsigned* class_dim_out = concat_ints(2, 1, concat_sizes, ccd);
+    unsigned* class_dim_out = concat_ints(1, class_dim, nverts,
+        gen_class_dim, nsplit_srcs);
     free(gen_class_dim);
     free(*p_class_dim);
     *p_class_dim = class_dim_out;
@@ -87,7 +85,7 @@ void refine_common(
   free(offset_of_same_elems);
   free(verts_of_gen_elems);
   *p_nelems = nelems_out;
-  *p_nverts = nverts_out;
+  *p_nverts += nsplit_srcs;
   free(*p_verts_of_elems);
   *p_verts_of_elems = verts_of_elems_out;
   free(*p_coords);

@@ -5,43 +5,39 @@
 
 static void* concat_general(
     unsigned typesize,
-    unsigned narrs,
     unsigned width,
-    unsigned const* sizes,
-    void const* const* arrs)
+    void const* a,
+    unsigned na,
+    void const* b,
+    unsigned nb)
 {
-  unsigned total_bytes = 0;
-  for (unsigned i = 0; i < narrs; ++i)
-    total_bytes += sizes[i];
-  total_bytes *= width * typesize;
-  void* out = malloc(total_bytes);
-  char* p = out;
-  for (unsigned i = 0; i < narrs; ++i) {
-    unsigned arr_bytes = sizes[i] * width * typesize;
-    memcpy(p, arrs[i], arr_bytes);
-    p += arr_bytes;
-  }
+  unsigned a_bytes = na * width * typesize;
+  unsigned b_bytes = na * width * typesize;
+  unsigned total_bytes = a_bytes + b_bytes;
+  char* out = malloc(total_bytes);
+  memcpy(out, a, a_bytes);
+  memcpy(out + a_bytes, b, b_bytes);
   return out;
 }
 
 unsigned* concat_ints(
-    unsigned narrs,
     unsigned width,
-    unsigned const* sizes,
-    unsigned const* const* arrs)
+    unsigned const a[],
+    unsigned na,
+    unsigned const b[],
+    unsigned nb)
 {
-  return concat_general(sizeof(unsigned), narrs, width, sizes,
-      (void const* const*) arrs);
+  return concat_general(sizeof(unsigned), width, a, na, b, nb);
 }
 
 double* concat_doubles(
-    unsigned narrs,
     unsigned width,
-    unsigned const* sizes,
-    double const* const* arrs)
+    double const a[],
+    unsigned na,
+    double const b[],
+    unsigned nb)
 {
-  return concat_general(sizeof(double), narrs, width, sizes,
-      (void const* const*) arrs);
+  return concat_general(sizeof(double), width, a, na, b, nb);
 }
 
 void* general_subset(
@@ -97,9 +93,9 @@ void concat_verts_of_elems(
   unsigned nsame_elems = offset_of_same_elems[nelems];
   unsigned* verts_of_same_elems = ints_subset(nelems, verts_per_elem,
       verts_of_elems, offset_of_same_elems);
-  unsigned sizes[2] = { nsame_elems, ngen_elems };
-  unsigned const* arrs[2] = { verts_of_same_elems, verts_of_gen_elems };
-  unsigned* out = concat_ints(2, verts_per_elem, sizes, arrs);
+  unsigned* out = concat_ints(verts_per_elem,
+      verts_of_same_elems, nsame_elems,
+      verts_of_gen_elems, ngen_elems);
   free(verts_of_same_elems);
   *nelems_out = nsame_elems + ngen_elems;
   *verts_of_elems_out = out;
