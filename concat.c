@@ -12,7 +12,7 @@ static void* concat_general(
     unsigned nb)
 {
   unsigned a_bytes = na * width * typesize;
-  unsigned b_bytes = na * width * typesize;
+  unsigned b_bytes = nb * width * typesize;
   unsigned total_bytes = a_bytes + b_bytes;
   char* out = malloc(total_bytes);
   memcpy(out, a, a_bytes);
