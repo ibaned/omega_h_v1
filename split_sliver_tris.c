@@ -10,8 +10,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include <stdio.h>
-
 int split_sliver_tris(
     unsigned elem_dim,
     unsigned* p_nelems,
@@ -37,7 +35,6 @@ int split_sliver_tris(
       &bad_tris, &key_of_tris);
   unsigned something_to_do = ints_max(bad_tris, ntris);
   if (!something_to_do) {
-    printf("no sliver tris found\n");
     free(bad_tris);
     free(key_of_tris);
     return 0;
