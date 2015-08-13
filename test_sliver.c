@@ -49,12 +49,12 @@ int main()
       class_dim);
   minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
   printf("cor minq %f\n", minq);
-  double qual_floor = 0.1;
+  double qual_floor = 0.5;
   double edge_ratio_floor = 0; /* never rule "short edge" */
   split_sliver_tris(elem_dim, &nelems, &nverts, &verts_of_elems, &coords,
       qual_floor, edge_ratio_floor);
   write_vtk("sliver.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
-      class_dim);
+      0);
   free(verts_of_elems);
   free(coords);
   free(class_dim);
