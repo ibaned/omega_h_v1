@@ -6,7 +6,7 @@
 #include "measure_edges.h"
 #include "ints.h"
 #include "reflect_down.h"
-#include "collapse_classif.h"
+#include "check_collapse_class.h"
 #include "coarsen_qualities.h"
 #include "collapses_to_verts.h"
 #include "indset.h"
@@ -79,7 +79,7 @@ unsigned coarsen_by_size(
   up_from_down(elem_dim, 1, nelems, nedges, edges_of_elems,
       &elems_of_edges_offsets, &elems_of_edges, &elems_of_edges_directions);
   free(edges_of_elems);
-  check_collapse_classif(elem_dim, nedges, col_codes, class_dim,
+  check_collapse_class(elem_dim, nedges, col_codes, class_dim,
       verts_of_elems, verts_of_edges, verts_of_verts_offsets, verts_of_verts,
       elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions);
   free(elems_of_edges_offsets);

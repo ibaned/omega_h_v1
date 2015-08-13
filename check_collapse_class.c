@@ -1,10 +1,10 @@
-#include "collapse_classif.h"
+#include "check_collapse_class.h"
 #include "collapse_codes.h"
 #include "tables.h"
 #include "ints.h"
 #include <assert.h>
 
-void check_collapse_classif(
+void check_collapse_class(
     unsigned elem_dim,
     unsigned nedges,
     unsigned* col_codes,

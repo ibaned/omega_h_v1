@@ -1,7 +1,7 @@
-#ifndef COLLAPSE_CLASSIF_H
-#define COLLAPSE_CLASSIF_H
+#ifndef CHECK_COLLAPSE_CLASS_H
+#define CHECK_COLLAPSE_CLASS_H
 
-void check_collapse_classif(
+void check_collapse_class(
     unsigned elem_dim,
     unsigned nedges,
     unsigned* col_codes,
