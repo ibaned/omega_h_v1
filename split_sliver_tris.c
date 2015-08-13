@@ -73,6 +73,8 @@ int split_sliver_tris(
   unsigned* candidates = collect_keys(2, 1, nedges,
       tris_of_edges_offsets, tris_of_edges, tris_of_edges_directions,
       bad_tris, key_of_tris);
+  free(bad_tris);
+  free(key_of_tris);
   unsigned* elems_of_edges_offsets = tris_of_edges_offsets;
   unsigned* elems_of_edges = tris_of_edges;
   unsigned* elems_of_edges_directions = tris_of_edges_directions;
