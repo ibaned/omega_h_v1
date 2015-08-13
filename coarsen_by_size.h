@@ -1,7 +1,7 @@
-#ifndef COARSEN_REDUCED_H
-#define COARSEN_REDUCED_H
+#ifndef COARSEN_BY_SIZE_H
+#define COARSEN_BY_SIZE_H
 
-int coarsen_reduced(
+unsigned coarsen_by_size(
     unsigned elem_dim,
     unsigned* p_nelems,
     unsigned* p_nverts,

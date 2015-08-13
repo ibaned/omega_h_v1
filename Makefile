@@ -28,7 +28,7 @@ refine_qualities.o \
 doubles.o \
 element_qualities.o \
 classif_box.o \
-coarsen_reduced.o \
+coarsen_by_size.o \
 collapse_classif.o \
 coarsen_qualities.o \
 coarsen_topology.o \

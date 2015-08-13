@@ -1,7 +1,7 @@
 #include "tables.h"
 #include "refine_by_size.h"
 #include "classif_box.h"
-#include "coarsen_reduced.h"
+#include "coarsen_by_size.h"
 #include "vtk.h"
 #include "verify.h"
 #include "algebra.h"
@@ -41,9 +41,9 @@ int main()
 //double minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
   double minq = 0.001;
   printf("minq %f\n", minq);
-  coarsen_reduced(elem_dim, &nelems, &nverts,
+  coarsen_by_size(elem_dim, &nelems, &nverts,
       &verts_of_elems, &coords, &class_dim, coarse_fun, minq);
-  coarsen_reduced(elem_dim, &nelems, &nverts,
+  coarsen_by_size(elem_dim, &nelems, &nverts,
       &verts_of_elems, &coords, &class_dim, coarse_fun, minq);
   write_vtk("cor.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
       class_dim);

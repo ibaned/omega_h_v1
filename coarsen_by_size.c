@@ -1,4 +1,4 @@
-#include "coarsen_reduced.h"
+#include "coarsen_by_size.h"
 #include "collapse_codes.h"
 #include "up_from_down.h"
 #include "star.h"
@@ -17,7 +17,7 @@
 #include "element_qualities.h"
 #include <stdlib.h>
 
-int coarsen_reduced(
+unsigned coarsen_by_size(
     unsigned elem_dim,
     unsigned* p_nelems,
     unsigned* p_nverts,
