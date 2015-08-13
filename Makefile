@@ -34,7 +34,10 @@ coarsen_qualities.o \
 coarsen_topology.o \
 collapses_to_verts.o \
 collapses_to_elements.o \
-verify.o
+verify.o \
+split_sliver_tris.o \
+bad_elem_keys.o \
+collect_keys.o
 
 all: $(objects)
 
