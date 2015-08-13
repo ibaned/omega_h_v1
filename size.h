@@ -9,4 +9,23 @@ double tet_volume(double coords[4][3]);
 
 extern element_measure const the_element_measures[4];
 
+double* size_function_to_field(
+    unsigned nverts,
+    double const* coords,
+    double (*f)(double const x[]));
+
+double* identity_size_field(
+    unsigned nverts,
+    unsigned const* vert_of_verts_offsets,
+    unsigned const* vert_of_verts,
+    double const* coords);
+
+double* clamp_size_field(
+    unsigned nverts,
+    double const* id_size,
+    double const* user_size,
+    double ceil,
+    double floor,
+    unsigned* did_clamp_out);
+
 #endif
