@@ -37,7 +37,8 @@ collapses_to_elements.o \
 verify.o \
 split_sliver_tris.o \
 bad_elem_keys.o \
-collect_keys.o
+collect_keys.o \
+refine_classif.o
 
 all: $(objects)
 

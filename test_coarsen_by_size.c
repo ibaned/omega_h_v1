@@ -35,7 +35,7 @@ int main()
   char fname[64];
   unsigned it = 0;
   while (refine_by_size(elem_dim, &nelems, &nverts,
-             &verts_of_elems, &coords, fine_fun)) {
+             &verts_of_elems, &coords, 0, fine_fun)) {
     sprintf(fname, "ref_%u.vtu", it++);
     write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords, 0);
   }

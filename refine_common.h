@@ -7,6 +7,7 @@ void refine_common(
     unsigned* p_nverts,
     unsigned** p_verts_of_elems,
     double** p_coords,
+    unsigned** p_class_dim,
     unsigned src_dim,
     unsigned nsrcs,
     unsigned const* verts_of_srcs,

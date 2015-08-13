@@ -34,7 +34,7 @@ int main()
   double* coords;
   get_box_copy(elem_dim, &nelems, &nverts, &verts_of_elems, &coords);
   while (refine_by_size(elem_dim, &nelems, &nverts,
-             &verts_of_elems, &coords, fine_fun));
+             &verts_of_elems, &coords, 0, fine_fun));
   unsigned* class_dim = classif_box(elem_dim, nverts, coords);
   write_vtk("init.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
       class_dim);
@@ -52,7 +52,7 @@ int main()
   double qual_floor = 0.5;
   double edge_ratio_floor = 0; /* never rule "short edge" */
   split_sliver_tris(elem_dim, &nelems, &nverts, &verts_of_elems, &coords,
-      qual_floor, edge_ratio_floor);
+      0, qual_floor, edge_ratio_floor);
   write_vtk("sliver.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
       0);
   free(verts_of_elems);

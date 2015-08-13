@@ -1,14 +1,11 @@
 #include "refine_common.h"
-#include "up_from_down.h"
 #include "refine_qualities.h"
-#include "reflect_down.h"
-#include "refine_qualities.h"
-#include "star.h"
 #include "indset.h"
 #include "ints.h"
 #include "splits_to_elements.h"
 #include "refine_topology.h"
 #include "refine_nodal.h"
+#include "refine_classif.h"
 #include "concat.h"
 #include <stdlib.h>
 
@@ -18,6 +15,7 @@ void refine_common(
     unsigned* p_nverts,
     unsigned** p_verts_of_elems,
     double** p_coords,
+    unsigned** p_class_dim,
     unsigned src_dim,
     unsigned nsrcs,
     unsigned const* verts_of_srcs,
@@ -68,6 +66,16 @@ void refine_common(
   double const* concat_coords[2] = {coords, gen_coords};
   double* coords_out = concat_doubles(2, 3, concat_sizes, concat_coords);
   free(gen_coords);
+  if (p_class_dim) {
+    unsigned const* class_dim = *p_class_dim;
+    unsigned* gen_class_dim = refine_classif(src_dim, nsrcs, verts_of_srcs,
+        gen_offset_of_srcs, class_dim);
+    unsigned const* ccd[2] = {class_dim, gen_class_dim};
+    unsigned* class_dim_out = concat_ints(2, 1, concat_sizes, ccd);
+    free(gen_class_dim);
+    free(*p_class_dim);
+    *p_class_dim = class_dim_out;
+  }
   unsigned* offset_of_same_elems = ints_negate_offsets(
       gen_offset_of_elems, nelems);
   free(gen_offset_of_elems);

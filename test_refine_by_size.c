@@ -26,9 +26,8 @@ int main()
   get_box_copy(elem_dim, &nelems, &nverts, &verts_of_elems, &coords);
   char fname[64];
   for (unsigned it = 0; 1; ++it) {
-    if (!refine_by_size(elem_dim,
-          &nelems, &nverts, &verts_of_elems, &coords,
-          simple))
+    if (!refine_by_size(elem_dim, &nelems, &nverts, &verts_of_elems, &coords,
+             0, simple))
       break;
     printf("%u elements, %u vertices\n", nelems, nverts);
     double* quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);

@@ -14,6 +14,7 @@ unsigned refine_by_size(
     unsigned* p_nverts,
     unsigned** p_verts_of_elems,
     double** p_coords,
+    unsigned** p_class_dim,
     double (*size_function)(double const x[]))
 {
   unsigned nelems = *p_nelems;
@@ -69,6 +70,7 @@ unsigned refine_by_size(
   get_star(1, elem_dim, nedges, elems_of_edges_offsets, elems_of_edges,
       edges_of_elems, &edges_of_edges_offsets, &edges_of_edges);
   refine_common(elem_dim, p_nelems, p_nverts, p_verts_of_elems, p_coords,
+      p_class_dim,
       1, nedges, verts_of_edges, candidates, edges_of_elems,
       elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
       edges_of_edges_offsets, edges_of_edges);
