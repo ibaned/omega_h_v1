@@ -45,16 +45,20 @@ int main()
       &verts_of_elems, &coords, &class_dim, coarse_fun, minq);
   coarsen_by_size(elem_dim, &nelems, &nverts,
       &verts_of_elems, &coords, &class_dim, coarse_fun, minq);
-  write_vtk("cor.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
+  write_vtk("pre_cor.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
       class_dim);
   minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
   printf("cor minq %f\n", minq);
   double qual_floor = 0.5;
   double edge_ratio_floor = 0; /* never rule "short edge" */
   split_sliver_tris(elem_dim, &nelems, &nverts, &verts_of_elems, &coords,
-      0, qual_floor, edge_ratio_floor);
+      &class_dim, qual_floor, edge_ratio_floor);
   write_vtk("sliver.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
-      0);
+      class_dim);
+  coarsen_by_size(elem_dim, &nelems, &nverts,
+      &verts_of_elems, &coords, &class_dim, coarse_fun, minq);
+  write_vtk("post_cor.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
+      class_dim);
   free(verts_of_elems);
   free(coords);
   free(class_dim);
