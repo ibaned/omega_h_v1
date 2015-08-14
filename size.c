@@ -97,5 +97,6 @@ double* clamp_size_field(
     }
     out[i] = want;
   }
+  *did_clamp_out = did_clamp;
   return out;
 }
