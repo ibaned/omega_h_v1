@@ -38,7 +38,8 @@ verify.o \
 split_sliver_tris.o \
 bad_elem_keys.o \
 collect_keys.o \
-refine_classif.o
+refine_classif.o \
+derive_faces.o
 
 all: $(objects)
 

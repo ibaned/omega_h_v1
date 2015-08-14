@@ -2,6 +2,7 @@
 #include "up_from_down.h"
 #include "reflect_down.h"
 #include "bridge_graph.h"
+#include "derive_faces.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -35,6 +36,16 @@ int main()
         elem_face_of_faces[i],
         elems_of_faces[i * 2]);
   }
+  unsigned* verts_of_faces = derive_faces(nfaces, verts_of_elems,
+      elems_of_faces, elem_face_of_faces);
   free(elems_of_faces);
   free(elem_face_of_faces);
+  printf("\n");
+  for (unsigned i = 0; i < nfaces; ++i) {
+    printf("face %u:", i);
+    for (unsigned j = 0; j < 3; ++j)
+      printf(" %u", verts_of_faces[i * 3 + j]);
+    printf("\n");
+  }
+  free(verts_of_faces);
 }
