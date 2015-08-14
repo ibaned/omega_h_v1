@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include <stdio.h>
+
 /* This is the #1 most expensive function, takes up 50% of
    refinement time !
    If you are going to optimize, optimize here !
@@ -54,6 +56,11 @@ unsigned* reflect_down(
     unsigned const* lows_of_verts_offsets,
     unsigned const* lows_of_verts)
 {
+  unsigned dual_mode = 0;
+  if (high_dim == low_dim) {
+    dual_mode = 1;
+    low_dim = high_dim - 1;
+  }
   unsigned verts_per_high = the_down_degrees[high_dim][0];
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned verts_per_low = the_down_degrees[low_dim][0];
@@ -63,7 +70,6 @@ unsigned* reflect_down(
   for (unsigned i = 0; i < nhighs; ++i) {
     unsigned const* verts_of_high = verts_of_highs + i * verts_per_high;
     unsigned* lows_of_high = lows_of_highs + i * lows_per_high;
-    unsigned exclude_high = ((high_dim == low_dim) ? i : INVALID);
     for (unsigned j = 0; j < lows_per_high; ++j) {
       unsigned const* high_verts_of_low = high_verts_of_lows[j];
       unsigned high_buf[MAX_UP];
@@ -78,12 +84,12 @@ unsigned* reflect_down(
               high_buf_size,
               lows_of_verts + first_use,
               end_use - first_use);
-        } else if (high_dim == low_dim) {
+        } else if (dual_mode) {
           high_buf_size = copy_except(
               lows_of_verts + first_use,
               high_buf,
               end_use - first_use,
-              exclude_high);
+              i);
         } else {
           assert(end_use - first_use <= MAX_UP);
           high_buf_size = copy(
