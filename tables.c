@@ -203,10 +203,12 @@ void get_box_copy(
   unsigned* verts_of_elems = malloc(nbytes);
   memcpy(verts_of_elems, the_box_conns[elem_dim], nbytes);
   nbytes = sizeof(double) * nverts * 3;
-  double* coords = malloc(nbytes);
-  memcpy(coords, the_box_coords[elem_dim], nbytes);
+  if (p_coords) {
+    double* coords = malloc(nbytes);
+    memcpy(coords, the_box_coords[elem_dim], nbytes);
+    *p_coords = coords;
+  }
   *p_nelems = nelems;
   *p_nverts = nverts;
   *p_verts_of_elems = verts_of_elems;
-  *p_coords = coords;
 }
