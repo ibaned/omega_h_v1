@@ -1,6 +1,7 @@
 #include "tables.h"
 #include "up_from_down.h"
 #include "reflect_down.h"
+#include "bridge_graph.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -15,7 +16,7 @@ int main()
   unsigned* elems_of_verts;
   up_from_down(elem_dim, 0, nelems, nverts, verts_of_elems,
       &elems_of_verts_offsets, &elems_of_verts, 0);
-  unsigned* elems_of_elems = reflect_down(elem_dim, elem_dim, nelems, nelems,
+  unsigned* elems_of_elems = get_dual(elem_dim, nelems,
       verts_of_elems, elems_of_verts_offsets, elems_of_verts);
   free(verts_of_elems);
   free(elems_of_verts_offsets);

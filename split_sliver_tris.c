@@ -59,7 +59,7 @@ int split_sliver_tris(
   unsigned* edges_of_verts;
   up_from_down(1, 0, nedges, nverts, verts_of_edges,
       &edges_of_verts_offsets, &edges_of_verts, 0);
-  unsigned* edges_of_tris = reflect_down(2, 1, ntris, nedges,
+  unsigned* edges_of_tris = reflect_down(2, 1, ntris,
       verts_of_tris, edges_of_verts_offsets, edges_of_verts);
   free(edges_of_verts_offsets);
   free(edges_of_verts);

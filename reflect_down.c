@@ -6,11 +6,6 @@
 
 #include <stdio.h>
 
-/* This is the #1 most expensive function, takes up 50% of
-   refinement time !
-   If you are going to optimize, optimize here !
- */
-
 static unsigned copy(
     unsigned const a[],
     unsigned b[],
@@ -47,20 +42,19 @@ static unsigned intersect(
   return j;
 }
 
-unsigned* reflect_down(
+/* This is the #1 most expensive function, takes up 50% of
+   refinement time !
+   If you are going to optimize, optimize here !
+ */
+unsigned* reflect_down_general(
+    unsigned dual_mode,
     unsigned high_dim,
     unsigned low_dim,
     unsigned nhighs,
-    unsigned nlows,
     unsigned const* verts_of_highs,
     unsigned const* lows_of_verts_offsets,
     unsigned const* lows_of_verts)
 {
-  unsigned dual_mode = 0;
-  if (high_dim == low_dim) {
-    dual_mode = 1;
-    low_dim = high_dim - 1;
-  }
   unsigned verts_per_high = the_down_degrees[high_dim][0];
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned verts_per_low = the_down_degrees[low_dim][0];
@@ -103,4 +97,27 @@ unsigned* reflect_down(
     }
   }
   return lows_of_highs;
+}
+
+unsigned* reflect_down(
+    unsigned high_dim,
+    unsigned low_dim,
+    unsigned nhighs,
+    unsigned const* verts_of_highs,
+    unsigned const* lows_of_verts_offsets,
+    unsigned const* lows_of_verts)
+{
+  return reflect_down_general(0, high_dim, low_dim, nhighs, verts_of_highs,
+      lows_of_verts_offsets, lows_of_verts);
+}
+
+unsigned* get_dual(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* verts_of_elems,
+    unsigned const* elems_of_verts_offsets,
+    unsigned const* elems_of_verts)
+{
+  return reflect_down_general(1, elem_dim, elem_dim - 1, nelems, verts_of_elems,
+      elems_of_verts_offsets, elems_of_verts);
 }

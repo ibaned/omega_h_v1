@@ -71,7 +71,7 @@ unsigned coarsen_by_size(
   unsigned* edges_of_verts_directions;
   up_from_down(1, 0, nedges, nverts, verts_of_edges,
       &edges_of_verts_offsets, &edges_of_verts, &edges_of_verts_directions);
-  unsigned* edges_of_elems = reflect_down(elem_dim, 1, nelems, nedges,
+  unsigned* edges_of_elems = reflect_down(elem_dim, 1, nelems,
       verts_of_elems, edges_of_verts_offsets, edges_of_verts);
   unsigned* elems_of_edges_offsets;
   unsigned* elems_of_edges;
