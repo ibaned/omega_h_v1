@@ -19,7 +19,6 @@ int main()
       &elems_of_verts_offsets, &elems_of_verts, 0);
   unsigned* elems_of_elems = get_dual(elem_dim, nelems,
       verts_of_elems, elems_of_verts_offsets, elems_of_verts);
-  free(verts_of_elems);
   free(elems_of_verts_offsets);
   free(elems_of_verts);
   unsigned nfaces = 0;
@@ -38,6 +37,7 @@ int main()
   }
   unsigned* verts_of_faces = derive_faces(nfaces, verts_of_elems,
       elems_of_faces, elem_face_of_faces);
+  free(verts_of_elems);
   free(elems_of_faces);
   free(elem_face_of_faces);
   printf("\n");
