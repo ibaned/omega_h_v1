@@ -32,5 +32,20 @@ int main()
     }
     printf("\n");
   }
+  unsigned nfaces;
+  unsigned* elems_of_faces;
+  unsigned* elem_face_of_faces;
+  bridge_dual_graph(elem_dim, nelems, elems_of_elems,
+      &nfaces, &elems_of_faces, &elem_face_of_faces);
   free(elems_of_elems);
+  for (unsigned i = 0; i < nfaces; ++i) {
+    printf("face %u: ", i);
+    printf("elems %u %u, ", elems_of_faces[i * 2 + 0],
+                            elems_of_faces[i * 2 + 1]);
+    printf("face %u of elem %u\n",
+        elem_face_of_faces[i],
+        elems_of_faces[i * 2]);
+  }
+  free(elems_of_faces);
+  free(elem_face_of_faces);
 }
