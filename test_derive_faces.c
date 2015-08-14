@@ -21,17 +21,6 @@ int main()
   free(verts_of_elems);
   free(elems_of_verts_offsets);
   free(elems_of_verts);
-  for (unsigned i = 0; i < nelems; ++i) {
-    printf("%u:", i);
-    for (unsigned j = 0; j < 4; ++j) {
-      unsigned ei = elems_of_elems[i * 4 + j];
-      if (ei == INVALID)
-        printf(" X");
-      else
-        printf(" %u", ei);
-    }
-    printf("\n");
-  }
   unsigned nfaces = 0;
   unsigned* elems_of_faces = 0;
   unsigned* elem_face_of_faces = 0;
