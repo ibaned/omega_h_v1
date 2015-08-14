@@ -14,7 +14,6 @@ void bridge_graph_general(
 {
   unsigned nhalf_edges = adj_offsets[nverts];
   assert(nhalf_edges % 2 == 0);
-  unsigned nedges = nhalf_edges / 2;
   unsigned* degree_of_verts = malloc(sizeof(unsigned) * nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_adj = adj_offsets[i];
@@ -27,6 +26,7 @@ void bridge_graph_general(
   }
   unsigned* bridge_offsets = ints_exscan(degree_of_verts, nverts);
   free(degree_of_verts);
+  unsigned nedges = bridge_offsets[nverts];
   unsigned* verts_of_edges = malloc(sizeof(unsigned) * nedges * 2);
   unsigned* directions = 0;
   if (directions_out)
@@ -39,9 +39,9 @@ void bridge_graph_general(
       if (i < adj[j]) {
         verts_of_edges[edge * 2 + 0] = i;
         verts_of_edges[edge * 2 + 1] = adj[j];
-        ++edge;
         if (directions)
           directions[edge] = j - first_adj;
+        ++edge;
       }
   }
   free(bridge_offsets);
@@ -76,6 +76,6 @@ void bridge_dual_graph(
   unsigned* offsets = ints_exscan(degrees, nelems);
   free(degrees);
   bridge_graph_general(nelems, offsets, elems_of_elems,
-      nfaces_out, elem_face_of_faces_out, elem_face_of_faces_out);
+      nfaces_out, elems_of_faces_out, elem_face_of_faces_out);
   free(offsets);
 }

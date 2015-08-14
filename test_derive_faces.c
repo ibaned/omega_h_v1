@@ -32,9 +32,9 @@ int main()
     }
     printf("\n");
   }
-  unsigned nfaces;
-  unsigned* elems_of_faces;
-  unsigned* elem_face_of_faces;
+  unsigned nfaces = 0;
+  unsigned* elems_of_faces = 0;
+  unsigned* elem_face_of_faces = 0;
   bridge_dual_graph(elem_dim, nelems, elems_of_elems,
       &nfaces, &elems_of_faces, &elem_face_of_faces);
   free(elems_of_elems);
