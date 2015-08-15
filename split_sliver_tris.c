@@ -29,7 +29,7 @@ int split_sliver_tris(
   double const* coords = *p_coords;
   unsigned ntris;
   unsigned const* verts_of_tris;
-  unsigned* verts_of_tris_gen;
+  unsigned* verts_of_tris_gen = 0;
   unsigned* elems_of_verts_offsets;
   unsigned* elems_of_verts;
   if (elem_dim == 2) {
