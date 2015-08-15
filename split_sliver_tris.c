@@ -127,7 +127,7 @@ int split_sliver_tris(
   }
   unsigned* edges_of_edges_offsets;
   unsigned* edges_of_edges;
-  get_star(1, 2, nedges, elems_of_edges_offsets, elems_of_edges,
+  get_star(1, elem_dim, nedges, elems_of_edges_offsets, elems_of_edges,
       edges_of_elems, &edges_of_edges_offsets, &edges_of_edges);
   refine_common(elem_dim, p_nelems, p_nverts, p_verts_of_elems, p_coords,
       p_class_dim,
