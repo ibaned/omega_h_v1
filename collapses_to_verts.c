@@ -21,8 +21,8 @@ void collapses_to_verts(
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_use = edges_of_verts_offsets[i];
     unsigned end_use = edges_of_verts_offsets[i + 1];
-    double maxq;
-    unsigned gen_vert;
+    double maxq = 0;
+    unsigned gen_vert = INVALID;
     unsigned is_collapsing = 0;
     for (unsigned j = first_use; j < end_use; ++j) {
       unsigned edge = edges_of_verts[j];
