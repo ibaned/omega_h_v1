@@ -60,7 +60,6 @@ void refine_common(
   free(gen_direction_of_elems);
   double* gen_coords = refine_nodal(src_dim, nsrcs, verts_of_srcs,
       gen_offset_of_srcs, 3, coords);
-  free(gen_offset_of_srcs);
   double* coords_out = concat_doubles(3, coords, nverts,
       gen_coords, nsplit_srcs);
   free(gen_coords);
@@ -74,6 +73,7 @@ void refine_common(
     free(*p_class_dim);
     *p_class_dim = class_dim_out;
   }
+  free(gen_offset_of_srcs);
   unsigned* offset_of_same_elems = ints_negate_offsets(
       gen_offset_of_elems, nelems);
   free(gen_offset_of_elems);
