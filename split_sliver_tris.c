@@ -7,6 +7,7 @@
 #include "reflect_down.h"
 #include "collect_keys.h"
 #include "refine_common.h"
+#include "derive_faces.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -20,14 +21,36 @@ int split_sliver_tris(
     double qual_floor,
     double edge_ratio_floor)
 {
-  /* TODO: accept a tet mesh */
-  assert(elem_dim == 2);
+  assert(elem_dim >= 2);
+  assert(elem_dim <= 3);
   unsigned nelems = *p_nelems;
   unsigned nverts = *p_nverts;
   unsigned const* verts_of_elems = *p_verts_of_elems;
-  unsigned ntris = *p_nelems;
-  unsigned const* verts_of_tris = *p_verts_of_elems;
   double const* coords = *p_coords;
+  unsigned ntris;
+  unsigned const* verts_of_tris;
+  unsigned* verts_of_tris_gen;
+  unsigned* elems_of_verts_offsets;
+  unsigned* elems_of_verts;
+  if (elem_dim == 2) {
+    ntris = nelems;
+    verts_of_tris = verts_of_elems;
+  } else {
+    up_from_down(elem_dim, 0, nelems, nverts, verts_of_elems,
+        &elems_of_verts_offsets, &elems_of_verts, 0);
+    unsigned* elems_of_elems = get_dual(elem_dim, nelems,
+        verts_of_elems, elems_of_verts_offsets, elems_of_verts);
+    unsigned* elems_of_faces;
+    unsigned* elem_face_of_faces;
+    bridge_dual_graph(elem_dim, nelems, elems_of_elems,
+        &ntris, &elems_of_faces, &elem_face_of_faces);
+    free(elems_of_elems);
+    verts_of_tris_gen = derive_faces(ntris, verts_of_elems,
+        elems_of_faces, elem_face_of_faces);
+    free(elems_of_faces);
+    free(elem_face_of_faces);
+    verts_of_tris = verts_of_tris_gen;
+  }
   unsigned* bad_tris;
   unsigned* key_of_tris;
   bad_elem_keys(2, ntris, verts_of_tris, coords,
@@ -37,12 +60,16 @@ int split_sliver_tris(
   if (!something_to_do) {
     free(bad_tris);
     free(key_of_tris);
+    if (elem_dim == 3) {
+      free(elems_of_verts_offsets);
+      free(elems_of_verts);
+      free(verts_of_tris_gen);
+    }
     return 0;
   }
-  unsigned* elems_of_verts_offsets;
-  unsigned* elems_of_verts;
-  up_from_down(elem_dim, 0, nelems, nverts, verts_of_elems,
-      &elems_of_verts_offsets, &elems_of_verts, 0);
+  if (elem_dim == 2)
+    up_from_down(elem_dim, 0, nelems, nverts, verts_of_elems,
+        &elems_of_verts_offsets, &elems_of_verts, 0);
   unsigned* verts_of_verts_offsets;
   unsigned* verts_of_verts;
   get_star(0, elem_dim, nverts, elems_of_verts_offsets, elems_of_verts,
@@ -61,6 +88,8 @@ int split_sliver_tris(
       &edges_of_verts_offsets, &edges_of_verts, 0);
   unsigned* edges_of_tris = reflect_down(2, 1, ntris,
       verts_of_tris, edges_of_verts_offsets, edges_of_verts);
+  if (elem_dim == 3)
+    free(verts_of_tris_gen);
   free(edges_of_verts_offsets);
   free(edges_of_verts);
   unsigned* tris_of_edges_offsets;
