@@ -40,23 +40,27 @@ int main()
       class_dim);
   double init_minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
   printf("init minq %f\n", init_minq);
-  double cor_qual_floor = 0.4;
+  double cor_qual_floor = 0.3;
   printf("coarsen quality floor %f\n", cor_qual_floor);
+  char fname[64];
+  unsigned i = 0;
   while (coarsen_by_size(elem_dim, &nelems, &nverts,
-      &verts_of_elems, &coords, &class_dim, coarse_fun, cor_qual_floor));
-  write_vtk("cor.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
-      class_dim);
+      &verts_of_elems, &coords, &class_dim, coarse_fun, cor_qual_floor)) {
+    sprintf(fname, "cor_%u.vtu", i++);
+    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords,
+        class_dim);
+  }
   double cor_minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
   printf("cor minq %f\n", cor_minq);
-  double sliver_qual_floor = 0.5;
-  printf("sliver quality floor %f\n", sliver_qual_floor);
-  double edge_ratio_floor = 0; /* never rule "short edge" */
-  split_sliver_tris(elem_dim, &nelems, &nverts, &verts_of_elems, &coords,
-      &class_dim, sliver_qual_floor, edge_ratio_floor);
-  write_vtk("sliver.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
-      class_dim);
-  double sliver_minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
-  printf("sliver minq %f\n", sliver_minq);
+//double sliver_qual_floor = 0.2;
+//printf("sliver quality floor %f\n", sliver_qual_floor);
+//double edge_ratio_floor = 0; /* never rule "short edge" */
+//split_sliver_tris(elem_dim, &nelems, &nverts, &verts_of_elems, &coords,
+//    &class_dim, sliver_qual_floor, edge_ratio_floor);
+//write_vtk("sliver.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
+//    class_dim);
+//double sliver_minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
+//printf("sliver minq %f\n", sliver_minq);
   free(verts_of_elems);
   free(coords);
   free(class_dim);
