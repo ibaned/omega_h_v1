@@ -45,7 +45,7 @@ int split_sliver_tris(
     bridge_dual_graph(elem_dim, nelems, elems_of_elems,
         &ntris, &elems_of_faces, &elem_face_of_faces);
     free(elems_of_elems);
-    verts_of_tris_gen = derive_faces(ntris, verts_of_elems,
+    verts_of_tris_gen = derive_faces(ntris, nverts, verts_of_elems,
         elems_of_faces, elem_face_of_faces);
     free(elems_of_faces);
     free(elem_face_of_faces);
@@ -90,8 +90,6 @@ int split_sliver_tris(
       verts_of_tris, edges_of_verts_offsets, edges_of_verts);
   if (elem_dim == 3)
     free(verts_of_tris_gen);
-  free(edges_of_verts_offsets);
-  free(edges_of_verts);
   unsigned* tris_of_edges_offsets;
   unsigned* tris_of_edges;
   unsigned* tris_of_edges_directions;
@@ -102,10 +100,23 @@ int split_sliver_tris(
       bad_tris, key_of_tris);
   free(bad_tris);
   free(key_of_tris);
-  unsigned* elems_of_edges_offsets = tris_of_edges_offsets;
-  unsigned* elems_of_edges = tris_of_edges;
-  unsigned* elems_of_edges_directions = tris_of_edges_directions;
-  unsigned* edges_of_elems = edges_of_tris;
+  unsigned* elems_of_edges_offsets = 0;
+  unsigned* elems_of_edges = 0;
+  unsigned* elems_of_edges_directions = 0;
+  unsigned* edges_of_elems = 0;
+  if (elem_dim == 2) {
+    elems_of_edges_offsets = tris_of_edges_offsets;
+    elems_of_edges = tris_of_edges;
+    elems_of_edges_directions = tris_of_edges_directions;
+    edges_of_elems = edges_of_tris;
+  } else {
+    edges_of_elems = reflect_down(elem_dim, 1, nelems,
+      verts_of_elems, edges_of_verts_offsets, edges_of_verts);
+    up_from_down(elem_dim, 1, nelems, nedges, edges_of_elems,
+        &elems_of_edges_offsets, &elems_of_edges, &elems_of_edges_directions);
+  }
+  free(edges_of_verts_offsets);
+  free(edges_of_verts);
   unsigned* edges_of_edges_offsets;
   unsigned* edges_of_edges;
   get_star(1, 2, nedges, elems_of_edges_offsets, elems_of_edges,
