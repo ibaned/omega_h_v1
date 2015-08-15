@@ -1,4 +1,4 @@
-CFLAGS = -g -O2 -std=c99 -Werror -Wall -fno-omit-frame-pointer
+CFLAGS = -g -O2 -std=c99 -Werror -Wall
 LDLIBS = -lm
 
 sources := $(wildcard *.c)
