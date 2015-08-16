@@ -7,7 +7,13 @@ struct field {
   double* data;
 };
 
-struct field* new_field(char const* name, unsigned ncomps);
+struct const_field {
+  char const* const name;
+  unsigned const ncomps;
+  double const* const data;
+};
+
+struct field* new_field(char const* name, unsigned ncomps, double* data);
 
 struct fields {
   unsigned n;

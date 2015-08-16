@@ -62,7 +62,7 @@ struct mesh* new_box_mesh(unsigned elem_dim)
   double* coords = malloc(nbytes);
   memcpy(coords, the_box_coords[elem_dim], nbytes);
   mesh_set_ents(m, elem_dim, nelems, verts_of_elems);
-  mesh_add_nodal_field(m, "coordinates", 3)->data = coords;
+  mesh_add_nodal_field(m, "coordinates", 3, coords);
   return m;
 }
 
@@ -81,12 +81,12 @@ void free_mesh(struct mesh* m)
   free_fields(&m->nodal_fields);
 }
 
-struct field* mesh_find_nodal_field(struct mesh* m, char const* name)
+struct const_field* mesh_find_nodal_field(struct mesh* m, char const* name)
 {
-  return find_field(&m->nodal_fields, name);
+  return (struct const_field*) find_field(&m->nodal_fields, name);
 }
 
-unsigned* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
+unsigned* mesh_ask_down_priv(struct mesh* m, unsigned high_dim, unsigned low_dim)
 {
   assert(low_dim < high_dim);
   if (m->down[high_dim][low_dim])
@@ -94,13 +94,13 @@ unsigned* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
   if (low_dim) { /* deriving intermediate downward adjacency */
     unsigned nhighs = m->counts[high_dim];
     unsigned const* verts_of_highs = mesh_ask_down(m, high_dim, 0);
-    struct up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
+    struct const_up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
     unsigned* lows_of_highs = reflect_down(high_dim, low_dim, nhighs,
         verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
     mesh_set_down(m, high_dim, low_dim, lows_of_highs);
   } else { /* deriving intermediate entities (entity to vertex connectivity) */
     if (high_dim == 1) { /* deriving edges */
-      struct graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
+      struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
       unsigned nverts = m->counts[0];
       unsigned nedges;
       unsigned* verts_of_edges;
@@ -110,7 +110,7 @@ unsigned* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
     } else { /* deriving faces in 3D */
       assert(high_dim == 2);
       assert(m->elem_dim == 3);
-      unsigned* elems_of_elems = mesh_ask_dual(m);
+      unsigned const* elems_of_elems = mesh_ask_dual(m);
       unsigned nelems = m->counts[m->elem_dim];
       unsigned const* verts_of_elems = m->down[m->elem_dim][0];
       unsigned nfaces;
@@ -128,11 +128,11 @@ unsigned* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
   return m->down[high_dim][low_dim];
 }
 
-struct up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim)
+struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim)
 {
   assert(low_dim < high_dim);
   if (m->up[low_dim][high_dim])
-    return m->up[low_dim][high_dim];
+    return (struct const_up*) m->up[low_dim][high_dim];
   unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
   unsigned nhighs = m->counts[high_dim];
   unsigned nlows = m->counts[low_dim];
@@ -142,31 +142,31 @@ struct up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim)
   up_from_down(high_dim, low_dim, nhighs, nlows, lows_of_highs,
       &offsets, &highs_of_lows, &directions);
   mesh_set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
-  return m->up[low_dim][high_dim];
+  return (struct const_up*) m->up[low_dim][high_dim];
 }
 
-struct graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned high_dim)
+struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned high_dim)
 {
   if (m->star[low_dim][high_dim])
-    return m->star[low_dim][high_dim];
-  unsigned* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
-  struct up* highs_of_lows = mesh_ask_up(m, low_dim, high_dim);
+    return (struct const_graph*) m->star[low_dim][high_dim];
+  unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
+  struct const_up* highs_of_lows = mesh_ask_up(m, low_dim, high_dim);
   unsigned nlows = m->counts[low_dim];
   unsigned* offsets;
   unsigned* adj;
   get_star(low_dim, high_dim, nlows, highs_of_lows->offsets, highs_of_lows->adj,
       lows_of_highs, &offsets, &adj);
   mesh_set_star(m, low_dim, high_dim, new_graph(offsets, adj));
-  return m->star[low_dim][high_dim];
+  return (struct const_graph*) m->star[low_dim][high_dim];
 }
 
-unsigned* mesh_ask_dual(struct mesh* m)
+unsigned const* mesh_ask_dual(struct mesh* m)
 {
   if (m->dual)
     return m->dual;
   unsigned nelems = m->counts[m->elem_dim];
   unsigned const* verts_of_elems = m->down[m->elem_dim][0];
-  struct up* elems_of_verts = mesh_ask_up(m, 0, m->elem_dim);
+  struct const_up* elems_of_verts = mesh_ask_up(m, 0, m->elem_dim);
   unsigned* elems_of_elems = get_dual(m->elem_dim, nelems, verts_of_elems,
       elems_of_verts->offsets, elems_of_verts->adj);
   mesh_set_dual(m, elems_of_elems);
@@ -234,10 +234,10 @@ void mesh_set_ents(struct mesh* m, unsigned dim, unsigned n, unsigned* verts)
   mesh_set_down(m, dim, 0, verts);
 }
 
-struct field* mesh_add_nodal_field(struct mesh* m, char const* name,
-    unsigned ncomps)
+struct const_field* mesh_add_nodal_field(struct mesh* m, char const* name,
+    unsigned ncomps, double* data)
 {
-  struct field* f = new_field(name, ncomps);
+  struct field* f = new_field(name, ncomps, data);
   add_field(&m->nodal_fields, f);
-  return f;
+  return (struct const_field*) f;
 }
