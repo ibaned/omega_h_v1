@@ -14,23 +14,10 @@ struct up {
 struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions);
 void free_up(struct up* u);
 
-struct mesh {
-  unsigned elem_dim;
-  unsigned counts[4];
-  unsigned* down[4][4];
-  unsigned had_down[4][4];
-  struct up* up[4][4];
-  unsigned had_up[4][4];
-  struct graph* star[4][4];
-  unsigned had_star[4][4];
-  unsigned* dual;
-  unsigned had_dual;
-  struct fields nodal_fields;
-  struct labels nodal_labels;
-};
-
 struct mesh* new_mesh(unsigned elem_dim);
 struct mesh* new_box_mesh(unsigned elem_dim);
+unsigned mesh_dim(struct mesh* m);
+unsigned mesh_count(struct mesh* m, unsigned dim);
 void free_mesh(struct mesh* m);
 struct field* mesh_find_nodal_field(struct mesh* m, char const* name);
 unsigned* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim);

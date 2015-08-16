@@ -9,6 +9,21 @@
 #include <string.h>
 #include <assert.h>
 
+struct mesh {
+  unsigned elem_dim;
+  unsigned counts[4];
+  unsigned* down[4][4];
+  unsigned had_down[4][4];
+  struct up* up[4][4];
+  unsigned had_up[4][4];
+  struct graph* star[4][4];
+  unsigned had_star[4][4];
+  unsigned* dual;
+  unsigned had_dual;
+  struct fields nodal_fields;
+  struct labels nodal_labels;
+};
+
 struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
 {
   struct up* u = malloc(sizeof(*u));
@@ -49,6 +64,16 @@ struct mesh* new_box_mesh(unsigned elem_dim)
   mesh_set_ents(m, elem_dim, nelems, verts_of_elems);
   mesh_add_nodal_field(m, "coordinates", 3)->data = coords;
   return m;
+}
+
+unsigned mesh_dim(struct mesh* m)
+{
+  return m->elem_dim;
+}
+
+unsigned mesh_count(struct mesh* m, unsigned dim)
+{
+  return m->counts[dim];
 }
 
 void free_mesh(struct mesh* m)
