@@ -1,56 +1,23 @@
 #include "split_sliver_tris.h"
 #include "bad_elem_keys.h"
 #include "ints.h"
-#include "up_from_down.h"
-#include "star.h"
-#include "bridge_graph.h"
-#include "reflect_down.h"
 #include "collect_keys.h"
 #include "refine_common.h"
-#include "derive_faces.h"
 #include <assert.h>
 #include <stdlib.h>
 
-int split_sliver_tris(
-    unsigned elem_dim,
-    unsigned* p_nelems,
-    unsigned* p_nverts,
-    unsigned** p_verts_of_elems,
-    double** p_coords,
-    unsigned** p_class_dim,
+unsigned split_sliver_tris(
+    struct mesh** p_m,
     double qual_floor,
     double edge_ratio_floor)
 {
+  struct mesh* m = *p_m;
+  unsigned elem_dim = mesh_dim(m);
   assert(elem_dim >= 2);
   assert(elem_dim <= 3);
-  unsigned nelems = *p_nelems;
-  unsigned nverts = *p_nverts;
-  unsigned const* verts_of_elems = *p_verts_of_elems;
-  double const* coords = *p_coords;
-  unsigned ntris;
-  unsigned const* verts_of_tris;
-  unsigned* verts_of_tris_gen = 0;
-  unsigned* elems_of_verts_offsets;
-  unsigned* elems_of_verts;
-  if (elem_dim == 2) {
-    ntris = nelems;
-    verts_of_tris = verts_of_elems;
-  } else {
-    up_from_down(elem_dim, 0, nelems, nverts, verts_of_elems,
-        &elems_of_verts_offsets, &elems_of_verts, 0);
-    unsigned* elems_of_elems = get_dual(elem_dim, nelems,
-        verts_of_elems, elems_of_verts_offsets, elems_of_verts);
-    unsigned* elems_of_faces;
-    unsigned* elem_face_of_faces;
-    bridge_dual_graph(elem_dim, nelems, elems_of_elems,
-        &ntris, &elems_of_faces, &elem_face_of_faces);
-    free(elems_of_elems);
-    verts_of_tris_gen = derive_faces(ntris, verts_of_elems,
-        elems_of_faces, elem_face_of_faces);
-    free(elems_of_faces);
-    free(elem_face_of_faces);
-    verts_of_tris = verts_of_tris_gen;
-  }
+  unsigned const* verts_of_tris = mesh_ask_down(m, 2, 0);
+  unsigned ntris = mesh_count(m, 2);
+  double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
   unsigned* bad_tris;
   unsigned* key_of_tris;
   bad_elem_keys(2, ntris, verts_of_tris, coords,
@@ -60,87 +27,18 @@ int split_sliver_tris(
   if (!something_to_do) {
     free(bad_tris);
     free(key_of_tris);
-    if (elem_dim == 3) {
-      free(elems_of_verts_offsets);
-      free(elems_of_verts);
-      free(verts_of_tris_gen);
-    }
     return 0;
   }
-  if (elem_dim == 2)
-    up_from_down(elem_dim, 0, nelems, nverts, verts_of_elems,
-        &elems_of_verts_offsets, &elems_of_verts, 0);
-  unsigned* verts_of_verts_offsets;
-  unsigned* verts_of_verts;
-  get_star(0, elem_dim, nverts, elems_of_verts_offsets, elems_of_verts,
-      verts_of_elems, &verts_of_verts_offsets, &verts_of_verts);
-  free(elems_of_verts_offsets);
-  free(elems_of_verts);
-  unsigned nedges;
-  unsigned* verts_of_edges;
-  bridge_graph(nverts, verts_of_verts_offsets, verts_of_verts,
-      &nedges, &verts_of_edges);
-  free(verts_of_verts_offsets);
-  free(verts_of_verts);
-  unsigned* edges_of_verts_offsets;
-  unsigned* edges_of_verts;
-  up_from_down(1, 0, nedges, nverts, verts_of_edges,
-      &edges_of_verts_offsets, &edges_of_verts, 0);
-  unsigned* edges_of_tris = reflect_down(2, 1, ntris,
-      verts_of_tris, edges_of_verts_offsets, edges_of_verts);
-  if (elem_dim == 2) {
-    free(edges_of_verts_offsets);
-    free(edges_of_verts);
-  } else {
-    free(verts_of_tris_gen);
-  }
-  unsigned* tris_of_edges_offsets;
-  unsigned* tris_of_edges;
-  unsigned* tris_of_edges_directions;
-  up_from_down(2, 1, ntris, nedges, edges_of_tris,
-      &tris_of_edges_offsets, &tris_of_edges, &tris_of_edges_directions);
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* tris_of_edges_offsets = mesh_ask_up(m, 1, 2)->offsets;
+  unsigned const* tris_of_edges = mesh_ask_up(m, 1, 2)->adj;
+  unsigned const* tris_of_edges_directions = mesh_ask_up(m, 1, 2)->directions;
   unsigned* candidates = collect_keys(2, 1, nedges,
       tris_of_edges_offsets, tris_of_edges, tris_of_edges_directions,
       bad_tris, key_of_tris);
   free(bad_tris);
   free(key_of_tris);
-  unsigned* elems_of_edges_offsets = 0;
-  unsigned* elems_of_edges = 0;
-  unsigned* elems_of_edges_directions = 0;
-  unsigned* edges_of_elems = 0;
-  if (elem_dim == 2) {
-    elems_of_edges_offsets = tris_of_edges_offsets;
-    elems_of_edges = tris_of_edges;
-    elems_of_edges_directions = tris_of_edges_directions;
-    edges_of_elems = edges_of_tris;
-  } else {
-    free(tris_of_edges_offsets);
-    free(tris_of_edges);
-    free(tris_of_edges_directions);
-    free(edges_of_tris);
-    edges_of_elems = reflect_down(elem_dim, 1, nelems,
-      verts_of_elems, edges_of_verts_offsets, edges_of_verts);
-    up_from_down(elem_dim, 1, nelems, nedges, edges_of_elems,
-        &elems_of_edges_offsets, &elems_of_edges, &elems_of_edges_directions);
-    free(edges_of_verts_offsets);
-    free(edges_of_verts);
-  }
-  unsigned* edges_of_edges_offsets;
-  unsigned* edges_of_edges;
-  get_star(1, elem_dim, nedges, elems_of_edges_offsets, elems_of_edges,
-      edges_of_elems, &edges_of_edges_offsets, &edges_of_edges);
-  refine_common(elem_dim, p_nelems, p_nverts, p_verts_of_elems, p_coords,
-      p_class_dim,
-      1, nedges, verts_of_edges, candidates, edges_of_elems,
-      elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
-      edges_of_edges_offsets, edges_of_edges);
-  free(edges_of_elems);
-  free(elems_of_edges_offsets);
-  free(elems_of_edges);
-  free(elems_of_edges_directions);
-  free(edges_of_edges_offsets);
-  free(edges_of_edges);
-  free(verts_of_edges);
+  refine_common(p_m, 1, candidates);
   free(candidates);
   return 1;
 }

@@ -18,25 +18,20 @@ static double simple(double const x[])
 
 int main()
 {
-  unsigned const elem_dim = 3;
-  unsigned nelems;
-  unsigned nverts;
-  unsigned* verts_of_elems;
-  double* coords;
-  get_box_copy(elem_dim, &nelems, &nverts, &verts_of_elems, &coords);
+  struct mesh* m = new_box_mesh(3);
   char fname[64];
   for (unsigned it = 0; 1; ++it) {
-    if (!refine_by_size(elem_dim, &nelems, &nverts, &verts_of_elems, &coords,
-             0, simple))
+    if (!refine_by_size(&m, simple))
       break;
-    printf("%u elements, %u vertices\n", nelems, nverts);
-    double* quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);
-    double minqual = doubles_min(quals, nelems);
+    printf("%u elements, %u vertices\n", mesh_count(m, mesh_dim(m)), mesh_count(m, 0));
+    double* quals = element_qualities(mesh_dim(m), mesh_count(m, mesh_dim(m)),
+        mesh_ask_down(m, mesh_dim(m), 0),
+        mesh_find_nodal_field(m, "coordinates")->data);
+    double minqual = doubles_min(quals, mesh_count(m, mesh_dim(m)));
     free(quals);
     printf("min quality %f\n", minqual);
     sprintf(fname, "out_%u.vtu", it);
-    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords, 0);
+    write_vtk(m, fname);
   }
-  free(verts_of_elems);
-  free(coords);
+  free_mesh(m);
 }

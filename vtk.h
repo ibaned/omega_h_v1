@@ -1,13 +1,8 @@
 #ifndef VTK_H
 #define VTK_H
 
-void write_vtk(
-   char const* filename,
-   unsigned elem_dim,
-   unsigned nelem,
-   unsigned nvert,
-   unsigned const* elem_to_vert,
-   double const* coords,
-   unsigned const* class_dim);
+#include "mesh.h"
+
+void write_vtk(struct mesh* m, char const* filename);
 
 #endif

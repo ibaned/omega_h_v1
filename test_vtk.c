@@ -3,12 +3,7 @@
 
 int main()
 {
-  unsigned dim = 3;
-  write_vtk("test.vtu",
-      dim,
-      the_box_nelems[dim],
-      the_box_nverts[dim],
-      the_box_conns[dim],
-      the_box_coords[dim],
-      0);
+  struct mesh* m = new_box_mesh(3);
+  write_vtk(m, "test.vtu");
+  free_mesh(m);
 }

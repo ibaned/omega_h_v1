@@ -27,41 +27,29 @@ static double coarse_fun(double const x[])
 
 int main()
 {
-  unsigned elem_dim = 3;
-  unsigned nelems;
-  unsigned nverts;
-  unsigned* verts_of_elems;
-  double* coords;
-  get_box_copy(elem_dim, &nelems, &nverts, &verts_of_elems, &coords);
-  while (refine_by_size(elem_dim, &nelems, &nverts,
-             &verts_of_elems, &coords, 0, fine_fun));
-  unsigned* class_dim = classif_box(elem_dim, nverts, coords);
-  write_vtk("init.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
-      class_dim);
-  double init_minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
+  struct mesh* m = new_box_mesh(3);
+  while (refine_by_size(&m, fine_fun));
+  mesh_add_nodal_label(m, "class_dim",
+      classif_box(mesh_dim(m), mesh_count(m, 0),
+        mesh_find_nodal_field(m, "coordinates")->data));
+  write_vtk(m, "init.vtu");
+  double init_minq = min_element_quality(mesh_dim(m),
+      mesh_count(m, mesh_dim(m)),
+      mesh_ask_down(m, mesh_dim(m), 0),
+      mesh_find_nodal_field(m, "coordinates")->data);
   printf("init minq %f\n", init_minq);
   double cor_qual_floor = 0.3;
   printf("coarsen quality floor %f\n", cor_qual_floor);
   char fname[64];
   unsigned i = 0;
-  while (coarsen_by_size(elem_dim, &nelems, &nverts,
-      &verts_of_elems, &coords, &class_dim, coarse_fun, cor_qual_floor)) {
+  while (coarsen_by_size(&m, coarse_fun, cor_qual_floor)) {
     sprintf(fname, "cor_%u.vtu", i++);
-    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords,
-        class_dim);
+    write_vtk(m, fname);
   }
-  double cor_minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
+  double cor_minq = min_element_quality(mesh_dim(m),
+      mesh_count(m, mesh_dim(m)),
+      mesh_ask_down(m, mesh_dim(m), 0),
+      mesh_find_nodal_field(m, "coordinates")->data);
   printf("cor minq %f\n", cor_minq);
-//double sliver_qual_floor = 0.2;
-//printf("sliver quality floor %f\n", sliver_qual_floor);
-//double edge_ratio_floor = 0; /* never rule "short edge" */
-//split_sliver_tris(elem_dim, &nelems, &nverts, &verts_of_elems, &coords,
-//    &class_dim, sliver_qual_floor, edge_ratio_floor);
-//write_vtk("sliver.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
-//    class_dim);
-//double sliver_minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
-//printf("sliver minq %f\n", sliver_minq);
-  free(verts_of_elems);
-  free(coords);
-  free(class_dim);
+  free_mesh(m);
 }

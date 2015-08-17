@@ -35,6 +35,8 @@ struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
 
 void free_up(struct up* u)
 {
+  if (!u)
+    return;
   free(u->offsets);
   free(u->adj);
   free(u->directions);
@@ -52,7 +54,7 @@ struct mesh* new_box_mesh(unsigned elem_dim)
 {
   struct mesh* m = new_mesh(elem_dim);
   unsigned nelems = the_box_nelems[elem_dim];
-  unsigned nverts = the_box_nelems[elem_dim];
+  unsigned nverts = the_box_nverts[elem_dim];
   mesh_set_ents(m, 0, nverts, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned nbytes = sizeof(unsigned) * verts_per_elem * nelems;
@@ -73,12 +75,28 @@ unsigned mesh_dim(struct mesh* m)
 
 unsigned mesh_count(struct mesh* m, unsigned dim)
 {
+  if (dim > m->elem_dim)
+    return 0;
+  /* intermediate entities are counted when we derive their
+   * vertices, so trigger this process if necessary
+   */
+  if (dim)
+    mesh_ask_down(m, dim, 0);
   return m->counts[dim];
 }
 
 void free_mesh(struct mesh* m)
 {
+  for (unsigned high_dim = 1; high_dim <= m->elem_dim; ++high_dim)
+    for (unsigned low_dim = 0; low_dim < high_dim; ++low_dim) {
+      free(m->down[high_dim][low_dim]);
+      free_up(m->up[low_dim][high_dim]);
+      free_graph(m->star[low_dim][high_dim]);
+    }
+  free(m->dual);
   free_fields(&m->nodal_fields);
+  free_labels(&m->nodal_labels);
+  free(m);
 }
 
 struct const_field* mesh_find_nodal_field(struct mesh* m, char const* name)
@@ -86,7 +104,12 @@ struct const_field* mesh_find_nodal_field(struct mesh* m, char const* name)
   return (struct const_field*) find_field(&m->nodal_fields, name);
 }
 
-unsigned* mesh_ask_down_priv(struct mesh* m, unsigned high_dim, unsigned low_dim)
+struct const_label* mesh_find_nodal_label(struct mesh* m, char const* name)
+{
+  return (struct const_label*) find_label(&m->nodal_labels, name);
+}
+
+unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
 {
   assert(low_dim < high_dim);
   if (m->down[high_dim][low_dim])
@@ -147,6 +170,7 @@ struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim
 
 struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned high_dim)
 {
+  assert(low_dim < high_dim);
   if (m->star[low_dim][high_dim])
     return (struct const_graph*) m->star[low_dim][high_dim];
   unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
@@ -240,4 +264,12 @@ struct const_field* mesh_add_nodal_field(struct mesh* m, char const* name,
   struct field* f = new_field(name, ncomps, data);
   add_field(&m->nodal_fields, f);
   return (struct const_field*) f;
+}
+
+struct const_label* mesh_add_nodal_label(struct mesh* m, char const* name,
+    unsigned* data)
+{
+  struct label* l = new_label(name, data);
+  add_label(&m->nodal_labels, l);
+  return (struct const_label*) l;
 }

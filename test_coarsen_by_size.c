@@ -26,34 +26,31 @@ static double coarse_fun(double const x[])
 
 int main()
 {
-  unsigned elem_dim = 2;
-  unsigned nelems;
-  unsigned nverts;
-  unsigned* verts_of_elems;
-  double* coords;
-  get_box_copy(elem_dim, &nelems, &nverts, &verts_of_elems, &coords);
+  struct mesh* m = new_box_mesh(2);
   char fname[64];
   unsigned it = 0;
-  while (refine_by_size(elem_dim, &nelems, &nverts,
-             &verts_of_elems, &coords, 0, fine_fun)) {
+  while (refine_by_size(&m, fine_fun)) {
     sprintf(fname, "ref_%u.vtu", it++);
-    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords, 0);
+    write_vtk(m, fname);
   }
-  unsigned* class_dim = classif_box(elem_dim, nverts, coords);
-  write_vtk("class.vtu", elem_dim, nelems, nverts, verts_of_elems, coords,
-      class_dim);
-  double minq = min_element_quality(elem_dim, nelems, verts_of_elems, coords);
+  mesh_add_nodal_label(m, "class_dim",
+      classif_box(mesh_dim(m), mesh_count(m, 0),
+        mesh_find_nodal_field(m, "coordinates")->data));
+  write_vtk(m, "class.vtu");
+  double minq = min_element_quality(mesh_dim(m),
+      mesh_count(m, mesh_dim(m)),
+      mesh_ask_down(m, mesh_dim(m), 0),
+      mesh_find_nodal_field(m, "coordinates")->data);
   printf("minq %f\n", minq);
   it = 0;
-  while (coarsen_by_size(elem_dim, &nelems, &nverts,
-             &verts_of_elems, &coords, &class_dim, coarse_fun, minq)) {
-    verify(elem_dim, nelems, nverts, verts_of_elems, coords);
-    printf("%u elements\n", nelems);
+  while (coarsen_by_size(&m, coarse_fun, minq)) {
+    verify(mesh_dim(m), mesh_count(m, mesh_dim(m)),
+        mesh_count(m, 0),
+        mesh_ask_down(m, mesh_dim(m), 0),
+        mesh_find_nodal_field(m, "coordinates")->data);
+    printf("%u elements\n", mesh_count(m, mesh_dim(m)));
     sprintf(fname, "cor_%u.vtu", it++);
-    write_vtk(fname, elem_dim, nelems, nverts, verts_of_elems, coords,
-        class_dim);
+    write_vtk(m, fname);
   }
-  free(verts_of_elems);
-  free(coords);
-  free(class_dim);
+  free_mesh(m);
 }

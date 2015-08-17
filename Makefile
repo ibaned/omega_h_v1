@@ -39,7 +39,11 @@ split_sliver_tris.o \
 bad_elem_keys.o \
 collect_keys.o \
 refine_classif.o \
-derive_faces.o
+derive_faces.o \
+mesh.o \
+graph.o \
+field.o \
+label.o
 
 all: $(objects)
 
