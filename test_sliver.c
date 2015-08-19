@@ -28,7 +28,12 @@ static double coarse_fun(double const x[])
 int main()
 {
   struct mesh* m = new_box_mesh(3);
-  while (refine_by_size(&m, fine_fun));
+  char fname[64];
+  unsigned i = 0;
+  while (refine_by_size(&m, fine_fun)) {
+    sprintf(fname, "ref_%u.vtu", i++);
+    write_vtk(m, fname);
+  }
   mesh_add_nodal_label(m, "class_dim",
       classif_box(mesh_dim(m), mesh_count(m, 0),
         mesh_find_nodal_field(m, "coordinates")->data));
@@ -40,8 +45,7 @@ int main()
   printf("init minq %f\n", init_minq);
   double cor_qual_floor = 0.3;
   printf("coarsen quality floor %f\n", cor_qual_floor);
-  char fname[64];
-  unsigned i = 0;
+  i = 0;
   while (coarsen_by_size(&m, coarse_fun, cor_qual_floor)) {
     sprintf(fname, "cor_%u.vtu", i++);
     write_vtk(m, fname);
