@@ -1,7 +1,7 @@
-#ifndef REFINE_CLASSIF_H
-#define REFINE_CLASSIF_H
+#ifndef REFINE_CLASS_H
+#define REFINE_CLASS_H
 
-unsigned* refine_classif(
+unsigned* refine_class(
     unsigned src_dim,
     unsigned nsrcs,
     unsigned const* verts_of_srcs,

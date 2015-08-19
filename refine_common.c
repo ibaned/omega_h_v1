@@ -5,7 +5,7 @@
 #include "splits_to_elements.h"
 #include "refine_topology.h"
 #include "refine_nodal.h"
-#include "refine_classif.h"
+#include "refine_class.h"
 #include "concat.h"
 #include <stdlib.h>
 
@@ -71,7 +71,7 @@ void refine_common(
   mesh_add_nodal_field(m_out, "coordinates", 3, coords_out);
   if (mesh_find_nodal_label(m, "class_dim")) {
     unsigned const* class_dim = mesh_find_nodal_label(m, "class_dim")->data;
-    unsigned* gen_class_dim = refine_classif(src_dim, nsrcs, verts_of_srcs,
+    unsigned* gen_class_dim = refine_class(src_dim, nsrcs, verts_of_srcs,
         gen_offset_of_srcs, class_dim);
     unsigned* class_dim_out = concat_ints(1, class_dim, nverts,
         gen_class_dim, nsplit_srcs);

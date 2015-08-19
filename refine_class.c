@@ -1,8 +1,8 @@
-#include "refine_classif.h"
+#include "refine_class.h"
 #include "tables.h"
 #include <stdlib.h>
 
-unsigned* refine_classif(
+unsigned* refine_class(
     unsigned src_dim,
     unsigned nsrcs,
     unsigned const* verts_of_srcs,
