@@ -27,7 +27,7 @@ refine_nodal.o \
 refine_qualities.o \
 doubles.o \
 element_qualities.o \
-classif_box.o \
+classify_box.o \
 coarsen_by_size.o \
 check_collapse_class.o \
 coarsen_qualities.o \

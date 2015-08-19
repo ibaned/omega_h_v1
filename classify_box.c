@@ -1,10 +1,10 @@
-#include "classif_box.h"
+#include "classify_box.h"
 #include <math.h>
 #include <stdlib.h>
 
 #define EPSILON 1e-10
 
-unsigned* classif_box(
+unsigned* classify_box(
     unsigned elem_dim,
     unsigned nverts,
     double const* coords)

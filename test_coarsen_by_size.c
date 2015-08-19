@@ -1,6 +1,6 @@
 #include "tables.h"
 #include "refine_by_size.h"
-#include "classif_box.h"
+#include "classify_box.h"
 #include "coarsen_by_size.h"
 #include "vtk.h"
 #include "verify.h"
@@ -34,7 +34,7 @@ int main()
     write_vtk(m, fname);
   }
   mesh_add_nodal_label(m, "class_dim",
-      classif_box(mesh_dim(m), mesh_count(m, 0),
+      classify_box(mesh_dim(m), mesh_count(m, 0),
         mesh_find_nodal_field(m, "coordinates")->data));
   write_vtk(m, "class.vtu");
   double minq = min_element_quality(mesh_dim(m),
