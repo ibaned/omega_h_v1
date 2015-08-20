@@ -45,4 +45,14 @@ void graph_subset(
     unsigned** graph_offsets_out,
     unsigned** graph_adj_out);
 
+void concat_graph(
+    unsigned na,
+    unsigned const* a_offsets,
+    unsigned const* a_adj,
+    unsigned nb,
+    unsigned const* b_offsets,
+    unsigned const* b_adj,
+    unsigned** p_offsets,
+    unsigned** p_adj);
+
 #endif

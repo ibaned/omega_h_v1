@@ -131,3 +131,25 @@ void graph_subset(
   *graph_offsets_out = new_offsets;
   *graph_adj_out = new_adj;
 }
+
+void concat_graph(
+    unsigned na,
+    unsigned const* a_offsets,
+    unsigned const* a_adj,
+    unsigned nb,
+    unsigned const* b_offsets,
+    unsigned const* b_adj,
+    unsigned** p_offsets,
+    unsigned** p_adj)
+{
+  unsigned n_out = na + nb;
+  unsigned* offsets_out = malloc(sizeof(unsigned) * n_out);
+  ints_copy(a_offsets, offsets_out, na);
+  unsigned na_adj = a_offsets[na];
+  for (unsigned i = 0; i < nb; ++i)
+    offsets_out[i + na] = b_offsets[i] + na_adj;
+  unsigned nb_adj = b_offsets[nb];
+  unsigned* adj_out = concat_ints(1, a_adj, na_adj, b_adj, nb_adj);
+  *p_offsets = offsets_out;
+  *p_adj = adj_out;
+}
