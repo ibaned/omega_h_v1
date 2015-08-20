@@ -5,6 +5,7 @@
 #include "reflect_down.h"
 #include "bridge_graph.h"
 #include "derive_faces.h"
+#include "points.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -22,6 +23,7 @@ struct mesh {
   unsigned had_dual;
   struct fields nodal_fields;
   struct labels nodal_labels;
+  struct points* points;
 };
 
 struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
@@ -272,4 +274,17 @@ struct const_label* mesh_add_nodal_label(struct mesh* m, char const* name,
   struct label* l = new_label(name, data);
   add_label(&m->nodal_labels, l);
   return (struct const_label*) l;
+}
+
+struct const_points* mesh_set_points(struct mesh* m, unsigned* offsets,
+    unsigned* adj, double* coords)
+{
+  struct points* ps = new_points(offsets, adj, coords);
+  m->points = ps;
+  return (struct const_points*) ps;
+}
+
+struct const_points* mesh_get_points(struct mesh* m)
+{
+  return (struct const_points*) m->points;
 }

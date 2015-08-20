@@ -47,5 +47,8 @@ struct const_field* mesh_add_nodal_field(struct mesh* m, char const* name,
     unsigned ncomps, double* data);
 struct const_label* mesh_add_nodal_label(struct mesh* m, char const* name,
     unsigned* data);
+struct const_points* mesh_set_points(struct mesh* m, unsigned* offsets,
+    unsigned* adj, double* coords);
+struct const_points* mesh_get_points(struct mesh* m);
 
 #endif
