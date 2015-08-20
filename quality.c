@@ -2,6 +2,7 @@
 #include "size.h"
 #include "algebra.h"
 #include "tables.h"
+#include "inside.h"
 
 #include <assert.h>
 
@@ -112,14 +113,14 @@ enum quality_type triangle_quality_type(
     return SHORT_EDGE_ELEM;
   if (!key_edge_out)
     return SLIVER_ELEM;
-  double v[2][3];
-  subtract_vectors(coords[1], coords[0], v[0], 3);
-  subtract_vectors(coords[2], coords[0], v[1], 3);
-  /* scalar projection of (v2 - v0) onto (v1 - v0) */
-  double sp = dot_product(v[1], v[0], 3) / l[0];
-  if (sp < 0)
+  /* project the cap vertex onto the base edge */
+  /* the first two vertices of the triangle are
+     ordered the same as the vertices of its first edge */
+  double b[2];
+  point_to_edge(coords, coords[2], b);
+  if (b[0] < 0)
     *key_edge_out = 1;
-  else if (sp > l[0])
+  else if (b[0] > 1)
     *key_edge_out = 2;
   else
     *key_edge_out = 0;
@@ -154,17 +155,11 @@ enum quality_type tet_quality_type(
   double r = edge_length_ratio(l, 6);
   if (r < edge_ratio_floor)
     return SHORT_EDGE_ELEM;
-  double m[3][3];
-  subtract_vectors(coords[1], coords[0], m[0], 3);
-  subtract_vectors(coords[2], coords[0], m[1], 3);
-  cross_product(m[0], m[1], m[2]);
-  double minv[3][3];
-  invert_3x3(m, minv);
-  double v[3];
-  subtract_vectors(coords[3], coords[0], v, 3);
+  /* project the cap vertex onto the base triangle */
+  /* the first three vertices of the tet are
+     ordered the same as the vertices of its first triangle */
   double b[3];
-  mv_3x3(minv, v, b);
-  b[2] = 1.0 - b[0] - b[1];
+  point_to_triangle(coords, coords[3], b);
   int c = 0;
   for (unsigned i = 0; i < 3; ++i)
     if (b[i] > 0)
