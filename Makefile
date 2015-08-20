@@ -43,7 +43,9 @@ derive_faces.o \
 mesh.o \
 graph.o \
 field.o \
-label.o
+label.o \
+points.o \
+inside.o
 
 all: $(objects)
 
