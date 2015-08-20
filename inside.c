@@ -1,7 +1,7 @@
 #include "inside.h"
 #include "algebra.h"
 
-void point_to_edge(double edge[2][3], double pt[3], double b[2])
+void point_to_edge(double edge[2][3], double const pt[3], double b[2])
 {
   double v[2][3];
   subtract_vectors(edge[1], edge[0], v[0], 3);
@@ -10,7 +10,7 @@ void point_to_edge(double edge[2][3], double pt[3], double b[2])
   b[1] = 1.0 - b[0];
 }
 
-void point_to_triangle(double tri[3][3], double pt[3], double b[3])
+void point_to_triangle(double tri[3][3], double const pt[3], double b[3])
 {
   double m[3][3];
   subtract_vectors(tri[1], tri[0], m[0], 3);
@@ -24,7 +24,7 @@ void point_to_triangle(double tri[3][3], double pt[3], double b[3])
   b[2] = 1.0 - b[0] - b[1];
 }
 
-void point_to_tet(double tet[4][3], double pt[3], double b[4])
+void point_to_tet(double tet[4][3], double const pt[3], double b[4])
 {
   double m[3][3];
   subtract_vectors(tet[1], tet[0], m[0], 3);
