@@ -37,4 +37,12 @@ void concat_verts_of_elems(
     unsigned* nelems_out,
     unsigned** verts_of_elems_out);
 
+void graph_subset(
+    unsigned n,
+    unsigned const* set_offsets,
+    unsigned const* graph_offsets,
+    unsigned const* graph_adj,
+    unsigned** graph_offsets_out,
+    unsigned** graph_adj_out);
+
 #endif

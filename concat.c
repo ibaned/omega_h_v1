@@ -1,5 +1,6 @@
 #include "concat.h"
 #include "tables.h"
+#include "ints.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -99,4 +100,34 @@ void concat_verts_of_elems(
   free(verts_of_same_elems);
   *nelems_out = nsame_elems + ngen_elems;
   *verts_of_elems_out = out;
+}
+
+void graph_subset(
+    unsigned n,
+    unsigned const* set_offsets,
+    unsigned const* graph_offsets,
+    unsigned const* graph_adj,
+    unsigned** graph_offsets_out,
+    unsigned** graph_adj_out)
+{
+  unsigned n_out = set_offsets[n];
+  unsigned* degrees = ints_unscan(set_offsets, n);
+  unsigned* degrees_out = ints_subset(n, 1, degrees, set_offsets);
+  free(degrees);
+  unsigned* new_offsets = ints_exscan(degrees_out, n_out);
+  free(degrees_out);
+  unsigned nadj_out = new_offsets[n_out];
+  unsigned* new_adj = malloc(sizeof(unsigned) * nadj_out);
+  for (unsigned i = 0; i < n; ++i) {
+    if (set_offsets[i] == set_offsets[i + 1])
+      continue;
+    unsigned new_i = set_offsets[i];
+    unsigned first_adj = graph_offsets[i];
+    unsigned end_adj = graph_offsets[i];
+    unsigned first_new_adj = new_offsets[new_i];
+    for (unsigned j = first_adj; j < end_adj; ++j)
+      new_adj[(j - first_adj) + first_new_adj] = graph_adj[j];
+  }
+  *graph_offsets_out = new_offsets;
+  *graph_adj_out = new_adj;
 }
