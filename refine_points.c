@@ -25,14 +25,7 @@ static unsigned transfer_elem_points(
     unsigned pt = pts_of_src_elem[i];
     double b[4];
     the_inside_functions[elem_dim](coords_of_elem, coords_of_pts + pt * 3, b);
-    unsigned in = 1;
-    for (unsigned j = 0; j < nverts_per_elem; ++j) {
-      if (b[j] < 0)
-        in = 0;
-      else if (b[j] > 1)
-        in = 0;
-    }
-    if (in)
+    if (is_in_simplex(elem_dim, b))
       pt_buf[nin++] = pt;
   }
   return nin;
