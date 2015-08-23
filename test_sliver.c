@@ -36,10 +36,7 @@ int main()
   }
   mesh_classify_box(m);
   write_vtk(m, "init.vtu");
-  double init_minq = min_element_quality(mesh_dim(m),
-      mesh_count(m, mesh_dim(m)),
-      mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_nodal_field(m, "coordinates")->data);
+  double init_minq = mesh_min_quality(m);
   printf("init minq %f\n", init_minq);
   double cor_qual_floor = 0.3;
   printf("coarsen quality floor %f\n", cor_qual_floor);
@@ -48,10 +45,7 @@ int main()
     sprintf(fname, "cor_%u.vtu", i++);
     write_vtk(m, fname);
   }
-  double cor_minq = min_element_quality(mesh_dim(m),
-      mesh_count(m, mesh_dim(m)),
-      mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_nodal_field(m, "coordinates")->data);
+  double cor_minq = mesh_min_quality(m);
   printf("cor minq %f\n", cor_minq);
   free_mesh(m);
 }

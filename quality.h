@@ -47,4 +47,8 @@ double min_element_quality(
     unsigned const* verts_of_elems,
     double const* coords);
 
+struct mesh;
+
+double mesh_min_quality(struct mesh* m);
+
 #endif

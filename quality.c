@@ -4,6 +4,7 @@
 #include "tables.h"
 #include "inside.h"
 #include "doubles.h"
+#include "mesh.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -215,4 +216,12 @@ double min_element_quality(
   double mq = doubles_min(quals, nelems);
   free(quals);
   return mq;
+}
+
+double mesh_min_quality(struct mesh* m)
+{
+  return min_element_quality(mesh_dim(m),
+      mesh_count(m, mesh_dim(m)),
+      mesh_ask_down(m, mesh_dim(m), 0),
+      mesh_find_nodal_field(m, "coordinates")->data);
 }
