@@ -17,3 +17,10 @@ double doubles_min(double const a[], unsigned n)
       min = a[i];
   return min;
 }
+
+void doubles_axpy(double a, double const x[], double const y[],
+    double out[], unsigned n)
+{
+  for (unsigned i = 0; i < n; ++i)
+    out[i] = a * x[i] + y[i];
+}
