@@ -1,4 +1,5 @@
 #include "classify_box.h"
+#include "mesh.h"
 #include <math.h>
 #include <stdlib.h>
 
@@ -20,4 +21,11 @@ unsigned* classify_box(
     out[i] = classif_dim;
   }
   return out;
+}
+
+void mesh_classify_box(struct mesh* m)
+{
+  mesh_add_nodal_label(m, "class_dim",
+      classify_box(mesh_dim(m), mesh_count(m, 0),
+        mesh_find_nodal_field(m, "coordinates")->data));
 }
