@@ -18,6 +18,16 @@ double triangle_area(double coords[3][3])
   return vector_norm(x, 3) / 2.0;
 }
 
+double triangle_xy_area(double coords[3][3])
+{
+  double v[2][3];
+  subtract_vectors(coords[1], coords[0], v[0], 3);
+  subtract_vectors(coords[2], coords[0], v[1], 3);
+  double x[3];
+  cross_product(v[0], v[1], x);
+  return x[2] / 2.0;
+}
+
 double tet_volume(double coords[4][3])
 {
   double v[3][3];
