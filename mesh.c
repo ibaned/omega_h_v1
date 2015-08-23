@@ -268,6 +268,13 @@ struct const_field* mesh_add_nodal_field(struct mesh* m, char const* name,
   return (struct const_field*) f;
 }
 
+void mesh_free_nodal_field(struct mesh* m, char const* name)
+{
+  struct field* f = find_field(&m->nodal_fields, name);
+  remove_field(&m->nodal_fields, f);
+  free_field(f);
+}
+
 struct const_label* mesh_add_nodal_label(struct mesh* m, char const* name,
     unsigned* data)
 {

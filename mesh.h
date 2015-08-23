@@ -45,6 +45,7 @@ void mesh_free_dual(struct mesh* m);
 void mesh_set_ents(struct mesh* m, unsigned dim, unsigned n, unsigned* verts);
 struct const_field* mesh_add_nodal_field(struct mesh* m, char const* name,
     unsigned ncomps, double* data);
+void mesh_free_nodal_field(struct mesh* m, char const* name);
 struct const_label* mesh_add_nodal_label(struct mesh* m, char const* name,
     unsigned* data);
 struct const_points* mesh_set_points(struct mesh* m, unsigned* offsets,
