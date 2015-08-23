@@ -34,9 +34,7 @@ int main()
     sprintf(fname, "ref_%u.vtu", i++);
     write_vtk(m, fname);
   }
-  mesh_add_nodal_label(m, "class_dim",
-      classify_box(mesh_dim(m), mesh_count(m, 0),
-        mesh_find_nodal_field(m, "coordinates")->data));
+  mesh_classify_box(m);
   write_vtk(m, "init.vtu");
   double init_minq = min_element_quality(mesh_dim(m),
       mesh_count(m, mesh_dim(m)),
