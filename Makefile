@@ -45,7 +45,8 @@ graph.o \
 field.o \
 label.o \
 points.o \
-inside.o
+inside.o \
+warp_to_limit.o
 
 all: $(objects)
 

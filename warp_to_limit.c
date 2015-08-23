@@ -2,6 +2,7 @@
 #include "doubles.h"
 #include "element_qualities.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 double* warp_to_limit(
     unsigned elem_dim,
@@ -18,5 +19,6 @@ double* warp_to_limit(
     factor /= 2;
     doubles_axpy(factor, warps, coords, out, 3 * nverts);
   }
+  printf("final factor %f\n", factor);
   return out;
 }
