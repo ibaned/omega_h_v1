@@ -5,7 +5,7 @@
 #include "vtk.h"
 #include "verify.h"
 #include "algebra.h"
-#include "element_qualities.h"
+#include "quality.h"
 #include <stdio.h>
 #include <stdlib.h>
 

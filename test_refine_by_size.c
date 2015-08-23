@@ -2,7 +2,7 @@
 #include "tables.h"
 #include "algebra.h"
 #include "vtk.h"
-#include "element_qualities.h"
+#include "quality.h"
 #include "doubles.h"
 #include <stdlib.h>
 #include <stdio.h>

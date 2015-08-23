@@ -26,7 +26,6 @@ reflect_down.o \
 refine_nodal.o \
 refine_qualities.o \
 doubles.o \
-element_qualities.o \
 classify_box.o \
 coarsen_by_size.o \
 check_collapse_class.o \

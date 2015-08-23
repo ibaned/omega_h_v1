@@ -1,5 +1,5 @@
 #include "verify.h"
-#include "element_qualities.h"
+#include "quality.h"
 #include "tables.h"
 #include "doubles.h"
 #include <stdlib.h>

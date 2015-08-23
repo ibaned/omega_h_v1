@@ -35,4 +35,16 @@ typedef enum quality_type (*quality_type_function)(
 
 extern quality_type_function const the_quality_type_functions[4];
 
+double* element_qualities(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* verts_of_elems,
+    double const* coords);
+
+double min_element_quality(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* verts_of_elems,
+    double const* coords);
+
 #endif

@@ -10,7 +10,7 @@
 #include "coarsen_topology.h"
 #include "concat.h"
 #include "tables.h"
-#include "element_qualities.h"
+#include "quality.h"
 #include <stdlib.h>
 
 unsigned coarsen_by_size(
