@@ -13,6 +13,13 @@ struct field* new_field(char const* name, unsigned ncomps, double* data)
   return f;
 }
 
+void free_field(struct field* f)
+{
+  free(f->name);
+  free(f->data);
+  free(f);
+}
+
 void add_field(struct fields* fs, struct field* f)
 {
   assert(!find_field(fs, f->name));
@@ -21,11 +28,15 @@ void add_field(struct fields* fs, struct field* f)
   fs->at[fs->n - 1] = f;
 }
 
-static void free_field(struct field* f)
+void remove_field(struct fields* fs, struct field* f)
 {
-  free(f->name);
-  free(f->data);
-  free(f);
+  unsigned i;
+  for (i = 0; i < fs->n; ++i)
+    if (fs->at[i] == f)
+      break;
+  fs->n--;
+  for (; i < fs->n; ++i)
+    fs->at[i] = fs->at[i + 1];
 }
 
 void free_fields(struct fields* fs)

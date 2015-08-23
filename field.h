@@ -14,6 +14,7 @@ struct const_field {
 };
 
 struct field* new_field(char const* name, unsigned ncomps, double* data);
+void free_field(struct field* f);
 
 struct fields {
   unsigned n;
@@ -21,6 +22,7 @@ struct fields {
 };
 
 void add_field(struct fields* fs, struct field* f);
+void remove_field(struct fields* fs, struct field* f);
 void free_fields(struct fields* fs);
 struct field* find_field(struct fields* fs, char const* name);
 
