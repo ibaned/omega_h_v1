@@ -43,10 +43,9 @@ double triangle_quality(double coords[3][3])
   /* highly dubious.
      I yelled at someone for doing this and now I'm doing it.
      use the area of the triangle projected onto the XY plane,
-     thus assuming meshes are always in the XY plane.
-     the point of this is the prevent flipping triangles on
-     such meshes */
-  double a = triangle_xy_area(coords);
+     with the sign of the normal's Z component.
+     the point of this is the prevent flipping triangles */
+  double a = triangle_z_area(coords);
   double quality = a / (lrms * lrms);
   return quality / PERFECT_TRIANGLE_QUALITY;
 }
