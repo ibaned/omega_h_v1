@@ -3,7 +3,6 @@
 #include "classify_box.h"
 #include "coarsen_by_size.h"
 #include "vtk.h"
-#include "verify.h"
 #include "algebra.h"
 #include "quality.h"
 #include "split_sliver_tris.h"

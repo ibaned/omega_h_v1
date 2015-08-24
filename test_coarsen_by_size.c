@@ -3,7 +3,6 @@
 #include "classify_box.h"
 #include "coarsen_by_size.h"
 #include "vtk.h"
-#include "verify.h"
 #include "algebra.h"
 #include "quality.h"
 #include <stdio.h>
@@ -39,10 +38,6 @@ int main()
   printf("minq %f\n", minq);
   it = 0;
   while (coarsen_by_size(&m, coarse_fun, minq)) {
-    verify(mesh_dim(m), mesh_count(m, mesh_dim(m)),
-        mesh_count(m, 0),
-        mesh_ask_down(m, mesh_dim(m), 0),
-        mesh_find_nodal_field(m, "coordinates")->data);
     printf("%u elements\n", mesh_count(m, mesh_dim(m)));
     sprintf(fname, "cor_%u.vtu", it++);
     write_vtk(m, fname);
