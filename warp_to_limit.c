@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void warp_to_limit(
+unsigned warp_to_limit(
     unsigned elem_dim,
     unsigned nelems,
     unsigned nverts,
@@ -15,12 +15,14 @@ void warp_to_limit(
     double** p_coords,
     double** p_warps)
 {
+  unsigned hit_limit = 0;
   double* coords_out = malloc(sizeof(double) * 3 * nverts);
   double factor = 1;
   double* warps_out = 0;
   doubles_axpy(factor, warps, coords, coords_out, 3 * nverts);
   while (min_element_quality(
         elem_dim, nelems, verts_of_elems, coords_out) <= 0) {
+    hit_limit = 1;
     factor /= 2;
     doubles_axpy(factor, warps, coords, coords_out, 3 * nverts);
   }
@@ -30,13 +32,15 @@ void warp_to_limit(
     doubles_axpy(-factor, warps, warps, warps_out, 3 * nverts);
     *p_warps = warps_out;
   }
+  return !hit_limit;
 }
 
-void mesh_warp_to_limit(struct mesh* m)
+unsigned mesh_warp_to_limit(struct mesh* m)
 {
   double* coords;
   double* warps;
-  warp_to_limit(mesh_dim(m), mesh_count(m, mesh_dim(m)), mesh_count(m, 0),
+  unsigned ok =
+      warp_to_limit(mesh_dim(m), mesh_count(m, mesh_dim(m)), mesh_count(m, 0),
       mesh_ask_down(m, mesh_dim(m), 0),
       mesh_find_nodal_field(m, "coordinates")->data,
       mesh_find_nodal_field(m, "warp")->data,
@@ -45,4 +49,5 @@ void mesh_warp_to_limit(struct mesh* m)
   mesh_free_nodal_field(m, "warp");
   mesh_add_nodal_field(m, "coordinates", 3, coords);
   mesh_add_nodal_field(m, "warp", 3, warps);
+  return ok;
 }

@@ -8,6 +8,7 @@
 #include "eval_field.h"
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 static double size_fun(double const x[])
 {
@@ -27,9 +28,11 @@ static void warp_fun(double const coords[3], double v[])
   if (rot_a < 0)
     rot_a = 0;
   double dest_a = polar_a + rot_a;
-  v[0] = cos(dest_a) * polar_r;
-  v[1] = sin(dest_a) * polar_r;
-  v[2] = 0;
+  double dst[3];
+  dst[0] = cos(dest_a) * polar_r;
+  dst[1] = sin(dest_a) * polar_r;
+  dst[2] = 0;
+  subtract_vectors(dst, x, v, 3);
 }
 
 int main()
@@ -37,9 +40,16 @@ int main()
   struct mesh* m = new_box_mesh(2);
   while (refine_by_size(&m, size_fun));
   mesh_classify_box(m);
-  write_vtk(m, "before.vtu");
-  mesh_eval_field(m, "warp", 3, warp_fun);
-  mesh_warp_to_limit(m);
-  write_vtk(m, "after.vtu");
+  write_vtk(m, "step_0.vtu");
+  char fname[64];
+  for (unsigned i = 1; 1; ++i) {
+    mesh_eval_field(m, "warp", 3, warp_fun);
+    unsigned ok = mesh_warp_to_limit(m);
+    mesh_free_nodal_field(m, "warp");
+    sprintf(fname, "step_%u.vtu", i);
+    write_vtk(m, fname);
+    if (!ok)
+      break;
+  }
   free_mesh(m);
 }

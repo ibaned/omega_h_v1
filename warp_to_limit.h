@@ -1,7 +1,7 @@
 #ifndef WARP_TO_LIMIT
 #define WARP_TO_LIMIT
 
-void warp_to_limit(
+unsigned warp_to_limit(
     unsigned elem_dim,
     unsigned nelems,
     unsigned nverts,
@@ -13,6 +13,6 @@ void warp_to_limit(
 
 struct mesh;
 
-void mesh_warp_to_limit(struct mesh* m);
+unsigned mesh_warp_to_limit(struct mesh* m);
 
 #endif
