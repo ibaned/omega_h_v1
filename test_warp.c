@@ -45,9 +45,10 @@ int main()
         mesh_find_nodal_field(m, "coordinates")->data));
   write_vtk(m, "before.vtu");
   double* warps = set_warps(m, 2 * M_PI);
-  double* new_coords = warp_to_limit(2, mesh_count(m, 2), mesh_count(m, 0),
+  double* new_coords;
+  warp_to_limit(2, mesh_count(m, 2), mesh_count(m, 0),
       mesh_ask_down(m, 2, 0), mesh_find_nodal_field(m, "coordinates")->data,
-      warps);
+      warps, &new_coords, 0);
   free(warps);
   mesh_free_nodal_field(m, "coordinates");
   mesh_add_nodal_field(m, "coordinates", 3, new_coords);
