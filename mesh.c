@@ -295,3 +295,13 @@ struct const_points* mesh_get_points(struct mesh* m)
 {
   return (struct const_points*) m->points;
 }
+
+unsigned mesh_count_nodal_fields(struct mesh* m)
+{
+  return m->nodal_fields.n;
+}
+
+struct const_field* mesh_get_nodal_field(struct mesh* m, unsigned i)
+{
+  return (struct const_field*) m->nodal_fields.at[i];
+}

@@ -60,15 +60,18 @@ void refine_common(
       &ngen_elems, &verts_of_gen_elems);
   free(gen_vert_of_elems);
   free(gen_direction_of_elems);
-  double* gen_coords = refine_nodal(src_dim, nsrcs, verts_of_srcs,
-      gen_offset_of_srcs, 3, coords);
-  double* coords_out = concat_doubles(3, coords, nverts,
-      gen_coords, nsplit_srcs);
-  free(gen_coords);
   struct mesh* m_out = new_mesh(elem_dim);
   unsigned nverts_out = nverts + nsplit_srcs;
   mesh_set_ents(m_out, 0, nverts_out, 0);
-  mesh_add_nodal_field(m_out, "coordinates", 3, coords_out);
+  for (unsigned i = 0; i < mesh_count_nodal_fields(m); ++i) {
+    struct const_field* f = mesh_get_nodal_field(m, i);
+    double* gen_vals = refine_nodal(src_dim, nsrcs, verts_of_srcs,
+        gen_offset_of_srcs, f->ncomps, f->data);
+    double* vals_out = concat_doubles(f->ncomps, f->data, nverts,
+        gen_vals, nsplit_srcs);
+    free(gen_vals);
+    mesh_add_nodal_field(m_out, f->name, f->ncomps, vals_out);
+  }
   if (mesh_find_nodal_label(m, "class_dim")) {
     unsigned const* class_dim = mesh_find_nodal_label(m, "class_dim")->data;
     unsigned* gen_class_dim = refine_class(src_dim, nsrcs, verts_of_srcs,
