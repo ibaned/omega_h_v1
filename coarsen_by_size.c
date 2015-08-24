@@ -96,9 +96,6 @@ unsigned coarsen_by_size(
       gen_offset_of_verts, nverts);
   unsigned nverts_out = offset_of_same_verts[nverts];
   free(gen_offset_of_verts);
-  double* coords_out = doubles_subset(nverts, 3, coords, offset_of_same_verts);
-  unsigned* class_dim_out = ints_subset(nverts, 1, class_dim,
-      offset_of_same_verts);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
   coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,
@@ -118,12 +115,15 @@ unsigned coarsen_by_size(
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i)
     verts_of_elems_out[i] = offset_of_same_verts[verts_of_elems_out[i]];
-  free(offset_of_same_verts);
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts_out, 0);
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
+  double* coords_out = doubles_subset(nverts, 3, coords, offset_of_same_verts);
   mesh_add_nodal_field(m_out, "coordinates", 3, coords_out);
+  unsigned* class_dim_out = ints_subset(nverts, 1, class_dim,
+      offset_of_same_verts);
   mesh_add_nodal_label(m_out, "class_dim", class_dim_out);
+  free(offset_of_same_verts);
   free_mesh(m);
   *p_m = m_out;
   return 1;
