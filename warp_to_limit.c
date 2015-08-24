@@ -1,6 +1,7 @@
 #include "warp_to_limit.h"
 #include "doubles.h"
 #include "quality.h"
+#include "mesh.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -29,4 +30,19 @@ void warp_to_limit(
     doubles_axpy(-factor, warps, warps, warps_out, 3 * nverts);
     *p_warps = warps_out;
   }
+}
+
+void mesh_warp_to_limit(struct mesh* m)
+{
+  double* coords;
+  double* warps;
+  warp_to_limit(mesh_dim(m), mesh_count(m, mesh_dim(m)), mesh_count(m, 0),
+      mesh_ask_down(m, mesh_dim(m), 0),
+      mesh_find_nodal_field(m, "coordinates")->data,
+      mesh_find_nodal_field(m, "warp")->data,
+      &coords, &warps);
+  mesh_free_nodal_field(m, "coordinates");
+  mesh_free_nodal_field(m, "warp");
+  mesh_add_nodal_field(m, "coordinates", 3, coords);
+  mesh_add_nodal_field(m, "warp", 3, warps);
 }

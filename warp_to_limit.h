@@ -11,4 +11,8 @@ void warp_to_limit(
     double** p_coords,
     double** p_warps);
 
+struct mesh;
+
+void mesh_warp_to_limit(struct mesh* m);
+
 #endif
