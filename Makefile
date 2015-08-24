@@ -43,7 +43,6 @@ mesh.o \
 graph.o \
 field.o \
 label.o \
-points.o \
 inside.o \
 warp_to_limit.o
 
