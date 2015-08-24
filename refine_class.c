@@ -2,6 +2,8 @@
 #include "tables.h"
 #include <stdlib.h>
 
+#include <stdio.h>
+
 unsigned* refine_class(
     unsigned src_dim,
     unsigned nsrcs,
@@ -16,11 +18,11 @@ unsigned* refine_class(
     if (gen_offset_of_srcs[i] == gen_offset_of_srcs[i + 1])
       continue;
     unsigned const* verts_of_src = verts_of_srcs + i * verts_per_src;
-    unsigned class_dim = 4;
+    unsigned class_dim = INVALID;
     for (unsigned j = 0; j < verts_per_src; ++j) {
       unsigned vert = verts_of_src[j];
       unsigned class_dim_of_vert = class_dim_of_verts[vert];
-      if (class_dim_of_vert < class_dim)
+      if (class_dim == INVALID || class_dim_of_vert > class_dim)
         class_dim = class_dim_of_vert;
     }
     out[gen_offset_of_srcs[i]] = class_dim;
