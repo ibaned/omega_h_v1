@@ -2,8 +2,6 @@
 #include "tables.h"
 #include <stdlib.h>
 
-#include <stdio.h>
-
 unsigned* refine_class(
     unsigned src_dim,
     unsigned nsrcs,
