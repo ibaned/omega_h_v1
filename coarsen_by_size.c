@@ -16,7 +16,8 @@
 unsigned coarsen_by_size(
     struct mesh** p_m,
     double (*size_function)(double const x[]),
-    double quality_floor)
+    double quality_floor,
+    double size_ratio_floor)
 {
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
@@ -30,7 +31,7 @@ unsigned coarsen_by_size(
   free(sizes);
   unsigned* col_codes = malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nedges; ++i) {
-    if (edge_sizes[i] < (1.0 / 2.0))
+    if (edge_sizes[i] < size_ratio_floor)
       col_codes[i] = COLLAPSE_BOTH;
     else
       col_codes[i] = DONT_COLLAPSE;

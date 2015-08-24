@@ -40,7 +40,7 @@ int main()
   double cor_qual_floor = 0.3;
   printf("coarsen quality floor %f\n", cor_qual_floor);
   i = 0;
-  while (coarsen_by_size(&m, coarse_fun, cor_qual_floor)) {
+  while (coarsen_by_size(&m, coarse_fun, cor_qual_floor, 0.5)) {
     sprintf(fname, "cor_%u.vtu", i++);
     write_vtk(m, fname);
   }

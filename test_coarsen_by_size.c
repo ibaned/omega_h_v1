@@ -37,7 +37,7 @@ int main()
   double minq = mesh_min_quality(m);
   printf("minq %f\n", minq);
   it = 0;
-  while (coarsen_by_size(&m, coarse_fun, minq)) {
+  while (coarsen_by_size(&m, coarse_fun, minq, 0.5)) {
     printf("%u elements\n", mesh_count(m, mesh_dim(m)));
     sprintf(fname, "cor_%u.vtu", it++);
     write_vtk(m, fname);
