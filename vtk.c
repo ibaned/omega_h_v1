@@ -87,3 +87,20 @@ void write_vtk(struct mesh* m, char const* filename)
   fprintf(file, "</VTKFile>\n");
   fclose(file);
 }
+
+static char const* the_step_prefix = 0;
+static unsigned the_step = 0;
+
+void start_vtk_steps(char const* prefix)
+{
+  the_step_prefix = prefix;
+  the_step = 0;
+}
+
+void write_vtk_step(struct mesh* m)
+{
+  char fname[64];
+  sprintf(fname, "%s_%u.vtu", the_step_prefix, the_step);
+  write_vtk(m, fname);
+  ++the_step;
+}
