@@ -56,9 +56,11 @@ int main()
   while (1) {
     unsigned did_stuff = 0;
     did_stuff |= coarsen_by_size(&m, size_fun,
-        mesh_min_quality(m));
+        mesh_min_quality(m), 1.0 / 3.0);
     write_vtk_step(m);
     did_stuff |= refine_by_size(&m, size_fun);
+    write_vtk_step(m);
+    did_stuff |= split_sliver_tris(&m, 0.4, 1.0 / 5.0);
     write_vtk_step(m);
     if (!did_stuff)
       break;
