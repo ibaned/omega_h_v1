@@ -118,8 +118,12 @@ unsigned coarsen_by_size(
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts_out, 0);
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
-  double* coords_out = doubles_subset(nverts, 3, coords, offset_of_same_verts);
-  mesh_add_nodal_field(m_out, "coordinates", 3, coords_out);
+  for (unsigned i = 0; i < mesh_count_nodal_fields(m); ++i) {
+    struct const_field* f = mesh_get_nodal_field(m, i);
+    double* vals_out = doubles_subset(nverts, f->ncomps, f->data,
+        offset_of_same_verts);
+    mesh_add_nodal_field(m_out, f->name, f->ncomps, vals_out);
+  }
   unsigned* class_dim_out = ints_subset(nverts, 1, class_dim,
       offset_of_same_verts);
   mesh_add_nodal_label(m_out, "class_dim", class_dim_out);
