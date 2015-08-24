@@ -6,6 +6,9 @@
 #include "algebra.h"
 #include "warp_to_limit.h"
 #include "eval_field.h"
+#include "split_sliver_tris.h"
+#include "coarsen_by_size.h"
+#include "quality.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -40,15 +43,24 @@ int main()
   struct mesh* m = new_box_mesh(2);
   while (refine_by_size(&m, size_fun));
   mesh_classify_box(m);
-  write_vtk(m, "step_0.vtu");
-  char fname[64];
-  for (unsigned i = 1; 1; ++i) {
+  start_vtk_steps("warp");
+  write_vtk_step(m);
+  while (1) {
     mesh_eval_field(m, "warp", 3, warp_fun);
-    unsigned ok = mesh_warp_to_limit(m);
+    unsigned ok = mesh_warp_to_limit(m, 0.1);
     mesh_free_nodal_field(m, "warp");
-    sprintf(fname, "step_%u.vtu", i);
-    write_vtk(m, fname);
+    write_vtk_step(m);
     if (!ok)
+      break;
+  }
+  while (1) {
+    unsigned did_stuff = 0;
+    did_stuff |= coarsen_by_size(&m, size_fun,
+        mesh_min_quality(m));
+    write_vtk_step(m);
+    did_stuff |= refine_by_size(&m, size_fun);
+    write_vtk_step(m);
+    if (!did_stuff)
       break;
   }
   free_mesh(m);
