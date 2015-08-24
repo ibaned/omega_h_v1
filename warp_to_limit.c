@@ -12,6 +12,7 @@ unsigned warp_to_limit(
     unsigned const* verts_of_elems,
     double const* coords,
     double const* warps,
+    double qual_floor,
     double** p_coords,
     double** p_warps)
 {
@@ -21,7 +22,7 @@ unsigned warp_to_limit(
   double* warps_out = 0;
   doubles_axpy(factor, warps, coords, coords_out, 3 * nverts);
   while (min_element_quality(
-        elem_dim, nelems, verts_of_elems, coords_out) <= 0) {
+        elem_dim, nelems, verts_of_elems, coords_out) < qual_floor) {
     hit_limit = 1;
     factor /= 2;
     doubles_axpy(factor, warps, coords, coords_out, 3 * nverts);
@@ -35,7 +36,7 @@ unsigned warp_to_limit(
   return !hit_limit;
 }
 
-unsigned mesh_warp_to_limit(struct mesh* m)
+unsigned mesh_warp_to_limit(struct mesh* m, double qual_floor)
 {
   double* coords;
   double* warps;
@@ -44,6 +45,7 @@ unsigned mesh_warp_to_limit(struct mesh* m)
       mesh_ask_down(m, mesh_dim(m), 0),
       mesh_find_nodal_field(m, "coordinates")->data,
       mesh_find_nodal_field(m, "warp")->data,
+      qual_floor,
       &coords, &warps);
   mesh_free_nodal_field(m, "coordinates");
   mesh_free_nodal_field(m, "warp");
