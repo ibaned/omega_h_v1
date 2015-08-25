@@ -73,6 +73,11 @@ static inline double det_3x3(double m[3][3])
   return dot_product(m[2], tmp, 3);
 }
 
+static inline double det_2x2(double m[2][2])
+{
+  return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+}
+
 static inline void transp_3x3(double in[3][3], double out[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
@@ -85,6 +90,15 @@ static inline void scale_3x3(double m[3][3], double s)
   for (unsigned i = 0; i < 3; ++i)
   for (unsigned j = 0; j < 3; ++j)
     m[i][j] *= s;
+}
+
+static inline void invert_2x2(double in[2][2], double out[2][2])
+{
+  double d = det_2x2(in);
+  out[0][0] =  in[1][1] / d;
+  out[0][1] = -in[0][1] / d;
+  out[1][0] = -in[1][0] / d;
+  out[1][1] =  in[0][0] / d;
 }
 
 static inline void invert_3x3(double in[3][3], double out[3][3])
