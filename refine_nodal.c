@@ -1,5 +1,5 @@
 #include "refine_nodal.h"
-#include "average.h"
+#include "element_field.h"
 #include "tables.h"
 #include <stdlib.h>
 
