@@ -55,8 +55,6 @@ struct const_field* mesh_get_nodal_field(struct mesh* m, unsigned i);
 struct const_field* mesh_add_elem_field(struct mesh* m, char const* name,
     unsigned ncomps, double* data);
 void mesh_free_elem_field(struct mesh* m, char const* name);
-struct const_label* mesh_add_elem_label(struct mesh* m, char const* name,
-    unsigned* data);
 unsigned mesh_count_elem_fields(struct mesh* m);
 struct const_field* mesh_get_elem_field(struct mesh* m, unsigned i);
 

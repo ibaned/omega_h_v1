@@ -9,4 +9,8 @@ double* element_gradients(
     unsigned ncomps,
     double const* comps_of_verts);
 
+struct mesh;
+
+void mesh_element_gradients(struct mesh* m, char const* name);
+
 #endif

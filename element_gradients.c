@@ -2,7 +2,9 @@
 #include "jacobian.h"
 #include "algebra.h"
 #include "tables.h"
+#include "mesh.h"
 #include <stdlib.h>
+#include <string.h>
 
 double* element_gradients(
     unsigned elem_dim,
@@ -38,4 +40,19 @@ double* element_gradients(
       grad[k * 3 + l] += (elem_comps[j + 1][k] - elem_comps[0][k]) * jaci[j][l];
   }
   return out;
+}
+
+void mesh_element_gradients(struct mesh* m, char const* name)
+{
+  struct const_field* f = mesh_find_nodal_field(m, name);
+  double* data = element_gradients(mesh_dim(m), mesh_count(m, mesh_dim(m)),
+      mesh_ask_down(m, mesh_dim(m), 0),
+      mesh_find_nodal_field(m, "coordinates")->data,
+      f->ncomps, f->data);
+  static char const* prefix = "grad_";
+  char* grad_name = malloc(strlen(name) + strlen(prefix) + 1);
+  strcpy(grad_name, prefix);
+  strcat(grad_name, name);
+  mesh_add_elem_field(m, grad_name, f->ncomps * 3, data);
+  free(grad_name);
 }
