@@ -31,6 +31,21 @@ static void write_nodal_field(FILE* file, struct mesh* m, struct const_field* fi
   fprintf(file, "</DataArray>\n");
 }
 
+static void write_elem_field(FILE* file, struct mesh* m, struct const_field* field)
+{
+  fprintf(file, "<DataArray type=\"Float64\" Name=\"%s\""
+             " NumberOfComponents=\"%u\" format=\"ascii\">\n",
+             field->name, field->ncomps);
+  unsigned nverts = mesh_count(m, mesh_dim(m));
+  double const* p = field->data;
+  for (unsigned i = 0; i < nverts; ++i) {
+    for (unsigned j = 0; j < field->ncomps; ++j)
+      fprintf(file, " %f", *p++);
+    fprintf(file, "\n");
+  }
+  fprintf(file, "</DataArray>\n");
+}
+
 void write_vtk(struct mesh* m, char const* filename)
 {
   unsigned elem_dim = mesh_dim(m);
@@ -81,6 +96,11 @@ void write_vtk(struct mesh* m, char const* filename)
   }
   fprintf(file, "</PointData>\n");
   fprintf(file, "<CellData>\n");
+  for (unsigned i = 0; i < mesh_count_elem_fields(m); ++i) {
+    struct const_field* field = mesh_get_elem_field(m, i);
+    if (field != coord_field)
+      write_elem_field(file, m, field);
+  }
   fprintf(file, "</CellData>\n");
   fprintf(file, "</Piece>\n");
   fprintf(file, "</UnstructuredGrid>\n");
