@@ -43,6 +43,7 @@ void mesh_free_up(struct mesh* m, unsigned low_dim, unsigned high_dim);
 void mesh_free_star(struct mesh* m, unsigned low_dim, unsigned high_dim);
 void mesh_free_dual(struct mesh* m);
 void mesh_set_ents(struct mesh* m, unsigned dim, unsigned n, unsigned* verts);
+
 struct const_field* mesh_add_nodal_field(struct mesh* m, char const* name,
     unsigned ncomps, double* data);
 void mesh_free_nodal_field(struct mesh* m, char const* name);
@@ -50,5 +51,13 @@ struct const_label* mesh_add_nodal_label(struct mesh* m, char const* name,
     unsigned* data);
 unsigned mesh_count_nodal_fields(struct mesh* m);
 struct const_field* mesh_get_nodal_field(struct mesh* m, unsigned i);
+
+struct const_field* mesh_add_elem_field(struct mesh* m, char const* name,
+    unsigned ncomps, double* data);
+void mesh_free_elem_field(struct mesh* m, char const* name);
+struct const_label* mesh_add_elem_label(struct mesh* m, char const* name,
+    unsigned* data);
+unsigned mesh_count_elem_fields(struct mesh* m);
+struct const_field* mesh_get_elem_field(struct mesh* m, unsigned i);
 
 #endif

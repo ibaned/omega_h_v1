@@ -22,6 +22,7 @@ struct mesh {
   unsigned had_dual;
   struct fields nodal_fields;
   struct labels nodal_labels;
+  struct fields elem_fields;
 };
 
 struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
@@ -96,6 +97,7 @@ void free_mesh(struct mesh* m)
   free(m->dual);
   free_fields(&m->nodal_fields);
   free_labels(&m->nodal_labels);
+  free_fields(&m->elem_fields);
   free(m);
 }
 
@@ -289,4 +291,29 @@ unsigned mesh_count_nodal_fields(struct mesh* m)
 struct const_field* mesh_get_nodal_field(struct mesh* m, unsigned i)
 {
   return (struct const_field*) m->nodal_fields.at[i];
+}
+
+struct const_field* mesh_add_elem_field(struct mesh* m, char const* name,
+    unsigned ncomps, double* data)
+{
+  struct field* f = new_field(name, ncomps, data);
+  add_field(&m->elem_fields, f);
+  return (struct const_field*) f;
+}
+
+void mesh_free_elem_field(struct mesh* m, char const* name)
+{
+  struct field* f = find_field(&m->elem_fields, name);
+  remove_field(&m->elem_fields, f);
+  free_field(f);
+}
+
+unsigned mesh_count_elem_fields(struct mesh* m)
+{
+  return m->elem_fields.n;
+}
+
+struct const_field* mesh_get_elem_field(struct mesh* m, unsigned i)
+{
+  return (struct const_field*) m->elem_fields.at[i];
 }
