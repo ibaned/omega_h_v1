@@ -1,5 +1,6 @@
 #include "size.h"
 #include "algebra.h"
+#include "tables.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -67,6 +68,27 @@ double* identity_size_field(
         max = l;
     }
     out[i] = max;
+  }
+  return out;
+}
+
+double* element_sizes(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* verts_of_elems,
+    double const* coords)
+{
+  double* out = malloc(sizeof(double) * nelems);
+  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
+  element_measure em = the_element_measures[elem_dim];
+  for (unsigned i = 0; i < nelems; ++i) {
+    unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
+    double elem_coords[4][3];
+    for (unsigned j = 0; j < verts_per_elem; ++j) {
+      unsigned vert = verts_of_elem[j];
+      copy_vector(coords + vert * 3, elem_coords[j], 3);
+    }
+    out[i] = em(elem_coords);
   }
   return out;
 }

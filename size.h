@@ -16,4 +16,10 @@ double* identity_size_field(
     unsigned const* vert_of_verts,
     double const* coords);
 
+double* element_sizes(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* verts_of_elems,
+    double const* coords);
+
 #endif
