@@ -106,6 +106,11 @@ struct const_field* mesh_find_nodal_field(struct mesh* m, char const* name)
   return (struct const_field*) find_field(&m->nodal_fields, name);
 }
 
+struct const_field* mesh_find_elem_field(struct mesh* m, char const* name)
+{
+  return (struct const_field*) find_field(&m->elem_fields, name);
+}
+
 struct const_label* mesh_find_nodal_label(struct mesh* m, char const* name)
 {
   return (struct const_label*) find_label(&m->nodal_labels, name);

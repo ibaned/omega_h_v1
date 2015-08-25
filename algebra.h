@@ -22,6 +22,16 @@ static inline void subtract_vectors(
     c[i] = a[i] - b[i];
 }
 
+static inline void add_vectors(
+    double const a[],
+    double const b[],
+    double c[],
+    unsigned n)
+{
+  for (unsigned i = 0; i < n; ++i)
+    c[i] = a[i] + b[i];
+}
+
 static inline void cross_product(
     double const a[],
     double const b[],
