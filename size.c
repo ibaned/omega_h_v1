@@ -46,17 +46,6 @@ element_measure const the_element_measures[4] = {
   tet_volume
 };
 
-double* size_function_to_field(
-    unsigned nverts,
-    double const* coords,
-    double (*f)(double const x[]))
-{
-  double* out = malloc(sizeof(double) * nverts);
-  for (unsigned i = 0; i < nverts; ++i)
-    out[i] = f(coords + i * 3);
-  return out;
-}
-
 double* identity_size_field(
     unsigned nverts,
     unsigned const* vert_of_verts_offsets,
@@ -79,34 +68,5 @@ double* identity_size_field(
     }
     out[i] = max;
   }
-  return out;
-}
-
-double* clamp_size_field(
-    unsigned nverts,
-    double const* id_size,
-    double const* user_size,
-    double ceil,
-    double floor,
-    unsigned* did_clamp_out)
-{
-  assert(ceil >= 1);
-  assert(floor <= 1);
-  double* out = malloc(sizeof(double) * nverts);
-  unsigned did_clamp = 0;
-  for (unsigned i = 0; i < nverts; ++i) {
-    double have = id_size[i];
-    double want = user_size[i];
-    if (want > ceil * have) {
-      want = ceil * have;
-      did_clamp = 1;
-    }
-    else if (want < floor * have) {
-      want = floor * have;
-      did_clamp = 1;
-    }
-    out[i] = want;
-  }
-  *did_clamp_out = did_clamp;
   return out;
 }
