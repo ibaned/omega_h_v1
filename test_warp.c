@@ -27,9 +27,9 @@ static void warp_fun(double const coords[3], double v[])
   subtract_vectors(coords, mid, x, 3);
   double polar_a = atan2(x[1], x[0]);
   double polar_r = vector_norm(x, 3);
-  double rot_a = the_rotation * (2 * (.5 - polar_r));
-  if (rot_a < 0)
-    rot_a = 0;
+  double rot_a = 0;
+  if (polar_r < .5)
+    rot_a = the_rotation * (2 * (.5 - polar_r));
   double dest_a = polar_a + rot_a;
   double dst[3];
   dst[0] = cos(dest_a) * polar_r;
@@ -101,12 +101,16 @@ int main()
   mesh_classify_box(m);
   start_vtk_steps("warp");
   mesh_eval_field(m, "dye", 1, dye_fun);
-  for (unsigned j = 0; j < 4; ++j) {
-    mesh_eval_field(m, "warp", 3, warp_fun);
-    printf("new warp field\n");
-    write_vtk_step(m);
-    warped_adapt(&m);
-    mesh_free_nodal_field(m, "warp");
+  for (unsigned i = 0; i < 2; ++i) {
+    for (unsigned j = 0; j < 4; ++j) {
+      mesh_eval_field(m, "warp", 3, warp_fun);
+      printf("new warp field\n");
+      if (i == 0 && j == 0)
+        write_vtk_step(m);
+      warped_adapt(&m);
+      mesh_free_nodal_field(m, "warp");
+    }
+    the_rotation = -the_rotation;
   }
   free_mesh(m);
 }
