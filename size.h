@@ -22,4 +22,8 @@ double* element_sizes(
     unsigned const* verts_of_elems,
     double const* coords);
 
+struct mesh;
+
+void mesh_element_sizes(struct mesh* m);
+
 #endif

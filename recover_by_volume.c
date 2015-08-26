@@ -1,5 +1,6 @@
 #include "recover_by_volume.h"
 #include "mesh.h"
+#include "size.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -36,11 +37,13 @@ double* recover_by_volume(
 
 void mesh_recover_by_volume(struct mesh* m, char const* name)
 {
+  mesh_element_sizes(m);
+  double const* elem_sizes = mesh_find_elem_field(m, "elem_size")->data;
   struct const_field* f = mesh_find_elem_field(m, name);
   double* data = recover_by_volume(mesh_dim(m), mesh_count(m, 0),
       mesh_ask_up(m, 0, mesh_dim(m))->offsets,
       mesh_ask_up(m, 0, mesh_dim(m))->adj,
-      0 /* fix this. now. */,
+      elem_sizes,
       f->ncomps, f->data);
   static char const* prefix = "rcov_";
   char* rcov_name = malloc(strlen(name) + strlen(prefix) + 1);

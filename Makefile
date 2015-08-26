@@ -46,7 +46,8 @@ inside.o \
 warp_to_limit.o \
 eval_field.o \
 element_gradients.o \
-jacobian.o
+jacobian.o \
+recover_by_volume.o
 
 all: $(objects)
 

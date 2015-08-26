@@ -2,24 +2,41 @@
 #include "eval_field.h"
 #include "element_gradients.h"
 #include "refine_by_size.h"
+#include "recover_by_volume.h"
+#include "algebra.h"
 #include "vtk.h"
 
-static void fld_fun(double const x[3], double v[])
+static void dye_fun(double const coords[3], double v[])
 {
-  v[0] = x[0] * x[0];
+  double x[3];
+  double const l[3] = {.25, .5, 0};
+  double const r[3] = {.75, .5, 0};
+  double dir = 1;
+  subtract_vectors(coords, l, x, 3);
+  if (vector_norm(x, 3) > .25) {
+    dir = -1;
+    subtract_vectors(coords, r, x, 3);
+  }
+  if (vector_norm(x, 3) > .25) {
+    v[0] = 0;
+    return;
+  }
+  v[0] = 4 * dir * (.25 - vector_norm(x, 3));
 }
 
 static double size_fun(double const x[])
 {
-  return 0.1;
+  return 0.05;
 }
 
 int main()
 {
   struct mesh* m = new_box_mesh(2);
   while (refine_by_size(&m, size_fun));
-  mesh_eval_field(m, "foo", 1, fld_fun);
-  mesh_element_gradients(m, "foo");
+  mesh_eval_field(m, "dye", 1, dye_fun);
+  mesh_element_gradients(m, "dye");
+  mesh_recover_by_volume(m, "grad_dye");
+  mesh_element_gradients(m, "rcov_grad_dye");
   write_vtk(m, "grad.vtu");
   free_mesh(m);
 }

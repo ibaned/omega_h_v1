@@ -1,6 +1,7 @@
 #include "size.h"
 #include "algebra.h"
 #include "tables.h"
+#include "mesh.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -91,4 +92,12 @@ double* element_sizes(
     out[i] = em(elem_coords);
   }
   return out;
+}
+
+void mesh_element_sizes(struct mesh* m)
+{
+  double* data = element_sizes(mesh_dim(m), mesh_count(m, mesh_dim(m)),
+      mesh_ask_down(m, mesh_dim(m), 0),
+      mesh_find_nodal_field(m, "coordinates")->data);
+  mesh_add_elem_field(m, "elem_size", 1, data);
 }
