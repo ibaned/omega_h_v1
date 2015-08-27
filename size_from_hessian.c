@@ -1,6 +1,7 @@
 #include "size_from_hessian.h"
 #include "algebra.h"
 #include "doubles.h"
+#include "mesh.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -39,4 +40,13 @@ double* size_from_hessian(
   for (unsigned i = 0; i < nverts; ++i)
     out[i] = a * out[i] + b;
   return out;
+}
+
+struct const_field* mesh_size_from_hessian(struct mesh* m, char const* hess_name,
+    double const sol_comp_weights[], double min_h, double max_h)
+{
+  struct const_field* hf = mesh_find_nodal_field(m, hess_name);
+  double* data = size_from_hessian(mesh_count(m, 0),
+      hf->ncomps, hf->data, sol_comp_weights, min_h, max_h);
+  return mesh_add_nodal_field(m, "adapt_size", 1, data);
 }
