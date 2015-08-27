@@ -42,7 +42,8 @@ double* element_gradients(
   return out;
 }
 
-void mesh_element_gradients(struct mesh* m, char const* name)
+struct const_field* mesh_element_gradients(
+    struct mesh* m, char const* name)
 {
   struct const_field* f = mesh_find_nodal_field(m, name);
   double* data = element_gradients(mesh_dim(m), mesh_count(m, mesh_dim(m)),
@@ -50,9 +51,11 @@ void mesh_element_gradients(struct mesh* m, char const* name)
       mesh_find_nodal_field(m, "coordinates")->data,
       f->ncomps, f->data);
   static char const* prefix = "grad_";
-  char* grad_name = malloc(strlen(name) + strlen(prefix) + 1);
+  char* grad_name = malloc(strlen(f->name) + strlen(prefix) + 1);
   strcpy(grad_name, prefix);
-  strcat(grad_name, name);
-  mesh_add_elem_field(m, grad_name, f->ncomps * 3, data);
+  strcat(grad_name, f->name);
+  struct const_field* out = mesh_add_elem_field(
+      m, grad_name, f->ncomps * 3, data);
   free(grad_name);
+  return out;
 }

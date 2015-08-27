@@ -35,7 +35,8 @@ double* recover_by_volume(
   return comps_of_verts;
 }
 
-void mesh_recover_by_volume(struct mesh* m, char const* name)
+struct const_field* mesh_recover_by_volume(
+    struct mesh* m, char const* name)
 {
   mesh_element_sizes(m);
   double const* elem_sizes = mesh_find_elem_field(m, "elem_size")->data;
@@ -50,5 +51,5 @@ void mesh_recover_by_volume(struct mesh* m, char const* name)
   char* rcov_name = malloc(strlen(name) + strlen(prefix) + 1);
   strcpy(rcov_name, prefix);
   strcat(rcov_name, name);
-  mesh_add_nodal_field(m, rcov_name, f->ncomps, data);
+  return mesh_add_nodal_field(m, rcov_name, f->ncomps, data);
 }
