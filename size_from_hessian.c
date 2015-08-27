@@ -26,7 +26,7 @@ double* size_from_hessian(
       double hess_w = 1;
       if (sol_comp_weights)
         hess_w = sol_comp_weights[j];
-      norm_sq += hess_w + hess_norm_sq;
+      norm_sq += hess_w * hess_norm_sq;
       hess += 9;
     }
     out[i] = sqrt(norm_sq);

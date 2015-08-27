@@ -5,6 +5,7 @@
 #include "recover_by_volume.h"
 #include "algebra.h"
 #include "vtk.h"
+#include "size_from_hessian.h"
 
 static void dye_fun(double const coords[3], double v[])
 {
@@ -38,6 +39,9 @@ int main()
   mesh_element_gradients(m, "dye");
   mesh_recover_by_volume(m, "grad_dye");
   mesh_element_gradients(m, "rcov_grad_dye");
+  mesh_recover_by_volume(m, "grad_rcov_grad_dye");
+  mesh_free_nodal_field(m, "adapt_size");
+  mesh_size_from_hessian(m, "rcov_grad_rcov_grad_dye", 0, 0.1, 0.2);
   write_vtk(m, "grad.vtu");
   free_mesh(m);
 }

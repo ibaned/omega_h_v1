@@ -47,7 +47,8 @@ warp_to_limit.o \
 eval_field.o \
 element_gradients.o \
 jacobian.o \
-recover_by_volume.o
+recover_by_volume.o \
+size_from_hessian.o
 
 all: $(objects)
 
