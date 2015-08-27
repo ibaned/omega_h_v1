@@ -45,6 +45,7 @@ void mesh_recover_by_volume(struct mesh* m, char const* name)
       mesh_ask_up(m, 0, mesh_dim(m))->adj,
       elem_sizes,
       f->ncomps, f->data);
+  mesh_free_elem_field(m, "elem_size");
   static char const* prefix = "rcov_";
   char* rcov_name = malloc(strlen(name) + strlen(prefix) + 1);
   strcpy(rcov_name, prefix);

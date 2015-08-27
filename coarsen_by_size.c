@@ -15,7 +15,6 @@
 
 unsigned coarsen_by_size(
     struct mesh** p_m,
-    double (*size_function)(double const x[]),
     double quality_floor,
     double size_ratio_floor)
 {
@@ -24,11 +23,8 @@ unsigned coarsen_by_size(
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
   unsigned nverts = mesh_count(m, 0);
-  double* sizes = malloc(sizeof(double) * nverts);
-  for (unsigned i = 0; i < nverts; ++i)
-    sizes[i] = size_function(coords + i * 3);
+  double const* sizes = mesh_find_nodal_field(m, "adapt_size")->data;
   double* edge_sizes = measure_edges(nedges, verts_of_edges, coords, sizes);
-  free(sizes);
   unsigned* col_codes = malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nedges; ++i) {
     if (edge_sizes[i] < size_ratio_floor)

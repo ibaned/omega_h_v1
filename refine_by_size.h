@@ -3,8 +3,6 @@
 
 #include "mesh.h"
 
-unsigned refine_by_size(
-    struct mesh** p_m,
-    double (*size_function)(double const x[]));
+unsigned refine_by_size(struct mesh** p_m);
 
 #endif

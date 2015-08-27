@@ -13,9 +13,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static double size_fun(double const x[])
+static void size_fun(double const x[], double s[])
 {
-  return 0.1;
+  s[0] = 0.1;
 }
 
 static double the_rotation = M_PI / 4.;
@@ -66,8 +66,7 @@ static void warped_adapt(struct mesh** p_m)
       printf("warp\n");
       write_vtk_step(m);
     }
-    unsigned did_refine =
-      refine_by_size(&m, size_fun);
+    unsigned did_refine = refine_by_size(&m);
     if (did_refine) {
       printf("refine\n");
       write_vtk_step(m);
@@ -79,8 +78,7 @@ static void warped_adapt(struct mesh** p_m)
       write_vtk_step(m);
     }
     unsigned did_coarsen =
-      coarsen_by_size(&m, size_fun,
-          mesh_min_quality(m), 1.0 / 3.0);
+      coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);
     if (did_coarsen) {
       printf("coarsen\n");
       write_vtk_step(m);
@@ -97,7 +95,8 @@ static void warped_adapt(struct mesh** p_m)
 int main()
 {
   struct mesh* m = new_box_mesh(2);
-  while (refine_by_size(&m, size_fun));
+  mesh_eval_field(m, "adapt_size", 1, size_fun);
+  while (refine_by_size(&m));
   mesh_classify_box(m);
   start_vtk_steps("warp");
   mesh_eval_field(m, "dye", 1, dye_fun);

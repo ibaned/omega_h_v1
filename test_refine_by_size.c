@@ -4,24 +4,26 @@
 #include "vtk.h"
 #include "quality.h"
 #include "doubles.h"
+#include "eval_field.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-static double simple(double const x[])
+static void size_fun(double const x[], double s[])
 {
   double coarse = 0.5;
   double fine = 0.025;
   double radius = vector_norm(x, 3);
   double d = fabs(radius - 0.5);
-  return coarse * d + fine * (1 - d);
+  s[0] = coarse * d + fine * (1 - d);
 }
 
 int main()
 {
   struct mesh* m = new_box_mesh(3);
   char fname[64];
+  mesh_eval_field(m, "adapt_size", 1, size_fun);
   for (unsigned it = 0; 1; ++it) {
-    if (!refine_by_size(&m, simple))
+    if (!refine_by_size(&m))
       break;
     printf("%u elements, %u vertices\n", mesh_count(m, mesh_dim(m)), mesh_count(m, 0));
     double* quals = element_qualities(mesh_dim(m), mesh_count(m, mesh_dim(m)),
@@ -32,6 +34,8 @@ int main()
     printf("min quality %f\n", minqual);
     sprintf(fname, "out_%u.vtu", it);
     write_vtk(m, fname);
+    mesh_free_nodal_field(m, "adapt_size");
+    mesh_eval_field(m, "adapt_size", 1, size_fun);
   }
   free_mesh(m);
 }

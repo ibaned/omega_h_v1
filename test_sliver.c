@@ -6,22 +6,23 @@
 #include "algebra.h"
 #include "quality.h"
 #include "split_sliver_tris.h"
+#include "eval_field.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-static double fine_fun(double const x[])
+static void fine_fun(double const x[], double s[])
 {
   double coarse = 0.5;
   double fine = 0.05;
   double radius = vector_norm(x, 3);
   double d = fabs(radius - 0.5);
-  return coarse * d + fine * (1 - d);
+  s[0] = coarse * d + fine * (1 - d);
 }
 
-static double coarse_fun(double const x[])
+static void coarse_fun(double const x[], double s[])
 {
   (void) x;
-  return 2;
+  s[0] = 2;
 }
 
 int main()
@@ -29,9 +30,12 @@ int main()
   struct mesh* m = new_box_mesh(3);
   char fname[64];
   unsigned i = 0;
-  while (refine_by_size(&m, fine_fun)) {
+  mesh_eval_field(m, "adapt_size", 1, fine_fun);
+  while (refine_by_size(&m)) {
     sprintf(fname, "ref_%u.vtu", i++);
     write_vtk(m, fname);
+    mesh_free_nodal_field(m, "adapt_size");
+    mesh_eval_field(m, "adapt_size", 1, fine_fun);
   }
   mesh_classify_box(m);
   write_vtk(m, "init.vtu");
@@ -39,8 +43,10 @@ int main()
   printf("init minq %f\n", init_minq);
   double cor_qual_floor = 0.3;
   printf("coarsen quality floor %f\n", cor_qual_floor);
+  mesh_free_nodal_field(m, "adapt_size");
+  mesh_eval_field(m, "adapt_size", 1, coarse_fun);
   i = 0;
-  while (coarsen_by_size(&m, coarse_fun, cor_qual_floor, 0.5)) {
+  while (coarsen_by_size(&m, cor_qual_floor, 0.5)) {
     sprintf(fname, "cor_%u.vtu", i++);
     write_vtk(m, fname);
   }

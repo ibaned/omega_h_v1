@@ -24,15 +24,16 @@ static void dye_fun(double const coords[3], double v[])
   v[0] = 4 * dir * (.25 - vector_norm(x, 3));
 }
 
-static double size_fun(double const x[])
+static void size_fun(double const x[], double s[])
 {
-  return 0.05;
+  s[0] = 0.05;
 }
 
 int main()
 {
   struct mesh* m = new_box_mesh(2);
-  while (refine_by_size(&m, size_fun));
+  mesh_eval_field(m, "adapt_size", 1, size_fun);
+  while (refine_by_size(&m));
   mesh_eval_field(m, "dye", 1, dye_fun);
   mesh_element_gradients(m, "dye");
   mesh_recover_by_volume(m, "grad_dye");
