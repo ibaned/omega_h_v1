@@ -41,8 +41,8 @@ int main()
   mesh_element_gradients(m, "rcov_grad_dye");
   mesh_recover_by_volume(m, "grad_rcov_grad_dye");
   mesh_free_nodal_field(m, "adapt_size");
-  double weight = 0.1 / 75.0;
-  mesh_size_from_hessian(m, "rcov_grad_rcov_grad_dye", &weight, 0.1, 0.2);
+  double weight = 0.05 / 75.0;
+  mesh_size_from_hessian(m, "rcov_grad_rcov_grad_dye", &weight, 0.05, 0.1);
   write_vtk(m, "grad.vtu");
   free_mesh(m);
 }

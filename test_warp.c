@@ -9,6 +9,9 @@
 #include "split_sliver_tris.h"
 #include "coarsen_by_size.h"
 #include "quality.h"
+#include "element_gradients.h"
+#include "recover_by_volume.h"
+#include "size_from_hessian.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -56,16 +59,28 @@ static void dye_fun(double const coords[3], double v[])
   v[0] = 4 * dir * (.25 - vector_norm(x, 3));
 }
 
+static void set_size_field(struct mesh* m)
+{
+  mesh_free_nodal_field(m, "adapt_size");
+  mesh_element_gradients(m, "dye");
+  mesh_recover_by_volume(m, "grad_dye");
+  mesh_free_elem_field(m,  "grad_dye");
+  mesh_element_gradients(m, "rcov_grad_dye");
+  mesh_free_nodal_field(m,  "rcov_grad_dye");
+  mesh_recover_by_volume(m, "grad_rcov_grad_dye");
+  mesh_free_elem_field(m,  "grad_rcov_grad_dye");
+  double weight = 0.05 / 75.0;
+  mesh_size_from_hessian(m, "rcov_grad_rcov_grad_dye", &weight, 0.05, 0.1);
+  mesh_free_nodal_field(m, "rcov_grad_rcov_grad_dye");
+}
+
 static void warped_adapt(struct mesh** p_m)
 {
   struct mesh* m = *p_m;
   unsigned done_warp = 0;
   for (unsigned j = 0; j < 40; ++j) {
-    if (!done_warp) {
-      done_warp = mesh_warp_to_limit(m, 0.1);
-      printf("warp\n");
-      write_vtk_step(m);
-    }
+    set_size_field(m);
+    write_vtk_step(m);
     unsigned did_refine = refine_by_size(&m);
     if (did_refine) {
       printf("refine\n");
@@ -87,6 +102,11 @@ static void warped_adapt(struct mesh** p_m)
       *p_m = m;
       return;
     }
+    if (!done_warp) {
+      done_warp = mesh_warp_to_limit(m, 0.1);
+      printf("warp\n");
+      write_vtk_step(m);
+    }
   }
   printf("40 operations couldn't converge !\n");
   abort();
@@ -104,8 +124,6 @@ int main()
     for (unsigned j = 0; j < 4; ++j) {
       mesh_eval_field(m, "warp", 3, warp_fun);
       printf("new warp field\n");
-      if (i == 0 && j == 0)
-        write_vtk_step(m);
       warped_adapt(&m);
       mesh_free_nodal_field(m, "warp");
     }
