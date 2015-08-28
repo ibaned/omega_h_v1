@@ -69,47 +69,41 @@ static void set_size_field(struct mesh* m)
   mesh_free_nodal_field(m,  "rcov_grad_dye");
   mesh_recover_by_volume(m, "grad_rcov_grad_dye");
   mesh_free_elem_field(m,  "grad_rcov_grad_dye");
-  double weight = 0.05 / 75.0;
-  mesh_size_from_hessian(m, "rcov_grad_rcov_grad_dye", &weight, 0.05, 0.1);
+  double weight = 0.075 / 100.0;
+  mesh_size_from_hessian(m, "rcov_grad_rcov_grad_dye", &weight, 0.025, 0.1);
   mesh_free_nodal_field(m, "rcov_grad_rcov_grad_dye");
+}
+
+static void adapt(struct mesh** p_m)
+{
+  struct mesh* m = *p_m;
+  set_size_field(m);
+  write_vtk_step(m);
+  while (refine_by_size(&m)) {
+    printf("refine\n");
+    write_vtk_step(m);
+  }
+  while (coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0)) {
+    printf("coarsen\n");
+    write_vtk_step(m);
+  }
+  while (split_sliver_tris(&m, 0.4, 1.0 / 5.0)) {
+    printf("sliver\n");
+    write_vtk_step(m);
+    coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);
+    printf("sliver coarsen\n");
+    write_vtk_step(m);
+  }
+  *p_m = m;
 }
 
 static void warped_adapt(struct mesh** p_m)
 {
-  struct mesh* m = *p_m;
-  unsigned done_warp = 0;
-  for (unsigned j = 0; j < 40; ++j) {
-    set_size_field(m);
-    write_vtk_step(m);
-    unsigned did_refine = refine_by_size(&m);
-    if (did_refine) {
-      printf("refine\n");
-      write_vtk_step(m);
-    }
-    unsigned did_sliver =
-      split_sliver_tris(&m, 0.4, 1.0 / 5.0);
-    if (did_sliver) {
-      printf("sliver\n");
-      write_vtk_step(m);
-    }
-    unsigned did_coarsen =
-      coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);
-    if (did_coarsen) {
-      printf("coarsen\n");
-      write_vtk_step(m);
-    }
-    if (done_warp && !did_refine && !did_sliver && !did_coarsen) {
-      *p_m = m;
-      return;
-    }
-    if (!done_warp) {
-      done_warp = mesh_warp_to_limit(m, 0.1);
-      printf("warp\n");
-      write_vtk_step(m);
-    }
-  }
-  printf("40 operations couldn't converge !\n");
-  abort();
+  unsigned done = 0;
+  do {
+    done = mesh_warp_to_limit(*p_m, 0.1);
+    adapt(p_m);
+  } while (!done);
 }
 
 int main()
@@ -120,6 +114,7 @@ int main()
   mesh_classify_box(m);
   start_vtk_steps("warp");
   mesh_eval_field(m, "dye", 1, dye_fun);
+  adapt(&m);
   for (unsigned i = 0; i < 2; ++i) {
     for (unsigned j = 0; j < 4; ++j) {
       mesh_eval_field(m, "warp", 3, warp_fun);
