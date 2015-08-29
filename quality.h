@@ -14,6 +14,7 @@ double triangle_quality(double coords[3][3]);
 double tet_quality(double coords[4][3]);
 
 extern quality_function const the_quality_functions[4];
+extern quality_function const the_equal_order_quality_functions[4];
 
 enum quality_type triangle_quality_type(
     double coords[3][3],

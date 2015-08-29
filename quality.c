@@ -43,9 +43,22 @@ double triangle_quality(double coords[3][3])
     sum_lsq += lsq;
   }
   double lrms = sqrt(sum_lsq / 3);
-  /* highly dubious.
-     I yelled at someone for doing this and now I'm doing it.
-     use the area of the triangle projected onto the XY plane,
+  double a = triangle_area(coords);
+  double quality = a / (lrms * lrms);
+  return quality / PERFECT_TRIANGLE_QUALITY;
+}
+
+double triangle_xy_quality(double coords[3][3])
+{
+  unsigned const* const* fev = the_canonical_orders[2][1][0];
+  double sum_lsq = 0;
+  for (unsigned i = 0; i < 3; ++i) {
+    double lsq = vector_squared_distance(
+        coords[fev[i][1]], coords[fev[i][0]], 3);
+    sum_lsq += lsq;
+  }
+  double lrms = sqrt(sum_lsq / 3);
+  /* use the area of the triangle projected onto the XY plane,
      with the sign of the normal's Z component.
      the point of this is the prevent flipping triangles */
   double a = triangle_z_area(coords);
@@ -71,10 +84,23 @@ double tet_quality(double coords[4][3])
   return quality / PERFECT_TET_QUALITY;
 }
 
+static double one(double x[][3])
+{
+  (void) x;
+  return 1;
+}
+
 quality_function const the_quality_functions[4] = {
-  0,
-  0,
+  one,
+  one,
   triangle_quality,
+  tet_quality
+};
+
+quality_function const the_equal_order_quality_functions[4] = {
+  one,
+  one,
+  triangle_xy_quality,
   tet_quality
 };
 

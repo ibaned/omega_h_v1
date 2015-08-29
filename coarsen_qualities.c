@@ -23,7 +23,7 @@ double* coarsen_qualities(
     the_opposite_orders[elem_dim][0];
   unsigned const* const* elem_verts_of_bases =
     the_canonical_orders[elem_dim][base_dim][0];
-  quality_function qf = the_quality_functions[elem_dim];
+  quality_function qf = the_equal_order_quality_functions[elem_dim];
   double* out = malloc(sizeof(double) * nedges * 2);
   for (unsigned i = 0; i < nedges; ++i) {
     if (col_codes[i] == DONT_COLLAPSE)
