@@ -58,6 +58,7 @@ double* refine_qualities(
         }
         copy_vector(split_x, elem_x[verts_per_elem - 1], 3);
         double q = qf(elem_x);
+        assert(q > 0);
         if (q < minq)
           minq = q;
       }
