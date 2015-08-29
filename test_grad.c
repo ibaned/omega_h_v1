@@ -10,8 +10,8 @@
 static void dye_fun(double const coords[3], double v[])
 {
   double x[3];
-  double const l[3] = {.25, .5, 0};
-  double const r[3] = {.75, .5, 0};
+  double const l[3] = {.25, .5, .5};
+  double const r[3] = {.75, .5, .5};
   double dir = 1;
   subtract_vectors(coords, l, x, 3);
   if (vector_norm(x, 3) > .25) {
@@ -32,7 +32,7 @@ static void size_fun(double const x[], double s[])
 
 int main()
 {
-  struct mesh* m = new_box_mesh(2);
+  struct mesh* m = new_box_mesh(3);
   mesh_eval_field(m, "adapt_size", 1, size_fun);
   while (refine_by_size(&m));
   mesh_eval_field(m, "dye", 1, dye_fun);
