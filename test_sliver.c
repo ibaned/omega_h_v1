@@ -5,7 +5,6 @@
 #include "vtk.h"
 #include "algebra.h"
 #include "quality.h"
-#include "split_sliver_tris.h"
 #include "eval_field.h"
 #include <stdio.h>
 #include <stdlib.h>

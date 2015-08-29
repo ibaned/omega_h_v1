@@ -6,7 +6,7 @@
 #include "algebra.h"
 #include "warp_to_limit.h"
 #include "eval_field.h"
-#include "split_sliver_tris.h"
+#include "split_slivers.h"
 #include "coarsen_by_size.h"
 #include "quality.h"
 #include "element_gradients.h"
@@ -87,7 +87,7 @@ static void adapt(struct mesh** p_m)
     printf("coarsen\n");
     write_vtk_step(m);
   }
-  while (split_sliver_tris(&m, 0.4, 1.0 / 5.0)) {
+  while (split_slivers(2, &m, 0.4, 1.0 / 5.0)) {
     printf("sliver\n");
     write_vtk_step(m);
     coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);

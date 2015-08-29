@@ -1,4 +1,4 @@
-CFLAGS = -g -O2 -std=c99 -Werror -Wall
+CFLAGS = -g -O2 -std=c99 -Wall
 LDLIBS = -lm
 
 sources := $(wildcard *.c)
@@ -33,7 +33,7 @@ coarsen_qualities.o \
 coarsen_topology.o \
 collapses_to_verts.o \
 collapses_to_elements.o \
-split_sliver_tris.o \
+split_slivers.o \
 bad_elem_keys.o \
 collect_keys.o \
 refine_class.o \
