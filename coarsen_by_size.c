@@ -9,6 +9,7 @@
 #include "collapses_to_elements.h"
 #include "coarsen_topology.h"
 #include "concat.h"
+#include "subset.h"
 #include "tables.h"
 #include "quality.h"
 #include <stdlib.h>

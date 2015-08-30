@@ -1,6 +1,7 @@
 #include "concat.h"
 #include "tables.h"
 #include "ints.h"
+#include "subset.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -41,45 +42,6 @@ double* concat_doubles(
   return concat_general(sizeof(double), width, a, na, b, nb);
 }
 
-void* general_subset(
-    unsigned typesize,
-    unsigned n,
-    unsigned width,
-    void const* a,
-    unsigned const* offsets)
-{
-  unsigned nsub = offsets[n];
-  void* out = malloc(typesize * nsub * width);
-  unsigned stride = typesize * width;
-  char const* ip = a;
-  char* op = out;
-  for (unsigned i = 0; i < n; ++i, ip += stride) {
-    if (offsets[i] == offsets[i + 1])
-      continue;
-    memcpy(op, ip, stride);
-    op += stride;
-  }
-  return out;
-}
-
-unsigned* ints_subset(
-    unsigned n,
-    unsigned width,
-    unsigned const* a,
-    unsigned const* offsets)
-{
-  return general_subset(sizeof(unsigned), n, width, a, offsets);
-}
-
-double* doubles_subset(
-    unsigned n,
-    unsigned width,
-    double const* a,
-    unsigned const* offsets)
-{
-  return general_subset(sizeof(double), n, width, a, offsets);
-}
-
 void concat_verts_of_elems(
     unsigned elem_dim,
     unsigned nelems,
@@ -100,56 +62,4 @@ void concat_verts_of_elems(
   free(verts_of_same_elems);
   *nelems_out = nsame_elems + ngen_elems;
   *verts_of_elems_out = out;
-}
-
-void graph_subset(
-    unsigned n,
-    unsigned const* set_offsets,
-    unsigned const* graph_offsets,
-    unsigned const* graph_adj,
-    unsigned** graph_offsets_out,
-    unsigned** graph_adj_out)
-{
-  unsigned n_out = set_offsets[n];
-  unsigned* degrees = ints_unscan(set_offsets, n);
-  unsigned* degrees_out = ints_subset(n, 1, degrees, set_offsets);
-  free(degrees);
-  unsigned* new_offsets = ints_exscan(degrees_out, n_out);
-  free(degrees_out);
-  unsigned nadj_out = new_offsets[n_out];
-  unsigned* new_adj = malloc(sizeof(unsigned) * nadj_out);
-  for (unsigned i = 0; i < n; ++i) {
-    if (set_offsets[i] == set_offsets[i + 1])
-      continue;
-    unsigned new_i = set_offsets[i];
-    unsigned first_adj = graph_offsets[i];
-    unsigned end_adj = graph_offsets[i];
-    unsigned first_new_adj = new_offsets[new_i];
-    for (unsigned j = first_adj; j < end_adj; ++j)
-      new_adj[(j - first_adj) + first_new_adj] = graph_adj[j];
-  }
-  *graph_offsets_out = new_offsets;
-  *graph_adj_out = new_adj;
-}
-
-void concat_graph(
-    unsigned na,
-    unsigned const* a_offsets,
-    unsigned const* a_adj,
-    unsigned nb,
-    unsigned const* b_offsets,
-    unsigned const* b_adj,
-    unsigned** p_offsets,
-    unsigned** p_adj)
-{
-  unsigned n_out = na + nb;
-  unsigned* offsets_out = malloc(sizeof(unsigned) * n_out);
-  ints_copy(a_offsets, offsets_out, na);
-  unsigned na_adj = a_offsets[na];
-  for (unsigned i = 0; i < nb; ++i)
-    offsets_out[i + na] = b_offsets[i] + na_adj;
-  unsigned nb_adj = b_offsets[nb];
-  unsigned* adj_out = concat_ints(1, a_adj, na_adj, b_adj, nb_adj);
-  *p_offsets = offsets_out;
-  *p_adj = adj_out;
 }
