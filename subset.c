@@ -73,21 +73,23 @@ struct mesh* subset_mesh(
     unsigned elem_dim,
     unsigned const* offsets)
 {
-  struct mesh* out = new_mesh(elem_dim);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned nelems_out = offsets[nelems];
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned* verts_of_elems_out = ints_subset(nelems, verts_per_elem,
       verts_of_elems, offsets);
-  mesh_set_ents(out, elem_dim, nelems_out, verts_of_elems_out);
   unsigned nverts = mesh_count(m, 0);
   unsigned* vert_offsets = mark_elem_verts(nverts,
       mesh_ask_up(m, 0, elem_dim)->offsets,
       mesh_ask_up(m, 0, elem_dim)->adj,
       offsets);
+  for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i)
+    verts_of_elems_out[i] = vert_offsets[verts_of_elems_out[i]];
   unsigned nverts_out = vert_offsets[nverts];
+  struct mesh* out = new_mesh(elem_dim);
   mesh_set_ents(out, 0, nverts_out, 0);
+  mesh_set_ents(out, elem_dim, nelems_out, verts_of_elems_out);
   double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
   double* coords_out = doubles_subset(nverts, 3, coords, vert_offsets);
   mesh_add_nodal_field(out, "coordinates", 3, coords_out);
