@@ -1,9 +1,9 @@
-#ifndef BAD_ELEM_KEYS
-#define BAD_ELEM_KEYS
+#ifndef SLIVER_KEYS_H
+#define SLIVER_KEYS_H
 
 #include "quality.h"
 
-void bad_elem_keys(
+void sliver_keys(
     unsigned elem_dim,
     unsigned nelems,
     unsigned const* verts_of_elems,

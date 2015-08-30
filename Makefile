@@ -34,7 +34,7 @@ coarsen_topology.o \
 collapses_to_verts.o \
 collapses_to_elements.o \
 split_slivers.o \
-bad_elem_keys.o \
+sliver_keys.o \
 collect_keys.o \
 refine_class.o \
 derive_faces.o \

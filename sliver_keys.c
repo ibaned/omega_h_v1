@@ -1,10 +1,10 @@
-#include "bad_elem_keys.h"
+#include "sliver_keys.h"
 #include "tables.h"
 #include "quality.h"
 #include "algebra.h"
 #include <stdlib.h>
 
-void bad_elem_keys(
+void sliver_keys(
     unsigned elem_dim,
     unsigned nelems,
     unsigned const* verts_of_elems,
