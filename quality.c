@@ -122,7 +122,7 @@ static double edge_length_ratio(
 {
   double maxl = l[0];
   double minl = l[0];
-  for (unsigned i = 1; i < 3; ++i) {
+  for (unsigned i = 1; i < n; ++i) {
     if (l[i] > maxl)
       maxl = l[i];
     if (l[i] < minl)
