@@ -92,10 +92,18 @@ static void adapt(struct mesh** p_m)
   }
   printf("min tet qual %f\n", mesh_min_quality(m));
   while (split_slivers(2, &m, 0.4, 1.0 / 5.0)) {
-    printf("sliver\n");
+    printf("tri sliver\n");
     write_vtk_step(m);
     coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);
-    printf("sliver coarsen\n");
+    printf("tri sliver coarsen\n");
+    write_vtk_step(m);
+  }
+  printf("min tet qual %f\n", mesh_min_quality(m));
+  while (split_slivers(3, &m, 0.3, 1.0 / 5.0)) {
+    printf("tet sliver\n");
+    write_vtk_step(m);
+    coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);
+    printf("tet sliver coarsen\n");
     write_vtk_step(m);
   }
   printf("min tet qual %f\n", mesh_min_quality(m));
