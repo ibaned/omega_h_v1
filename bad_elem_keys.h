@@ -8,7 +8,7 @@ void bad_elem_keys(
     unsigned nelems,
     unsigned const* verts_of_elems,
     double const* coords,
-    enum quality_type target,
+    enum sliver_type target,
     double qual_floor,
     double edge_ratio_floor,
     unsigned** bad_elems_out,

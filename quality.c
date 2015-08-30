@@ -131,7 +131,7 @@ static double edge_length_ratio(
   return minl / maxl;
 }
 
-enum quality_type triangle_quality_type(
+enum sliver_type triangle_sliver_type(
     double coords[3][3],
     double qual_floor,
     double edge_ratio_floor,
@@ -139,14 +139,14 @@ enum quality_type triangle_quality_type(
 {
   double q = triangle_quality(coords);
   if (q >= qual_floor)
-    return GOOD_ELEM;
+    return NOT_SLIVER;
   double l[3];
   edge_lengths(2, coords, l);
   double r = edge_length_ratio(l, 3);
   if (r < edge_ratio_floor)
-    return SHORT_EDGE_ELEM;
+    return VERT_VERT_SLIVER;
   if (!key_edge_out)
-    return SLIVER_ELEM;
+    return VERT_EDGE_SLIVER;
   /* project the cap vertex onto the base edge */
   /* the first two vertices of the triangle are
      ordered the same as the vertices of its first edge */
@@ -158,24 +158,24 @@ enum quality_type triangle_quality_type(
     *key_edge_out = 2;
   else
     *key_edge_out = 0;
-  return SLIVER_ELEM;
+  return VERT_EDGE_SLIVER;
 }
 
 static struct {
-  enum quality_type qt;
+  enum sliver_type qt;
   unsigned ke;
 } const tet_quality_table[8] = {
   {0,0}, /* impossible for positive volume */
-  {CAP_TET,     1}, /* 001 */
-  {CAP_TET,     2}, /* 010 */
-  {SLIVER_ELEM, 1}, /* 011 */
-  {CAP_TET,     3}, /* 100 */
-  {SLIVER_ELEM, 0}, /* 101 */
-  {SLIVER_ELEM, 2}, /* 110 */
-  {CAP_TET,     0}, /* 111 */
+  {VERT_FACE_SLIVER, 1}, /* 001 */
+  {VERT_FACE_SLIVER, 2}, /* 010 */
+  {VERT_EDGE_SLIVER, 1}, /* 011 */
+  {VERT_FACE_SLIVER, 3}, /* 100 */
+  {VERT_EDGE_SLIVER, 0}, /* 101 */
+  {VERT_EDGE_SLIVER, 2}, /* 110 */
+  {VERT_FACE_SLIVER, 0}, /* 111 */
 };
 
-enum quality_type tet_quality_type(
+enum sliver_type tet_sliver_type(
     double coords[4][3],
     double qual_floor,
     double edge_ratio_floor,
@@ -183,12 +183,12 @@ enum quality_type tet_quality_type(
 {
   double q = tet_quality(coords);
   if (q >= qual_floor)
-    return GOOD_ELEM;
+    return NOT_SLIVER;
   double l[6];
   edge_lengths(3, coords, l);
   double r = edge_length_ratio(l, 6);
   if (r < edge_ratio_floor)
-    return SHORT_EDGE_ELEM;
+    return VERT_VERT_SLIVER;
   /* project the cap vertex onto the base triangle */
   /* the first three vertices of the tet are
      ordered the same as the vertices of its first triangle */
@@ -204,11 +204,11 @@ enum quality_type tet_quality_type(
   return tet_quality_table[c].qt;
 }
 
-quality_type_function const the_quality_type_functions[4] = {
+sliver_type_function const the_sliver_type_functions[4] = {
   0,
   0,
-  triangle_quality_type,
-  tet_quality_type
+  triangle_sliver_type,
+  tet_sliver_type
 };
 
 double* element_qualities(
