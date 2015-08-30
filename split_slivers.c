@@ -22,7 +22,7 @@ unsigned split_slivers(
   unsigned* bad_slivs;
   unsigned* key_of_slivs;
   sliver_keys(2, nslivs, verts_of_slivs, coords,
-      VERT_VERT_SLIVER, qual_floor, edge_ratio_floor,
+      VERT_EDGE_SLIVER, qual_floor, edge_ratio_floor,
       &bad_slivs, &key_of_slivs);
   unsigned something_to_do = ints_max(bad_slivs, nslivs);
   if (!something_to_do) {
