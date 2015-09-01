@@ -50,7 +50,8 @@ jacobian.o \
 recover_by_volume.o \
 size_from_hessian.o \
 subset.o \
-adapt.o
+adapt.o \
+coarsen_common.o
 
 all: $(objects)
 
