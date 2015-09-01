@@ -45,7 +45,7 @@ void mesh_adapt(struct mesh** p_m,
       adapt_summary(*p_m);
       return;
     }
-    if (split_slivers(p_m, 2, VERT_EDGE_SLIVER, qual_floor, size_ratio_floor)) {
+    if (split_slivers(p_m, 2, VERT_EDGE_SLIVER, qual_floor, 0)) {
       printf("split vert-edge triangles\n");
       write_vtk_step(*p_m);
       continue;
