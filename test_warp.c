@@ -87,7 +87,7 @@ static void adapt(struct mesh** p_m)
     printf("coarsen\n");
     write_vtk_step(m);
   }
-  while (split_slivers(2, &m, 0.4, 1.0 / 3.0)) {
+  while (split_slivers(&m, 2, VERT_EDGE_SLIVER, 0.4, 1.0 / 3.0)) {
     printf("sliver\n");
     write_vtk_step(m);
     coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);
