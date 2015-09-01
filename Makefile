@@ -49,7 +49,8 @@ element_gradients.o \
 jacobian.o \
 recover_by_volume.o \
 size_from_hessian.o \
-subset.o
+subset.o \
+adapt.o
 
 all: $(objects)
 

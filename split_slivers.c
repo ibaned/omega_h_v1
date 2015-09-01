@@ -19,7 +19,6 @@ unsigned split_slivers(
     double edge_ratio_floor)
 {
   struct mesh* m = *p_m;
-  write_vtk(m, "before.vtu");
   unsigned elem_dim = mesh_dim(m);
   assert(elem_dim >= 2);
   assert(elem_dim <= 3);

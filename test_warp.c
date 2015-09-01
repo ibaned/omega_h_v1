@@ -1,20 +1,23 @@
 #define _XOPEN_SOURCE 500
 #include "mesh.h"
-#include "classify_box.h"
 #include "refine_by_size.h"
+#include "classify_box.h"
 #include "vtk.h"
 #include "algebra.h"
 #include "warp_to_limit.h"
 #include "eval_field.h"
-#include "split_slivers.h"
-#include "coarsen_by_size.h"
 #include "quality.h"
 #include "element_gradients.h"
 #include "recover_by_volume.h"
 #include "size_from_hessian.h"
+#include "adapt.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+static double const warp_qual_floor = 0.1;
+static double const good_qual_floor = 0.3;
+static double const size_floor = 1. / 3.;
 
 static void size_fun(double const x[], double s[])
 {
@@ -74,36 +77,19 @@ static void set_size_field(struct mesh* m)
   mesh_free_nodal_field(m, "rcov_grad_rcov_grad_dye");
 }
 
-static void adapt(struct mesh** p_m)
-{
-  struct mesh* m = *p_m;
-  set_size_field(m);
-  write_vtk_step(m);
-  while (refine_by_size(&m)) {
-    printf("refine\n");
-    write_vtk_step(m);
-  }
-  while (coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0)) {
-    printf("coarsen\n");
-    write_vtk_step(m);
-  }
-  while (split_slivers(&m, 2, VERT_EDGE_SLIVER, 0.4, 1.0 / 3.0)) {
-    printf("sliver\n");
-    write_vtk_step(m);
-    coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);
-    printf("sliver coarsen\n");
-    write_vtk_step(m);
-  }
-  *p_m = m;
-}
-
 static void warped_adapt(struct mesh** p_m)
 {
-  unsigned done = 0;
-  do {
-    done = mesh_warp_to_limit(*p_m, 0.1);
-    adapt(p_m);
-  } while (!done);
+  for (unsigned i = 0; i < 3; ++i) {
+    unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
+    set_size_field(*p_m);
+    printf("warp to limit, new size field\n");
+    write_vtk_step(*p_m);
+    mesh_adapt(p_m, good_qual_floor, size_floor);
+    if (done)
+      return;
+  }
+  fprintf(stderr, "warped_adapt still not done after 3 iters\n");
+  abort();
 }
 
 int main()
@@ -114,7 +100,9 @@ int main()
   mesh_classify_box(m);
   start_vtk_steps("warp");
   mesh_eval_field(m, "dye", 1, dye_fun);
-  adapt(&m);
+  set_size_field(m);
+  write_vtk_step(m);
+  mesh_adapt(&m, good_qual_floor, size_floor);
   for (unsigned i = 0; i < 2; ++i) {
     for (unsigned j = 0; j < 4; ++j) {
       mesh_eval_field(m, "warp", 3, warp_fun);
