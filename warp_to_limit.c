@@ -5,6 +5,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+static unsigned exceeds_limit(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* verts_of_elems,
+    double const* coords,
+    double qual_floor)
+{
+  double qual = min_element_quality(elem_dim, nelems,
+      verts_of_elems, coords);
+  if (qual < qual_floor) {
+    printf("quality %f exceeds limit\n", qual);
+    return 1;
+  }
+  return 0;
+}
+
 unsigned warp_to_limit(
     unsigned elem_dim,
     unsigned nelems,
@@ -21,8 +37,8 @@ unsigned warp_to_limit(
   double factor = 1;
   double* warps_out = 0;
   doubles_axpy(factor, warps, coords, coords_out, 3 * nverts);
-  while (min_element_quality(
-        elem_dim, nelems, verts_of_elems, coords_out) < qual_floor) {
+  while (exceeds_limit(elem_dim, nelems,
+        verts_of_elems, coords_out, qual_floor)) {
     hit_limit = 1;
     factor /= 2;
     doubles_axpy(factor, warps, coords, coords_out, 3 * nverts);
