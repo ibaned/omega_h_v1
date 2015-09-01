@@ -101,7 +101,7 @@ static void adapt(struct mesh** p_m)
   }
   printf("min tet qual %f\n", mesh_min_quality(m));
   fprintf(stderr, "splitting sliver tets...\n");
-  while (split_slivers(&m, 3, VERT_EDGE_SLIVER, 0.4, 1.0 / 3.0)) {
+  while (split_slivers(&m, 3, EDGE_EDGE_SLIVER, 0.4, 1.0 / 3.0)) {
     printf("tet sliver\n");
     write_vtk_step(m);
     coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);

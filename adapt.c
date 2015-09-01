@@ -33,7 +33,7 @@ void mesh_adapt(struct mesh** p_m,
     }
     if (mesh_dim(*p_m) < 3)
       return;
-    if (split_slivers(p_m, 3, VERT_EDGE_SLIVER, qual_floor, size_ratio_floor)) {
+    if (split_slivers(p_m, 3, EDGE_EDGE_SLIVER, qual_floor, size_ratio_floor)) {
       printf("split edge-edge tets\n");
       write_vtk_step(*p_m);
       continue;

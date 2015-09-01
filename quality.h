@@ -5,6 +5,7 @@ enum sliver_type {
   NOT_SLIVER,
   VERT_VERT_SLIVER,
   VERT_EDGE_SLIVER,
+  EDGE_EDGE_SLIVER,
   VERT_FACE_SLIVER
 };
 

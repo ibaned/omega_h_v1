@@ -168,10 +168,10 @@ static struct {
   {0,0}, /* impossible for positive volume */
   {VERT_FACE_SLIVER, 1}, /* 001 */
   {VERT_FACE_SLIVER, 2}, /* 010 */
-  {VERT_EDGE_SLIVER, 1}, /* 011 */
+  {EDGE_EDGE_SLIVER, 1}, /* 011 */
   {VERT_FACE_SLIVER, 3}, /* 100 */
-  {VERT_EDGE_SLIVER, 0}, /* 101 */
-  {VERT_EDGE_SLIVER, 2}, /* 110 */
+  {EDGE_EDGE_SLIVER, 0}, /* 101 */
+  {EDGE_EDGE_SLIVER, 2}, /* 110 */
   {VERT_FACE_SLIVER, 0}, /* 111 */
 };
 
