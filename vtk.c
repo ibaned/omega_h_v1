@@ -120,7 +120,7 @@ void start_vtk_steps(char const* prefix)
 void write_vtk_step(struct mesh* m)
 {
   char fname[64];
-  sprintf(fname, "%s_%u.vtu", the_step_prefix, the_step);
+  sprintf(fname, "%s_%04u.vtu", the_step_prefix, the_step);
   write_vtk(m, fname);
   ++the_step;
 }
