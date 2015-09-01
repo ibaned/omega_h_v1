@@ -54,12 +54,12 @@ void mesh_adapt(struct mesh** p_m,
       adapt_summary(*p_m);
       return;
     }
-    if (split_slivers(p_m, 3, EDGE_EDGE_SLIVER, qual_floor, size_ratio_floor)) {
+    if (split_slivers(p_m, 3, EDGE_EDGE_SLIVER, qual_floor, 0)) {
       printf("split edge-edge tets\n");
       write_vtk_step(*p_m);
       continue;
     }
-    if (split_slivers(p_m, 3, VERT_FACE_SLIVER, qual_floor, size_ratio_floor)) {
+    if (split_slivers(p_m, 3, VERT_FACE_SLIVER, qual_floor, 0)) {
       printf("split vert-face tets\n");
       write_vtk_step(*p_m);
       continue;
