@@ -2,6 +2,7 @@
 #include "refine_by_size.h"
 #include "coarsen_by_size.h"
 #include "refine_slivers.h"
+#include "split_slivers.h"
 #include "quality.h"
 #include "measure_edges.h"
 #include "doubles.h"
@@ -59,8 +60,8 @@ static void satisfy_shape(struct mesh** p_m, double size_floor, double qual_floo
     double prev_qual = mesh_min_quality(*p_m);
     if (prev_qual >= qual_floor)
       return;
-    if (!refine_slivers(p_m, qual_floor, 0.1)) {
-      fprintf(stderr, "all sliver splits would make the mesh worse than .1!\n");
+    if (!split_slivers(p_m, 2, VERT_EDGE_SLIVER, qual_floor, 0)) {
+      fprintf(stderr, "couldn't apply sliver splits!\n");
       abort();
     } else {
       incr_op_count();
