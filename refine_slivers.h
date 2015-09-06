@@ -5,6 +5,7 @@ struct mesh;
 
 unsigned refine_slivers(
     struct mesh** p_m,
-    double qual_floor);
+    double good_qual,
+    double valid_qual);
 
 #endif

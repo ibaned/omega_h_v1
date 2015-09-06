@@ -10,7 +10,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_OPS 50
+#define MAX_OPS 30
+
+static unsigned global_op_count = 0;
+
+static void incr_op_count(void)
+{
+  if (global_op_count > MAX_OPS) {
+    fprintf(stderr, "mesh_adapt could not succeed after %u operations\n", MAX_OPS);
+    abort();
+  }
+  ++global_op_count;
+}
 
 static void adapt_summary(struct mesh* m)
 {
@@ -27,38 +38,50 @@ static void adapt_summary(struct mesh* m)
   printf("edge metric range %f - %f\n", max, min);
 }
 
+static void satisfy_size(struct mesh** p_m, double size_floor)
+{
+  double init_qual = mesh_min_quality(*p_m);
+  while (refine_by_size(p_m, init_qual)) {
+    incr_op_count();
+    printf("split long edges\n");
+    write_vtk_step(*p_m);
+  }
+  while (coarsen_by_size(p_m, init_qual, size_floor)) {
+    incr_op_count();
+    printf("collapse short edges\n");
+    write_vtk_step(*p_m);
+  }
+}
+
+static void satisfy_shape(struct mesh** p_m, double size_floor, double qual_floor)
+{
+  while (1) {
+    double prev_qual = mesh_min_quality(*p_m);
+    if (prev_qual >= qual_floor)
+      return;
+    if (!refine_slivers(p_m, qual_floor, 0)) {
+    //fprintf(stderr, "all sliver splits would make the mesh worse!\n");
+      fprintf(stderr, "BUG!\n");
+      abort();
+    } else {
+      incr_op_count();
+      printf("split sliver edges\n");
+      write_vtk_step(*p_m);
+    }
+    if (coarsen_by_size(p_m, prev_qual + 1e-10, size_floor)) {
+      incr_op_count();
+      printf("collapse short (sliver) edges\n");
+      write_vtk_step(*p_m);
+    }
+  }
+}
+
 void mesh_adapt(struct mesh** p_m,
     double size_ratio_floor,
     double qual_floor)
 {
-  double prev_qual = mesh_min_quality(*p_m);
-  for (unsigned i = 0; i < MAX_OPS; ++i) {
-    if (refine_by_size(p_m, 0)) {
-      printf("split long edges\n");
-      write_vtk_step(*p_m);
-      prev_qual = mesh_min_quality(*p_m);
-      continue;
-    }
-    double coarsen_qual = prev_qual + 1e-10;
-    if (qual_floor < prev_qual)
-      coarsen_qual = qual_floor;
-    printf("coarsen qual floor %f\n", coarsen_qual);
-    if (coarsen_by_size(p_m, coarsen_qual, size_ratio_floor)) {
-      printf("collapse short edges\n");
-      write_vtk_step(*p_m);
-      prev_qual = mesh_min_quality(*p_m);
-      printf("qual after coarsen %f\n", prev_qual);
-      continue;
-    }
-    if (refine_slivers(p_m, qual_floor)) {
-      printf("split sliver edges\n");
-      write_vtk_step(*p_m);
-      printf("qual after sliver split %f\n", mesh_min_quality(*p_m));
-      continue;
-    }
-    adapt_summary(*p_m);
-    return;
-  }
-  fprintf(stderr, "mesh_adapt could not succeed after %u operations\n", MAX_OPS);
-  abort();
+  global_op_count = 0;
+  satisfy_size(p_m, size_ratio_floor);
+  satisfy_shape(p_m, size_ratio_floor, qual_floor);
+  adapt_summary(*p_m);
 }

@@ -11,9 +11,9 @@
 
 unsigned refine_slivers(
     struct mesh** p_m,
-    double qual_floor)
+    double good_qual,
+    double valid_qual)
 {
-  printf("refine_slivers floor: %f\n", qual_floor);
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned nedges = mesh_count(m, 1);
@@ -23,23 +23,14 @@ unsigned refine_slivers(
   unsigned const* elems_of_edges =
     mesh_ask_up(m, 1, elem_dim)->adj;
   double* quals = mesh_qualities(m);
-  unsigned nelems = mesh_count(m, elem_dim);
-  for (unsigned i = 0; i < nelems; ++i) {
-    if (quals[i] < qual_floor)
-      printf("bad elem!\n");
-  }
-  double mq = doubles_min(quals, nelems);
-  printf("mq is %f\n", mq);
   for (unsigned i = 0; i < nedges; ++i) {
     unsigned first_use = elems_of_edges_offsets[i];
     unsigned end_use = elems_of_edges_offsets[i + 1];
     candidates[i] = 0;
     for (unsigned j = first_use; j < end_use; ++j) {
       unsigned elem = elems_of_edges[j];
-      if (quals[elem] < qual_floor) {
-        printf("candidate!\n");
+      if (quals[elem] < good_qual)
         candidates[i] = 1;
-      }
     }
   }
   free(quals);
@@ -47,7 +38,7 @@ unsigned refine_slivers(
     free(candidates);
     return 0;
   }
-  unsigned ret = refine_common(p_m, 1, candidates, qual_floor);
+  unsigned ret = refine_common(p_m, 1, candidates, valid_qual);
   free(candidates);
   return ret;
 }
