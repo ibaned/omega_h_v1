@@ -36,7 +36,7 @@ void mesh_adapt(struct mesh** p_m,
       write_vtk_step(*p_m);
       continue;
     }
-    if (coarsen_by_size(p_m, mesh_min_quality(*p_m), size_ratio_floor)) {
+    if (coarsen_by_size(p_m, qual_floor, size_ratio_floor)) {
       printf("collapse short edges\n");
       write_vtk_step(*p_m);
       continue;

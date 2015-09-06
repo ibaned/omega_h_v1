@@ -86,7 +86,7 @@ static void warped_adapt(struct mesh** p_m)
     unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
   //set_size_field(*p_m);
     write_vtk_step(*p_m);
-    mesh_adapt(p_m, good_qual_floor, size_floor);
+    mesh_adapt(p_m, size_floor, good_qual_floor);
     if (done)
       return;
   }
@@ -104,7 +104,7 @@ int main()
   mesh_eval_field(m, "dye", 1, dye_fun);
   write_vtk_step(m);
   for (unsigned i = 0; i < 1; ++i) {
-    for (unsigned j = 0; j < 2; ++j) {
+    for (unsigned j = 0; j < 3; ++j) {
       mesh_eval_field(m, "warp", 3, warp_fun);
       printf("new warp field\n");
       warped_adapt(&m);

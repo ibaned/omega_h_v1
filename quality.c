@@ -8,6 +8,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /* scale-invariant stiffness matrix conditioning quality measures
  * from:
@@ -201,6 +202,8 @@ enum sliver_type tet_sliver_type(
   assert(c);
   if (key_ent_out)
     *key_ent_out = tet_quality_table[c].ke;
+  if (tet_quality_table[c].qt == EDGE_EDGE_SLIVER)
+    fprintf(stderr, "edge-edge tet qual %f floor %f\n", q, qual_floor);
   return tet_quality_table[c].qt;
 }
 
