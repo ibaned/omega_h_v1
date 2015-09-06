@@ -8,7 +8,7 @@ unsigned split_slivers(
     struct mesh** p_m,
     unsigned sliver_dim,
     enum sliver_type st,
-    double qual_floor,
-    double edge_ratio_floor);
+    double good_qual,
+    double valid_qual);
 
 #endif

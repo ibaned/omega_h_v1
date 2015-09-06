@@ -14,9 +14,6 @@
 #include "mesh.h"
 #include <stdlib.h>
 
-#include <assert.h>
-#include <stdio.h>
-
 unsigned coarsen_common(
     struct mesh** p_m,
     unsigned* col_codes,
@@ -24,7 +21,6 @@ unsigned coarsen_common(
     double size_ratio_floor)
 {
   struct mesh* m = *p_m;
-  printf("coarsen: input quality %f\n", mesh_min_quality(m));
   unsigned nedges = mesh_count(m, 1);
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
@@ -87,11 +83,6 @@ unsigned coarsen_common(
   coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,
       gen_vert_of_elems, gen_direction_of_elems, &ngen_elems,
       &verts_of_gen_elems);
-  {
-    double mq = min_element_quality(elem_dim, ngen_elems,
-        verts_of_gen_elems, coords);
-    printf("coarsen: generated quality %f\n", mq);
-  }
   free(gen_offset_of_elems);
   free(gen_vert_of_elems);
   free(gen_direction_of_elems);
