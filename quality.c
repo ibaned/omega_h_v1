@@ -77,7 +77,7 @@ double tet_quality(double coords[4][3])
     double a = triangle_area(tri_coords);
     sum_asq += a * a;
   }
-  double arms = sqrt(sum_asq / 4);
+  double arms = sqrt(sum_asq / 4.);
   double v = tet_volume(coords);
   double root_arms = sqrt(arms);
   double quality = v / CUBE(root_arms);
