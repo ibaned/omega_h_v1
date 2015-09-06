@@ -51,6 +51,7 @@ double min_element_quality(
 
 struct mesh;
 
+double* mesh_qualities(struct mesh* m);
 double mesh_min_quality(struct mesh* m);
 
 #endif
