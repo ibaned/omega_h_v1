@@ -14,6 +14,7 @@
 
 static void adapt_summary(struct mesh* m)
 {
+  printf("%u elements\n", mesh_count(m, mesh_dim(m)));
   printf("minimum element quality %f\n", mesh_min_quality(m));
   unsigned nedges = mesh_count(m, 1);
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
