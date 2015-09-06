@@ -6,6 +6,7 @@
 unsigned coarsen_by_size(
     struct mesh** p_m,
     double quality_floor,
-    double size_ratio_floor);
+    double size_ratio_floor,
+    unsigned require_better);
 
 #endif

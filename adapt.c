@@ -47,7 +47,7 @@ static void satisfy_size(struct mesh** p_m, double size_floor)
   double init_qual = mesh_min_quality(*p_m);
   while (refine_by_size(p_m, init_qual))
     incr_op_count(*p_m, "split long edges\n");
-  while (coarsen_by_size(p_m, init_qual, size_floor))
+  while (coarsen_by_size(p_m, init_qual, size_floor, 0))
     incr_op_count(*p_m, "collapse short edges\n");
 }
 
@@ -76,7 +76,7 @@ static void satisfy_shape(
       return;
     if (refine_slivers(p_m, qual_floor, 0.1)) {
       incr_op_count(*p_m, "split all sliver edges\n");
-      if (coarsen_by_size(p_m, prev_qual + 1e-10, size_floor))
+      while (coarsen_by_size(p_m, 0, size_floor, 1))
         incr_op_count(*p_m, "collapse short (sliver) edges\n");
     } else {
       fprintf(stderr, "all splits would be worse than .1!\n");
