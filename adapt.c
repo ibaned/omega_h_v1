@@ -64,6 +64,8 @@ void mesh_adapt(struct mesh** p_m,
       write_vtk_step(*p_m);
       continue;
     }
+    adapt_summary(*p_m);
+    return;
   }
   fprintf(stderr, "mesh_adapt could not succeed after %u operations\n", MAX_OPS);
   abort();
