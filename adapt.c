@@ -51,6 +51,7 @@ static void satisfy_size(struct mesh** p_m, double size_floor)
     incr_op_count(*p_m, "collapse short edges\n");
 }
 
+/*
 static struct { unsigned dim; enum sliver_type st; } const sliver_tab[3] = {
   {2, VERT_EDGE_SLIVER},
   {3, EDGE_EDGE_SLIVER},
@@ -64,20 +65,17 @@ static char const* const sliver_names[5] = {
   [EDGE_EDGE_SLIVER] = "edge-edge",
   [VERT_FACE_SLIVER] = "vert-face"
 };
+*/
 
 static void satisfy_shape(
     struct mesh** p_m, double size_floor, double qual_floor)
 {
-  unsigned const dim_types[4] = {0,0,1,3};
-  unsigned n = dim_types[mesh_dim(*p_m)];
-  for (unsigned i = 0; 1; i = (i + 1) % n) {
+  while (1) {
     double prev_qual = mesh_min_quality(*p_m);
     if (prev_qual >= qual_floor)
       return;
-    if (split_slivers(p_m, sliver_tab[i].dim, sliver_tab[i].st, qual_floor,
-          prev_qual - 0.05)) {
-      printf("(%s) ", sliver_names[sliver_tab[i].st]);
-      incr_op_count(*p_m, "split sliver keys\n");
+    if (refine_slivers(p_m, qual_floor, prev_qual - 0.03)) {
+      incr_op_count(*p_m, "split all sliver edges\n");
       if (coarsen_by_size(p_m, prev_qual + 1e-10, size_floor))
         incr_op_count(*p_m, "collapse short (sliver) edges\n");
     }

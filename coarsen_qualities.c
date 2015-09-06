@@ -15,7 +15,9 @@ double* coarsen_qualities(
     unsigned const* elems_of_verts,
     unsigned const* elems_of_verts_directions,
     double const* coords,
-    double quality_floor)
+    double quality_floor,
+    double const* elem_quals,
+    unsigned require_better)
 {
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = elem_dim - 1;
@@ -33,6 +35,7 @@ double* coarsen_qualities(
       if (!(col_codes[i] & (1<<j)))
         continue;
       double minq = 1;
+      double old_minq = 1;
       unsigned edge_direction = j;
       unsigned col_vert = verts_of_edge[edge_direction];
       unsigned gen_vert = verts_of_edge[1 - edge_direction];
@@ -44,6 +47,11 @@ double* coarsen_qualities(
         unsigned elem = elems_of_verts[k];
         unsigned const* verts_of_elem = verts_of_elems + elem * verts_per_elem;
         unsigned is_adjacent_to_edge = 0;
+        if (require_better) {
+          double old_q = elem_quals[elem];
+          if (old_q < old_minq)
+            old_minq = old_q;
+        }
         for (unsigned l = 0; l < verts_per_elem; ++l)
           if (verts_of_elem[l] == gen_vert)
             is_adjacent_to_edge = 1;
@@ -60,7 +68,8 @@ double* coarsen_qualities(
         if (q < minq)
           minq = q;
       }
-      if (minq < quality_floor)
+      if ((minq < quality_floor) ||
+          (require_better && (minq <= old_minq)))
         col_codes[i] &= ~(1<<j);
       else
         out[i * 2 + j] = minq;

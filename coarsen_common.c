@@ -18,7 +18,8 @@ unsigned coarsen_common(
     struct mesh** p_m,
     unsigned* col_codes,
     double quality_floor,
-    double size_ratio_floor)
+    double size_ratio_floor,
+    unsigned require_better)
 {
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
@@ -26,6 +27,7 @@ unsigned coarsen_common(
   double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
   unsigned nverts = mesh_count(m, 0);
   unsigned elem_dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, elem_dim);
   unsigned const* class_dim = mesh_find_nodal_label(m, "class_dim")->data;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned const* verts_of_verts_offsets = mesh_ask_star(m, 0, elem_dim)->offsets;
@@ -40,9 +42,14 @@ unsigned coarsen_common(
   unsigned const* elems_of_verts_offsets = mesh_ask_up(m, 0, elem_dim)->offsets;
   unsigned const* elems_of_verts = mesh_ask_up(m, 0, elem_dim)->adj;
   unsigned const* elems_of_verts_directions = mesh_ask_up(m, 0, elem_dim)->directions;
+  double* elem_quals = 0;
+  if (require_better)
+    elem_quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);
   double* quals_of_edges = coarsen_qualities(elem_dim, nedges, col_codes,
       verts_of_elems, verts_of_edges, elems_of_verts_offsets,
-      elems_of_verts, elems_of_verts_directions, coords, quality_floor);
+      elems_of_verts, elems_of_verts_directions, coords, quality_floor,
+      elem_quals, require_better);
+  free(elem_quals);
   if (ints_max(col_codes, nedges) == DONT_COLLAPSE) {
     /* early return #2: all small edges failed their classif/quality checks */
     free(quals_of_edges);
@@ -65,7 +72,6 @@ unsigned coarsen_common(
   free(qual_of_verts);
   unsigned* gen_offset_of_verts = ints_exscan(indset, nverts);
   free(indset);
-  unsigned nelems = mesh_count(m, elem_dim);
   unsigned* gen_offset_of_elems;
   unsigned* gen_vert_of_elems;
   unsigned* gen_direction_of_elems;
