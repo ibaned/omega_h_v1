@@ -57,7 +57,7 @@ void mesh_adapt(struct mesh** p_m,
     if (split_slivers(p_m, 2, VERT_EDGE_SLIVER, qual_floor, 0)) {
       printf("split vert-edge triangles\n");
       write_vtk_step(*p_m);
-      printf("qual after slivers %f\n", mesh_min_quality(*p_m));
+      printf("qual after vert-edge %f\n", mesh_min_quality(*p_m));
       continue;
     }
     if (mesh_dim(*p_m) < 3) {
@@ -67,11 +67,13 @@ void mesh_adapt(struct mesh** p_m,
     if (split_slivers(p_m, 3, EDGE_EDGE_SLIVER, qual_floor, 0)) {
       printf("split edge-edge tets\n");
       write_vtk_step(*p_m);
+      printf("qual after edge-edge %f\n", mesh_min_quality(*p_m));
       continue;
     }
     if (split_slivers(p_m, 3, VERT_FACE_SLIVER, qual_floor, 0)) {
       printf("split vert-face tets\n");
       write_vtk_step(*p_m);
+      printf("qual after vert-face %f\n", mesh_min_quality(*p_m));
       continue;
     }
     adapt_summary(*p_m);

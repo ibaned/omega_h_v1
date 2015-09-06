@@ -13,6 +13,7 @@
 #include "quality.h"
 #include "mesh.h"
 #include <stdlib.h>
+#include <assert.h>
 
 unsigned coarsen_common(
     struct mesh** p_m,
@@ -83,6 +84,13 @@ unsigned coarsen_common(
   coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,
       gen_vert_of_elems, gen_direction_of_elems, &ngen_elems,
       &verts_of_gen_elems);
+  {
+    double* debug = element_qualities(elem_dim, ngen_elems,
+        verts_of_gen_elems, coords);
+    for (unsigned i = 0; i < ngen_elems; ++i)
+      assert(debug[i] >= quality_floor);
+    free(debug);
+  }
   free(gen_offset_of_elems);
   free(gen_vert_of_elems);
   free(gen_direction_of_elems);
