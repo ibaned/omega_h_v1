@@ -104,7 +104,7 @@ int main()
   mesh_eval_field(m, "dye", 1, dye_fun);
   write_vtk_step(m);
   for (unsigned i = 0; i < 1; ++i) {
-    for (unsigned j = 0; j < 1; ++j) {
+    for (unsigned j = 0; j < 2; ++j) {
       mesh_eval_field(m, "warp", 3, warp_fun);
       printf("new warp field\n");
       warped_adapt(&m);
