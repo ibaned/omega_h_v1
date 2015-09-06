@@ -31,15 +31,23 @@ void mesh_adapt(struct mesh** p_m,
     double size_ratio_floor,
     double qual_floor)
 {
+  double prev_qual = mesh_min_quality(*p_m);
   for (unsigned i = 0; i < MAX_OPS; ++i) {
     if (refine_by_size(p_m)) {
       printf("split long edges\n");
       write_vtk_step(*p_m);
+      prev_qual = mesh_min_quality(*p_m);
       continue;
     }
-    if (coarsen_by_size(p_m, qual_floor, size_ratio_floor)) {
+    double coarsen_qual = prev_qual + 1e-10;
+    if (qual_floor < prev_qual)
+      coarsen_qual = qual_floor;
+    printf("coarsen qual floor %f\n", coarsen_qual);
+    if (coarsen_by_size(p_m, coarsen_qual, size_ratio_floor)) {
       printf("collapse short edges\n");
       write_vtk_step(*p_m);
+      prev_qual = mesh_min_quality(*p_m);
+      printf("qual after coarsen %f\n", prev_qual);
       continue;
     }
     if (mesh_dim(*p_m) < 2) {
@@ -49,6 +57,7 @@ void mesh_adapt(struct mesh** p_m,
     if (split_slivers(p_m, 2, VERT_EDGE_SLIVER, qual_floor, 0)) {
       printf("split vert-edge triangles\n");
       write_vtk_step(*p_m);
+      printf("qual after slivers %f\n", mesh_min_quality(*p_m));
       continue;
     }
     if (mesh_dim(*p_m) < 3) {
