@@ -6,9 +6,6 @@
 #include "ints.h"
 #include <stdlib.h>
 
-#include <stdio.h>
-#include "doubles.h"
-
 unsigned refine_slivers(
     struct mesh** p_m,
     double good_qual,

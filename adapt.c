@@ -59,9 +59,8 @@ static void satisfy_shape(struct mesh** p_m, double size_floor, double qual_floo
     double prev_qual = mesh_min_quality(*p_m);
     if (prev_qual >= qual_floor)
       return;
-    if (!refine_slivers(p_m, qual_floor, 0)) {
-    //fprintf(stderr, "all sliver splits would make the mesh worse!\n");
-      fprintf(stderr, "BUG!\n");
+    if (!refine_slivers(p_m, qual_floor, 0.1)) {
+      fprintf(stderr, "all sliver splits would make the mesh worse than .1!\n");
       abort();
     } else {
       incr_op_count();

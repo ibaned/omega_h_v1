@@ -9,6 +9,11 @@
 #include "concat.h"
 #include <stdlib.h>
 
+#include <stdio.h>
+#include "doubles.h"
+#include "subset.h"
+#include "vtk.h"
+
 unsigned refine_common(
     struct mesh** p_m,
     unsigned src_dim,
@@ -34,6 +39,18 @@ unsigned refine_common(
       elems_of_srcs_directions, candidates, coords, qual_floor);
   if (!ints_max(candidates, nsrcs))
     return 0;
+  { /* le debug */
+    unsigned* key_offsets = ints_exscan(candidates, nsrcs);
+    struct mesh* sm = subset_mesh(m, src_dim, key_offsets);
+    double* subset_quals = doubles_subset(nsrcs, 1, src_quals, key_offsets);
+    mesh_add_elem_field(sm, "quality", 1, subset_quals);
+    char buf[64];
+    static unsigned bar = 0;
+    sprintf(buf, "key_%u.vtu", bar++);
+    write_vtk(sm, buf);
+    free_mesh(sm);
+    free(key_offsets);
+  }
   unsigned const* srcs_of_srcs_offsets =
     mesh_ask_star(m, src_dim, elem_dim)->offsets;
   unsigned const* srcs_of_srcs =
