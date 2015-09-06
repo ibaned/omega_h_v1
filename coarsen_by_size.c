@@ -30,8 +30,7 @@ unsigned coarsen_by_size(
     free(col_codes);
     return 0;
   }
-  unsigned ret = coarsen_common(&m, col_codes, quality_floor,
-      size_ratio_floor, require_better);
+  unsigned ret = coarsen_common(&m, col_codes, quality_floor, require_better);
   free(col_codes);
   *p_m = m;
   return ret;

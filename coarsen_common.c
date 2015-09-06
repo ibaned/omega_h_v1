@@ -18,7 +18,6 @@ unsigned coarsen_common(
     struct mesh** p_m,
     unsigned* col_codes,
     double quality_floor,
-    double size_ratio_floor,
     unsigned require_better)
 {
   struct mesh* m = *p_m;
