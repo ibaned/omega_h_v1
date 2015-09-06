@@ -1,7 +1,7 @@
 #include "adapt.h"
 #include "refine_by_size.h"
 #include "coarsen_by_size.h"
-#include "split_slivers.h"
+#include "refine_slivers.h"
 #include "quality.h"
 #include "measure_edges.h"
 #include "doubles.h"
@@ -50,30 +50,10 @@ void mesh_adapt(struct mesh** p_m,
       printf("qual after coarsen %f\n", prev_qual);
       continue;
     }
-    if (mesh_dim(*p_m) < 2) {
-      adapt_summary(*p_m);
-      return;
-    }
-    if (split_slivers(p_m, 2, VERT_EDGE_SLIVER, qual_floor, 0)) {
-      printf("split vert-edge triangles\n");
+    if (refine_slivers(p_m, qual_floor)) {
+      printf("split sliver edges\n");
       write_vtk_step(*p_m);
-      printf("qual after vert-edge %f\n", mesh_min_quality(*p_m));
-      continue;
-    }
-    if (mesh_dim(*p_m) < 3) {
-      adapt_summary(*p_m);
-      return;
-    }
-    if (split_slivers(p_m, 3, EDGE_EDGE_SLIVER, qual_floor, 0)) {
-      printf("split edge-edge tets\n");
-      write_vtk_step(*p_m);
-      printf("qual after edge-edge %f\n", mesh_min_quality(*p_m));
-      continue;
-    }
-    if (split_slivers(p_m, 3, VERT_FACE_SLIVER, qual_floor, 0)) {
-      printf("split vert-face tets\n");
-      write_vtk_step(*p_m);
-      printf("qual after vert-face %f\n", mesh_min_quality(*p_m));
+      printf("qual after sliver split %f\n", mesh_min_quality(*p_m));
       continue;
     }
     adapt_summary(*p_m);

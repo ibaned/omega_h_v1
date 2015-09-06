@@ -51,7 +51,8 @@ recover_by_volume.o \
 size_from_hessian.o \
 subset.o \
 adapt.o \
-coarsen_common.o
+coarsen_common.o \
+refine_slivers.o
 
 all: $(objects)
 
