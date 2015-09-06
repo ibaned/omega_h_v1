@@ -4,7 +4,7 @@
 #include "ints.h"
 #include <stdlib.h>
 
-unsigned refine_by_size(struct mesh** p_m)
+unsigned refine_by_size(struct mesh** p_m, double qual_floor)
 {
   struct mesh* m = *p_m;
   double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
@@ -16,12 +16,7 @@ unsigned refine_by_size(struct mesh** p_m)
   for (unsigned i = 0; i < nedges; ++i)
     candidates[i] = edge_sizes[i] > 1.0;
   free(edge_sizes);
-  unsigned something_to_do = ints_max(candidates, nedges);
-  if (!something_to_do) {
-    free(candidates);
-    return 0;
-  }
-  refine_common(p_m, 1, candidates);
+  unsigned ret = refine_common(p_m, 1, candidates, qual_floor);
   free(candidates);
-  return 1;
+  return ret;
 }

@@ -10,7 +10,8 @@ double* refine_qualities(
     unsigned const* elems_of_srcs_offsets,
     unsigned const* elems_of_srcs,
     unsigned const* elems_of_srcs_directions,
-    unsigned const* candidate_srcs,
-    double const* coords);
+    unsigned* candidate_srcs,
+    double const* coords,
+    double qual_floor);
 
 #endif

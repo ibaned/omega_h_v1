@@ -3,9 +3,10 @@
 
 #include "mesh.h"
 
-void refine_common(
+unsigned refine_common(
     struct mesh** p_m,
     unsigned src_dim,
-    unsigned const* candidates);
+    unsigned* candidates,
+    double qual_floor);
 
 #endif

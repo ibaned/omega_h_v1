@@ -71,7 +71,7 @@ unsigned split_slivers(
   }
   free(bad_slivs);
   free(key_of_slivs);
-  refine_common(p_m, key_dim, candidates);
+  refine_common(p_m, key_dim, candidates, 0);
   free(candidates);
   return 1;
 }

@@ -30,7 +30,7 @@ int main()
   char fname[64];
   unsigned it = 0;
   mesh_eval_field(m, "adapt_size", 1, fine_fun);
-  while (refine_by_size(&m)) {
+  while (refine_by_size(&m, 0)) {
     sprintf(fname, "ref_%u.vtu", it++);
     write_vtk(m, fname);
     mesh_free_nodal_field(m, "adapt_size");

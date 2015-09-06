@@ -9,14 +9,17 @@
 #include "concat.h"
 #include <stdlib.h>
 
-void refine_common(
+unsigned refine_common(
     struct mesh** p_m,
     unsigned src_dim,
-    unsigned const* candidates)
+    unsigned* candidates,
+    double qual_floor)
 {
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
+  if (!ints_max(candidates, nsrcs))
+    return 0;
   unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned const* elems_of_srcs_offsets =
@@ -28,7 +31,9 @@ void refine_common(
   double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
   double* src_quals = refine_qualities(elem_dim, src_dim, nsrcs, verts_of_srcs,
       verts_of_elems, elems_of_srcs_offsets, elems_of_srcs,
-      elems_of_srcs_directions, candidates, coords);
+      elems_of_srcs_directions, candidates, coords, qual_floor);
+  if (!ints_max(candidates, nsrcs))
+    return 0;
   unsigned const* srcs_of_srcs_offsets =
     mesh_ask_star(m, src_dim, elem_dim)->offsets;
   unsigned const* srcs_of_srcs =
@@ -95,4 +100,5 @@ void refine_common(
   free(verts_of_gen_elems);
   free_mesh(m);
   *p_m = m_out;
+  return 1;
 }

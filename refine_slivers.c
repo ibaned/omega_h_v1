@@ -47,7 +47,7 @@ unsigned refine_slivers(
     free(candidates);
     return 0;
   }
-  refine_common(p_m, 1, candidates);
+  unsigned ret = refine_common(p_m, 1, candidates, qual_floor);
   free(candidates);
-  return 1;
+  return ret;
 }

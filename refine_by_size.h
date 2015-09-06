@@ -3,6 +3,6 @@
 
 #include "mesh.h"
 
-unsigned refine_by_size(struct mesh** p_m);
+unsigned refine_by_size(struct mesh** p_m, double qual_floor);
 
 #endif

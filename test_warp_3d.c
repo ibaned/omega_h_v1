@@ -98,7 +98,7 @@ int main()
 {
   struct mesh* m = new_box_mesh(3);
   mesh_eval_field(m, "adapt_size", 1, size_fun);
-  while (refine_by_size(&m));
+  while (refine_by_size(&m, 0));
   mesh_classify_box(m);
   start_vtk_steps("warp");
   mesh_eval_field(m, "dye", 1, dye_fun);

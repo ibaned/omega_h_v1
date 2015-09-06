@@ -33,7 +33,7 @@ void mesh_adapt(struct mesh** p_m,
 {
   double prev_qual = mesh_min_quality(*p_m);
   for (unsigned i = 0; i < MAX_OPS; ++i) {
-    if (refine_by_size(p_m)) {
+    if (refine_by_size(p_m, 0)) {
       printf("split long edges\n");
       write_vtk_step(*p_m);
       prev_qual = mesh_min_quality(*p_m);

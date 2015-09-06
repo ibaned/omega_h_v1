@@ -23,7 +23,7 @@ int main()
   char fname[64];
   mesh_eval_field(m, "adapt_size", 1, size_fun);
   for (unsigned it = 0; 1; ++it) {
-    if (!refine_by_size(&m))
+    if (!refine_by_size(&m, 0))
       break;
     printf("%u elements, %u vertices\n", mesh_count(m, mesh_dim(m)), mesh_count(m, 0));
     double* quals = element_qualities(mesh_dim(m), mesh_count(m, mesh_dim(m)),

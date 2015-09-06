@@ -15,8 +15,9 @@ double* refine_qualities(
     unsigned const* elems_of_srcs_offsets,
     unsigned const* elems_of_srcs,
     unsigned const* elems_of_srcs_directions,
-    unsigned const* candidate_srcs,
-    double const* coords)
+    unsigned* candidate_srcs,
+    double const* coords,
+    double qual_floor)
 {
   assert(elem_dim >= src_dim);
   assert(src_dim > 0);
@@ -63,7 +64,10 @@ double* refine_qualities(
           minq = q;
       }
     }
-    out[i] = minq;
+    if (minq < qual_floor)
+      candidate_srcs[i] = 0;
+    else
+      out[i] = minq;
   }
   return out;
 }
