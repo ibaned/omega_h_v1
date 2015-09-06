@@ -74,10 +74,13 @@ static void satisfy_shape(
     double prev_qual = mesh_min_quality(*p_m);
     if (prev_qual >= qual_floor)
       return;
-    if (refine_slivers(p_m, qual_floor, prev_qual - 0.03)) {
+    if (refine_slivers(p_m, qual_floor, 0.1)) {
       incr_op_count(*p_m, "split all sliver edges\n");
       if (coarsen_by_size(p_m, prev_qual + 1e-10, size_floor))
         incr_op_count(*p_m, "collapse short (sliver) edges\n");
+    } else {
+      fprintf(stderr, "all splits would be worse than .1!\n");
+      abort();
     }
   }
 }
