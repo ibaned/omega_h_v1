@@ -6,15 +6,18 @@
 #include "algebra.h"
 #include "warp_to_limit.h"
 #include "eval_field.h"
-#include "split_slivers.h"
-#include "coarsen_by_size.h"
 #include "quality.h"
 #include "element_gradients.h"
 #include "recover_by_volume.h"
 #include "size_from_hessian.h"
+#include "adapt.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+static double const warp_qual_floor = 0.1;
+static double const good_qual_floor = 0.3;
+static double const size_floor = 1. / 3.;
 
 static void size_fun(double const x[], double s[])
 {
@@ -77,59 +80,18 @@ static void set_size_field(struct mesh* m)
 }
 */
 
-static void adapt(struct mesh** p_m)
-{
-  struct mesh* m = *p_m;
-//set_size_field(m);
-//write_vtk_step(m);
-  while (refine_by_size(&m)) {
-    printf("refine\n");
-    write_vtk_step(m);
-  }
-  while (coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0)) {
-    printf("coarsen\n");
-    write_vtk_step(m);
-  }
-  printf("min tet qual %f\n", mesh_min_quality(m));
-  fprintf(stderr, "splitting sliver tris...\n");
-  while (split_slivers(&m, 2, VERT_EDGE_SLIVER, 0.4, 1.0 / 3.0)) {
-    printf("tri sliver\n");
-    write_vtk_step(m);
-    coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);
-    printf("tri sliver coarsen\n");
-    write_vtk_step(m);
-  }
-  printf("min tet qual %f\n", mesh_min_quality(m));
-  fprintf(stderr, "splitting sliver tets...\n");
-  while (split_slivers(&m, 3, EDGE_EDGE_SLIVER, 0.4, 1.0 / 3.0)) {
-    printf("tet sliver\n");
-    write_vtk_step(m);
-    coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);
-    printf("tet sliver coarsen\n");
-    write_vtk_step(m);
-  }
-  printf("min tet qual %f\n", mesh_min_quality(m));
-  fprintf(stderr, "splitting cap tets...\n");
-  while (split_slivers(&m, 3, VERT_FACE_SLIVER, 0.4, 1.0 / 3.0)) {
-    printf("tet cap\n");
-    write_vtk_step(m);
-    coarsen_by_size(&m, mesh_min_quality(m), 1.0 / 3.0);
-    printf("tet cap coarsen\n");
-    write_vtk_step(m);
-    break;
-  }
-  printf("min tet qual %f\n", mesh_min_quality(m));
-  *p_m = m;
-}
-
 static void warped_adapt(struct mesh** p_m)
 {
-  unsigned done = 0;
-  do {
-    done = mesh_warp_to_limit(*p_m, 0.1);
+  for (unsigned i = 0; i < 3; ++i) {
+    unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
+  //set_size_field(*p_m);
     write_vtk_step(*p_m);
-    adapt(p_m);
-  } while (!done);
+    mesh_adapt(p_m, good_qual_floor, size_floor);
+    if (done)
+      return;
+  }
+  fprintf(stderr, "warped_adapt still not done after 3 iters\n");
+  abort();
 }
 
 int main()
@@ -141,9 +103,8 @@ int main()
   start_vtk_steps("warp");
   mesh_eval_field(m, "dye", 1, dye_fun);
   write_vtk_step(m);
-  adapt(&m);
   for (unsigned i = 0; i < 1; ++i) {
-    for (unsigned j = 0; j < 2; ++j) {
+    for (unsigned j = 0; j < 1; ++j) {
       mesh_eval_field(m, "warp", 3, warp_fun);
       printf("new warp field\n");
       warped_adapt(&m);
