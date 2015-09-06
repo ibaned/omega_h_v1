@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_OPS 30
+#define MAX_OPS 50
 
 static void adapt_summary(struct mesh* m)
 {

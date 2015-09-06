@@ -15,9 +15,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static double const warp_qual_floor = 0.1;
+static double const warp_qual_floor = 0.2;
 static double const good_qual_floor = 0.25;
-static double const size_floor = 1. / 4.;
+static double const size_floor = 1. / 3.;
 
 static void size_fun(double const x[], double s[])
 {
@@ -104,7 +104,7 @@ int main()
   mesh_eval_field(m, "dye", 1, dye_fun);
   write_vtk_step(m);
   for (unsigned i = 0; i < 1; ++i) {
-    for (unsigned j = 0; j < 3; ++j) {
+    for (unsigned j = 0; j < 4; ++j) {
       mesh_eval_field(m, "warp", 3, warp_fun);
       printf("new warp field\n");
       warped_adapt(&m);
