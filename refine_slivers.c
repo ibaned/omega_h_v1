@@ -9,6 +9,7 @@
 
 unsigned refine_slivers(
     struct mesh** p_m,
+    unsigned src_dim,
     double good_qual,
     double valid_qual,
     unsigned require_better)
@@ -21,9 +22,9 @@ unsigned refine_slivers(
   for (unsigned i = 0; i < nelems; ++i)
     marked_elems[i] = quals[i] < good_qual;
   free(quals);
-  unsigned* candidates = mesh_mark_down(m, elem_dim, 1, marked_elems);
+  unsigned* candidates = mesh_mark_down(m, elem_dim, src_dim, marked_elems);
   free(marked_elems);
-  unsigned ret = refine_common(p_m, 1, candidates, valid_qual, require_better);
+  unsigned ret = refine_common(p_m, src_dim, candidates, valid_qual, require_better);
   free(candidates);
   return ret;
 }
