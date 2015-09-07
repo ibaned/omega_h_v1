@@ -4,6 +4,7 @@
 #include "tables.h"
 #include "quality.h"
 #include "ints.h"
+#include "mark_down.h"
 #include <stdlib.h>
 
 unsigned refine_slivers(
@@ -14,28 +15,14 @@ unsigned refine_slivers(
 {
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
-  unsigned nedges = mesh_count(m, 1);
-  unsigned* candidates = malloc(sizeof(unsigned) * nedges);
-  unsigned const* elems_of_edges_offsets =
-    mesh_ask_up(m, 1, elem_dim)->offsets;
-  unsigned const* elems_of_edges =
-    mesh_ask_up(m, 1, elem_dim)->adj;
+  unsigned nelems = mesh_count(m, elem_dim);
+  unsigned* marked_elems = malloc(sizeof(unsigned) * nelems);
   double* quals = mesh_qualities(m);
-  for (unsigned i = 0; i < nedges; ++i) {
-    unsigned first_use = elems_of_edges_offsets[i];
-    unsigned end_use = elems_of_edges_offsets[i + 1];
-    candidates[i] = 0;
-    for (unsigned j = first_use; j < end_use; ++j) {
-      unsigned elem = elems_of_edges[j];
-      if (quals[elem] < good_qual)
-        candidates[i] = 1;
-    }
-  }
+  for (unsigned i = 0; i < nelems; ++i)
+    marked_elems[i] = quals[i] < good_qual;
   free(quals);
-  if (!ints_max(candidates, nedges)) {
-    free(candidates);
-    return 0;
-  }
+  unsigned* candidates = mesh_mark_down(m, elem_dim, 1, marked_elems);
+  free(marked_elems);
   unsigned ret = refine_common(p_m, 1, candidates, valid_qual, require_better);
   free(candidates);
   return ret;
