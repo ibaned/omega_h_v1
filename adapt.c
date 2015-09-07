@@ -47,10 +47,19 @@ static void incr_op_count(struct mesh* m, char const* what)
 static void satisfy_size(struct mesh** p_m, double size_floor)
 {
   double init_qual = mesh_min_quality(*p_m);
-  while (refine_by_size(p_m, init_qual))
-    incr_op_count(*p_m, "split long edges\n");
-  while (coarsen_by_size(p_m, init_qual, size_floor, 0))
-    incr_op_count(*p_m, "collapse short edges\n");
+  while (1) {
+    unsigned did_something = 0;
+    if (refine_by_size(p_m, init_qual)) {
+      incr_op_count(*p_m, "split long edges\n");
+      did_something = 1;
+    }
+    if (coarsen_by_size(p_m, init_qual, size_floor, 0)) {
+      incr_op_count(*p_m, "collapse short edges\n");
+      did_something = 1;
+    }
+    if (!did_something)
+      return;
+  }
 }
 
 /*
@@ -79,6 +88,10 @@ static void satisfy_shape(
     }
     if (refine_slivers(p_m, qual_floor, 0, 1)) {
       incr_op_count(*p_m, "split good sliver edges\n");
+      continue;
+    }
+    if (refine_slivers(p_m, qual_floor, 0.1, 0)) {
+      incr_op_count(*p_m, "split any sliver edges\n");
       continue;
     }
     if (mesh_min_quality(*p_m) < qual_floor) {
