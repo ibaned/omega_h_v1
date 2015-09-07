@@ -6,6 +6,7 @@
 #include "quality.h"
 #include "measure_edges.h"
 #include "doubles.h"
+#include "coarsen_slivers.h"
 
 #include "vtk.h"
 #include <stdio.h>
@@ -71,16 +72,19 @@ static void satisfy_shape(
     struct mesh** p_m, double size_floor, double qual_floor)
 {
   while (1) {
-    double prev_qual = mesh_min_quality(*p_m);
-    if (prev_qual >= qual_floor)
-      return;
+    if (coarsen_slivers(p_m, qual_floor)) {
+      incr_op_count(*p_m, "coarsen sliver verts\n");
+      continue;
+    }
     if (refine_slivers(p_m, qual_floor, 0.1)) {
       incr_op_count(*p_m, "split all sliver edges\n");
-      while (coarsen_by_size(p_m, 0, size_floor, 1))
-        incr_op_count(*p_m, "collapse short (sliver) edges\n");
-    } else {
-      fprintf(stderr, "all splits would be worse than .1!\n");
+      continue;
+    }
+    if (mesh_min_quality(*p_m) < qual_floor) {
+      fprintf(stderr, "ran out of options!\n");
       abort();
+    } else {
+      return;
     }
   }
 }
