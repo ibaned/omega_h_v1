@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 static double const warp_qual_floor = 0.2;
-static double const good_qual_floor = 0.3;
+static double const good_qual_floor = 0.25;
 static double const size_floor = 1. / 3.;
 
 static void size_fun(double const x[], double s[])

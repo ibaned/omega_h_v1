@@ -76,16 +76,8 @@ static void satisfy_shape(
     double prev_qual = mesh_min_quality(*p_m);
     if (prev_qual >= qual_floor)
       return;
-    if (coarsen_slivers(p_m, qual_floor)) {
-      incr_op_count(*p_m, "coarsen good sliver verts\n");
-      continue;
-    }
-    if (refine_slivers(p_m, 1, qual_floor, 0, 1)) {
-      incr_op_count(*p_m, "split good sliver edges\n");
-      continue;
-    }
-    if (mesh_dim(*p_m) == 3 && refine_slivers(p_m, 2, qual_floor, 0, 1)) {
-      incr_op_count(*p_m, "split good sliver faces\n");
+    if (coarsen_slivers(p_m, 1)) {
+      incr_op_count(*p_m, "coarsen good verts\n");
       continue;
     }
     fprintf(stderr, "ran out of options!\n");
