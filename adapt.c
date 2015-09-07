@@ -80,10 +80,6 @@ static void satisfy_shape(
       incr_op_count(*p_m, "split good sliver edges\n");
       continue;
     }
-    if (refine_slivers(p_m, qual_floor, 0.1, 0)) {
-      incr_op_count(*p_m, "split any sliver edges\n");
-      continue;
-    }
     if (mesh_min_quality(*p_m) < qual_floor) {
       fprintf(stderr, "ran out of options!\n");
       abort();
