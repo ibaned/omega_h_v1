@@ -26,11 +26,6 @@ unsigned coarsen_by_size(
       col_codes[i] = DONT_COLLAPSE;
   }
   free(edge_sizes);
-  if (ints_max(col_codes, nedges) == DONT_COLLAPSE) {
-    /* early return #1: no edges are small */
-    free(col_codes);
-    return 0;
-  }
   unsigned ret = coarsen_common(&m, col_codes, quality_floor, require_better);
   free(col_codes);
   *p_m = m;

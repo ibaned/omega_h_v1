@@ -33,11 +33,6 @@ unsigned coarsen_slivers(
     }
   }
   free(marked_verts);
-  if (ints_max(col_codes, nedges) == DONT_COLLAPSE) {
-    /* early return #1: no edges are small */
-    free(col_codes);
-    return 0;
-  }
   unsigned ret = coarsen_common(&m, col_codes, 0, 1);
   free(col_codes);
   *p_m = m;

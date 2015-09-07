@@ -22,6 +22,8 @@ unsigned coarsen_common(
 {
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
+  if (ints_max(col_codes, nedges) == DONT_COLLAPSE)
+    return 0;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
   unsigned nverts = mesh_count(m, 0);
