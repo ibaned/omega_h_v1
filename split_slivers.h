@@ -1,8 +1,9 @@
 #ifndef SPLIT_SLIVERS_H
 #define SPLIT_SLIVERS_H
 
-#include "mesh.h"
 #include "quality.h"
+
+struct mesh;
 
 unsigned split_slivers(
     struct mesh** p_m,

@@ -1,4 +1,5 @@
 #include "split_slivers.h"
+#include "mesh.h"
 #include "sliver_keys.h"
 #include "ints.h"
 #include "collect_keys.h"

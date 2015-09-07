@@ -1,4 +1,5 @@
 #include "adapt.h"
+#include "mesh.h"
 #include "refine_by_size.h"
 #include "coarsen_by_size.h"
 #include "refine_slivers.h"

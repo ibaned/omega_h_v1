@@ -1,4 +1,5 @@
 #include "coarsen_by_size.h"
+#include "mesh.h"
 #include "coarsen_common.h"
 #include "measure_edges.h"
 #include "collapse_codes.h"

@@ -1,4 +1,5 @@
 #include "refine_by_size.h"
+#include "mesh.h"
 #include "refine_common.h"
 #include "measure_edges.h"
 #include "ints.h"

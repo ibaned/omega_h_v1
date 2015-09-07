@@ -1,4 +1,5 @@
 #include "refine_common.h"
+#include "mesh.h"
 #include "refine_qualities.h"
 #include "indset.h"
 #include "ints.h"

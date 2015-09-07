@@ -1,7 +1,7 @@
 #ifndef VTK_H
 #define VTK_H
 
-#include "mesh.h"
+struct mesh;
 
 void write_vtk(struct mesh* m, char const* filename);
 

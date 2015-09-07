@@ -1,4 +1,5 @@
 #include "vtk.h"
+#include "mesh.h"
 #include "tables.h"
 #include <stdio.h>
 

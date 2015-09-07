@@ -1,4 +1,5 @@
 #include "refine_by_size.h"
+#include "mesh.h"
 #include "tables.h"
 #include "algebra.h"
 #include "vtk.h"

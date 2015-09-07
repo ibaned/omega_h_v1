@@ -1,4 +1,5 @@
 #include "tables.h"
+#include "mesh.h"
 #include "refine_by_size.h"
 #include "classify_box.h"
 #include "coarsen_by_size.h"

@@ -1,7 +1,7 @@
 #ifndef REFINE_COMMON_H
 #define REFINE_COMMON_H
 
-#include "mesh.h"
+struct mesh;
 
 unsigned refine_common(
     struct mesh** p_m,
