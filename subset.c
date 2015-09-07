@@ -57,7 +57,11 @@ struct mesh* subset_mesh(
   unsigned* verts_of_elems_out = ints_subset(nelems, verts_per_elem,
       verts_of_elems, offsets);
   unsigned nverts = mesh_count(m, 0);
-  unsigned* vert_offsets = mesh_mark_down(m, elem_dim, 0, offsets);
+  unsigned* marked_elems = ints_unscan(offsets, nelems);
+  unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, marked_elems);
+  free(marked_elems);
+  unsigned* vert_offsets = ints_exscan(marked_verts, nverts);
+  free(marked_verts);
   for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i)
     verts_of_elems_out[i] = vert_offsets[verts_of_elems_out[i]];
   unsigned nverts_out = vert_offsets[nverts];

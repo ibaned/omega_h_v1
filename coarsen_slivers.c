@@ -18,11 +18,8 @@ unsigned coarsen_slivers(
   unsigned* slivers = malloc(sizeof(unsigned) * nelems);
   for (unsigned i = 0; i < nelems; ++i)
     slivers[i] = quals[i] < quality_floor;
-  unsigned* sliver_offsets = ints_exscan(slivers, nelems);
+  unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, slivers);
   free(slivers);
-  unsigned* vert_offsets = mesh_mark_down(m, elem_dim, 0,
-      sliver_offsets);
-  free(sliver_offsets);
   unsigned nedges = mesh_count(m, 1);
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   unsigned* col_codes = malloc(sizeof(unsigned) * nedges);
@@ -31,11 +28,11 @@ unsigned coarsen_slivers(
     col_codes[i] = 0;
     for (unsigned j = 0; j < 2; ++j) {
       unsigned vert = verts_of_edge[j];
-      if (vert_offsets[vert] != vert_offsets[vert + 1])
+      if (marked_verts[vert])
         col_codes[i] |= (1<<j);
     }
   }
-  free(vert_offsets);
+  free(marked_verts);
   if (ints_max(col_codes, nedges) == DONT_COLLAPSE) {
     /* early return #1: no edges are small */
     free(col_codes);
