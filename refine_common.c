@@ -7,18 +7,15 @@
 #include "refine_nodal.h"
 #include "refine_class.h"
 #include "concat.h"
+#include "quality.h"
 #include <stdlib.h>
-
-#include <stdio.h>
-#include "doubles.h"
-#include "subset.h"
-#include "vtk.h"
 
 unsigned refine_common(
     struct mesh** p_m,
     unsigned src_dim,
     unsigned* candidates,
-    double qual_floor)
+    double qual_floor,
+    unsigned require_better)
 {
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
@@ -34,23 +31,16 @@ unsigned refine_common(
   unsigned const* elems_of_srcs_directions =
     mesh_ask_up(m, src_dim, elem_dim)->directions;
   double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
+  double* elem_quals = 0;
+  if (require_better)
+    elem_quals = mesh_qualities(m);
   double* src_quals = refine_qualities(elem_dim, src_dim, nsrcs, verts_of_srcs,
       verts_of_elems, elems_of_srcs_offsets, elems_of_srcs,
-      elems_of_srcs_directions, candidates, coords, qual_floor);
+      elems_of_srcs_directions, candidates, coords, qual_floor,
+      elem_quals, require_better);
+  free(elem_quals);
   if (!ints_max(candidates, nsrcs))
     return 0;
-//{ /* le debug */
-//  unsigned* key_offsets = ints_exscan(candidates, nsrcs);
-//  struct mesh* sm = subset_mesh(m, src_dim, key_offsets);
-//  double* subset_quals = doubles_subset(nsrcs, 1, src_quals, key_offsets);
-//  mesh_add_elem_field(sm, "quality", 1, subset_quals);
-//  char buf[64];
-//  static unsigned bar = 0;
-//  sprintf(buf, "key_%u.vtu", bar++);
-//  write_vtk(sm, buf);
-//  free_mesh(sm);
-//  free(key_offsets);
-//}
   unsigned const* srcs_of_srcs_offsets =
     mesh_ask_star(m, src_dim, elem_dim)->offsets;
   unsigned const* srcs_of_srcs =

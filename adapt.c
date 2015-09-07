@@ -73,11 +73,15 @@ static void satisfy_shape(
 {
   while (1) {
     if (coarsen_slivers(p_m, qual_floor)) {
-      incr_op_count(*p_m, "coarsen sliver verts\n");
+      incr_op_count(*p_m, "coarsen good sliver verts\n");
       continue;
     }
-    if (refine_slivers(p_m, qual_floor, 0.1)) {
-      incr_op_count(*p_m, "split all sliver edges\n");
+    if (refine_slivers(p_m, qual_floor, 0, 1)) {
+      incr_op_count(*p_m, "split good sliver edges\n");
+      continue;
+    }
+    if (refine_slivers(p_m, qual_floor, 0.1, 0)) {
+      incr_op_count(*p_m, "split any sliver edges\n");
       continue;
     }
     if (mesh_min_quality(*p_m) < qual_floor) {

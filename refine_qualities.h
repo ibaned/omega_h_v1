@@ -12,6 +12,8 @@ double* refine_qualities(
     unsigned const* elems_of_srcs_directions,
     unsigned* candidate_srcs,
     double const* coords,
-    double qual_floor);
+    double qual_floor,
+    double const* elem_quals,
+    unsigned require_better);
 
 #endif

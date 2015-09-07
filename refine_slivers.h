@@ -6,6 +6,7 @@ struct mesh;
 unsigned refine_slivers(
     struct mesh** p_m,
     double good_qual,
-    double valid_qual);
+    double valid_qual,
+    unsigned require_better);
 
 #endif

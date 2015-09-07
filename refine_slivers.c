@@ -9,7 +9,8 @@
 unsigned refine_slivers(
     struct mesh** p_m,
     double good_qual,
-    double valid_qual)
+    double valid_qual,
+    unsigned require_better)
 {
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
@@ -35,7 +36,7 @@ unsigned refine_slivers(
     free(candidates);
     return 0;
   }
-  unsigned ret = refine_common(p_m, 1, candidates, valid_qual);
+  unsigned ret = refine_common(p_m, 1, candidates, valid_qual, require_better);
   free(candidates);
   return ret;
 }

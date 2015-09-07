@@ -16,7 +16,7 @@ unsigned refine_by_size(struct mesh** p_m, double qual_floor)
   for (unsigned i = 0; i < nedges; ++i)
     candidates[i] = edge_sizes[i] > 1.0;
   free(edge_sizes);
-  unsigned ret = refine_common(p_m, 1, candidates, qual_floor);
+  unsigned ret = refine_common(p_m, 1, candidates, qual_floor, 0);
   free(candidates);
   return ret;
 }

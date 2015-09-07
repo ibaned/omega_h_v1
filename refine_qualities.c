@@ -17,7 +17,9 @@ double* refine_qualities(
     unsigned const* elems_of_srcs_directions,
     unsigned* candidate_srcs,
     double const* coords,
-    double qual_floor)
+    double qual_floor,
+    double const* elem_quals,
+    unsigned require_better)
 {
   assert(elem_dim >= src_dim);
   assert(src_dim > 0);
@@ -43,9 +45,15 @@ double* refine_qualities(
     average_element_field(verts_per_src, verts_of_src,
         coords, 3, split_x);
     double minq = 1;
+    double old_minq = 1;
     for (unsigned j = first_use; j < end_use; ++j) {
       unsigned direction = elems_of_srcs_directions[j];
       unsigned elem = elems_of_srcs[j];
+      if (require_better) {
+        double old_q = elem_quals[elem];
+        if (old_q < old_minq)
+          old_minq = old_q;
+      }
       unsigned const* verts_of_elem = verts_of_elems + elem * verts_per_elem;
       unsigned const* elem_verts_of_src = elem_verts_of_srcs[direction];
       for (unsigned k = 0; k < verts_per_src; ++k) {
@@ -64,7 +72,8 @@ double* refine_qualities(
           minq = q;
       }
     }
-    if (minq < qual_floor)
+    if ((minq < qual_floor) ||
+        (require_better && (minq <= old_minq)))
       candidate_srcs[i] = 0;
     else
       out[i] = minq;
