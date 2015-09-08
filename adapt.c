@@ -76,7 +76,7 @@ static void satisfy_shape(
     double prev_qual = mesh_min_quality(*p_m);
     if (prev_qual >= qual_floor)
       return;
-    if (coarsen_slivers(p_m, qual_floor, 4)) {
+    if (coarsen_slivers(p_m, 1, 0)) {
       incr_op_count(*p_m, "coarsen good verts\n");
       continue;
     }

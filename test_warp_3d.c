@@ -82,7 +82,7 @@ static void set_size_field(struct mesh* m)
 
 static void warped_adapt(struct mesh** p_m)
 {
-  static unsigned const n = 4;
+  static unsigned const n = 6;
   for (unsigned i = 0; i < n; ++i) {
     printf("\n WARP TO LIMIT %u\n", i);
     unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
