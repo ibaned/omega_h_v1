@@ -44,12 +44,14 @@ static void incr_op_count(struct mesh* m, char const* what)
   write_vtk_step(m);
 }
 
-static void satisfy_size(struct mesh** p_m, double size_floor)
+static void satisfy_size(struct mesh** p_m, double size_floor, double good_qual)
 {
-  double init_qual = mesh_min_quality(*p_m);
-  while (refine_by_size(p_m, init_qual))
+  double qual_floor = mesh_min_quality(*p_m);
+  if (good_qual < qual_floor)
+    qual_floor = good_qual;
+  while (refine_by_size(p_m, qual_floor))
     incr_op_count(*p_m, "split long edges\n");
-  while (coarsen_by_size(p_m, init_qual, size_floor, 0))
+  while (coarsen_by_size(p_m, qual_floor, size_floor, 0))
     incr_op_count(*p_m, "collapse short edges\n");
 }
 
@@ -87,10 +89,10 @@ static void satisfy_shape(
 
 void mesh_adapt(struct mesh** p_m,
     double size_ratio_floor,
-    double qual_floor)
+    double good_qual)
 {
   global_op_count = 0;
   adapt_summary(*p_m);
-  satisfy_size(p_m, size_ratio_floor);
-  satisfy_shape(p_m, qual_floor);
+  satisfy_size(p_m, size_ratio_floor, good_qual);
+  satisfy_shape(p_m, good_qual);
 }
