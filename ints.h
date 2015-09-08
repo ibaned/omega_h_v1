@@ -9,6 +9,7 @@ unsigned* ints_unscan(unsigned const* a, unsigned n);
 unsigned* ints_negate(unsigned const* a, unsigned n);
 unsigned* ints_negate_offsets(unsigned const* a, unsigned n);
 void ints_fill(unsigned a[], unsigned n, unsigned v);
+unsigned ints_sum(unsigned const* a, unsigned n);
 
 static inline unsigned has(unsigned const a[], unsigned n, unsigned e)
 {

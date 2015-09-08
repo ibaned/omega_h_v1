@@ -65,3 +65,11 @@ void ints_fill(unsigned a[], unsigned n, unsigned v)
   for (unsigned i = 0; i < n; ++i)
     a[i] = v;
 }
+
+unsigned ints_sum(unsigned const* a, unsigned n)
+{
+  unsigned sum = 0;
+  for (unsigned i = 0; i < n; ++i)
+    sum += a[i];
+  return sum;
+}
