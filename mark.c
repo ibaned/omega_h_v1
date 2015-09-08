@@ -1,6 +1,7 @@
 #include "mark.h"
 #include "ints.h"
 #include "mesh.h"
+#include "tables.h"
 #include <stdlib.h>
 
 unsigned* mark_down(
@@ -32,4 +33,46 @@ unsigned* mesh_mark_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
       mesh_ask_up(m, low_dim, high_dim)->offsets,
       mesh_ask_up(m, low_dim, high_dim)->adj,
       marked_highs);
+}
+
+static unsigned* mark_dual(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* dual,
+    unsigned const* marked)
+{
+  unsigned degree = the_down_degrees[elem_dim][elem_dim - 1];
+  unsigned* out = malloc(sizeof(unsigned) * nelems);
+  for (unsigned i = 0; i < nelems; ++i) {
+    out[i] = marked[i];
+    unsigned const* elems_of_elem = dual + i * degree;
+    for (unsigned j = 0; j < degree; ++j)
+      if (elems_of_elem[j] != INVALID && marked[elems_of_elem[j]])
+        out[i] = 1;
+  }
+  return out;
+}
+
+static void mark_dual_layers(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* dual,
+    unsigned** marked,
+    unsigned nlayers)
+{
+  for (unsigned i = 0; i < nlayers; ++i) {
+    unsigned* in = *marked;
+    unsigned* out = mark_dual(elem_dim, nelems, dual, in);
+    free(in);
+    *marked = out;
+  }
+}
+
+void mesh_mark_dual_layers(
+    struct mesh* m,
+    unsigned** marked,
+    unsigned nlayers)
+{
+  mark_dual_layers(mesh_dim(m), mesh_count(m, mesh_dim(m)),
+      mesh_ask_dual(m), marked, nlayers);
 }
