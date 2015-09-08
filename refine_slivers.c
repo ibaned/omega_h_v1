@@ -4,7 +4,7 @@
 #include "tables.h"
 #include "quality.h"
 #include "ints.h"
-#include "mark_down.h"
+#include "mark.h"
 #include <stdlib.h>
 
 unsigned refine_slivers(

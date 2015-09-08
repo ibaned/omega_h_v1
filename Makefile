@@ -53,7 +53,7 @@ subset.o \
 adapt.o \
 coarsen_common.o \
 refine_slivers.o \
-mark_down.o \
+mark.o \
 coarsen_slivers.o
 
 all: $(objects)

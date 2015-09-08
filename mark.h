@@ -1,5 +1,5 @@
-#ifndef MARK_DOWN_H
-#define MARK_DOWN_H
+#ifndef MARK_H
+#define MARK_H
 
 unsigned* mark_down(
     unsigned nlows,
