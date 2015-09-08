@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_OPS 30
+#define MAX_OPS 50
 
 static unsigned global_op_count = 0;
 
@@ -70,7 +70,7 @@ static char const* const sliver_names[5] = {
 */
 
 static void satisfy_shape(
-    struct mesh** p_m, double size_floor, double qual_floor)
+    struct mesh** p_m, double qual_floor)
 {
   while (1) {
     double prev_qual = mesh_min_quality(*p_m);
@@ -92,5 +92,5 @@ void mesh_adapt(struct mesh** p_m,
   global_op_count = 0;
   adapt_summary(*p_m);
   satisfy_size(p_m, size_ratio_floor);
-  satisfy_shape(p_m, size_ratio_floor, qual_floor);
+  satisfy_shape(p_m, qual_floor);
 }

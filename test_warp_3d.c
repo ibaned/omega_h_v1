@@ -15,8 +15,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static double const warp_qual_floor = 0.2;
-static double const good_qual_floor = 0.25;
+static double const warp_qual_floor = 0.1;
+static double const good_qual_floor = 0.2;
 static double const size_floor = 1. / 3.;
 
 static void size_fun(double const x[], double s[])
@@ -82,7 +82,9 @@ static void set_size_field(struct mesh* m)
 
 static void warped_adapt(struct mesh** p_m)
 {
-  for (unsigned i = 0; i < 3; ++i) {
+  static unsigned const n = 4;
+  for (unsigned i = 0; i < n; ++i) {
+    printf("\n WARP TO LIMIT %u\n", i);
     unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
   //set_size_field(*p_m);
     write_vtk_step(*p_m);
@@ -90,7 +92,7 @@ static void warped_adapt(struct mesh** p_m)
     if (done)
       return;
   }
-  fprintf(stderr, "warped_adapt still not done after 3 iters\n");
+  fprintf(stderr, "warped_adapt still not done after %u iters\n", n);
   abort();
 }
 
@@ -104,7 +106,9 @@ int main()
   mesh_eval_field(m, "dye", 1, dye_fun);
   write_vtk_step(m);
   for (unsigned i = 0; i < 1; ++i) {
-    for (unsigned j = 0; j < 3; ++j) {
+    printf("\nOUTER DIRECTION %u\n", i);
+    for (unsigned j = 0; j < 4; ++j) {
+      printf("\nWARP FIELD %u\n", j);
       mesh_eval_field(m, "warp", 3, warp_fun);
       printf("new warp field\n");
       warped_adapt(&m);
