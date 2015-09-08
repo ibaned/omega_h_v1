@@ -5,6 +5,7 @@ struct mesh;
 
 unsigned coarsen_slivers(
     struct mesh** p_m,
-    double quality_floor);
+    double quality_floor,
+    unsigned nlayers);
 
 #endif

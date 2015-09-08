@@ -9,7 +9,8 @@
 
 unsigned coarsen_slivers(
     struct mesh** p_m,
-    double quality_floor)
+    double quality_floor,
+    unsigned nlayers)
 {
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
@@ -18,6 +19,7 @@ unsigned coarsen_slivers(
   unsigned* slivers = malloc(sizeof(unsigned) * nelems);
   for (unsigned i = 0; i < nelems; ++i)
     slivers[i] = quals[i] < quality_floor;
+  mesh_mark_dual_layers(m, &slivers, nlayers);
   unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, slivers);
   free(slivers);
   unsigned nedges = mesh_count(m, 1);
