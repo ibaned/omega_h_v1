@@ -17,4 +17,12 @@ void mesh_mark_dual_layers(
     unsigned** marked,
     unsigned nlayers);
 
+void unmark_boundary(
+    unsigned elem_dim,
+    unsigned ent_dim,
+    unsigned nents,
+    unsigned const* verts_of_ents,
+    unsigned const* vert_class_dim,
+    unsigned* marked);
+
 #endif

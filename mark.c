@@ -76,3 +76,27 @@ void mesh_mark_dual_layers(
   mark_dual_layers(mesh_dim(m), mesh_count(m, mesh_dim(m)),
       mesh_ask_dual(m), marked, nlayers);
 }
+
+void unmark_boundary(
+    unsigned elem_dim,
+    unsigned ent_dim,
+    unsigned nents,
+    unsigned const* verts_of_ents,
+    unsigned const* vert_class_dim,
+    unsigned* marked)
+{
+  unsigned verts_per_ent = the_down_degrees[ent_dim][0];
+  for (unsigned i = 0; i < nents; ++i) {
+    if (!marked[i])
+      continue;
+    unsigned const* verts_of_ent = verts_of_ents + i * verts_per_ent;
+    unsigned is_boundary = 1;
+    for (unsigned j = 0; j < verts_per_ent; ++j) {
+      unsigned vert = verts_of_ent[j];
+      if (vert_class_dim[vert] == elem_dim)
+        is_boundary = 0;
+    }
+    if (is_boundary)
+      marked[i] = 0;
+  }
+}
