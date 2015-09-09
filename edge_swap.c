@@ -1,13 +1,7 @@
+#include "edge_swap.h"
 #include "algebra.h"
 #include "quality.h"
 #include "tables.h"
-
-#define MAX_EDGE_SWAP 7
-
-struct swap_choice {
-  unsigned code;
-  double quality;
-};
 
 static unsigned const mesh_sizes[MAX_EDGE_SWAP+1] =
 {0 //0
