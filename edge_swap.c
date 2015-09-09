@@ -3,7 +3,7 @@
 #include "quality.h"
 #include "tables.h"
 
-static unsigned const mesh_sizes[MAX_EDGE_SWAP+1] =
+unsigned const swap_mesh_sizes[MAX_EDGE_SWAP+1] =
 {0 //0
 ,0 //1
 ,0 //2
@@ -231,7 +231,7 @@ struct swap_choice choose_edge_swap(
     double good_qual,
     double valid_qual)
 {
-  unsigned tris_per_mesh = mesh_sizes[ring_size];
+  unsigned tris_per_mesh = swap_mesh_sizes[ring_size];
   unsigned nmeshes = mesh_counts[ring_size];
   unsigned ntris = unique_triangle_counts[ring_size];
   unsigned const* mesh = meshes[ring_size];
@@ -257,10 +257,11 @@ struct swap_choice choose_edge_swap(
         }
         tri_minq = 1;
         for (unsigned k = 0; k < 2; ++k) {
-          copy_vector(edge_x[k], tet_x[3], 3);
+          copy_vector(edge_x[1 - k], tet_x[3], 3);
           double tet_q = tet_quality(tet_x);
           if (tet_q < tri_minq)
             tri_minq = tet_q;
+          swap_vectors(tet_x[0], tet_x[1], 3);
         }
         cached[tri] = 1;
         cache[tri] = tri_minq;
@@ -282,4 +283,31 @@ struct swap_choice choose_edge_swap(
     mesh += tris_per_mesh;
   }
   return out;
+}
+
+void apply_edge_swap(
+    unsigned ring_size,
+    unsigned code,
+    unsigned const edge_v[2],
+    unsigned const ring_v[],
+    unsigned out[])
+{
+  unsigned tris_per_mesh = swap_mesh_sizes[ring_size];
+  unsigned const* mesh = meshes[ring_size] + code * tris_per_mesh;
+  tri_t const* tris = triangles[ring_size];
+  for (unsigned i = 0; i < tris_per_mesh; ++i) {
+    unsigned tet_verts[4];
+    unsigned tri = mesh[i];
+    unsigned const* tri_verts = tris[tri];
+    for (unsigned j = 0; j < 3; ++j)
+      tet_verts[j] = ring_v[tri_verts[j]];
+    for (unsigned j = 0; j < 2; ++j) {
+      tet_verts[3] = edge_v[1 - j];
+      for (unsigned k = 0; k < 4; ++k)
+        *out++ = tet_verts[k];
+      unsigned tmp = tet_verts[0];
+      tet_verts[0] = tet_verts[1];
+      tet_verts[1] = tmp;
+    }
+  }
 }

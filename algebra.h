@@ -32,6 +32,18 @@ static inline void add_vectors(
     c[i] = a[i] + b[i];
 }
 
+static inline void swap_vectors(
+    double a[],
+    double b[],
+    unsigned n)
+{
+  for (unsigned i = 0; i < n; ++i) {
+    double tmp = a[i];
+    a[i] = b[i];
+    b[i] = tmp;
+  }
+}
+
 static inline void cross_product(
     double const a[],
     double const b[],
