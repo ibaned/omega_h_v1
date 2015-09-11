@@ -64,7 +64,7 @@ void swap_qualities(
     } else {
       out_quals[i] = sc.quality;
       out_codes[i] = sc.code;
-      gen_elems_per_edge[i] = swap_mesh_sizes[ring_size];
+      gen_elems_per_edge[i] = 2 * swap_mesh_sizes[ring_size];
     }
   }
   *p_qualities = out_quals;
