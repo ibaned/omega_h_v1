@@ -7,10 +7,12 @@ void ints_zero(unsigned* a, unsigned n)
     a[i] = 0;
 }
 
-void ints_copy(unsigned const* a, unsigned* b, unsigned n)
+unsigned* ints_copy(unsigned const* a, unsigned n)
 {
+  unsigned* b = malloc(sizeof(unsigned) * n);
   for (unsigned i = 0; i < n; ++i)
     b[i] = a[i];
+  return b;
 }
 
 unsigned ints_max(unsigned const* a, unsigned n)

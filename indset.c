@@ -54,7 +54,6 @@ unsigned* find_indset(
     double const* goodness)
 {
   unsigned* state = malloc(sizeof(unsigned) * nverts);
-  unsigned* old_state = malloc(sizeof(unsigned) * nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     if (filter[i])
       state[i] = UNKNOWN;
@@ -62,19 +61,12 @@ unsigned* find_indset(
       state[i] = NOT_IN_SET;
   }
   for (unsigned it = 0; it < MAX_ITERATIONS; ++it) {
-    ints_copy(state, old_state, nverts);
+    unsigned* old_state = ints_copy(state, nverts);
     for (unsigned i = 0; i < nverts; ++i)
-      at_vert(
-          offsets,
-          adj,
-          goodness,
-          old_state,
-          state,
-          i);
-    if (ints_max(state, nverts) < UNKNOWN) {
-      free(old_state);
+      at_vert(offsets, adj, goodness, old_state, state, i);
+    free(old_state);
+    if (ints_max(state, nverts) < UNKNOWN)
       return state;
-    }
   }
   abort();
 }
