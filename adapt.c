@@ -8,6 +8,7 @@
 #include "measure_edges.h"
 #include "doubles.h"
 #include "coarsen_slivers.h"
+#include "swap_slivers.h"
 
 #include "vtk.h"
 #include <stdio.h>
@@ -78,7 +79,12 @@ static void satisfy_shape(
     double prev_qual = mesh_min_quality(*p_m);
     if (prev_qual >= qual_floor)
       return;
-    if (coarsen_slivers(p_m, 1, 0)) {
+    if (mesh_dim(*p_m) == 3 && swap_slivers(p_m, qual_floor, 0.0, 0)) {
+      incr_op_count(*p_m, "swap good edges\n");
+      abort();
+      continue;
+    }
+    if (coarsen_slivers(p_m, 1.0, 0)) {
       incr_op_count(*p_m, "coarsen good verts\n");
       continue;
     }

@@ -54,7 +54,13 @@ adapt.o \
 coarsen_common.o \
 refine_slivers.o \
 mark.o \
-coarsen_slivers.o
+coarsen_slivers.o \
+swap_slivers.o \
+swap_common.o \
+swap_qualities.o \
+swap_topology.o \
+edge_ring.o \
+edge_swap.o
 
 all: $(objects)
 
