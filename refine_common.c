@@ -40,8 +40,10 @@ unsigned refine_common(
       elems_of_srcs_directions, candidates, coords, qual_floor,
       elem_quals, require_better);
   free(elem_quals);
-  if (!ints_max(candidates, nsrcs))
+  if (!ints_max(candidates, nsrcs)) {
+    free(src_quals);
     return 0;
+  }
   unsigned const* srcs_of_srcs_offsets =
     mesh_ask_star(m, src_dim, elem_dim)->offsets;
   unsigned const* srcs_of_srcs =

@@ -21,6 +21,7 @@ unsigned coarsen_slivers(
   unsigned* slivers = malloc(sizeof(unsigned) * nelems);
   for (unsigned i = 0; i < nelems; ++i)
     slivers[i] = quals[i] < quality_floor;
+  free(quals);
   printf("%u elems marked before layering\n", ints_sum(slivers, nelems));
   mesh_mark_dual_layers(m, &slivers, nlayers);
   printf("%u elems marked after layering\n", ints_sum(slivers, nelems));
