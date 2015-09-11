@@ -42,9 +42,10 @@ static void incr_op_count(struct mesh* m, char const* what)
   ++global_op_count;
   printf("%s", what);
   adapt_summary(m);
-  write_vtk_step(m);
+//write_vtk_step(m);
 }
 
+/*
 static void satisfy_size(struct mesh** p_m, double size_floor, double good_qual)
 {
   double qual_floor = mesh_min_quality(*p_m);
@@ -55,6 +56,7 @@ static void satisfy_size(struct mesh** p_m, double size_floor, double good_qual)
   while (coarsen_by_size(p_m, qual_floor, size_floor, 0))
     incr_op_count(*p_m, "collapse short edges\n");
 }
+*/
 
 /*
 static struct { unsigned dim; enum sliver_type st; } const sliver_tab[3] = {
@@ -79,7 +81,7 @@ static void satisfy_shape(
     double prev_qual = mesh_min_quality(*p_m);
     if (prev_qual >= qual_floor)
       return;
-    if (mesh_dim(*p_m) == 3 && swap_slivers(p_m, qual_floor, 0.0, 0)) {
+    if (mesh_dim(*p_m) == 3 && swap_slivers(p_m, 1.0, 0.0, 0)) {
       incr_op_count(*p_m, "swap good edges\n");
       abort();
       continue;
@@ -102,7 +104,7 @@ void mesh_adapt(struct mesh** p_m,
     double good_qual)
 {
   global_op_count = 0;
-  adapt_summary(*p_m);
-  satisfy_size(p_m, size_ratio_floor, good_qual);
+//adapt_summary(*p_m);
+//satisfy_size(p_m, size_ratio_floor, good_qual);
   satisfy_shape(p_m, good_qual);
 }

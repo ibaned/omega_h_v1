@@ -34,7 +34,7 @@ unsigned find_edge_ring(
     unsigned align = 0;
     if (verts_of_tet[tet_verts_of_edge[0]] != edge_v[0])
       align = 1;
-    assert(edge_v[align] = verts_of_tet[tet_verts_of_edge[0]]);
+    assert(edge_v[align] == verts_of_tet[tet_verts_of_edge[0]]);
     unsigned tet_edge_opp = tet_edge_opp_edges[tet_edge];
     unsigned const* tet_verts_of_opp = tet_verts_of_edges[tet_edge_opp];
     tmp_ring[i - first_use].a = verts_of_tet[tet_verts_of_opp[align ^ 0]];

@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 static double const warp_qual_floor = 0.2;
-static double const good_qual_floor = 0.25;
+static double const good_qual_floor = 1.0;
 static double const size_floor = 1. / 3.;
 
 static void size_fun(double const x[], double s[])
@@ -24,7 +24,7 @@ static void size_fun(double const x[], double s[])
   s[0] = 0.1;
 }
 
-static double the_rotation = M_PI / 4.;
+static double the_rotation = M_PI;
 
 static void warp_fun(double const coords[3], double v[])
 {
@@ -107,7 +107,7 @@ int main()
   write_vtk_step(m);
   for (unsigned i = 0; i < 1; ++i) {
     printf("\nOUTER DIRECTION %u\n", i);
-    for (unsigned j = 0; j < 4; ++j) {
+    for (unsigned j = 0; j < 1; ++j) {
       printf("\nWARP FIELD %u\n", j);
       mesh_eval_field(m, "warp", 3, warp_fun);
       printf("new warp field\n");
