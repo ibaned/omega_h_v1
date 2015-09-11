@@ -8,6 +8,7 @@ unsigned refine_slivers(
     unsigned src_dim,
     double good_qual,
     double valid_qual,
-    unsigned require_better);
+    unsigned require_better,
+    unsigned nlayers);
 
 #endif

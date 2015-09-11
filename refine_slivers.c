@@ -12,18 +12,14 @@ unsigned refine_slivers(
     unsigned src_dim,
     double good_qual,
     double valid_qual,
-    unsigned require_better)
+    unsigned require_better,
+    unsigned nlayers)
 {
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
-  unsigned nelems = mesh_count(m, elem_dim);
-  unsigned* marked_elems = malloc(sizeof(unsigned) * nelems);
-  double* quals = mesh_qualities(m);
-  for (unsigned i = 0; i < nelems; ++i)
-    marked_elems[i] = quals[i] < good_qual;
-  free(quals);
-  unsigned* candidates = mesh_mark_down(m, elem_dim, src_dim, marked_elems);
-  free(marked_elems);
+  unsigned* slivers = mesh_mark_slivers(m, good_qual, nlayers);
+  unsigned* candidates = mesh_mark_down(m, elem_dim, src_dim, slivers);
+  free(slivers);
   unsigned ret = refine_common(p_m, src_dim, candidates, valid_qual, require_better);
   free(candidates);
   return ret;
