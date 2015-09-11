@@ -37,8 +37,8 @@ unsigned find_edge_ring(
     assert(edge_v[align] = verts_of_tet[tet_verts_of_edge[0]]);
     unsigned tet_edge_opp = tet_edge_opp_edges[tet_edge];
     unsigned const* tet_verts_of_opp = tet_verts_of_edges[tet_edge_opp];
-    tmp_ring[i].a = verts_of_tet[tet_verts_of_opp[align ^ 0]];
-    tmp_ring[i].b = verts_of_tet[tet_verts_of_opp[align ^ 1]];
+    tmp_ring[i - first_use].a = verts_of_tet[tet_verts_of_opp[align ^ 0]];
+    tmp_ring[i - first_use].b = verts_of_tet[tet_verts_of_opp[align ^ 1]];
   }
   /* upward adjacency from edges to tets is not ordered
    * clockwise around, it is essentially random.
