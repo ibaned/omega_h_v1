@@ -1,6 +1,5 @@
 #include "coarsen_slivers.h"
 #include "mark.h"
-#include "quality.h"
 #include "ints.h"
 #include "mesh.h"
 #include "collapse_codes.h"
