@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_OPS 50
+#define MAX_OPS 100
 
 static unsigned global_op_count = 0;
 
@@ -80,6 +80,10 @@ static void satisfy_shape(
       return;
     if (coarsen_slivers(p_m, 1, 0)) {
       incr_op_count(*p_m, "coarsen good verts\n");
+      continue;
+    }
+    if (refine_slivers(p_m, 1, 1.0, 0.0, 1, 0)) {
+      incr_op_count(*p_m, "split good edges\n");
       continue;
     }
     fprintf(stderr, "ran out of options!\n");
