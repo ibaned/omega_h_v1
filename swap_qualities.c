@@ -2,6 +2,7 @@
 #include "edge_swap.h"
 #include "edge_ring.h"
 #include "algebra.h"
+#include "ints.h"
 #include <stdlib.h>
 
 void swap_qualities(
@@ -18,10 +19,12 @@ void swap_qualities(
     double const* elem_quals,
     unsigned require_better,
     double** p_qualities,
-    unsigned** p_codes)
+    unsigned** p_codes,
+    unsigned** p_gen_elems_per_edge)
 {
   double* out_quals = malloc(sizeof(double) * nedges);
   unsigned* out_codes = malloc(sizeof(unsigned) * nedges);
+  unsigned* gen_elems_per_edge = malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nedges; ++i) {
     if (!candidates[i])
       continue;
@@ -58,8 +61,10 @@ void swap_qualities(
     } else {
       out_quals[i] = sc.quality;
       out_codes[i] = sc.code;
+      gen_elems_per_edge[i] = swap_mesh_sizes[ring_size];
     }
   }
   *p_qualities = out_quals;
   *p_codes = out_codes;
+  *p_gen_elems_per_edge = gen_elems_per_edge;
 }

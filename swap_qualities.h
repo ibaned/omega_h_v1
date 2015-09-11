@@ -15,6 +15,7 @@ void swap_qualities(
     double const* elem_quals,
     unsigned require_better,
     double** p_qualities,
-    unsigned** p_codes);
+    unsigned** p_codes,
+    unsigned** p_gen_elems_per_edge);
 
 #endif
