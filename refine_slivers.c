@@ -1,9 +1,6 @@
 #include "refine_slivers.h"
 #include "refine_common.h"
 #include "mesh.h"
-#include "tables.h"
-#include "quality.h"
-#include "ints.h"
 #include "mark.h"
 #include <stdlib.h>
 
