@@ -10,20 +10,41 @@ unsigned* mark_down(
     unsigned const* highs_of_lows,
     unsigned const* marked_highs)
 {
-  unsigned* low_marks = malloc(sizeof(unsigned) * nlows);
+  unsigned* marked_lows = malloc(sizeof(unsigned) * nlows);
   for (unsigned i = 0; i < nlows; ++i) {
     unsigned first_use = highs_of_lows_offsets[i];
     unsigned end_use = highs_of_lows_offsets[i + 1];
-    low_marks[i] = 0;
+    marked_lows[i] = 0;
     for (unsigned j = first_use; j < end_use; ++j) {
       unsigned high = highs_of_lows[j];
       if (marked_highs[high]) {
-        low_marks[i] = 1;
+        marked_lows[i] = 1;
         break;
       }
     }
   }
-  return low_marks;
+  return marked_lows;
+}
+
+unsigned* mark_up(
+    unsigned high_dim,
+    unsigned low_dim,
+    unsigned nhighs,
+    unsigned const* lows_of_highs,
+    unsigned const* marked_lows)
+{
+  unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
+  unsigned* marked_highs = malloc(sizeof(unsigned) * nhighs);
+  for (unsigned i = 0; i < nhighs; ++i) {
+    marked_highs[i] = 0;
+    unsigned const* lows_of_high = lows_of_highs + i * lows_per_high;
+    for (unsigned j = 0; j < lows_per_high; ++j)
+      if (marked_lows[lows_of_high[j]]) {
+        marked_highs[i] = 1;
+        break;
+      }
+  }
+  return marked_highs;
 }
 
 unsigned* mesh_mark_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
@@ -33,6 +54,13 @@ unsigned* mesh_mark_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
       mesh_ask_up(m, low_dim, high_dim)->offsets,
       mesh_ask_up(m, low_dim, high_dim)->adj,
       marked_highs);
+}
+
+unsigned* mesh_mark_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
+    unsigned const* marked_lows)
+{
+  return mark_up(high_dim, low_dim, mesh_count(m, high_dim),
+      mesh_ask_down(m, high_dim, low_dim), marked_lows);
 }
 
 static unsigned* mark_dual(

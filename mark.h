@@ -7,10 +7,19 @@ unsigned* mark_down(
     unsigned const* highs_of_lows,
     unsigned const* marked_highs);
 
+unsigned* mark_up(
+    unsigned high_dim,
+    unsigned low_dim,
+    unsigned nhighs,
+    unsigned const* lows_of_highs,
+    unsigned const* marked_lows);
+
 struct mesh;
 
 unsigned* mesh_mark_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
     unsigned const* marked_highs);
+unsigned* mesh_mark_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
+    unsigned const* marked_lows);
 
 void mesh_mark_dual_layers(
     struct mesh* m,
