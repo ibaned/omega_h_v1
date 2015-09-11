@@ -1,4 +1,5 @@
 #include "doubles.h"
+#include <stdlib.h>
 
 double doubles_max(double const a[], unsigned n)
 {
@@ -23,4 +24,12 @@ void doubles_axpy(double a, double const x[], double const y[],
 {
   for (unsigned i = 0; i < n; ++i)
     out[i] = a * x[i] + y[i];
+}
+
+double* doubles_copy(double const a[], unsigned n)
+{
+  double* b = malloc(sizeof(double) * n);
+  for (unsigned i = 0; i < n; ++i)
+    b[i] = a[i];
+  return b;
 }

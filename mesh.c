@@ -298,6 +298,16 @@ struct const_field* mesh_get_nodal_field(struct mesh* m, unsigned i)
   return (struct const_field*) m->nodal_fields.at[i];
 }
 
+unsigned mesh_count_nodal_labels(struct mesh* m)
+{
+  return m->nodal_labels.n;
+}
+
+struct const_label* mesh_get_nodal_label(struct mesh* m, unsigned i)
+{
+  return (struct const_label*) m->nodal_labels.at[i];
+}
+
 struct const_field* mesh_add_elem_field(struct mesh* m, char const* name,
     unsigned ncomps, double* data)
 {
