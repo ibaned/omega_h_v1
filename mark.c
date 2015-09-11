@@ -2,7 +2,10 @@
 #include "ints.h"
 #include "mesh.h"
 #include "tables.h"
+#include "quality.h"
 #include <stdlib.h>
+
+#include <stdio.h>
 
 unsigned* mark_down(
     unsigned nlows,
@@ -127,4 +130,27 @@ void unmark_boundary(
     if (is_boundary)
       marked[i] = 0;
   }
+}
+
+unsigned* mark_slivers(
+    unsigned nelems,
+    double const* elem_quals,
+    double good_qual)
+{
+  unsigned* slivers = malloc(sizeof(unsigned) * nelems);
+  for (unsigned i = 0; i < nelems; ++i)
+    slivers[i] = elem_quals[i] < good_qual;
+  return slivers;
+}
+
+unsigned* mesh_mark_slivers(struct mesh* m, double good_qual, unsigned nlayers)
+{
+  unsigned nelems = mesh_count(m, mesh_dim(m));
+  double* elem_quals = mesh_qualities(m);
+  unsigned* slivers = mark_slivers(nelems, elem_quals, good_qual);
+  free(elem_quals);
+  printf("%u elems marked before layering\n", ints_sum(slivers, nelems));
+  mesh_mark_dual_layers(m, &slivers, nlayers);
+  printf("%u elems marked after layering\n", ints_sum(slivers, nelems));
+  return slivers;
 }

@@ -34,4 +34,6 @@ void unmark_boundary(
     unsigned const* vert_class_dim,
     unsigned* marked);
 
+unsigned* mesh_mark_slivers(struct mesh* m, double good_qual, unsigned nlayers);
+
 #endif

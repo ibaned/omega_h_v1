@@ -16,15 +16,7 @@ unsigned coarsen_slivers(
 {
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
-  unsigned nelems = mesh_count(m, elem_dim);
-  double* quals = mesh_qualities(m);
-  unsigned* slivers = malloc(sizeof(unsigned) * nelems);
-  for (unsigned i = 0; i < nelems; ++i)
-    slivers[i] = quals[i] < quality_floor;
-  free(quals);
-  printf("%u elems marked before layering\n", ints_sum(slivers, nelems));
-  mesh_mark_dual_layers(m, &slivers, nlayers);
-  printf("%u elems marked after layering\n", ints_sum(slivers, nelems));
+  unsigned* slivers = mesh_mark_slivers(m, quality_floor, nlayers);
   unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, slivers);
   printf("%u verts marked\n", ints_sum(marked_verts, mesh_count(m, 0)));
   free(slivers);
