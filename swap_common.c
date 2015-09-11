@@ -1,3 +1,4 @@
+#include "swap_common.h"
 #include "quality.h"
 #include "swap_qualities.h"
 #include "swap_topology.h"
