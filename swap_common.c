@@ -6,6 +6,7 @@
 #include "doubles.h"
 #include "mesh.h"
 #include "concat.h"
+#include "indset.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -53,14 +54,22 @@ unsigned swap_common(
     free(gen_elems_per_edge);
     return 0;
   }
+  unsigned const* edges_of_edges_offsets = mesh_ask_star(m, 1, elem_dim)->offsets;
+  unsigned const* edges_of_edges = mesh_ask_star(m, 1, elem_dim)->adj;
+  unsigned* indset = find_indset(nedges, edges_of_edges_offsets, edges_of_edges,
+      candidates, edge_quals);
+  for (unsigned i = 0; i < nedges; ++i)
+    if (!indset[i])
+      gen_elems_per_edge[i] = 0;
   unsigned* gen_offset_of_edges = ints_exscan(gen_elems_per_edge, nedges);
   free(gen_elems_per_edge);
-  unsigned* verts_of_gen_elems = swap_topology(nedges, candidates,
+  unsigned* verts_of_gen_elems = swap_topology(nedges, indset,
       gen_offset_of_edges, edge_codes,
       elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
       verts_of_edges, verts_of_elems);
   unsigned ngen_elems = gen_offset_of_edges[nedges];
-  unsigned* old_elems = mesh_mark_up(m, 1, elem_dim, candidates);
+  unsigned* old_elems = mesh_mark_up(m, 1, elem_dim, indset);
+  free(indset);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned* same_elems = ints_negate(old_elems, nelems);
   free(old_elems);
