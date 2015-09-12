@@ -1,5 +1,4 @@
-CFLAGS = -g -O2 -std=c99 -Werror -Wall
-LDLIBS = -lm
+include config.mk
 
 sources := $(wildcard *.c)
 headers := $(wildcard *.h)
