@@ -95,7 +95,7 @@ unsigned swap_common(
     unsigned* data = ints_copy(l->data, nverts);
     mesh_add_nodal_label(m_out, l->name, data);
   }
-  free(m);
+  free_mesh(m);
   *p_m = m_out;
   return 1;
 }
