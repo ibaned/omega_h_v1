@@ -59,16 +59,19 @@ unsigned swap_common(
   unsigned const* edges_of_edges = mesh_ask_star(m, 1, elem_dim)->adj;
   unsigned* indset = find_indset(nedges, edges_of_edges_offsets, edges_of_edges,
       candidates, edge_quals);
+  free(edge_quals);
   for (unsigned i = 0; i < nedges; ++i)
     if (!indset[i])
       gen_elems_per_edge[i] = 0;
   unsigned* gen_offset_of_edges = ints_exscan(gen_elems_per_edge, nedges);
+  unsigned ngen_elems = gen_offset_of_edges[nedges];
   free(gen_elems_per_edge);
   unsigned* verts_of_gen_elems = swap_topology(nedges, indset,
       gen_offset_of_edges, edge_codes,
       elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
       verts_of_edges, verts_of_elems);
-  unsigned ngen_elems = gen_offset_of_edges[nedges];
+  free(edge_codes);
+  free(gen_offset_of_edges);
   unsigned* old_elems = mesh_mark_up(m, 1, elem_dim, indset);
   free(indset);
   unsigned nelems = mesh_count(m, elem_dim);
@@ -81,6 +84,8 @@ unsigned swap_common(
   concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,
       same_elem_offsets, verts_of_gen_elems,
       &nelems_out, &verts_of_elems_out);
+  free(same_elem_offsets);
+  free(verts_of_gen_elems);
   unsigned nverts = mesh_count(m, 0);
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts, 0);
