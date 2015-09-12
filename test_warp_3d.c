@@ -21,7 +21,7 @@ static double const size_floor = 1. / 3.;
 
 static void size_fun(double const x[], double s[])
 {
-  s[0] = 0.1;
+  s[0] = 0.4;
 }
 
 static double the_rotation = M_PI;

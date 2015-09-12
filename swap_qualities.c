@@ -52,7 +52,7 @@ void swap_qualities(
     copy_vector(coords + edge_v[1] * 3, edge_x[1], 3);
     double ring_x[MAX_EDGE_SWAP][3];
     for (unsigned j = 0; j < ring_size; ++j)
-      copy_vector(coords + ring_v[i] * 3, ring_x[j], 3);
+      copy_vector(coords + ring_v[j] * 3, ring_x[j], 3);
     if (require_better)
       good_qual = old_minq + 1e-10;
     struct swap_choice sc = choose_edge_swap(ring_size, edge_x,
