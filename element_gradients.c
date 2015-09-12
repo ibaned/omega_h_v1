@@ -43,13 +43,9 @@ double* element_gradients(
       grad[j] = 0;
     for (unsigned j = 0; j < elem_dim; ++j)
     for (unsigned k = 0; k < ncomps; ++k)
-    for (unsigned l = 0; l < 3; ++l) {
-      assert(elem_comps[j + 1]);
-      assert(elem_comps[0]);
-      unsigned kl = k * 3 + l;
-      assert(l < ncomps_out);
-      grad[kl] += (elem_comps[j + 1][k] - elem_comps[0][k]) * jaci[j][l];
-    }
+    for (unsigned l = 0; l < 3; ++l)
+      grad[k * 3 + l] += jaci[j][l] *
+          (elem_comps[j + 1][k] - elem_comps[0][k]);
   }
   return out;
 }
