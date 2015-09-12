@@ -1,7 +1,6 @@
 #include "subset.h"
 #include <string.h>  // for memcpy
 #include <stdlib.h>  // for free, malloc
-#include <assert.h>  // for assert
 #include "field.h"   // for const_field
 #include "ints.h"    // for ints_exscan, ints_unscan
 #include "mark.h"    // for mesh_mark_down
@@ -18,15 +17,13 @@ static void* general_subset(
   unsigned nsub = offsets[n];
   void* out = malloc(typesize * nsub * width);
   unsigned stride = typesize * width;
-  assert(stride);
   char const* ip = a;
   char* op = out;
   for (unsigned i = 0; i < n; ++i) {
-    if (offsets[i] != offsets[i + 1]) {
-      memcpy(op, ip, stride);
-      op += stride;
-    }
-    ip += stride;
+    if (offsets[i] != offsets[i + 1])
+      memcpy(op + offsets[i] * stride,
+             ip + i * stride,
+             stride);
   }
   return out;
 }
