@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_OPS 100
+#define MAX_OPS 50
 
 static unsigned global_op_count = 0;
 
@@ -63,17 +63,12 @@ static void satisfy_shape(
     double prev_qual = mesh_min_quality(*p_m);
     if (prev_qual >= qual_floor)
       return;
-    if (mesh_dim(*p_m) == 3 && swap_slivers(p_m, 1.0, 0.0, 0)) {
+    if (mesh_dim(*p_m) == 3 && swap_slivers(p_m, qual_floor, 0.0, 0)) {
       incr_op_count(*p_m, "swap good edges\n");
-      abort();
       continue;
     }
-    if (coarsen_slivers(p_m, 1.0, 0)) {
+    if (coarsen_slivers(p_m, qual_floor, 0)) {
       incr_op_count(*p_m, "coarsen good verts\n");
-      continue;
-    }
-    if (refine_slivers(p_m, 1, 1.0, 0.0, 1, 0)) {
-      incr_op_count(*p_m, "split good edges\n");
       continue;
     }
     fprintf(stderr, "ran out of options!\n");
