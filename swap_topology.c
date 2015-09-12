@@ -20,7 +20,7 @@ unsigned* swap_topology(
   for (unsigned i = 0; i < nedges; ++i) {
     if (!candidates[i])
       continue;
-    unsigned* edge_out = out + gen_offset_of_edges[i];
+    unsigned* edge_out = out + gen_offset_of_edges[i] * 4;
     unsigned edge_v[2];
     unsigned ring_v[MAX_EDGE_SWAP];
     unsigned ring_size = find_edge_ring(i,

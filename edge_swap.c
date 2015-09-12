@@ -2,6 +2,7 @@
 #include "algebra.h"
 #include "quality.h"
 #include "tables.h"
+#include <assert.h>
 
 unsigned const swap_mesh_sizes[MAX_EDGE_SWAP+1] =
 {0 //0
@@ -292,6 +293,7 @@ void apply_edge_swap(
     unsigned const ring_v[],
     unsigned out[])
 {
+  unsigned* p = out;
   unsigned tris_per_mesh = swap_mesh_sizes[ring_size];
   unsigned const* mesh = meshes[ring_size] + code * tris_per_mesh;
   tri_t const* tris = triangles[ring_size];
@@ -310,4 +312,6 @@ void apply_edge_swap(
       tet_verts[1] = tmp;
     }
   }
+  unsigned ntets = tris_per_mesh * 2;
+  assert(out - p == ntets * 4);
 }
