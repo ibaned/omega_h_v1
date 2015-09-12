@@ -6,8 +6,6 @@
 #include "coarsen_common.h"
 #include <stdlib.h>
 
-#include <stdio.h>
-
 unsigned coarsen_slivers(
     struct mesh** p_m,
     double quality_floor,
@@ -18,7 +16,6 @@ unsigned coarsen_slivers(
   unsigned* slivers = mesh_mark_slivers(m, quality_floor, nlayers);
   unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, slivers);
   free(slivers);
-  printf("%u verts marked\n", ints_sum(marked_verts, mesh_count(m, 0)));
   unsigned nedges = mesh_count(m, 1);
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   unsigned* col_codes = malloc(sizeof(unsigned) * nedges);

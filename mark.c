@@ -5,8 +5,6 @@
 #include "quality.h"
 #include <stdlib.h>
 
-#include <stdio.h>
-
 unsigned* mark_down(
     unsigned nlows,
     unsigned const* highs_of_lows_offsets,
@@ -149,8 +147,6 @@ unsigned* mesh_mark_slivers(struct mesh* m, double good_qual, unsigned nlayers)
   double* elem_quals = mesh_qualities(m);
   unsigned* slivers = mark_slivers(nelems, elem_quals, good_qual);
   free(elem_quals);
-  printf("%u elems marked before layering\n", ints_sum(slivers, nelems));
   mesh_mark_dual_layers(m, &slivers, nlayers);
-  printf("%u elems marked after layering\n", ints_sum(slivers, nelems));
   return slivers;
 }
