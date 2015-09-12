@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 static double const warp_qual_floor = 0.2;
-static double const good_qual_floor = 1.0;
+static double const good_qual_floor = 0.25;
 static double const size_floor = 1. / 3.;
 
 static void size_fun(double const x[], double s[])
@@ -24,7 +24,7 @@ static void size_fun(double const x[], double s[])
   s[0] = 0.4;
 }
 
-static double the_rotation = M_PI;
+static double the_rotation = M_PI / 4;
 
 static void warp_fun(double const coords[3], double v[])
 {
