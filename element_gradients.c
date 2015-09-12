@@ -23,6 +23,7 @@ double* element_gradients(
   double* out = malloc(sizeof(double) * ncomps_out * nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   assert(verts_per_elem == elem_dim + 1);
+  assert(verts_per_elem > 1);
   jacobian_inverter jif = the_jacobian_inverters[elem_dim];
   for (unsigned i = 0; i < nelems; ++i) {
     unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
