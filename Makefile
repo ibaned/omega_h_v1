@@ -49,7 +49,6 @@ size_from_hessian.o \
 subset.o \
 adapt.o \
 coarsen_common.o \
-refine_slivers.o \
 mark.o \
 coarsen_slivers.o \
 swap_slivers.o \
