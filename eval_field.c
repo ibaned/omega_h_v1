@@ -1,6 +1,7 @@
 #include "eval_field.h"
-#include "mesh.h"
-#include <stdlib.h>
+#include <stdlib.h>  // for malloc
+#include "field.h"   // for const_field
+#include "mesh.h"    // for mesh_add_nodal_field, mesh_count, mesh_find_noda...
 
 double* eval_field(
     unsigned nverts,

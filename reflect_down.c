@@ -1,10 +1,8 @@
 #include "reflect_down.h"
-#include "tables.h"
-#include "ints.h"
-#include <stdlib.h>
-#include <assert.h>
-
-#include <stdio.h>
+#include <assert.h>  // for assert
+#include <stdlib.h>  // for malloc
+#include "ints.h"    // for has
+#include "tables.h"  // for the_down_degrees, MAX_UP, INVALID, the_canonical...
 
 static unsigned copy(
     unsigned const a[],

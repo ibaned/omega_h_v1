@@ -1,14 +1,13 @@
-#include "tables.h"
-#include "mesh.h"
-#include "refine_by_size.h"
-#include "classify_box.h"
-#include "coarsen_by_size.h"
-#include "vtk.h"
-#include "algebra.h"
-#include "quality.h"
-#include "eval_field.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <math.h>             // for fabs
+#include <stdio.h>            // for printf
+#include "algebra.h"          // for vector_norm
+#include "classify_box.h"     // for mesh_classify_box
+#include "coarsen_by_size.h"  // for coarsen_by_size
+#include "eval_field.h"       // for mesh_eval_field
+#include "mesh.h"             // for mesh_free_nodal_field, free_mesh, new_b...
+#include "quality.h"          // for mesh_min_quality
+#include "refine_by_size.h"   // for refine_by_size
+#include "vtk.h"              // for write_vtk
 
 static void fine_fun(double const x[], double s[])
 {

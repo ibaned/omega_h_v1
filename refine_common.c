@@ -1,15 +1,18 @@
 #include "refine_common.h"
-#include "mesh.h"
-#include "refine_qualities.h"
-#include "indset.h"
-#include "ints.h"
-#include "splits_to_elements.h"
-#include "refine_topology.h"
-#include "refine_nodal.h"
-#include "refine_class.h"
-#include "concat.h"
-#include "quality.h"
-#include <stdlib.h>
+#include <stdlib.h>              // for free, malloc
+#include "concat.h"              // for concat_doubles, concat_ints, concat_...
+#include "field.h"               // for const_field
+#include "graph.h"               // for const_graph
+#include "indset.h"              // for find_indset
+#include "ints.h"                // for ints_max, ints_exscan, ints_negate_o...
+#include "label.h"               // for const_label
+#include "mesh.h"                // for mesh_ask_down, mesh_ask_up, mesh_count
+#include "quality.h"             // for mesh_qualities
+#include "refine_class.h"        // for refine_class
+#include "refine_nodal.h"        // for refine_nodal
+#include "refine_qualities.h"    // for refine_qualities
+#include "refine_topology.h"     // for refine_topology
+#include "splits_to_elements.h"  // for project_splits_to_elements
 
 unsigned refine_common(
     struct mesh** p_m,

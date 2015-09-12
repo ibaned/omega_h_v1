@@ -1,9 +1,9 @@
 #include "refine_by_size.h"
-#include "mesh.h"
-#include "refine_common.h"
-#include "measure_edges.h"
-#include "ints.h"
-#include <stdlib.h>
+#include <stdlib.h>         // for free, malloc
+#include "field.h"          // for const_field
+#include "measure_edges.h"  // for measure_edges
+#include "mesh.h"           // for mesh_find_nodal_field, mesh_ask_down, mes...
+#include "refine_common.h"  // for refine_common
 
 unsigned refine_by_size(struct mesh** p_m, double qual_floor)
 {

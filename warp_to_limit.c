@@ -1,9 +1,10 @@
 #include "warp_to_limit.h"
-#include "doubles.h"
-#include "quality.h"
-#include "mesh.h"
-#include <stdlib.h>
-#include <stdio.h>
+#include <stdio.h>    // for printf
+#include <stdlib.h>   // for malloc
+#include "doubles.h"  // for doubles_axpy
+#include "field.h"    // for const_field
+#include "mesh.h"     // for mesh_dim, mesh_add_nodal_field, mesh_count, mes...
+#include "quality.h"  // for min_element_quality
 
 static unsigned exceeds_limit(
     unsigned elem_dim,

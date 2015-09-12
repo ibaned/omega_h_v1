@@ -1,13 +1,16 @@
 #include "mesh.h"
-#include "tables.h"
-#include "up_from_down.h"
-#include "star.h"
-#include "reflect_down.h"
-#include "bridge_graph.h"
-#include "derive_faces.h"
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
+#include <assert.h>        // for assert
+#include <string.h>        // for memcpy
+#include <stdlib.h>        // for free, malloc, calloc
+#include "bridge_graph.h"  // for bridge_dual_graph, bridge_graph
+#include "derive_faces.h"  // for derive_faces
+#include "field.h"         // for find_field, fields, add_field, free_field
+#include "graph.h"         // for graph (ptr only), free_graph, const_graph
+#include "label.h"         // for labels, add_label, find_label, free_labels
+#include "reflect_down.h"  // for get_dual, reflect_down
+#include "star.h"          // for get_star
+#include "tables.h"        // for the_box_conns, the_box_coords, the_box_n...
+#include "up_from_down.h"  // for up_from_down
 
 struct mesh {
   unsigned elem_dim;

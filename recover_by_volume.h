@@ -10,7 +10,6 @@ double* recover_by_volume(
     double const* comps_of_elems);
 
 struct mesh;
-struct const_field;
 
 struct const_field* mesh_recover_by_volume(
     struct mesh* m, char const* name);

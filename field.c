@@ -1,7 +1,8 @@
 #include "field.h"
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
+#include <assert.h>  // for assert
+#include <string.h>  // for strcpy
+#include <stdlib.h>  // for free, malloc, realloc
+#include <string.h>  // for strcmp, strlen
 
 struct field* new_field(char const* name, unsigned ncomps, double* data)
 {

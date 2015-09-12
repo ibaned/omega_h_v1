@@ -1,10 +1,10 @@
 #include "coarsen_by_size.h"
-#include <stdlib.h>          // for free, malloc
-#include "coarsen_common.h"  // for coarsen_common
-#include "collapse_codes.h"  // for ::COLLAPSE_BOTH, ::DONT_COLLAPSE
-#include "field.h"           // for const_field
-#include "measure_edges.h"   // for measure_edges
-#include "mesh.h"            // for mesh_find_nodal_field, mesh_ask_down
+#include "coarsen_common.h"
+#include "mesh.h"  // for mesh_ask_down, mesh_count
+#include "field.h"
+#include "measure_edges.h"
+#include "collapse_codes.h"
+#include <stdlib.h>
 
 unsigned coarsen_by_size(
     struct mesh** p_m,

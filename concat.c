@@ -1,9 +1,8 @@
 #include "concat.h"
-#include "tables.h"
-#include "ints.h"
-#include "subset.h"
-#include <stdlib.h>
-#include <string.h>
+#include <string.h>  // for memcpy
+#include <stdlib.h>  // for free, malloc
+#include "subset.h"  // for ints_subset
+#include "tables.h"  // for the_down_degrees
 
 static void* concat_general(
     unsigned typesize,

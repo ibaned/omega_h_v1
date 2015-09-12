@@ -1,7 +1,6 @@
 #include "collapses_to_verts.h"
-#include "tables.h"
-#include "ints.h"
-#include <stdlib.h>
+#include <stdlib.h>  // for malloc
+#include "tables.h"  // for INVALID
 
 void collapses_to_verts(
     unsigned nverts,

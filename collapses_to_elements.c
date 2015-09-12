@@ -1,8 +1,7 @@
 #include "collapses_to_elements.h"
-#include "tables.h"
-#include "ints.h"
-#include <stdlib.h>
-#include <stdio.h>
+#include <stdlib.h>  // for malloc, free
+#include "ints.h"    // for ints_exscan, ints_zero
+#include "tables.h"  // for INVALID, the_down_degrees
 
 void collapses_to_elements(
     unsigned elem_dim,

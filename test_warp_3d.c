@@ -1,19 +1,16 @@
-#define _XOPEN_SOURCE 500
-#include "mesh.h"
-#include "classify_box.h"
-#include "refine_by_size.h"
-#include "vtk.h"
-#include "algebra.h"
-#include "warp_to_limit.h"
-#include "eval_field.h"
-#include "quality.h"
-#include "element_gradients.h"
-#include "recover_by_volume.h"
-#include "size_from_hessian.h"
-#include "adapt.h"
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <math.h>            // for atan2, cos, sin, M_PI
+#include <stdio.h>           // for printf, fprintf, stderr
+#include <stdlib.h>          // for abort
+#include "adapt.h"           // for mesh_adapt
+#include "algebra.h"         // for subtract_vectors, vector_norm
+#include "classify_box.h"    // for mesh_classify_box
+#include "eval_field.h"      // for mesh_eval_field
+#include "mesh.h"            // for free_mesh, mesh_free_nodal_field, new_bo...
+#include "refine_by_size.h"  // for refine_by_size
+#include "vtk.h"             // for write_vtk_step, start_vtk_steps
+#include "warp_to_limit.h"   // for mesh_warp_to_limit
+
+struct mesh;
 
 static double const warp_qual_floor = 0.2;
 static double const good_qual_floor = 0.3;

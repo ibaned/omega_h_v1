@@ -1,7 +1,9 @@
 #include "vtk.h"
-#include "mesh.h"
-#include "tables.h"
-#include <stdio.h>
+#include <stdio.h>          // for fprintf, FILE, fclose, fopen, printf
+#include "field.h"          // for const_field
+#include "label.h"          // for const_label
+#include "mesh.h"           // for mesh_count, mesh_dim, mesh_find_nodal_label
+#include "tables.h"         // for the_down_degrees
 
 static unsigned const vtk_types[4] = {
   1,

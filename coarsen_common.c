@@ -1,18 +1,21 @@
 #include "coarsen_common.h"
-#include "collapse_codes.h"
-#include "ints.h"
-#include "check_collapse_class.h"
-#include "coarsen_qualities.h"
-#include "collapses_to_verts.h"
-#include "indset.h"
-#include "collapses_to_elements.h"
-#include "coarsen_topology.h"
-#include "concat.h"
-#include "subset.h"
-#include "tables.h"
-#include "quality.h"
-#include "mesh.h"
-#include <stdlib.h>
+#include <stdlib.h>                 // for free
+#include "check_collapse_class.h"   // for check_collapse_class
+#include "coarsen_qualities.h"      // for coarsen_qualities
+#include "coarsen_topology.h"       // for coarsen_topology
+#include "collapse_codes.h"         // for ::DONT_COLLAPSE
+#include "collapses_to_elements.h"  // for collapses_to_elements
+#include "collapses_to_verts.h"     // for collapses_to_verts
+#include "concat.h"                 // for concat_verts_of_elems
+#include "field.h"                  // for const_field
+#include "graph.h"                  // for const_graph
+#include "indset.h"                 // for find_indset
+#include "ints.h"                   // for ints_max, ints_exscan, ints_negat...
+#include "label.h"                  // for const_label
+#include "mesh.h"                   // for mesh_ask_up, const_up, mesh_count
+#include "quality.h"                // for element_qualities
+#include "subset.h"                 // for doubles_subset, ints_subset
+#include "tables.h"                 // for the_down_degrees
 
 unsigned coarsen_common(
     struct mesh** p_m,

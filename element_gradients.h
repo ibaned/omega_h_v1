@@ -10,7 +10,6 @@ double* element_gradients(
     double const* comps_of_verts);
 
 struct mesh;
-struct const_field;
 
 struct const_field* mesh_element_gradients(
     struct mesh* m, char const* name);

@@ -1,10 +1,11 @@
 #include "subset.h"
-#include "mesh.h"
-#include "tables.h"
-#include "ints.h"
-#include "mark.h"
-#include <stdlib.h>
-#include <string.h>
+#include <string.h>  // for memcpy
+#include <stdlib.h>  // for free, malloc
+#include "field.h"   // for const_field
+#include "ints.h"    // for ints_exscan, ints_unscan
+#include "mark.h"    // for mesh_mark_down
+#include "mesh.h"    // for mesh_count, mesh_set_ents, mesh_add_noda...
+#include "tables.h"  // for the_down_degrees
 
 static void* general_subset(
     unsigned typesize,

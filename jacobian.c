@@ -4,8 +4,6 @@
 static void invert_jacobian_1(double in[3][3], double out[3][3])
 {
   double msq = dot_product(in[0], in[0], 3);
-  if (!msq)
-    msq = 1;
   for (unsigned i = 0; i < 3; ++i)
     out[i][0] = in[0][i] / msq;
   for (unsigned i = 0; i < 3; ++i)

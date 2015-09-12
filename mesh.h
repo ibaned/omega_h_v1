@@ -1,9 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "graph.h"
-#include "field.h"
-#include "label.h"
+struct graph;
+struct mesh;
 
 struct up {
   unsigned* offsets;

@@ -1,15 +1,18 @@
 #include "swap_common.h"
-#include "quality.h"
-#include "swap_qualities.h"
-#include "swap_topology.h"
-#include "mark.h"
-#include "ints.h"
-#include "doubles.h"
-#include "mesh.h"
-#include "concat.h"
-#include "indset.h"
-#include <stdlib.h>
-#include <assert.h>
+#include <assert.h>          // for assert
+#include <stdlib.h>          // for free
+#include "concat.h"          // for concat_verts_of_elems
+#include "doubles.h"         // for doubles_copy
+#include "field.h"           // for const_field
+#include "graph.h"           // for const_graph
+#include "indset.h"          // for find_indset
+#include "ints.h"            // for ints_max, ints_exscan, ints_copy, ints_n...
+#include "label.h"           // for const_label
+#include "mark.h"            // for mesh_mark_up, unmark_boundary
+#include "mesh.h"            // for mesh_ask_up, mesh_count, mesh_ask_down
+#include "quality.h"         // for mesh_qualities
+#include "swap_qualities.h"  // for swap_qualities
+#include "swap_topology.h"   // for swap_topology
 
 unsigned swap_common(
     struct mesh** p_m,
