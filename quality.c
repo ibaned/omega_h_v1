@@ -48,7 +48,7 @@ double triangle_quality(double coords[3][3])
   return quality / PERFECT_TRIANGLE_QUALITY;
 }
 
-double triangle_xy_quality(double coords[3][3])
+static double triangle_xy_quality(double coords[3][3])
 {
   unsigned const* const* fev = the_canonical_orders[2][1][0];
   double sum_lsq = 0;

@@ -4,7 +4,6 @@
 struct mesh;
 
 unsigned* classify_box(
-    unsigned elem_dim,
     unsigned nverts,
     double const* coords);
 

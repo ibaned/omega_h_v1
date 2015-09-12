@@ -5,7 +5,6 @@
 #include <string.h>
 
 double* recover_by_volume(
-    unsigned elem_dim,
     unsigned nverts,
     unsigned const* elems_of_verts_offsets,
     unsigned const* elems_of_verts,
@@ -26,8 +25,8 @@ double* recover_by_volume(
       double elem_size = size_of_elems[elem];
       size_sum += elem_size;
       double const* comps_of_elem = comps_of_elems + elem * ncomps;
-      for (unsigned j = 0; j < ncomps; ++j)
-        comps_of_vert[j] += elem_size * comps_of_elem[j];
+      for (unsigned k = 0; k < ncomps; ++k)
+        comps_of_vert[k] += elem_size * comps_of_elem[k];
     }
     for (unsigned j = 0; j < ncomps; ++j)
       comps_of_vert[j] /= size_sum;
@@ -41,7 +40,7 @@ struct const_field* mesh_recover_by_volume(
   mesh_element_sizes(m);
   double const* elem_sizes = mesh_find_elem_field(m, "elem_size")->data;
   struct const_field* f = mesh_find_elem_field(m, name);
-  double* data = recover_by_volume(mesh_dim(m), mesh_count(m, 0),
+  double* data = recover_by_volume(mesh_count(m, 0),
       mesh_ask_up(m, 0, mesh_dim(m))->offsets,
       mesh_ask_up(m, 0, mesh_dim(m))->adj,
       elem_sizes,

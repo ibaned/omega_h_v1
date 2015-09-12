@@ -27,6 +27,7 @@ static void dye_fun(double const coords[3], double v[])
 
 static void size_fun(double const x[], double s[])
 {
+  (void) x;
   s[0] = 0.1;
 }
 

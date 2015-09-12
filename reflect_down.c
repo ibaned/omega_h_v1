@@ -46,7 +46,7 @@ static unsigned intersect(
    refinement time !
    If you are going to optimize, optimize here !
  */
-unsigned* reflect_down_general(
+static unsigned* reflect_down_general(
     unsigned dual_mode,
     unsigned high_dim,
     unsigned low_dim,

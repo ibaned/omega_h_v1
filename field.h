@@ -4,12 +4,14 @@
 struct field {
   char* name;
   unsigned ncomps;
+  int padding__;
   double* data;
 };
 
 struct const_field {
   char const* const name;
   unsigned const ncomps;
+  int padding__;
   double const* const data;
 };
 
@@ -18,6 +20,7 @@ void free_field(struct field* f);
 
 struct fields {
   unsigned n;
+  int padding__;
   struct field** at;
 };
 

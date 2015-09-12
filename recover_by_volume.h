@@ -2,7 +2,6 @@
 #define RECOVER_BY_VOLUME_H
 
 double* recover_by_volume(
-    unsigned elem_dim,
     unsigned nverts,
     unsigned const* elems_of_verts_offsets,
     unsigned const* elems_of_verts,

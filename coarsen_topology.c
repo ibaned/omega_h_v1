@@ -30,8 +30,8 @@ void coarsen_topology(
     unsigned direction = gen_direction_of_elems[i];
     unsigned base = elem_bases_opp_verts[direction];
     unsigned const* elem_verts_of_base = elem_verts_of_bases[base];
-    for (unsigned i = 0; i < (verts_per_elem - 1); ++i)
-      verts_of_gen_elem[i] = verts_of_elem[elem_verts_of_base[i]];
+    for (unsigned j = 0; j < (verts_per_elem - 1); ++j)
+      verts_of_gen_elem[j] = verts_of_elem[elem_verts_of_base[j]];
     verts_of_gen_elem[verts_per_elem - 1] = gen_vert_of_elems[i];
   }
   *ngen_elems_out = ngen_elems;

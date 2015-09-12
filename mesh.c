@@ -12,14 +12,14 @@
 struct mesh {
   unsigned elem_dim;
   unsigned counts[4];
-  unsigned* down[4][4];
   unsigned had_down[4][4];
-  struct up* up[4][4];
   unsigned had_up[4][4];
-  struct graph* star[4][4];
   unsigned had_star[4][4];
-  unsigned* dual;
   unsigned had_dual;
+  unsigned* down[4][4];
+  struct up* up[4][4];
+  struct graph* star[4][4];
+  unsigned* dual;
   struct fields nodal_fields;
   struct labels nodal_labels;
   struct fields elem_fields;

@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-void bridge_graph_general(
+static void bridge_graph_general(
     unsigned nverts,
     unsigned const adj_offsets[],
     unsigned const adj[],

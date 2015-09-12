@@ -23,6 +23,7 @@ static unsigned const max_ops = 50;
 
 static void size_fun(double const x[], double s[])
 {
+  (void)x;
   s[0] = 0.1;
 }
 

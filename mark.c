@@ -130,7 +130,7 @@ void unmark_boundary(
   }
 }
 
-unsigned* mark_slivers(
+static unsigned* mark_slivers(
     unsigned nelems,
     double const* elem_quals,
     double good_qual)

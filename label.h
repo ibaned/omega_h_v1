@@ -13,6 +13,7 @@ struct const_label {
 
 struct labels {
   unsigned n;
+  int padding_;
   struct label** at;
 };
 
