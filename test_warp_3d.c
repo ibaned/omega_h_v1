@@ -24,7 +24,7 @@ static void size_fun(double const x[], double s[])
   s[0] = 0.2;
 }
 
-static double the_rotation = M_PI / 4;
+static double the_rotation = 3.14159265359 / 4;
 
 static void warp_fun(double const coords[3], double v[])
 {

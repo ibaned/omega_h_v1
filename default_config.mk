@@ -1,2 +1,2 @@
-CFLAGS = -g -O2 -std=c99 -Werror -Weverything -Wno-float-equal
+CFLAGS = -g -O2 -std=c99 -Werror -Wall
 LDLIBS = -lm
