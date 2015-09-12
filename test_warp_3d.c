@@ -18,7 +18,7 @@
 static double const warp_qual_floor = 0.2;
 static double const good_qual_floor = 0.3;
 static double const size_floor = 1. / 3.;
-static unsigned const nsliver_layers = 0;
+static unsigned const nsliver_layers = 4;
 static unsigned const max_ops = 50;
 
 static void size_fun(double const x[], double s[])
