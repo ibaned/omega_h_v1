@@ -1,17 +1,17 @@
 #include "adapt.h"
-#include "mesh.h"
-#include "refine_by_size.h"
-#include "coarsen_by_size.h"
-#include "quality.h"
-#include "measure_edges.h"
-#include "doubles.h"
-#include "coarsen_slivers.h"
-#include "swap_slivers.h"
-#include "size.h"
-
-#include "vtk.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>            // for printf, fprintf, stderr
+#include <stdlib.h>           // for abort, free
+#include "coarsen_by_size.h"  // for coarsen_by_size
+#include "coarsen_slivers.h"  // for coarsen_slivers
+#include "doubles.h"          // for doubles_max, doubles_min
+#include "field.h"            // for const_field
+#include "measure_edges.h"    // for measure_edges
+#include "mesh.h"             // for mesh_count, mesh_dim, mesh_find_nodal_f...
+#include "quality.h"          // for mesh_min_quality
+#include "refine_by_size.h"   // for refine_by_size
+#include "size.h"             // for mesh_domain_size
+#include "swap_slivers.h"     // for swap_slivers
+#include "vtk.h"              // for write_vtk_step
 
 static unsigned global_op_count = 0;
 static unsigned global_max_ops = 0;
