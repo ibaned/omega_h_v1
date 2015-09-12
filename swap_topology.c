@@ -28,7 +28,7 @@ unsigned* swap_topology(
         verts_of_edges, verts_of_tets, edge_v, ring_v);
     assert(ring_size <= MAX_EDGE_SWAP);
     unsigned ngen_elems_edge = 2 * swap_mesh_sizes[ring_size];
-    assert(ngen_elems_edge = gen_offset_of_edges[i + 1] - gen_offset_of_edges[i]);
+    assert(ngen_elems_edge == gen_offset_of_edges[i + 1] - gen_offset_of_edges[i]);
     apply_edge_swap(ring_size, edge_codes[i], edge_v, ring_v, edge_out);
   }
   return out;

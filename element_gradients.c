@@ -22,6 +22,7 @@ double* element_gradients(
   unsigned ncomps_out = ncomps * 3;
   double* out = malloc(sizeof(double) * ncomps_out * nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
+  assert(verts_per_elem == elem_dim + 1);
   jacobian_inverter jif = the_jacobian_inverters[elem_dim];
   for (unsigned i = 0; i < nelems; ++i) {
     unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
@@ -44,7 +45,9 @@ double* element_gradients(
     for (unsigned l = 0; l < 3; ++l) {
       assert(elem_comps[j + 1]);
       assert(elem_comps[0]);
-      grad[k * 3 + l] += (elem_comps[j + 1][k] - elem_comps[0][k]) * jaci[j][l];
+      unsigned kl = k * 3 + l;
+      assert(l < ncomps_out);
+      grad[kl] += (elem_comps[j + 1][k] - elem_comps[0][k]) * jaci[j][l];
     }
   }
   return out;
