@@ -18,6 +18,8 @@
 static double const warp_qual_floor = 0.2;
 static double const good_qual_floor = 0.3;
 static double const size_floor = 1. / 3.;
+static unsigned const nsliver_layers = 0;
+static unsigned const max_ops = 50;
 
 static void size_fun(double const x[], double s[])
 {
@@ -88,7 +90,7 @@ static void warped_adapt(struct mesh** p_m)
     unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
   //set_size_field(*p_m);
     write_vtk_step(*p_m);
-    mesh_adapt(p_m, size_floor, good_qual_floor);
+    mesh_adapt(p_m, size_floor, good_qual_floor, nsliver_layers, max_ops);
     if (done)
       return;
   }

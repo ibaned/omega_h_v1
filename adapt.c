@@ -15,9 +15,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_OPS 50
-
 static unsigned global_op_count = 0;
+static unsigned global_max_ops = 0;
 
 static void adapt_summary(struct mesh* m)
 {
@@ -37,8 +36,9 @@ static void adapt_summary(struct mesh* m)
 
 static void incr_op_count(struct mesh* m, char const* what)
 {
-  if (global_op_count > MAX_OPS) {
-    fprintf(stderr, "mesh_adapt could not succeed after %u operations\n", MAX_OPS);
+  if (global_op_count > global_max_ops) {
+    fprintf(stderr, "mesh_adapt could not succeed after %u operations\n",
+        global_max_ops);
     abort();
   }
   ++global_op_count;
@@ -59,17 +59,20 @@ static void satisfy_size(struct mesh** p_m, double size_floor, double good_qual)
 }
 
 static void satisfy_shape(
-    struct mesh** p_m, double qual_floor)
+    struct mesh** p_m,
+    double qual_floor,
+    unsigned nsliver_layers)
 {
   while (1) {
     double prev_qual = mesh_min_quality(*p_m);
     if (prev_qual >= qual_floor)
       return;
-    if (mesh_dim(*p_m) == 3 && swap_slivers(p_m, qual_floor, 0.0, 0)) {
+    if (mesh_dim(*p_m) == 3 &&
+        swap_slivers(p_m, qual_floor, 0.0, nsliver_layers)) {
       incr_op_count(*p_m, "swap good edges\n");
       continue;
     }
-    if (coarsen_slivers(p_m, qual_floor, 0)) {
+    if (coarsen_slivers(p_m, qual_floor, nsliver_layers)) {
       incr_op_count(*p_m, "coarsen good verts\n");
       continue;
     }
@@ -80,10 +83,13 @@ static void satisfy_shape(
 
 void mesh_adapt(struct mesh** p_m,
     double size_ratio_floor,
-    double good_qual)
+    double good_qual,
+    unsigned nsliver_layers,
+    unsigned max_ops)
 {
   global_op_count = 0;
+  global_max_ops = max_ops;
   adapt_summary(*p_m);
   satisfy_size(p_m, size_ratio_floor, good_qual);
-  satisfy_shape(p_m, good_qual);
+  satisfy_shape(p_m, good_qual, nsliver_layers);
 }
