@@ -1,6 +1,6 @@
 #include "refine_class.h"
 #include "tables.h"
-#include <stdlib.h>
+#include "loop.h"
 
 unsigned* refine_class(
     unsigned src_dim,
@@ -10,7 +10,7 @@ unsigned* refine_class(
     unsigned const* class_dim_of_verts)
 {
   unsigned nsplits = gen_offset_of_srcs[nsrcs];
-  unsigned* out = malloc(sizeof(unsigned) * nsplits);
+  unsigned* out = loop_malloc(sizeof(unsigned) * nsplits);
   unsigned verts_per_src = the_down_degrees[src_dim][0];
   for (unsigned i = 0; i < nsrcs; ++i) {
     if (gen_offset_of_srcs[i] == gen_offset_of_srcs[i + 1])

@@ -1,6 +1,6 @@
 #include "quality.h"
 #include <math.h>     // for sqrt
-#include <stdlib.h>   // for free, malloc
+#include "loop.h"   // for free, malloc
 #include "algebra.h"  // for copy_vector, vector_squared_distance
 #include "doubles.h"  // for doubles_min
 #include "field.h"    // for const_field
@@ -109,7 +109,7 @@ double* element_qualities(
     unsigned const* verts_of_elems,
     double const* coords)
 {
-  double* out = malloc(sizeof(double) * nelems);
+  double* out = loop_malloc(sizeof(double) * nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   quality_function qf = the_equal_order_quality_functions[elem_dim];
   for (unsigned i = 0; i < nelems; ++i) {
@@ -132,7 +132,7 @@ double min_element_quality(
 {
   double* quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);
   double mq = doubles_min(quals, nelems);
-  free(quals);
+  loop_free(quals);
   return mq;
 }
 

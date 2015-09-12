@@ -1,6 +1,6 @@
 #include "element_gradients.h"
 #include <string.h>    // for strcat, strcpy
-#include <stdlib.h>    // for malloc, free
+#include "loop.h"    // for malloc, free
 #include <string.h>    // for strlen
 #include <assert.h>    // for assert
 #include "algebra.h"   // for copy_vector
@@ -20,7 +20,7 @@ double* element_gradients(
   assert(elem_dim > 0);
   assert(ncomps > 0);
   unsigned ncomps_out = ncomps * 3;
-  double* out = malloc(sizeof(double) * ncomps_out * nelems);
+  double* out = loop_malloc(sizeof(double) * ncomps_out * nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   assert(verts_per_elem == elem_dim + 1);
   assert(verts_per_elem > 1);
@@ -59,11 +59,11 @@ struct const_field* mesh_element_gradients(
       mesh_find_nodal_field(m, "coordinates")->data,
       f->ncomps, f->data);
   static char const* prefix = "grad_";
-  char* grad_name = malloc(strlen(f->name) + strlen(prefix) + 1);
+  char* grad_name = loop_malloc(strlen(f->name) + strlen(prefix) + 1);
   strcpy(grad_name, prefix);
   strcat(grad_name, f->name);
   struct const_field* out = mesh_add_elem_field(
       m, grad_name, f->ncomps * 3, data);
-  free(grad_name);
+  loop_free(grad_name);
   return out;
 }

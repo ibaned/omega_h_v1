@@ -1,6 +1,6 @@
 #include "classify_box.h"
 #include <math.h>    // for fabs
-#include <stdlib.h>  // for malloc
+#include "loop.h"  // for malloc
 #include "field.h"   // for const_field
 #include "mesh.h"    // for mesh_add_nodal_label, mesh_count, mesh_find_noda...
 
@@ -10,7 +10,7 @@ unsigned* classify_box(
     unsigned nverts,
     double const* coords)
 {
-  unsigned* out = malloc(sizeof(unsigned) * nverts);
+  unsigned* out = loop_malloc(sizeof(unsigned) * nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     double const* x = coords + i * 3;
     unsigned classif_dim = 3;

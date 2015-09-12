@@ -1,6 +1,6 @@
 #include "concat.h"
 #include <string.h>  // for memcpy
-#include <stdlib.h>  // for free, malloc
+#include "loop.h"  // for free, malloc
 #include "subset.h"  // for ints_subset
 #include "tables.h"  // for the_down_degrees
 
@@ -15,7 +15,7 @@ static void* concat_general(
   unsigned a_bytes = na * width * typesize;
   unsigned b_bytes = nb * width * typesize;
   unsigned total_bytes = a_bytes + b_bytes;
-  char* out = malloc(total_bytes);
+  char* out = loop_malloc(total_bytes);
   memcpy(out, a, a_bytes);
   memcpy(out + a_bytes, b, b_bytes);
   return out;
@@ -58,7 +58,7 @@ void concat_verts_of_elems(
   unsigned* out = concat_ints(verts_per_elem,
       verts_of_same_elems, nsame_elems,
       verts_of_gen_elems, ngen_elems);
-  free(verts_of_same_elems);
+  loop_free(verts_of_same_elems);
   *nelems_out = nsame_elems + ngen_elems;
   *verts_of_elems_out = out;
 }

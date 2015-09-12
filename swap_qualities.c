@@ -1,5 +1,5 @@
 #include "swap_qualities.h"
-#include <stdlib.h>     // for malloc
+#include "loop.h"     // for malloc
 #include "algebra.h"    // for copy_vector
 #include "edge_ring.h"  // for find_edge_ring
 #include "edge_swap.h"  // for swap_choice, MAX_EDGE_SWAP, choose_edge_swap
@@ -21,9 +21,9 @@ void swap_qualities(
     unsigned** p_codes,
     unsigned** p_gen_elems_per_edge)
 {
-  double* out_quals = malloc(sizeof(double) * nedges);
-  unsigned* out_codes = malloc(sizeof(unsigned) * nedges);
-  unsigned* gen_elems_per_edge = malloc(sizeof(unsigned) * nedges);
+  double* out_quals = loop_malloc(sizeof(double) * nedges);
+  unsigned* out_codes = loop_malloc(sizeof(unsigned) * nedges);
+  unsigned* gen_elems_per_edge = loop_malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nedges; ++i) {
     if (!candidates[i])
       continue;

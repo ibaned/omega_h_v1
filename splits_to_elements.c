@@ -1,7 +1,7 @@
 #include "splits_to_elements.h"
 #include "tables.h"
 #include "ints.h"
-#include <stdlib.h>
+#include "loop.h"
 #include <assert.h>
 
 void project_splits_to_elements(
@@ -17,10 +17,10 @@ void project_splits_to_elements(
 {
   assert(elem_dim >= src_dim);
   unsigned srcs_per_elem = the_down_degrees[elem_dim][src_dim];
-  unsigned* elem_will_split = malloc(sizeof(unsigned) * nelems);
+  unsigned* elem_will_split = loop_malloc(sizeof(unsigned) * nelems);
   ints_zero(elem_will_split, nelems);
-  unsigned* gen_vert_of_elems = malloc(sizeof(unsigned) * nelems);
-  unsigned* gen_direction_of_elems = malloc(sizeof(unsigned) * nelems);
+  unsigned* gen_vert_of_elems = loop_malloc(sizeof(unsigned) * nelems);
+  unsigned* gen_direction_of_elems = loop_malloc(sizeof(unsigned) * nelems);
   for (unsigned i = 0; i < nelems; ++i) {
     unsigned const* srcs_of_elem = srcs_of_elems + i * srcs_per_elem;
     for (unsigned j = 0; j < srcs_per_elem; ++j) {
@@ -36,5 +36,5 @@ void project_splits_to_elements(
   *gen_offset_of_elems_out = ints_exscan(elem_will_split, nelems);
   *gen_direction_of_elems_out = gen_direction_of_elems;
   *gen_vert_of_elems_out = gen_vert_of_elems;
-  free(elem_will_split);
+  loop_free(elem_will_split);
 }

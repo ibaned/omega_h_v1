@@ -1,6 +1,6 @@
 #include "recover_by_volume.h"
 #include <string.h>  // for strcat, strcpy
-#include <stdlib.h>  // for malloc, free
+#include "loop.h"  // for malloc, free
 #include <string.h>  // for strlen
 #include "field.h"   // for const_field
 #include "mesh.h"    // for mesh_ask_up, mesh_dim, mesh_find_elem_field
@@ -14,7 +14,7 @@ double* recover_by_volume(
     unsigned ncomps,
     double const* comps_of_elems)
 {
-  double* comps_of_verts = malloc(sizeof(double) * ncomps * nverts);
+  double* comps_of_verts = loop_malloc(sizeof(double) * ncomps * nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_use = elems_of_verts_offsets[i];
     unsigned end_use = elems_of_verts_offsets[i + 1];
@@ -49,10 +49,10 @@ struct const_field* mesh_recover_by_volume(
       f->ncomps, f->data);
   mesh_free_elem_field(m, "elem_size");
   static char const* prefix = "rcov_";
-  char* rcov_name = malloc(strlen(name) + strlen(prefix) + 1);
+  char* rcov_name = loop_malloc(strlen(name) + strlen(prefix) + 1);
   strcpy(rcov_name, prefix);
   strcat(rcov_name, name);
   struct const_field* out = mesh_add_nodal_field(m, rcov_name, f->ncomps, data);
-  free(rcov_name);
+  loop_free(rcov_name);
   return out;
 }

@@ -1,6 +1,6 @@
 #include <math.h>            // for fabs
 #include <stdio.h>           // for printf
-#include <stdlib.h>          // for free
+#include "loop.h"          // for free
 #include "algebra.h"         // for vector_norm
 #include "doubles.h"         // for doubles_min
 #include "eval_field.h"      // for mesh_eval_field
@@ -32,7 +32,7 @@ int main()
         mesh_ask_down(m, mesh_dim(m), 0),
         mesh_find_nodal_field(m, "coordinates")->data);
     double minqual = doubles_min(quals, mesh_count(m, mesh_dim(m)));
-    free(quals);
+    loop_free(quals);
     printf("min quality %f\n", minqual);
     sprintf(fname, "out_%u.vtu", it);
     write_vtk(m, fname);

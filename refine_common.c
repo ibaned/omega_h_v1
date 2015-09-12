@@ -1,5 +1,5 @@
 #include "refine_common.h"
-#include <stdlib.h>              // for free, malloc
+#include "loop.h"              // for free, malloc
 #include "concat.h"              // for concat_doubles, concat_ints, concat_...
 #include "field.h"               // for const_field
 #include "graph.h"               // for const_graph
@@ -42,9 +42,9 @@ unsigned refine_common(
       verts_of_elems, elems_of_srcs_offsets, elems_of_srcs,
       elems_of_srcs_directions, candidates, coords, qual_floor,
       elem_quals, require_better);
-  free(elem_quals);
+  loop_free(elem_quals);
   if (!ints_max(candidates, nsrcs)) {
-    free(src_quals);
+    loop_free(src_quals);
     return 0;
   }
   unsigned const* srcs_of_srcs_offsets =
@@ -53,12 +53,12 @@ unsigned refine_common(
     mesh_ask_star(m, src_dim, elem_dim)->adj;
   unsigned* indset = find_indset(nsrcs, srcs_of_srcs_offsets, srcs_of_srcs,
       candidates, src_quals);
-  free(src_quals);
+  loop_free(src_quals);
   unsigned* gen_offset_of_srcs = ints_exscan(indset, nsrcs);
-  free(indset);
+  loop_free(indset);
   unsigned nsplit_srcs = gen_offset_of_srcs[nsrcs];
   unsigned nverts = mesh_count(m, 0);
-  unsigned* gen_vert_of_srcs = malloc(sizeof(unsigned) * nsrcs);
+  unsigned* gen_vert_of_srcs = loop_malloc(sizeof(unsigned) * nsrcs);
   for (unsigned i = 0; i < nsrcs; ++i)
     if (gen_offset_of_srcs[i] != gen_offset_of_srcs[i + src_dim])
       gen_vert_of_srcs[i] = nverts + gen_offset_of_srcs[i];
@@ -70,14 +70,14 @@ unsigned refine_common(
   project_splits_to_elements(elem_dim, src_dim, nelems,
       srcs_of_elems, gen_offset_of_srcs, gen_vert_of_srcs,
       &gen_offset_of_elems, &gen_direction_of_elems, &gen_vert_of_elems);
-  free(gen_vert_of_srcs);
+  loop_free(gen_vert_of_srcs);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
   refine_topology(elem_dim, src_dim, elem_dim, nelems, verts_of_elems,
       gen_offset_of_elems, gen_vert_of_elems, gen_direction_of_elems,
       &ngen_elems, &verts_of_gen_elems);
-  free(gen_vert_of_elems);
-  free(gen_direction_of_elems);
+  loop_free(gen_vert_of_elems);
+  loop_free(gen_direction_of_elems);
   struct mesh* m_out = new_mesh(elem_dim);
   unsigned nverts_out = nverts + nsplit_srcs;
   mesh_set_ents(m_out, 0, nverts_out, 0);
@@ -87,7 +87,7 @@ unsigned refine_common(
         gen_offset_of_srcs, f->ncomps, f->data);
     double* vals_out = concat_doubles(f->ncomps, f->data, nverts,
         gen_vals, nsplit_srcs);
-    free(gen_vals);
+    loop_free(gen_vals);
     mesh_add_nodal_field(m_out, f->name, f->ncomps, vals_out);
   }
   if (mesh_find_nodal_label(m, "class_dim")) {
@@ -96,21 +96,21 @@ unsigned refine_common(
         gen_offset_of_srcs, class_dim);
     unsigned* class_dim_out = concat_ints(1, class_dim, nverts,
         gen_class_dim, nsplit_srcs);
-    free(gen_class_dim);
+    loop_free(gen_class_dim);
     mesh_add_nodal_label(m_out, "class_dim", class_dim_out);
   }
-  free(gen_offset_of_srcs);
+  loop_free(gen_offset_of_srcs);
   unsigned* offset_of_same_elems = ints_negate_offsets(
       gen_offset_of_elems, nelems);
-  free(gen_offset_of_elems);
+  loop_free(gen_offset_of_elems);
   unsigned nelems_out;
   unsigned* verts_of_elems_out;
   concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,
       offset_of_same_elems, verts_of_gen_elems,
       &nelems_out, &verts_of_elems_out);
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
-  free(offset_of_same_elems);
-  free(verts_of_gen_elems);
+  loop_free(offset_of_same_elems);
+  loop_free(verts_of_gen_elems);
   free_mesh(m);
   *p_m = m_out;
   return 1;

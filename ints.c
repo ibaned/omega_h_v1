@@ -1,5 +1,5 @@
 #include "ints.h"
-#include <stdlib.h>
+#include "loop.h"
 
 void ints_zero(unsigned* a, unsigned n)
 {
@@ -9,7 +9,7 @@ void ints_zero(unsigned* a, unsigned n)
 
 unsigned* ints_copy(unsigned const* a, unsigned n)
 {
-  unsigned* b = malloc(sizeof(unsigned) * n);
+  unsigned* b = loop_malloc(sizeof(unsigned) * n);
   for (unsigned i = 0; i < n; ++i)
     b[i] = a[i];
   return b;
@@ -26,7 +26,7 @@ unsigned ints_max(unsigned const* a, unsigned n)
 
 unsigned* ints_exscan(unsigned const* a, unsigned n)
 {
-  unsigned* o = malloc(sizeof(unsigned) * (n + 1));
+  unsigned* o = loop_malloc(sizeof(unsigned) * (n + 1));
   unsigned sum = 0;
   o[0] = 0;
   for (unsigned i = 0; i < n; ++i) {
@@ -38,7 +38,7 @@ unsigned* ints_exscan(unsigned const* a, unsigned n)
 
 unsigned* ints_unscan(unsigned const* a, unsigned n)
 {
-  unsigned* o = malloc(sizeof(unsigned) * n);
+  unsigned* o = loop_malloc(sizeof(unsigned) * n);
   for (unsigned i = 0; i < n; ++i)
     o[i] = a[i + 1] - a[i];
   return o;
@@ -46,7 +46,7 @@ unsigned* ints_unscan(unsigned const* a, unsigned n)
 
 unsigned* ints_negate(unsigned const* a, unsigned n)
 {
-  unsigned* o = malloc(sizeof(unsigned) * n);
+  unsigned* o = loop_malloc(sizeof(unsigned) * n);
   for (unsigned i = 0; i < n; ++i)
     o[i] = !a[i];
   return o;
@@ -56,9 +56,9 @@ unsigned* ints_negate_offsets(unsigned const* a, unsigned n)
 {
   unsigned* unscanned = ints_unscan(a, n);
   unsigned* negated = ints_negate(unscanned, n);
-  free(unscanned);
+  loop_free(unscanned);
   unsigned* out = ints_exscan(negated, n);
-  free(negated);
+  loop_free(negated);
   return out;
 }
 

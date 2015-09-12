@@ -1,13 +1,13 @@
 #include "field.h"
 #include <assert.h>  // for assert
 #include <string.h>  // for strcpy
-#include <stdlib.h>  // for free, malloc, realloc
+#include "loop.h"    // for free, malloc, realloc
 #include <string.h>  // for strcmp, strlen
 
 struct field* new_field(char const* name, unsigned ncomps, double* data)
 {
-  struct field* f = malloc(sizeof(*f));
-  f->name = malloc(strlen(name) + 1);
+  struct field* f = loop_malloc(sizeof(*f));
+  f->name = loop_host_malloc(strlen(name) + 1);
   strcpy(f->name, name);
   f->ncomps = ncomps;
   f->data = data;
@@ -16,16 +16,16 @@ struct field* new_field(char const* name, unsigned ncomps, double* data)
 
 void free_field(struct field* f)
 {
-  free(f->name);
-  free(f->data);
-  free(f);
+  loop_host_free(f->name);
+  loop_free(f->data);
+  loop_host_free(f);
 }
 
 void add_field(struct fields* fs, struct field* f)
 {
   assert(!find_field(fs, f->name));
   fs->n++;
-  fs->at = realloc(fs->at, sizeof(struct field*) * fs->n);
+  fs->at = loop_host_realloc(fs->at, sizeof(struct field*) * fs->n);
   fs->at[fs->n - 1] = f;
 }
 
@@ -44,7 +44,7 @@ void free_fields(struct fields* fs)
 {
   for (unsigned i = 0; i < fs->n; ++i)
     free_field(fs->at[i]);
-  free(fs->at);
+  loop_host_free(fs->at);
 }
 
 struct field* find_field(struct fields* fs, char const* name)

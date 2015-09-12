@@ -1,5 +1,5 @@
 #include "collapses_to_verts.h"
-#include <stdlib.h>  // for malloc
+#include "loop.h"  // for malloc
 #include "tables.h"  // for INVALID
 
 void collapses_to_verts(
@@ -14,9 +14,9 @@ void collapses_to_verts(
     unsigned** gen_vert_of_verts_out,
     double** col_qual_of_verts_out)
 {
-  unsigned* candidates = malloc(sizeof(unsigned) * nverts);
-  unsigned* gen_vert_of_verts = malloc(sizeof(unsigned) * nverts);
-  double* col_qual_of_verts = malloc(sizeof(double) * nverts);
+  unsigned* candidates = loop_malloc(sizeof(unsigned) * nverts);
+  unsigned* gen_vert_of_verts = loop_malloc(sizeof(unsigned) * nverts);
+  double* col_qual_of_verts = loop_malloc(sizeof(double) * nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_use = edges_of_verts_offsets[i];
     unsigned end_use = edges_of_verts_offsets[i + 1];

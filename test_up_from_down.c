@@ -1,6 +1,6 @@
 #include "up_from_down.h"
 #include "tables.h"
-#include <stdlib.h>
+#include "loop.h"
 #include <stdio.h>
 
 int main()
@@ -28,7 +28,7 @@ int main()
       printf(" %u(%u)", adj[j], directions[j]);
     printf("\n");
   }
-  free(offsets);
-  free(adj);
-  free(directions);
+  loop_free(offsets);
+  loop_free(adj);
+  loop_free(directions);
 }

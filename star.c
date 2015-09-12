@@ -1,7 +1,7 @@
 #include "star.h"
 #include "tables.h"
 #include "ints.h"
-#include <stdlib.h>
+#include "loop.h"
 #include <assert.h>
 
 /* This is the #2 most expensive function, takes up 30% of
@@ -44,7 +44,7 @@ void get_star(
 {
   unsigned star_buf[MAX_UP * MAX_DOWN];
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
-  unsigned* degrees = malloc(sizeof(unsigned) * nlows);
+  unsigned* degrees = loop_malloc(sizeof(unsigned) * nlows);
   ints_zero(degrees, nlows);
   for (unsigned i = 0; i < nlows; ++i)
     degrees[i] = get_ent_star(
@@ -55,9 +55,9 @@ void get_star(
         i,
         star_buf);
   unsigned* star_offsets = ints_exscan(degrees, nlows);
-  free(degrees);
+  loop_free(degrees);
   unsigned sum_degrees = star_offsets[nlows];
-  unsigned* star = malloc(sizeof(unsigned) * sum_degrees);
+  unsigned* star = loop_malloc(sizeof(unsigned) * sum_degrees);
   for (unsigned i = 0; i < nlows; ++i) {
     get_ent_star(
         highs_of_lows_offsets,

@@ -1,7 +1,7 @@
 #include "measure_edges.h"
 #include "algebra.h"
 #include "size.h"
-#include <stdlib.h>
+#include "loop.h"
 
 typedef double const (*gcc_sucks_t)[3];
 
@@ -11,7 +11,7 @@ double* measure_edges(
     double const* coords,
     double const* size)
 {
-  double* out = malloc(sizeof(double) * nedges);
+  double* out = loop_malloc(sizeof(double) * nedges);
   for (unsigned i = 0; i < nedges; ++i) {
     unsigned const* edge_vert = verts_of_edges + i * 2;
     double edge_coord[2][3];

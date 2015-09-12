@@ -1,5 +1,5 @@
 #include "eval_field.h"
-#include <stdlib.h>  // for malloc
+#include "loop.h"  // for malloc
 #include "field.h"   // for const_field
 #include "mesh.h"    // for mesh_add_nodal_field, mesh_count, mesh_find_noda...
 
@@ -9,7 +9,7 @@ double* eval_field(
     unsigned ncomps,
     void (*fun)(double const x[3], double out[]))
 {
-  double* out = malloc(sizeof(double) * ncomps * nverts);
+  double* out = loop_malloc(sizeof(double) * ncomps * nverts);
   double const* vert_coords = coords;
   double* vert_comps = out;
   for (unsigned i = 0; i < nverts; ++i) {

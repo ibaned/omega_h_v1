@@ -1,6 +1,6 @@
 #include "swap_common.h"
 #include <assert.h>          // for assert
-#include <stdlib.h>          // for free
+#include "loop.h"          // for free
 #include "concat.h"          // for concat_verts_of_elems
 #include "doubles.h"         // for doubles_copy
 #include "field.h"           // for const_field
@@ -51,44 +51,44 @@ unsigned swap_common(
       verts_of_edges, verts_of_elems, coords,
       good_qual, valid_qual, elem_quals, require_better,
       &edge_quals, &edge_codes, &gen_elems_per_edge);
-  free(elem_quals);
+  loop_free(elem_quals);
   if (!ints_max(candidates, nedges)) {
-    free(edge_quals);
-    free(edge_codes);
-    free(gen_elems_per_edge);
+    loop_free(edge_quals);
+    loop_free(edge_codes);
+    loop_free(gen_elems_per_edge);
     return 0;
   }
   unsigned const* edges_of_edges_offsets = mesh_ask_star(m, 1, elem_dim)->offsets;
   unsigned const* edges_of_edges = mesh_ask_star(m, 1, elem_dim)->adj;
   unsigned* indset = find_indset(nedges, edges_of_edges_offsets, edges_of_edges,
       candidates, edge_quals);
-  free(edge_quals);
+  loop_free(edge_quals);
   for (unsigned i = 0; i < nedges; ++i)
     if (!indset[i])
       gen_elems_per_edge[i] = 0;
   unsigned* gen_offset_of_edges = ints_exscan(gen_elems_per_edge, nedges);
   unsigned ngen_elems = gen_offset_of_edges[nedges];
-  free(gen_elems_per_edge);
+  loop_free(gen_elems_per_edge);
   unsigned* verts_of_gen_elems = swap_topology(nedges, indset,
       gen_offset_of_edges, edge_codes,
       elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
       verts_of_edges, verts_of_elems);
-  free(edge_codes);
-  free(gen_offset_of_edges);
+  loop_free(edge_codes);
+  loop_free(gen_offset_of_edges);
   unsigned* old_elems = mesh_mark_up(m, 1, elem_dim, indset);
-  free(indset);
+  loop_free(indset);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned* same_elems = ints_negate(old_elems, nelems);
-  free(old_elems);
+  loop_free(old_elems);
   unsigned* same_elem_offsets = ints_exscan(same_elems, nelems);
-  free(same_elems);
+  loop_free(same_elems);
   unsigned nelems_out;
   unsigned* verts_of_elems_out;
   concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,
       same_elem_offsets, verts_of_gen_elems,
       &nelems_out, &verts_of_elems_out);
-  free(same_elem_offsets);
-  free(verts_of_gen_elems);
+  loop_free(same_elem_offsets);
+  loop_free(verts_of_gen_elems);
   unsigned nverts = mesh_count(m, 0);
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts, 0);

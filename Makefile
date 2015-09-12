@@ -55,7 +55,8 @@ swap_common.o \
 swap_qualities.o \
 swap_topology.o \
 edge_ring.o \
-edge_swap.o
+edge_swap.o \
+loop.o
 
 all: $(objects)
 

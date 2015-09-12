@@ -1,5 +1,5 @@
 #include "mark.h"
-#include <stdlib.h>   // for malloc, free
+#include "loop.h"   // for malloc, free
 #include <assert.h>   // for assert
 #include "mesh.h"     // for mesh_count, mesh_dim, mesh_ask_up, const_up
 #include "quality.h"  // for mesh_qualities
@@ -11,7 +11,7 @@ unsigned* mark_down(
     unsigned const* highs_of_lows,
     unsigned const* marked_highs)
 {
-  unsigned* marked_lows = malloc(sizeof(unsigned) * nlows);
+  unsigned* marked_lows = loop_malloc(sizeof(unsigned) * nlows);
   for (unsigned i = 0; i < nlows; ++i) {
     unsigned first_use = highs_of_lows_offsets[i];
     unsigned end_use = highs_of_lows_offsets[i + 1];
@@ -35,7 +35,7 @@ unsigned* mark_up(
     unsigned const* marked_lows)
 {
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
-  unsigned* marked_highs = malloc(sizeof(unsigned) * nhighs);
+  unsigned* marked_highs = loop_malloc(sizeof(unsigned) * nhighs);
   for (unsigned i = 0; i < nhighs; ++i) {
     marked_highs[i] = 0;
     unsigned const* lows_of_high = lows_of_highs + i * lows_per_high;
@@ -71,7 +71,7 @@ static unsigned* mark_dual(
     unsigned const* marked)
 {
   unsigned degree = the_down_degrees[elem_dim][elem_dim - 1];
-  unsigned* out = malloc(sizeof(unsigned) * nelems);
+  unsigned* out = loop_malloc(sizeof(unsigned) * nelems);
   for (unsigned i = 0; i < nelems; ++i) {
     out[i] = marked[i];
     unsigned const* elems_of_elem = dual + i * degree;
@@ -92,7 +92,7 @@ static void mark_dual_layers(
   for (unsigned i = 0; i < nlayers; ++i) {
     unsigned* in = *marked;
     unsigned* out = mark_dual(elem_dim, nelems, dual, in);
-    free(in);
+    loop_free(in);
     *marked = out;
   }
 }
@@ -135,7 +135,7 @@ static unsigned* mark_slivers(
     double const* elem_quals,
     double good_qual)
 {
-  unsigned* slivers = malloc(sizeof(unsigned) * nelems);
+  unsigned* slivers = loop_malloc(sizeof(unsigned) * nelems);
   for (unsigned i = 0; i < nelems; ++i)
     slivers[i] = (elem_quals[i] < good_qual) ? 1 : 0;
   return slivers;
@@ -146,7 +146,7 @@ unsigned* mesh_mark_slivers(struct mesh* m, double good_qual, unsigned nlayers)
   unsigned nelems = mesh_count(m, mesh_dim(m));
   double* elem_quals = mesh_qualities(m);
   unsigned* slivers = mark_slivers(nelems, elem_quals, good_qual);
-  free(elem_quals);
+  loop_free(elem_quals);
   mesh_mark_dual_layers(m, &slivers, nlayers);
   return slivers;
 }

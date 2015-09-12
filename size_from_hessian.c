@@ -1,6 +1,6 @@
 #include "size_from_hessian.h"
 #include <assert.h>   // for assert
-#include <stdlib.h>   // for malloc
+#include "loop.h"   // for malloc
 #include "algebra.h"  // for vector_norm
 #include "field.h"    // for const_field
 #include "mesh.h"     // for mesh_add_nodal_field, mesh_count, mesh_find_nod...
@@ -16,7 +16,7 @@ double* size_from_hessian(
   assert(nhess_comps % 9 == 0);
   assert(max_h > min_h);
   assert(min_h > 0);
-  double* out = malloc(sizeof(double) * nverts);
+  double* out = loop_malloc(sizeof(double) * nverts);
   unsigned nsol_comps = nhess_comps / 9;
   for (unsigned i = 0; i < nverts; ++i) {
     double const* hess = hessians + i * nhess_comps;

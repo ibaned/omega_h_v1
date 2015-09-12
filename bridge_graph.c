@@ -2,7 +2,7 @@
 #include "ints.h"
 #include "tables.h"
 #include <assert.h>
-#include <stdlib.h>
+#include "loop.h"
 
 static void bridge_graph_general(
     unsigned nverts,
@@ -14,7 +14,7 @@ static void bridge_graph_general(
 {
   unsigned nhalf_edges = adj_offsets[nverts];
   assert(nhalf_edges % 2 == 0);
-  unsigned* degree_of_verts = malloc(sizeof(unsigned) * nverts);
+  unsigned* degree_of_verts = loop_malloc(sizeof(unsigned) * nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_adj = adj_offsets[i];
     unsigned end_adj = adj_offsets[i + 1];
@@ -25,12 +25,12 @@ static void bridge_graph_general(
     degree_of_verts[i] = degree_of_vert;
   }
   unsigned* bridge_offsets = ints_exscan(degree_of_verts, nverts);
-  free(degree_of_verts);
+  loop_free(degree_of_verts);
   unsigned nedges = bridge_offsets[nverts];
-  unsigned* verts_of_edges = malloc(sizeof(unsigned) * nedges * 2);
+  unsigned* verts_of_edges = loop_malloc(sizeof(unsigned) * nedges * 2);
   unsigned* directions = 0;
   if (directions_out)
-    directions = malloc(sizeof(unsigned) * nedges);
+    directions = loop_malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_adj = adj_offsets[i];
     unsigned end_adj = adj_offsets[i + 1];
@@ -44,7 +44,7 @@ static void bridge_graph_general(
         ++edge;
       }
   }
-  free(bridge_offsets);
+  loop_free(bridge_offsets);
   *nedges_out = nedges;
   *verts_of_edges_out = verts_of_edges;
   if (directions_out)
@@ -71,11 +71,11 @@ void bridge_dual_graph(
     unsigned** elem_face_of_faces_out)
 {
   unsigned faces_per_elem = the_down_degrees[elem_dim][elem_dim - 1];
-  unsigned* degrees = malloc(sizeof(unsigned) * nelems);
+  unsigned* degrees = loop_malloc(sizeof(unsigned) * nelems);
   ints_fill(degrees, nelems, faces_per_elem);
   unsigned* offsets = ints_exscan(degrees, nelems);
-  free(degrees);
+  loop_free(degrees);
   bridge_graph_general(nelems, offsets, elems_of_elems,
       nfaces_out, elems_of_faces_out, elem_face_of_faces_out);
-  free(offsets);
+  loop_free(offsets);
 }

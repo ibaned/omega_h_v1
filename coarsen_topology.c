@@ -1,6 +1,6 @@
 #include "coarsen_topology.h"
 #include "tables.h"
-#include <stdlib.h>
+#include "loop.h"
 
 void coarsen_topology(
     unsigned elem_dim,
@@ -19,7 +19,7 @@ void coarsen_topology(
     the_canonical_orders[elem_dim][base_dim][0];
   unsigned const* elem_bases_opp_verts =
     the_opposite_orders[elem_dim][0];
-  unsigned* verts_of_gen_elems = malloc(
+  unsigned* verts_of_gen_elems = loop_malloc(
       sizeof(unsigned) * ngen_elems * verts_per_elem);
   for (unsigned i = 0; i < nelems; ++i) {
     if (gen_offset_of_elems[i] == gen_offset_of_elems[i + 1])

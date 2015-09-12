@@ -1,7 +1,7 @@
 #include "swap_topology.h"
 #include "edge_swap.h"
 #include "edge_ring.h"
-#include <stdlib.h>
+#include "loop.h"
 #include <assert.h>
 
 unsigned* swap_topology(
@@ -16,7 +16,7 @@ unsigned* swap_topology(
     unsigned const* verts_of_tets)
 {
   unsigned ngen_elems = gen_offset_of_edges[nedges];
-  unsigned* out = malloc(sizeof(unsigned) * ngen_elems * 4);
+  unsigned* out = loop_malloc(sizeof(unsigned) * ngen_elems * 4);
   for (unsigned i = 0; i < nedges; ++i) {
     if (!candidates[i])
       continue;

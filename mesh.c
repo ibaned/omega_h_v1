@@ -1,7 +1,7 @@
 #include "mesh.h"
 #include <assert.h>        // for assert
-#include <string.h>        // for memcpy
-#include <stdlib.h>        // for free, malloc, calloc
+#include <string.h>        // for memcpy, memset
+#include "loop.h"          // for free, malloc, calloc
 #include "bridge_graph.h"  // for bridge_dual_graph, bridge_graph
 #include "derive_faces.h"  // for derive_faces
 #include "field.h"         // for find_field, fields, add_field, free_field
@@ -30,7 +30,7 @@ struct mesh {
 
 struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
 {
-  struct up* u = malloc(sizeof(*u));
+  struct up* u = loop_malloc(sizeof(*u));
   u->offsets = offsets;
   u->adj = adj;
   u->directions = directions;
@@ -41,15 +41,16 @@ void free_up(struct up* u)
 {
   if (!u)
     return;
-  free(u->offsets);
-  free(u->adj);
-  free(u->directions);
-  free(u);
+  loop_free(u->offsets);
+  loop_free(u->adj);
+  loop_free(u->directions);
+  loop_free(u);
 }
 
 struct mesh* new_mesh(unsigned elem_dim)
 {
-  struct mesh* m = calloc(1, sizeof(*m));
+  struct mesh* m = loop_host_malloc(sizeof(*m));
+  memset(m, 0, sizeof(*m));
   m->elem_dim = elem_dim;
   return m;
 }
@@ -62,10 +63,10 @@ struct mesh* new_box_mesh(unsigned elem_dim)
   mesh_set_ents(m, 0, nverts, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned nbytes = sizeof(unsigned) * verts_per_elem * nelems;
-  unsigned* verts_of_elems = malloc(nbytes);
+  unsigned* verts_of_elems = loop_malloc(nbytes);
   memcpy(verts_of_elems, the_box_conns[elem_dim], nbytes);
   nbytes = sizeof(double) * 3 * nverts;
-  double* coords = malloc(nbytes);
+  double* coords = loop_malloc(nbytes);
   memcpy(coords, the_box_coords[elem_dim], nbytes);
   mesh_set_ents(m, elem_dim, nelems, verts_of_elems);
   mesh_add_nodal_field(m, "coordinates", 3, coords);
@@ -93,15 +94,15 @@ void free_mesh(struct mesh* m)
 {
   for (unsigned high_dim = 1; high_dim <= m->elem_dim; ++high_dim)
     for (unsigned low_dim = 0; low_dim < high_dim; ++low_dim) {
-      free(m->down[high_dim][low_dim]);
+      loop_free(m->down[high_dim][low_dim]);
       free_up(m->up[low_dim][high_dim]);
       free_graph(m->star[low_dim][high_dim]);
     }
-  free(m->dual);
+  loop_free(m->dual);
   free_fields(&m->nodal_fields);
   free_labels(&m->nodal_labels);
   free_fields(&m->elem_fields);
-  free(m);
+  loop_free(m);
 }
 
 struct const_field* mesh_find_nodal_field(struct mesh* m, char const* name)
@@ -153,8 +154,8 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
           &nfaces, &elems_of_faces, &elem_face_of_faces);
       unsigned* verts_of_faces = derive_faces(nfaces, verts_of_elems,
           elems_of_faces, elem_face_of_faces);
-      free(elems_of_faces);
-      free(elem_face_of_faces);
+      loop_free(elems_of_faces);
+      loop_free(elem_face_of_faces);
       mesh_set_ents(m, 2, nfaces, verts_of_faces);
     }
   }
@@ -240,7 +241,7 @@ void mesh_set_dual(struct mesh* m, unsigned* adj)
 
 void mesh_free_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
 {
-  free(m->down[high_dim][low_dim]);
+  loop_free(m->down[high_dim][low_dim]);
   m->down[high_dim][low_dim] = 0;
 }
 
@@ -258,7 +259,7 @@ void mesh_free_star(struct mesh* m, unsigned low_dim, unsigned high_dim)
 
 void mesh_free_dual(struct mesh* m)
 {
-  free(m->dual);
+  loop_free(m->dual);
   m->dual = 0;
 }
 

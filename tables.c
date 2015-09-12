@@ -1,5 +1,5 @@
 #include "tables.h"
-#include <stdlib.h>
+#include "loop.h"
 #include <string.h>
 
 static unsigned const box_1d_conn[1 * 2] = {
@@ -200,11 +200,11 @@ void get_box_copy(
   unsigned nverts = the_box_nverts[elem_dim];
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned nbytes = sizeof(unsigned) * nelems * verts_per_elem;
-  unsigned* verts_of_elems = malloc(nbytes);
+  unsigned* verts_of_elems = loop_malloc(nbytes);
   memcpy(verts_of_elems, the_box_conns[elem_dim], nbytes);
   nbytes = sizeof(double) * nverts * 3;
   if (p_coords) {
-    double* coords = malloc(nbytes);
+    double* coords = loop_malloc(nbytes);
     memcpy(coords, the_box_coords[elem_dim], nbytes);
     *p_coords = coords;
   }

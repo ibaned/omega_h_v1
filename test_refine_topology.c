@@ -1,7 +1,7 @@
 #include "refine_topology.h"
 #include "tables.h"
 #include <stdio.h>
-#include <stdlib.h>
+#include "loop.h"
 
 int main()
 {
@@ -34,5 +34,5 @@ int main()
       printf(" %u", verts_of_prods[i * verts_per_prod + j]);
     printf("\n");
   }
-  free(verts_of_prods);
+  loop_free(verts_of_prods);
 }

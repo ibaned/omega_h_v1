@@ -1,6 +1,7 @@
 #include "adapt.h"
 #include <stdio.h>            // for printf, fprintf, stderr
-#include <stdlib.h>           // for abort, free
+#include <stdlib.h>           // for abort
+#include "loop.h"             // for loop_free
 #include "coarsen_by_size.h"  // for coarsen_by_size
 #include "coarsen_slivers.h"  // for coarsen_slivers
 #include "doubles.h"          // for doubles_max, doubles_min
@@ -27,7 +28,7 @@ static void adapt_summary(struct mesh* m)
   double* edge_sizes = measure_edges(nedges, verts_of_edges, coords, size);
   double min = doubles_min(edge_sizes, nedges);
   double max = doubles_max(edge_sizes, nedges);
-  free(edge_sizes);
+  loop_free(edge_sizes);
   printf("metric range %.2e - %.2e ", max, min);
   printf("domain size %.6e\n", mesh_domain_size(m));
 }

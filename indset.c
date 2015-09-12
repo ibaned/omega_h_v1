@@ -1,5 +1,6 @@
 #include "indset.h"
 #include "ints.h"
+#include "loop.h"
 #include <stdlib.h>
 
 /* the runtime of the independent set algorithm
@@ -53,7 +54,7 @@ unsigned* find_indset(
     unsigned const* filter,
     double const* goodness)
 {
-  unsigned* state = malloc(sizeof(unsigned) * nverts);
+  unsigned* state = loop_malloc(sizeof(unsigned) * nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     if (filter[i])
       state[i] = UNKNOWN;
@@ -64,7 +65,7 @@ unsigned* find_indset(
     unsigned* old_state = ints_copy(state, nverts);
     for (unsigned i = 0; i < nverts; ++i)
       at_vert(offsets, adj, goodness, old_state, state, i);
-    free(old_state);
+    loop_free(old_state);
     if (ints_max(state, nverts) < UNKNOWN)
       return state;
   }

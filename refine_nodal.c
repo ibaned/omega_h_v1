@@ -1,7 +1,7 @@
 #include "refine_nodal.h"
 #include "element_field.h"
 #include "tables.h"
-#include <stdlib.h>
+#include "loop.h"
 
 double* refine_nodal(
     unsigned src_dim,
@@ -12,7 +12,7 @@ double* refine_nodal(
     double const* field)
 {
   unsigned nsplits = gen_offset_of_srcs[nsrcs];
-  double* out = malloc(sizeof(double) * comps_per_vert * nsplits);
+  double* out = loop_malloc(sizeof(double) * comps_per_vert * nsplits);
   unsigned verts_per_src = the_down_degrees[src_dim][0];
   for (unsigned i = 0; i < nsrcs; ++i) {
     if (gen_offset_of_srcs[i] == gen_offset_of_srcs[i + 1])
