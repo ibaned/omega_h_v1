@@ -33,9 +33,6 @@ coarsen_qualities.o \
 coarsen_topology.o \
 collapses_to_verts.o \
 collapses_to_elements.o \
-split_slivers.o \
-sliver_keys.o \
-collect_keys.o \
 refine_class.o \
 derive_faces.o \
 mesh.o \

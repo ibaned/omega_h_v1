@@ -3,7 +3,6 @@
 #include "refine_by_size.h"
 #include "coarsen_by_size.h"
 #include "refine_slivers.h"
-#include "split_slivers.h"
 #include "quality.h"
 #include "measure_edges.h"
 #include "doubles.h"
