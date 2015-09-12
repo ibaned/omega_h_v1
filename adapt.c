@@ -9,6 +9,7 @@
 #include "doubles.h"
 #include "coarsen_slivers.h"
 #include "swap_slivers.h"
+#include "size.h"
 
 #include "vtk.h"
 #include <stdio.h>
@@ -21,7 +22,7 @@ static unsigned global_op_count = 0;
 static void adapt_summary(struct mesh* m)
 {
   printf("%u elements, ", mesh_count(m, mesh_dim(m)));
-  printf("min quality %f, ", mesh_min_quality(m));
+  printf("min quality %.2e, ", mesh_min_quality(m));
   unsigned nedges = mesh_count(m, 1);
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
@@ -30,7 +31,8 @@ static void adapt_summary(struct mesh* m)
   double min = doubles_min(edge_sizes, nedges);
   double max = doubles_max(edge_sizes, nedges);
   free(edge_sizes);
-  printf("metric range %f - %f\n", max, min);
+  printf("metric range %.2e - %.2e ", max, min);
+  printf("domain size %.6e\n", mesh_domain_size(m));
 }
 
 static void incr_op_count(struct mesh* m, char const* what)

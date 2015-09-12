@@ -33,3 +33,11 @@ double* doubles_copy(double const a[], unsigned n)
     b[i] = a[i];
   return b;
 }
+
+double doubles_sum(double const a[], unsigned n)
+{
+  double s = 0;
+  for (unsigned i = 0; i < n; ++i)
+    s += a[i];
+  return s;
+}

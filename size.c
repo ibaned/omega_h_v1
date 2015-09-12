@@ -2,6 +2,7 @@
 #include "algebra.h"
 #include "tables.h"
 #include "mesh.h"
+#include "doubles.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -94,10 +95,20 @@ double* element_sizes(
   return out;
 }
 
-void mesh_element_sizes(struct mesh* m)
+double const* mesh_element_sizes(struct mesh* m)
 {
-  double* data = element_sizes(mesh_dim(m), mesh_count(m, mesh_dim(m)),
-      mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_nodal_field(m, "coordinates")->data);
-  mesh_add_elem_field(m, "elem_size", 1, data);
+  if (!mesh_find_elem_field(m, "elem_size")) {
+    double* data = element_sizes(mesh_dim(m), mesh_count(m, mesh_dim(m)),
+        mesh_ask_down(m, mesh_dim(m), 0),
+        mesh_find_nodal_field(m, "coordinates")->data);
+    mesh_add_elem_field(m, "elem_size", 1, data);
+  }
+  return mesh_find_elem_field(m, "elem_size")->data;
+}
+
+double mesh_domain_size(struct mesh* m)
+{
+  double const* sizes = mesh_element_sizes(m);
+  double domsize = doubles_sum(sizes, mesh_count(m, mesh_dim(m)));
+  return domsize;
 }

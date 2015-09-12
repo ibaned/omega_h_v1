@@ -24,6 +24,8 @@ double* element_sizes(
 
 struct mesh;
 
-void mesh_element_sizes(struct mesh* m);
+double const* mesh_element_sizes(struct mesh* m);
+
+double mesh_domain_size(struct mesh* m);
 
 #endif
