@@ -243,6 +243,7 @@ struct swap_choice choose_edge_swap(
     cached[i] = 0;
   struct swap_choice out;
   out.code = INVALID;
+  out.padding__ = 0;
   out.quality = -1;
   for (unsigned i = 0; i < nmeshes; ++i) {
     double mesh_minq = 1;
