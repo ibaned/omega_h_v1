@@ -105,7 +105,7 @@ int main()
   start_vtk_steps("warp");
   mesh_eval_field(m, "dye", 1, dye_fun);
   write_vtk_step(m);
-  for (unsigned i = 0; i < 1; ++i) {
+  for (unsigned i = 0; i < 2; ++i) {
     printf("\nOUTER DIRECTION %u\n", i);
     for (unsigned j = 0; j < 4; ++j) {
       printf("\nWARP FIELD %u\n", j);
