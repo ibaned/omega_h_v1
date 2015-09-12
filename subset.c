@@ -22,10 +22,10 @@ static void* general_subset(
   char const* ip = a;
   char* op = out;
   for (unsigned i = 0; i < n; ++i) {
-    if (offsets[i] == offsets[i + 1])
-      continue;
-    memcpy(op, ip, stride);
-    op += stride;
+    if (offsets[i] != offsets[i + 1]) {
+      memcpy(op, ip, stride);
+      op += stride;
+    }
     ip += stride;
   }
   return out;
