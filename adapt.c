@@ -42,10 +42,9 @@ static void incr_op_count(struct mesh* m, char const* what)
   ++global_op_count;
   printf("%s", what);
   adapt_summary(m);
-//write_vtk_step(m);
+  write_vtk_step(m);
 }
 
-/*
 static void satisfy_size(struct mesh** p_m, double size_floor, double good_qual)
 {
   double qual_floor = mesh_min_quality(*p_m);
@@ -56,23 +55,6 @@ static void satisfy_size(struct mesh** p_m, double size_floor, double good_qual)
   while (coarsen_by_size(p_m, qual_floor, size_floor, 0))
     incr_op_count(*p_m, "collapse short edges\n");
 }
-*/
-
-/*
-static struct { unsigned dim; enum sliver_type st; } const sliver_tab[3] = {
-  {2, VERT_EDGE_SLIVER},
-  {3, EDGE_EDGE_SLIVER},
-  {3, VERT_FACE_SLIVER}
-};
-
-static char const* const sliver_names[5] = {
-  [NOT_SLIVER] = "non",
-  [VERT_VERT_SLIVER] = "vert-vert",
-  [VERT_EDGE_SLIVER] = "vert-edge",
-  [EDGE_EDGE_SLIVER] = "edge-edge",
-  [VERT_FACE_SLIVER] = "vert-face"
-};
-*/
 
 static void satisfy_shape(
     struct mesh** p_m, double qual_floor)
@@ -104,7 +86,7 @@ void mesh_adapt(struct mesh** p_m,
     double good_qual)
 {
   global_op_count = 0;
-//adapt_summary(*p_m);
-//satisfy_size(p_m, size_ratio_floor, good_qual);
+  adapt_summary(*p_m);
+  satisfy_size(p_m, size_ratio_floor, good_qual);
   satisfy_shape(p_m, good_qual);
 }
