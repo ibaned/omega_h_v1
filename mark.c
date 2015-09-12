@@ -1,5 +1,6 @@
 #include "mark.h"
 #include <stdlib.h>   // for malloc, free
+#include <assert.h>   // for assert
 #include "mesh.h"     // for mesh_count, mesh_dim, mesh_ask_up, const_up
 #include "quality.h"  // for mesh_qualities
 #include "tables.h"   // for the_down_degrees, INVALID
@@ -69,6 +70,7 @@ static unsigned* mark_dual(
     unsigned const* dual,
     unsigned const* marked)
 {
+  assert(marked);
   unsigned degree = the_down_degrees[elem_dim][elem_dim - 1];
   unsigned* out = malloc(sizeof(unsigned) * nelems);
   for (unsigned i = 0; i < nelems; ++i) {

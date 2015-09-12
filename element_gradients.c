@@ -2,6 +2,7 @@
 #include <string.h>    // for strcat, strcpy
 #include <stdlib.h>    // for malloc, free
 #include <string.h>    // for strlen
+#include <assert.h>    // for assert
 #include "algebra.h"   // for copy_vector
 #include "field.h"     // for const_field
 #include "jacobian.h"  // for element_jacobian, jacobian_inverter, the...
@@ -16,6 +17,8 @@ double* element_gradients(
     unsigned ncomps,
     double const* comps_of_verts)
 {
+  assert(elem_dim > 0);
+  assert(ncomps > 0);
   unsigned ncomps_out = ncomps * 3;
   double* out = malloc(sizeof(double) * ncomps_out * nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
@@ -38,8 +41,11 @@ double* element_gradients(
       grad[j] = 0;
     for (unsigned j = 0; j < elem_dim; ++j)
     for (unsigned k = 0; k < ncomps; ++k)
-    for (unsigned l = 0; l < 3; ++l)
+    for (unsigned l = 0; l < 3; ++l) {
+      assert(elem_comps[j + 1]);
+      assert(elem_comps[0]);
       grad[k * 3 + l] += (elem_comps[j + 1][k] - elem_comps[0][k]) * jaci[j][l];
+    }
   }
   return out;
 }

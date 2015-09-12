@@ -2,6 +2,7 @@
 #include "tables.h"
 #include "ints.h"
 #include <stdlib.h>
+#include <assert.h>
 
 /* This is the #2 most expensive function, takes up 30% of
    refinement time !
@@ -67,8 +68,10 @@ void get_star(
         star_buf);
     unsigned first_star = star_offsets[i];
     unsigned last_star = star_offsets[i + 1];
-    for (unsigned j = first_star; j < last_star; ++j)
+    for (unsigned j = first_star; j < last_star; ++j) {
+      assert(j >= first_star);
       star[j] = star_buf[j - first_star];
+    }
   }
   *star_offsets_out = star_offsets;
   *star_out = star;

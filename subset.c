@@ -63,8 +63,10 @@ struct mesh* subset_mesh(
   free(marked_elems);
   unsigned* vert_offsets = ints_exscan(marked_verts, nverts);
   free(marked_verts);
-  for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i)
-    verts_of_elems_out[i] = vert_offsets[verts_of_elems_out[i]];
+  for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i) {
+    unsigned tmp = vert_offsets[verts_of_elems_out[i]];
+    verts_of_elems_out[i] = tmp;
+  }
   unsigned nverts_out = vert_offsets[nverts];
   struct mesh* out = new_mesh(elem_dim);
   mesh_set_ents(out, 0, nverts_out, 0);

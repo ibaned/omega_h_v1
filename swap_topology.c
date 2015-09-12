@@ -22,7 +22,7 @@ unsigned* swap_topology(
       continue;
     unsigned* edge_out = out + gen_offset_of_edges[i] * 4;
     unsigned edge_v[2];
-    unsigned ring_v[MAX_EDGE_SWAP];
+    unsigned ring_v[MAX_EDGE_SWAP+1];
     unsigned ring_size = find_edge_ring(i,
         tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
         verts_of_edges, verts_of_tets, edge_v, ring_v);

@@ -26,6 +26,7 @@ unsigned find_edge_ring(
   edge_v[0] = verts_of_edges[edge * 2 + 0];
   edge_v[1] = verts_of_edges[edge * 2 + 1];
   struct ev tmp_ring[MAX_EDGE_SWAP];
+  assert(end_use >= first_use + 3);
   for (unsigned i = first_use; i < end_use; ++i) {
     unsigned tet = tets_of_edges[i];
     unsigned const* verts_of_tet = verts_of_tets + tet * 4;
