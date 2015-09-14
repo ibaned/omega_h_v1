@@ -14,11 +14,8 @@
 
 struct mesh {
   unsigned elem_dim;
+  int padding__;
   unsigned counts[4];
-  unsigned had_down[4][4];
-  unsigned had_up[4][4];
-  unsigned had_star[4][4];
-  unsigned had_dual;
   unsigned* down[4][4];
   struct up* up[4][4];
   struct graph* star[4][4];
@@ -211,56 +208,28 @@ unsigned const* mesh_ask_dual(struct mesh* m)
 void mesh_set_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
     unsigned* adj)
 {
-  assert( ! m->had_down[high_dim][low_dim]);
-  m->had_down[high_dim][low_dim] = 1;
+  assert( ! m->down[high_dim][low_dim]);
   m->down[high_dim][low_dim] = adj;
 }
 
 void mesh_set_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
     struct up* adj)
 {
-  assert( ! m->had_up[low_dim][high_dim]);
-  m->had_up[low_dim][high_dim] = 1;
+  assert( ! m->up[low_dim][high_dim]);
   m->up[low_dim][high_dim] = adj;
 }
 
 void mesh_set_star(struct mesh* m, unsigned low_dim, unsigned high_dim,
     struct graph* adj)
 {
-  assert( ! m->had_star[low_dim][high_dim]);
-  m->had_star[low_dim][high_dim] = 1;
+  assert( ! m->star[low_dim][high_dim]);
   m->star[low_dim][high_dim] = adj;
 }
 
 void mesh_set_dual(struct mesh* m, unsigned* adj)
 {
-  assert( ! m->had_dual);
-  m->had_dual = 1;
+  assert( ! m->dual);
   m->dual = adj;
-}
-
-void mesh_free_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
-{
-  loop_free(m->down[high_dim][low_dim]);
-  m->down[high_dim][low_dim] = 0;
-}
-
-void mesh_free_up(struct mesh* m, unsigned low_dim, unsigned high_dim)
-{
-  free_up(m->up[low_dim][high_dim]);
-  m->up[low_dim][high_dim] = 0;
-}
-
-void mesh_free_star(struct mesh* m, unsigned low_dim, unsigned high_dim)
-{
-  free_graph(m->star[low_dim][high_dim]);
-  m->star[low_dim][high_dim] = 0;
-}
-
-void mesh_free_dual(struct mesh* m)
-{
-  loop_free(m->dual);
-  m->dual = 0;
 }
 
 void mesh_set_ents(struct mesh* m, unsigned dim, unsigned n, unsigned* verts)

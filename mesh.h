@@ -38,10 +38,6 @@ void mesh_set_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
 void mesh_set_star(struct mesh* m, unsigned low_dim, unsigned high_dim,
     struct graph* adj);
 void mesh_set_dual(struct mesh* m, unsigned* adj);
-void mesh_free_down(struct mesh* m, unsigned high_dim, unsigned low_dim);
-void mesh_free_up(struct mesh* m, unsigned low_dim, unsigned high_dim);
-void mesh_free_star(struct mesh* m, unsigned low_dim, unsigned high_dim);
-void mesh_free_dual(struct mesh* m);
 void mesh_set_ents(struct mesh* m, unsigned dim, unsigned n, unsigned* verts);
 
 struct const_field* mesh_add_nodal_field(struct mesh* m, char const* name,
