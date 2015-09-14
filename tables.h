@@ -20,11 +20,4 @@ static inline unsigned get_opposite_dim(
   return elem_dim - 1 - ent_dim;
 }
 
-void get_box_copy(
-    unsigned elem_dim,
-    unsigned* p_nelems,
-    unsigned* p_nverts,
-    unsigned** p_verts_of_elems,
-    double** p_coords);
-
 #endif

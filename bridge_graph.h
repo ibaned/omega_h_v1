@@ -8,12 +8,4 @@ void bridge_graph(
     unsigned* nedges_out,
     unsigned** verts_of_edges_out);
 
-void bridge_dual_graph(
-    unsigned elem_dim,
-    unsigned nelems,
-    unsigned const elems_of_elems[],
-    unsigned* nfaces_out,
-    unsigned** elems_of_faces_out,
-    unsigned** elem_face_of_faces_out);
-
 #endif

@@ -1,6 +1,4 @@
 #include "tables.h"
-#include "loop.h"
-#include <string.h>
 
 static unsigned const box_1d_conn[1 * 2] = {
   0, 1
@@ -188,27 +186,3 @@ unsigned const* const* const the_opposite_orders[4] = {
   of_,
   or_
 };
-
-void get_box_copy(
-    unsigned elem_dim,
-    unsigned* p_nelems,
-    unsigned* p_nverts,
-    unsigned** p_verts_of_elems,
-    double** p_coords)
-{
-  unsigned nelems = the_box_nelems[elem_dim];
-  unsigned nverts = the_box_nverts[elem_dim];
-  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned nbytes = sizeof(unsigned) * nelems * verts_per_elem;
-  unsigned* verts_of_elems = loop_malloc(nbytes);
-  memcpy(verts_of_elems, the_box_conns[elem_dim], nbytes);
-  nbytes = sizeof(double) * nverts * 3;
-  if (p_coords) {
-    double* coords = loop_malloc(nbytes);
-    memcpy(coords, the_box_coords[elem_dim], nbytes);
-    *p_coords = coords;
-  }
-  *p_nelems = nelems;
-  *p_nverts = nverts;
-  *p_verts_of_elems = verts_of_elems;
-}

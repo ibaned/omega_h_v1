@@ -33,7 +33,6 @@ coarsen_topology.o \
 collapses_to_verts.o \
 collapses_to_elements.o \
 refine_class.o \
-derive_faces.o \
 mesh.o \
 graph.o \
 field.o \
