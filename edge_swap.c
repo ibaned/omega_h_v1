@@ -229,8 +229,7 @@ struct swap_choice choose_edge_swap(
     unsigned ring_size,
     double edge_x[2][3],
     double ring_x[][3],
-    double good_qual,
-    double valid_qual)
+    double good_qual)
 {
   unsigned tris_per_mesh = swap_mesh_sizes[ring_size];
   unsigned nmeshes = mesh_counts[ring_size];
@@ -271,15 +270,17 @@ struct swap_choice choose_edge_swap(
       tri_minq = cache[tri];
       if (tri_minq < mesh_minq)
         mesh_minq = tri_minq;
-      if (mesh_minq < valid_qual)
+      if (mesh_minq < 0)
         break;
     }
-    if (mesh_minq < valid_qual)
+    if (mesh_minq < 0)
+      /* FIXME: the following is a BUG */
       continue;
     if (mesh_minq > out.quality) {
       out.code = i;
       out.quality = mesh_minq;
     }
+    /* FIXME: we may not want to do this */
     if (out.quality >= good_qual)
       break;
     mesh += tris_per_mesh;

@@ -15,8 +15,7 @@ struct swap_choice choose_edge_swap(
     unsigned ring_size,
     double edge_x[2][3],
     double ring_x[][3],
-    double good_qual,
-    double valid_qual);
+    double good_qual);
 
 void apply_edge_swap(
     unsigned ring_size,

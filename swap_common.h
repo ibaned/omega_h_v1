@@ -5,9 +5,6 @@ struct mesh;
 
 unsigned swap_common(
     struct mesh** p_m,
-    unsigned* candidates,
-    double good_qual,
-    double valid_qual,
-    unsigned require_better);
+    unsigned* candidates);
 
 #endif

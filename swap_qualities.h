@@ -10,10 +10,7 @@ void swap_qualities(
     unsigned const* verts_of_edges,
     unsigned const* verts_of_tets,
     double const* coords,
-    double good_qual,
-    double valid_qual,
     double const* elem_quals,
-    unsigned require_better,
     double** p_qualities,
     unsigned** p_codes,
     unsigned** p_gen_elems_per_edge);

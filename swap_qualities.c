@@ -13,10 +13,7 @@ void swap_qualities(
     unsigned const* verts_of_edges,
     unsigned const* verts_of_tets,
     double const* coords,
-    double good_qual,
-    double valid_qual,
     double const* elem_quals,
-    unsigned require_better,
     double** p_qualities,
     unsigned** p_codes,
     unsigned** p_gen_elems_per_edge)
@@ -30,13 +27,12 @@ void swap_qualities(
     unsigned first_use = tets_of_edges_offsets[i];
     unsigned end_use = tets_of_edges_offsets[i + 1];
     double old_minq = 1;
-    if (require_better)
-      for (unsigned j = first_use; j < end_use; ++j) {
-        unsigned tet = tets_of_edges[j];
-        double tet_q = elem_quals[tet];
-        if (tet_q < old_minq)
-          old_minq = tet_q;
-      }
+    for (unsigned j = first_use; j < end_use; ++j) {
+      unsigned tet = tets_of_edges[j];
+      double tet_q = elem_quals[tet];
+      if (tet_q < old_minq)
+        old_minq = tet_q;
+    }
     unsigned edge_v[2];
     unsigned ring_v[MAX_EDGE_SWAP];
     unsigned ring_size = find_edge_ring(i,
@@ -52,12 +48,9 @@ void swap_qualities(
     double ring_x[MAX_EDGE_SWAP][3];
     for (unsigned j = 0; j < ring_size; ++j)
       copy_vector(coords + ring_v[j] * 3, ring_x[j], 3);
-    if (require_better)
-      good_qual = old_minq + 1e-10;
     struct swap_choice sc = choose_edge_swap(ring_size, edge_x,
-        ring_x, good_qual, valid_qual);
-    if ((sc.quality < valid_qual) ||
-        (require_better && sc.quality <= old_minq)) {
+        ring_x, old_minq + 1e-10);
+    if (sc.quality <= old_minq) {
       candidates[i] = 0;
       gen_elems_per_edge[i] = 0;
     } else {

@@ -16,10 +16,7 @@
 
 unsigned swap_common(
     struct mesh** p_m,
-    unsigned* candidates,
-    double good_qual,
-    double valid_qual,
-    unsigned require_better)
+    unsigned* candidates)
 {
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
@@ -40,16 +37,13 @@ unsigned swap_common(
     mesh_ask_up(m, 1, elem_dim)->directions;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
-  double* elem_quals = 0;
-  if (require_better)
-    elem_quals = mesh_qualities(m);
+  double* elem_quals = mesh_qualities(m);
   double* edge_quals;
   unsigned* edge_codes;
   unsigned* gen_elems_per_edge;
   swap_qualities(nedges, candidates,
       elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
-      verts_of_edges, verts_of_elems, coords,
-      good_qual, valid_qual, elem_quals, require_better,
+      verts_of_edges, verts_of_elems, coords, elem_quals,
       &edge_quals, &edge_codes, &gen_elems_per_edge);
   loop_free(elem_quals);
   if (!ints_max(candidates, nedges)) {
