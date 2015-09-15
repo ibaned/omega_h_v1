@@ -45,7 +45,7 @@ int main()
   mesh_free_nodal_field(m, "adapt_size");
   mesh_eval_field(m, "adapt_size", 1, coarse_fun);
   i = 0;
-  while (coarsen_by_size(&m, cor_qual_floor, 0.5, 0)) {
+  while (coarsen_by_size(&m, cor_qual_floor, 0.5)) {
     sprintf(fname, "cor_%u.vtu", i++);
     write_vtk(m, fname);
   }

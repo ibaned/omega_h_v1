@@ -9,8 +9,7 @@
 unsigned coarsen_by_size(
     struct mesh** p_m,
     double quality_floor,
-    double size_ratio_floor,
-    unsigned require_better)
+    double size_ratio_floor)
 {
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
@@ -26,7 +25,7 @@ unsigned coarsen_by_size(
       col_codes[i] = DONT_COLLAPSE;
   }
   loop_free(edge_sizes);
-  unsigned ret = coarsen_common(&m, col_codes, quality_floor, require_better);
+  unsigned ret = coarsen_common(&m, col_codes, quality_floor, 0);
   loop_free(col_codes);
   *p_m = m;
   return ret;
