@@ -37,7 +37,6 @@ mesh.o \
 graph.o \
 field.o \
 label.o \
-inside.o \
 warp_to_limit.o \
 eval_field.o \
 element_gradients.o \
