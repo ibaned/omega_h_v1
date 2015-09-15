@@ -228,8 +228,7 @@ static unsigned const* const meshes[MAX_EDGE_SWAP+1] =
 struct swap_choice choose_edge_swap(
     unsigned ring_size,
     double edge_x[2][3],
-    double ring_x[][3],
-    double good_qual)
+    double ring_x[][3])
 {
   unsigned tris_per_mesh = swap_mesh_sizes[ring_size];
   unsigned nmeshes = mesh_counts[ring_size];
@@ -277,9 +276,6 @@ struct swap_choice choose_edge_swap(
       out.code = i;
       out.quality = mesh_minq;
     }
-    /* FIXME: we may not want to do this */
-    if (out.quality >= good_qual)
-      break;
     mesh += tris_per_mesh;
   }
   return out;

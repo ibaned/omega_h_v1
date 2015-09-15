@@ -48,15 +48,14 @@ void swap_qualities(
     double ring_x[MAX_EDGE_SWAP][3];
     for (unsigned j = 0; j < ring_size; ++j)
       copy_vector(coords + ring_v[j] * 3, ring_x[j], 3);
-    struct swap_choice sc = choose_edge_swap(ring_size, edge_x,
-        ring_x, old_minq + 1e-10);
-    if (sc.quality <= old_minq) {
-      candidates[i] = 0;
-      gen_elems_per_edge[i] = 0;
-    } else {
+    struct swap_choice sc = choose_edge_swap(ring_size, edge_x, ring_x);
+    if (sc.quality > old_minq) {
       out_quals[i] = sc.quality;
       out_codes[i] = sc.code;
       gen_elems_per_edge[i] = 2 * swap_mesh_sizes[ring_size];
+    } else {
+      candidates[i] = 0;
+      gen_elems_per_edge[i] = 0;
     }
   }
   *p_qualities = out_quals;
