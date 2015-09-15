@@ -273,9 +273,6 @@ struct swap_choice choose_edge_swap(
       if (mesh_minq < 0)
         break;
     }
-    if (mesh_minq < 0)
-      /* FIXME: the following is a BUG */
-      continue;
     if (mesh_minq > out.quality) {
       out.code = i;
       out.quality = mesh_minq;
