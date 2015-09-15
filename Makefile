@@ -1,10 +1,29 @@
+#config.mk is meant to contain the
+#variables that commonly change,
+#like CC and CFLAGS
+#users edit config.mk but should never need
+#to edit the Makefile
+#this also separates the build configuration
+#in the eye of the version control system,
+#which can be told to ignore config.mk
 include config.mk
 
+#unless otherwise specified, use the compiler
+#as the preprocessor
+CPP ?= $(CC)
+
+#take *all* files ending in .c, use that as
+#the list of sources to compile
 sources := $(wildcard *.c)
-headers := $(wildcard *.h)
+#the list of objects to compile is derived
+#from the list of source by changing .c to .o
 objects := $(patsubst %.c,%.o,$(sources))
+#the list of dependency files is also derived
+#from the list of source by changing .c to .dep
 depfiles := $(patsubst %.c,%.dep,$(sources))
 
+#these are objects containing "library" functions,
+#basically any object without a main() function
 common_objects := \
 star.o \
 tables.o \
@@ -56,14 +75,19 @@ edge_ring.o \
 edge_swap.o \
 loop.o
 
+#by default, the compilation target is to compile
+#all .c files into objects
 all: $(objects)
 
+#general rule for an executable: link its object
+#file with all the $(common_objects)
+# $@ is the thing being built and $^ is all
+#the things it depends on (the objects)
 %.exe: %.o $(common_objects)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-test_refine_by_size.exe: test_refine_by_size.o $(common_objects)
-	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-
+#cleanup removes dependency files, object files,
+#and executables
 clean:
 	rm -f *.dep* *.o *.exe
 
@@ -72,9 +96,24 @@ clean:
 #and uses SED atrocities to change the rules
 #such that output is both an object file and a
 #dependency file
+#it warrants further explanation:
+#  cc -MM foo.c
+#will produce a dependency line such as:
+#  foo.o : foo.c foo.h bar.h
+#the SED script changes this to:
+#  foo.o foo.dep : foo.c foo.h bar.h
+#$* is the same as the % in the rule pattern,
+#"foo" in the example above.
+#\($*\)\.o matches foo.o and stores "foo" for later
+#[ :]* matches all the space and the colon
+#between foo.o and foo.c
+#\1.o will print out the "foo" that was stored
+#from before and $@ will insert the "foo.dep"
+#$$$$ gets replaced with the PID for `make`
+#to create a temporary file...
 %.dep: %.c
 	set -e; rm -f $@; \
-	$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+	$(CPP) -MM $(CPPFLAGS) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
