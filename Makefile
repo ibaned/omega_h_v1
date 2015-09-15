@@ -8,19 +8,15 @@
 #which can be told to ignore config.mk
 include config.mk
 
-#unless otherwise specified, use the compiler
-#as the preprocessor
-CPP ?= $(CC)
-
 #take *all* files ending in .c, use that as
 #the list of sources to compile
 sources := $(wildcard *.c)
 #the list of objects to compile is derived
 #from the list of source by changing .c to .o
-objects := $(patsubst %.c,%.o,$(sources))
+objects := $(sources:.c=.o)
 #the list of dependency files is also derived
 #from the list of source by changing .c to .dep
-depfiles := $(patsubst %.c,%.dep,$(sources))
+depfiles := $(sources:.c=.dep)
 
 #these are objects containing "library" functions,
 #basically any object without a main() function
