@@ -77,6 +77,7 @@ static unsigned* reflect_down_general(
               lows_of_verts + first_use,
               end_use - first_use);
         } else if (dual_mode) {
+          assert(end_use - first_use <= MAX_UP);
           high_buf_size = copy_except(
               lows_of_verts + first_use,
               high_buf,
