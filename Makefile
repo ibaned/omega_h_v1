@@ -71,7 +71,8 @@ swap_qualities.c \
 swap_topology.c \
 edge_ring.c \
 edge_swap.c \
-loop.c
+loop.c \
+find_roots.c
 
 common_objects := $(patsubst %.c,objs/%.o,$(common_sources))
 
