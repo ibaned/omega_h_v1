@@ -18,15 +18,28 @@ times the binomial (x - r), resulting in the polynomial
   a[0] * x ^ n + ... + a[n] * x + a[n + 1]        */
 static void insert_root(double a[], unsigned n, double r)
 {
-  a[n] = 0;
+  double b[4];
   for (unsigned i = 0; i <= n; ++i)
-    a[i + 1] -= a[i] * r;
+    b[i] = a[i];
+  b[n + 1] = 0;
+  for (unsigned i = 0; i <= n; ++i)
+    b[i + 1] -= a[i] * r;
+  for (unsigned i = 0; i <= n + 1; ++i)
+    a[i] = b[i];
   printf("insert root");
   for (unsigned i = 0; i <= n + 1; ++i)
     printf(" %f", a[i]);
   printf("\n");
 }
 
+static void gen_coeffs(unsigned dim, double const r[], double a[])
+{
+  init_root(a, r[0]);
+  for (unsigned i = 1; i < dim; ++i)
+    insert_root(a, i, r[i]);
+}
+
+#if 0
 /* returns a uniform random real number from 0 to 1 */
 static double real_rand(void)
 {
@@ -54,29 +67,29 @@ static unsigned gen_test(double a[], double r[])
      polynomial order */
   double dim_probs[4] = {0.0,0.1,0.2,0.7};
   unsigned dim = case_rand(dim_probs, 4);
-  printf("picking dimension %u\n", dim);
-  printf("known roots");
   for (unsigned i = 0; i < dim; ++i) {
     /* probability of a zero root */
     if (real_rand() < 0.1)
       r[i] = 0;
     else
       r[i] = real_rand();
-    printf(" %f", r[i]);
   }
-  printf("\n");
   init_root(a, r[0]);
   for (unsigned i = 1; i < dim; ++i)
     insert_root(a, i, r[i]);
   return dim;
 }
+#endif
 
-static void run_test(void)
+static void run_test(unsigned dim, double const r[])
 {
+  printf("dimension %u\n", dim);
+  printf("given roots:");
+  for (unsigned i = 0; i < dim; ++i)
+    printf(" %f", r[i]);
+  printf("\n");
   double a[4];
-  double r[3];
-  unsigned dim = gen_test(a, r);
-  double fr[3];
+  gen_coeffs(dim, r, a);
   for (unsigned i = 0; i <= dim; ++i)
     a[i + (3 - dim)] = a[i];
   for (unsigned i = 0; i < (3 - dim); ++i)
@@ -85,6 +98,7 @@ static void run_test(void)
   for (unsigned i = 0; i < 4; ++i)
     printf(" %f", a[i]);
   printf("\n");
+  double fr[3];
   unsigned nroots = find_cubic_roots(
       a[0], a[1], a[2], a[3], fr);
   printf("found roots");
@@ -106,5 +120,12 @@ static void run_test(void)
 
 int main()
 {
-  run_test();
+  {
+    double r[3] = {0,0,0};
+    run_test(3,r);
+  }
+  {
+    double r[3] = {1,0,-1};
+    run_test(3,r);
+  }
 }
