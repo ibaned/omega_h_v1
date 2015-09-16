@@ -13,6 +13,7 @@ include config.mk
 sources := $(wildcard *.c)
 #the list of objects to compile is derived
 #from the list of source by changing .c to .o
+#and moving it to the objs/ directory
 objects := $(patsubst %.c,objs/%.o,$(sources))
 #the list of dependency files is also derived
 #from the list of source by changing .c to .dep
@@ -87,7 +88,7 @@ all: $(objects)
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -f *.dep* objs/*.o *.exe
+	rm -rf *.dep* objs/*.o *.exe
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
@@ -99,7 +100,7 @@ clean:
 #will produce a dependency line such as:
 #  foo.o : foo.c foo.h bar.h
 #the SED script changes this to:
-#  foo.o foo.dep : foo.c foo.h bar.h
+#  objs/foo.o foo.dep : foo.c foo.h bar.h
 #$* is the same as the % in the rule pattern,
 #"foo" in the example above.
 #\($*\)\.o matches foo.o and stores "foo" for later
@@ -115,14 +116,15 @@ clean:
 	sed 's,\($*\)\.o[ :]*,objs/\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
-objs/%.o: %.c objs
+#our rule for compiling a source file to an
+#object, specifies that the object goes in
+#objs/ and that objs/ needs to exist first
+objs/%.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-objs:
-	mkdir $@
-
-#include the auto-generated dependency file for
+#include the auto-generated dependency files for
 #each source file
 include $(depfiles)
 
-.PHONY: default clean
+#"all" and "clean" are targets but not files or directories
+.PHONY: all clean
