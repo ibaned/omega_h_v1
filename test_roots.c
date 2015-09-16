@@ -113,7 +113,7 @@ static void run_test(unsigned dim, double const r[])
 
 int main()
 {
-  for (unsigned i = 0; i < 5; ++i) {
+  for (unsigned i = 0; i < 1000; ++i) {
     double r[3];
     unsigned dim = gen_test(r);
     run_test(dim, r);
