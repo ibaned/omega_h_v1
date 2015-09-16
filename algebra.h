@@ -134,13 +134,4 @@ static inline void invert_3x3(double in[3][3], double out[3][3])
   transp_3x3(tmp, out);
 }
 
-static inline void mv_3x3(double m[3][3], double v[3], double r[3])
-{
-  for (unsigned i = 0; i < 3; ++i) {
-    r[i] = m[i][0] * v[0];
-    for (unsigned j = 1; j < 3; ++j)
-      r[i] += m[i][j] * v[j];
-  }
-}
-
 #endif
