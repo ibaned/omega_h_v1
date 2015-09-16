@@ -92,7 +92,7 @@ clean:
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
-#and uses SED atrocities to change the rules
+#and uses SED to change the rules
 #such that output is both an object file and a
 #dependency file
 #it warrants further explanation:
@@ -100,20 +100,14 @@ clean:
 #will produce a dependency line such as:
 #  foo.o : foo.c foo.h bar.h
 #the SED script changes this to:
-#  objs/foo.o foo.dep : foo.c foo.h bar.h
+#  objs/foo.o deps/foo.dep : foo.c foo.h bar.h
 #$* is the same as the % in the rule pattern,
 #"foo" in the example above.
-#\($*\)\.o matches foo.o and stores "foo" for later
-#[ :]* matches all the space and the colon
-#between foo.o and foo.c
-#\1.o will print out the "foo" that was stored
-#from before and $@ will insert the "foo.dep"
-#$$$$ gets replaced with the PID for `make`
-#to create a temporary file...
+#the $@ will insert the "deps/foo.dep"
 deps/%.dep: %.c
 	set -e; rm -f $@; \
 	$(CPP) -MM $(CPPFLAGS) $< > $@.in; \
-	sed 's,\($*\)\.o[ :]*,objs/\1.o $@ : ,g' < $@.in > $@; \
+	sed 's,$*\.o,objs/$*.o $@,g' < $@.in > $@; \
 	rm -f $@.in
 
 #our rule for compiling a source file to an
