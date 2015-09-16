@@ -18,58 +18,60 @@ objects := $(sources:.c=.o)
 #from the list of source by changing .c to .dep
 depfiles := $(sources:.c=.dep)
 
-#these are objects containing "library" functions,
-#basically any object without a main() function
-common_objects := \
-star.o \
-tables.o \
-up_from_down.o \
-ints.o \
-vtk.o \
-refine_topology.o \
-splits_to_elements.o \
-quality.o \
-size.o \
-bridge_graph.o \
-refine_common.o \
-refine_by_size.o \
-concat.o \
-indset.o \
-measure_edges.o \
-reflect_down.o \
-refine_nodal.o \
-refine_qualities.o \
-doubles.o \
-classify_box.o \
-coarsen_by_size.o \
-check_collapse_class.o \
-coarsen_qualities.o \
-coarsen_topology.o \
-collapses_to_verts.o \
-collapses_to_elements.o \
-refine_class.o \
-mesh.o \
-graph.o \
-field.o \
-label.o \
-warp_to_limit.o \
-eval_field.o \
-element_gradients.o \
-jacobian.o \
-recover_by_volume.o \
-size_from_hessian.o \
-subset.o \
-adapt.o \
-coarsen_common.o \
-mark.o \
-coarsen_slivers.o \
-swap_slivers.o \
-swap_common.o \
-swap_qualities.o \
-swap_topology.o \
-edge_ring.o \
-edge_swap.o \
-loop.o
+#these are source containing "library" functions,
+#basically any source without a main() function
+common_sources := \
+star.c \
+tables.c \
+up_from_down.c \
+ints.c \
+vtk.c \
+refine_topology.c \
+splits_to_elements.c \
+quality.c \
+size.c \
+bridge_graph.c \
+refine_common.c \
+refine_by_size.c \
+concat.c \
+indset.c \
+measure_edges.c \
+reflect_down.c \
+refine_nodal.c \
+refine_qualities.c \
+doubles.c \
+classify_box.c \
+coarsen_by_size.c \
+check_collapse_class.c \
+coarsen_qualities.c \
+coarsen_topology.c \
+collapses_to_verts.c \
+collapses_to_elements.c \
+refine_class.c \
+mesh.c \
+graph.c \
+field.c \
+label.c \
+warp_to_limit.c \
+eval_field.c \
+element_gradients.c \
+jacobian.c \
+recover_by_volume.c \
+size_from_hessian.c \
+subset.c \
+adapt.c \
+coarsen_common.c \
+mark.c \
+coarsen_slivers.c \
+swap_slivers.c \
+swap_common.c \
+swap_qualities.c \
+swap_topology.c \
+edge_ring.c \
+edge_swap.c \
+loop.c
+
+common_objects := $(common_sources:.c=.o)
 
 #by default, the compilation target is to compile
 #all .c files into objects
@@ -112,6 +114,9 @@ clean:
 	$(CPP) -MM $(CPPFLAGS) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 #include the auto-generated dependency file for
 #each source file
