@@ -2,7 +2,7 @@
 #define TABLES_H
 
 #define MAX_DOWN 6
-#define MAX_UP 128
+#define MAX_UP 64
 #define INVALID (~((unsigned)0))
 
 extern unsigned const* const the_box_conns[4];
