@@ -17,6 +17,7 @@ sources := $(wildcard *.c)
 objects := $(patsubst %.c,objs/%.o,$(sources))
 #the list of dependency files is also derived
 #from the list of source by changing .c to .dep
+#and moving it to the deps/ directory
 depfiles := $(patsubst %.c,deps/%.dep,$(sources))
 
 #these are source containing "library" functions,
@@ -111,13 +112,14 @@ deps/%.dep: %.c
 	rm -f $@.in
 
 #our rule for compiling a source file to an
-#object, specifies that the object goes in
-#objs/ and that objs/ needs to exist first
+#object, specifies that the object goes in objs/
 objs/%.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 #include the auto-generated dependency files for
-#each source file
+#all source files
+#this is the funny recursion that keeps
+#header file dependencies worked out at all times
 include $(depfiles)
 
 #"all" and "clean" are targets but not files or directories
