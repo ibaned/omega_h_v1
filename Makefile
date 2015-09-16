@@ -115,8 +115,11 @@ clean:
 	sed 's,\($*\)\.o[ :]*,objs/\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
-objs/%.o: %.c
+objs/%.o: %.c objs
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+objs:
+	mkdir $@
 
 #include the auto-generated dependency file for
 #each source file
