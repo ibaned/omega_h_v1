@@ -13,7 +13,7 @@ include config.mk
 sources := $(wildcard *.c)
 #the list of objects to compile is derived
 #from the list of source by changing .c to .o
-objects := $(sources:.c=.o)
+objects := $(patsubst %.c,objs/%.o,$(sources))
 #the list of dependency files is also derived
 #from the list of source by changing .c to .dep
 depfiles := $(sources:.c=.dep)
@@ -71,7 +71,7 @@ edge_ring.c \
 edge_swap.c \
 loop.c
 
-common_objects := $(common_sources:.c=.o)
+common_objects := $(patsubst %.c,objs/%.o,$(common_sources))
 
 #by default, the compilation target is to compile
 #all .c files into objects
@@ -81,13 +81,13 @@ all: $(objects)
 #file with all the $(common_objects)
 # $@ is the thing being built and $^ is all
 #the things it depends on (the objects)
-%.exe: %.o $(common_objects)
+%.exe: objs/%.o $(common_objects)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -f *.dep* *.o *.exe
+	rm -f *.dep* objs/*.o *.exe
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
@@ -112,10 +112,10 @@ clean:
 %.dep: %.c
 	set -e; rm -f $@; \
 	$(CPP) -MM $(CPPFLAGS) $< > $@.$$$$; \
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	sed 's,\($*\)\.o[ :]*,objs/\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
-%.o: %.c
+objs/%.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 #include the auto-generated dependency file for
