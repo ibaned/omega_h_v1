@@ -9,7 +9,6 @@ static void init_root(double a[], double r)
 {
   a[0] = 1;
   a[1] = -r;
-  printf("init root %f %f\n", a[0], a[1]);
 }
 
 /* this function multiplies the polynomial
@@ -26,10 +25,6 @@ static void insert_root(double a[], unsigned n, double r)
     b[i + 1] -= a[i] * r;
   for (unsigned i = 0; i <= n + 1; ++i)
     a[i] = b[i];
-  printf("insert root");
-  for (unsigned i = 0; i <= n + 1; ++i)
-    printf(" %f", a[i]);
-  printf("\n");
 }
 
 static void gen_coeffs(unsigned dim, double const r[], double a[])
@@ -39,7 +34,6 @@ static void gen_coeffs(unsigned dim, double const r[], double a[])
     insert_root(a, i, r[i]);
 }
 
-#if 0
 /* returns a uniform random real number from 0 to 1 */
 static double real_rand(void)
 {
@@ -61,7 +55,7 @@ static unsigned case_rand(double probs[], unsigned ncases)
   return ncases - 1;
 }
 
-static unsigned gen_test(double a[], double r[])
+static unsigned gen_test(double r[])
 {
   /* probabilities of testing a given
      polynomial order */
@@ -74,37 +68,21 @@ static unsigned gen_test(double a[], double r[])
     else
       r[i] = real_rand();
   }
-  init_root(a, r[0]);
-  for (unsigned i = 1; i < dim; ++i)
-    insert_root(a, i, r[i]);
   return dim;
 }
-#endif
 
 static void run_test(unsigned dim, double const r[])
 {
-  printf("dimension %u\n", dim);
-  printf("given roots:");
-  for (unsigned i = 0; i < dim; ++i)
-    printf(" %f", r[i]);
-  printf("\n");
+  double a_in[4];
+  gen_coeffs(dim, r, a_in);
   double a[4];
-  gen_coeffs(dim, r, a);
   for (unsigned i = 0; i <= dim; ++i)
-    a[i + (3 - dim)] = a[i];
+    a[i + (3 - dim)] = a_in[i];
   for (unsigned i = 0; i < (3 - dim); ++i)
     a[i] = 0;
-  printf("coefficients:");
-  for (unsigned i = 0; i < 4; ++i)
-    printf(" %f", a[i]);
-  printf("\n");
   double fr[3];
   unsigned nroots = find_cubic_roots(
       a[0], a[1], a[2], a[3], fr);
-  printf("found roots");
-  for (unsigned i = 0; i < nroots; ++i)
-    printf(" %f", fr[i]);
-  printf("\n");
   for (unsigned i = 0; i < dim; ++i) {
     double known_root = r[i];
     unsigned j;
@@ -113,19 +91,31 @@ static void run_test(unsigned dim, double const r[])
       if (fabs(found_root - known_root) < 1e-10)
         break;
     }
-    if (j == nroots)
+    if (j == nroots) {
+      fprintf(stderr, "FAIL at:\n");
+      fprintf(stderr, "dimension %u\n", dim);
+      fprintf(stderr, "given roots:");
+      for (unsigned k = 0; k < dim; ++k)
+        fprintf(stderr, " %f", r[k]);
+      fprintf(stderr, "\n");
+      fprintf(stderr, "coefficients:");
+      for (unsigned k = 0; k < 4; ++k)
+        fprintf(stderr, " %f", a[k]);
+      fprintf(stderr, "\n");
+      fprintf(stderr, "found roots");
+      for (unsigned k = 0; k < nroots; ++k)
+        fprintf(stderr, " %f", fr[k]);
+      fprintf(stderr, "\n");
       abort();
+    }
   }
 }
 
 int main()
 {
-  {
-    double r[3] = {0,0,0};
-    run_test(3,r);
-  }
-  {
-    double r[3] = {1,0,-1};
-    run_test(3,r);
+  for (unsigned i = 0; i < 5; ++i) {
+    double r[3];
+    unsigned dim = gen_test(r);
+    run_test(dim, r);
   }
 }
