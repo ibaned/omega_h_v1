@@ -17,7 +17,7 @@ sources := $(wildcard *.c)
 objects := $(patsubst %.c,objs/%.o,$(sources))
 #the list of dependency files is also derived
 #from the list of source by changing .c to .dep
-depfiles := $(sources:.c=.dep)
+depfiles := $(patsubst %.c,deps/%.dep,$(sources))
 
 #these are source containing "library" functions,
 #basically any source without a main() function
@@ -88,7 +88,7 @@ all: $(objects)
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -rf *.dep* objs/*.o *.exe
+	rm -rf deps/*.dep objs/*.o *.exe
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
@@ -110,11 +110,11 @@ clean:
 #from before and $@ will insert the "foo.dep"
 #$$$$ gets replaced with the PID for `make`
 #to create a temporary file...
-%.dep: %.c
+deps/%.dep: %.c
 	set -e; rm -f $@; \
-	$(CPP) -MM $(CPPFLAGS) $< > $@.$$$$; \
-	sed 's,\($*\)\.o[ :]*,objs/\1.o $@ : ,g' < $@.$$$$ > $@; \
-	rm -f $@.$$$$
+	$(CPP) -MM $(CPPFLAGS) $< > $@.in; \
+	sed 's,\($*\)\.o[ :]*,objs/\1.o $@ : ,g' < $@.in > $@; \
+	rm -f $@.in
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in
