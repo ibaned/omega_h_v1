@@ -28,7 +28,7 @@ static void write_nodal_field(FILE* file, struct mesh* m, struct const_field* fi
   double const* p = field->data;
   for (unsigned i = 0; i < nverts; ++i) {
     for (unsigned j = 0; j < field->ncomps; ++j)
-      fprintf(file, " %f", *p++);
+      fprintf(file, " %e", *p++);
     fprintf(file, "\n");
   }
   fprintf(file, "</DataArray>\n");
@@ -43,7 +43,7 @@ static void write_elem_field(FILE* file, struct mesh* m, struct const_field* fie
   double const* p = field->data;
   for (unsigned i = 0; i < nverts; ++i) {
     for (unsigned j = 0; j < field->ncomps; ++j)
-      fprintf(file, " %f", *p++);
+      fprintf(file, " %e", *p++);
     fprintf(file, "\n");
   }
   fprintf(file, "</DataArray>\n");
