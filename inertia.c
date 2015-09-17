@@ -3,8 +3,6 @@
 #include "find_roots.h"
 #include <assert.h>
 
-#include <stdio.h>
-
 static void cross_matrix(double b[3], double B[3][3])
 {
   B[0][0] =     0; B[0][1] = -b[2]; B[0][2] =  b[1];
@@ -116,10 +114,8 @@ void eigenvector_3x3(double A[3][3], double l, double v[3])
     if (vector_norm(cp,3) > vector_norm(v,3))
       copy_vector(cp, v, 3);
   }
-  if (vector_norm(v,3) > 1e-10) { /*these checks can be argued about*/
-    printf("rank 2\n");
+  if (vector_norm(v,3) > 1e-10)
     return;
-  }
   /* okay, maybe not rank 2. maybe rank 1.
      the null space is a plane orthogonal
      to all rows of s, so lets take the largest
@@ -127,15 +123,12 @@ void eigenvector_3x3(double A[3][3], double l, double v[3])
   for (unsigned i = 0; i < 3; ++i)
     if (vector_norm(s[i],3) > vector_norm(v,3))
       ortho_vector(s[i], v);
-  if (vector_norm(v,3) > 1e-10) { /*these checks can be argued about*/
-    printf("rank 1\n");
+  if (vector_norm(v,3) > 1e-10) /*these checks can be argued about*/
     return;
-  }
   /* okay, this is a zero matrix (rank 0).
      the null space is everywhere.
      pick any vector, in particular the most obvious one */
   v[0] = 1;
   v[1] = 0;
   v[2] = 0;
-  printf("rank 0\n");
 }
