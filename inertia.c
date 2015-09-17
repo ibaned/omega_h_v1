@@ -29,12 +29,22 @@ void inertial_contribution(double m, double x[3], double c[3], double ic[3][3])
   double B[3][3];
   cross_matrix(dx, B);
   mmm_3x3(B, B, ic);
-  scale_3x3(ic, -m);
+  scale_3x3(ic, -m, ic);
 }
 
 static double trace_3x3(double A[3][3])
 {
   return A[0][0] + A[1][1] + A[2][2];
+}
+
+double inf_norm_3x3(double A[3][3])
+{
+  double maxv = 0;
+  for (unsigned i = 0; i < 3; ++i)
+  for (unsigned j = 0; j < 3; ++j)
+    if (fabs(A[i][j]) > maxv)
+      maxv = fabs(A[i][j]);
+  return maxv;
 }
 
 static void char_poly_3x3(double A[3][3],

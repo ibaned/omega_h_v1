@@ -2,6 +2,8 @@
 #include <complex.h>
 #include <math.h>
 
+#include <stdio.h>
+
 unsigned find_linear_root(double a, double b, double* root)
 {
   if (a == 0)
@@ -32,6 +34,7 @@ unsigned find_cubic_roots(
     double a, double b, double c, double d,
     double roots[])
 {
+  printf("polynomial %f %f %f %f\n",a,b,c,d);
   if (a == 0)
     return find_quadratic_roots(b, c, d, roots);
   double D0 = b * b - 3 * a * c;
@@ -40,6 +43,7 @@ unsigned find_cubic_roots(
            +      b * b * c * c
            -  4 * a * c * c * c
            - 27 * a * a * d * d;
+  printf("D %f\n", D);
   if (D != 0) {
     double D1 =  2 * b * b * b
               -  9 * a * b * c
@@ -63,12 +67,14 @@ unsigned find_cubic_roots(
     if (D > 0) {
       for (unsigned k = 0; k < 3; ++k)
         roots[k] = creal(x[k]);
+      printf("three real roots\n");
       return 3;
     }
     roots[0] = creal(x[0]);
     for (unsigned k = 1; k < 3; ++k)
       if (fabs(creal(x[k])) > fabs(roots[0]))
         roots[k] = creal(x[k]);
+    printf("one real root\n");
     return 1;
   }
   if (D0 != 0) {
@@ -77,8 +83,10 @@ unsigned find_cubic_roots(
                - 9 * a * a * d
                -     b * b * b)
              / (a * D0);
+    printf("double and single real roots\n");
     return 2;
   }
   roots[0] = - b / (3 * a);
+  printf("triple real root\n");
   return 1;
 }

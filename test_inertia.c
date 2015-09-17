@@ -1,9 +1,11 @@
 #include "inertia.h"
+#include "algebra.h"
+#include <math.h>
 #include <stdio.h>
 
 int main()
 {
-  unsigned L = 10, W = 10, H = 0;
+  unsigned L = 100, W = 100, H = 0;
   printf("L %u W %u H %u\n",L,W,H);
   double c[3] = {
    ((double)L)/2.0,
@@ -29,6 +31,17 @@ int main()
       A[a][b] += ic[a][b];
   }
   printf("A %f %f %f\n"
+         "  %f %f %f\n"
+         "  %f %f %f\n",
+         A[0][0], A[0][1], A[0][2],
+         A[1][0], A[1][1], A[1][2],
+         A[2][0], A[2][1], A[2][2]);
+  double Amax = inf_norm_3x3(A);
+  printf("max A component %f\n", Amax);
+  if (Amax != 0.0)
+    scale_3x3(A, 1.0 / Amax, A);
+  printf("after normalizing:\n"
+         "A %f %f %f\n"
          "  %f %f %f\n"
          "  %f %f %f\n",
          A[0][0], A[0][1], A[0][2],

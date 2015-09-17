@@ -22,7 +22,7 @@ static inline void invert_3x3(double in[3][3], double out[3][3])
   cross_product(in[1], in[2], tmp[0]);
   cross_product(in[2], in[0], tmp[1]);
   cross_product(in[0], in[1], tmp[2]);
-  scale_3x3(tmp, 1.0 / d);
+  scale_3x3(tmp, 1.0 / d, tmp);
   transp_3x3(tmp, out);
 }
 
