@@ -1,13 +1,6 @@
 #include "jacobian.h"
 #include "algebra.h"
 
-static inline double det_3x3(double m[3][3])
-{
-  double tmp[3];
-  cross_product(m[0], m[1], tmp);
-  return dot_product(m[2], tmp, 3);
-}
-
 static inline double det_2x2(double m[2][2])
 {
   return m[0][0] * m[1][1] - m[0][1] * m[1][0];

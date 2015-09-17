@@ -3,6 +3,6 @@
 
 void inertial_contribution(double m, double x[3], double c[3], double ic[3][3]);
 
-void least_inertial_axis(double ic[3][3], double a[]);
+unsigned eigenvals_3x3(double A[3][3], double l[]);
 
 #endif

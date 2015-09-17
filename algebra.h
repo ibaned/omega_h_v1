@@ -95,4 +95,11 @@ static inline void scale_3x3(double m[3][3], double s)
     m[i][j] *= s;
 }
 
+static inline double det_3x3(double m[3][3])
+{
+  double tmp[3];
+  cross_product(m[0], m[1], tmp);
+  return dot_product(m[2], tmp, 3);
+}
+
 #endif

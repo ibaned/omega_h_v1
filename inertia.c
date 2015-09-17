@@ -1,5 +1,6 @@
 #include "inertia.h"
 #include "algebra.h"
+#include "find_roots.h"
 
 static void cross_matrix(double b[3], double B[3][3])
 {
@@ -26,4 +27,28 @@ void inertial_contribution(double m, double x[3], double c[3], double ic[3][3])
   cross_matrix(dx, B);
   mmm_3x3(B, B, ic);
   scale_3x3(ic, -m);
+}
+
+static double trace_3x3(double A[3][3])
+{
+  return A[0][0] + A[1][1] + A[2][2];
+}
+
+static void char_poly_3x3(double A[3][3],
+    double* a, double* b, double* c, double* d)
+{
+  *a = -1;
+  double tA = trace_3x3(A);
+  *b = tA;
+  double Asq[3][3];
+  mmm_3x3(A, A, Asq);
+  *c = -(tA * tA - trace_3x3(Asq)) / 2.;
+  *d = det_3x3(A);
+}
+
+unsigned eigenvals_3x3(double A[3][3], double l[])
+{
+  double a,b,c,d;
+  char_poly_3x3(A, &a, &b, &c, &d);
+  return find_cubic_roots(a, b, c, d, l);
 }
