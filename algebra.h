@@ -88,4 +88,11 @@ static inline double vector_distance(
   return sqrt(vector_squared_distance(a, b, n));
 }
 
+static inline void scale_3x3(double m[3][3], double s)
+{
+  for (unsigned i = 0; i < 3; ++i)
+  for (unsigned j = 0; j < 3; ++j)
+    m[i][j] *= s;
+}
+
 #endif

@@ -20,13 +20,6 @@ static inline void transp_3x3(double in[3][3], double out[3][3])
     out[i][j] = in[j][i];
 }
 
-static inline void scale_3x3(double m[3][3], double s)
-{
-  for (unsigned i = 0; i < 3; ++i)
-  for (unsigned j = 0; j < 3; ++j)
-    m[i][j] *= s;
-}
-
 static inline void invert_2x2(double in[2][2], double out[2][2])
 {
   double d = det_2x2(in);
