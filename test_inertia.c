@@ -5,7 +5,7 @@
 
 int main()
 {
-  unsigned L = 10, W = 10, H = 10;
+  unsigned L = 100, W = 101, H = 0;
   printf("L %u W %u H %u\n",L,W,H);
   double c[3] = {
    ((double)L)/2.0,
@@ -59,4 +59,8 @@ int main()
     eigenvector_3x3(A, l[i], v);
     printf("%f %f %f\n",v[0],v[1],v[2]);
   }
+  double axis[3];
+  least_inertial_axis(A, axis);
+  printf("least inertial axis %f %f %f\n",
+      axis[0], axis[1], axis[2]);
 }

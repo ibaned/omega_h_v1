@@ -35,6 +35,8 @@ static double trace_3x3(double A[3][3])
   return A[0][0] + A[1][1] + A[2][2];
 }
 
+/* returns the maximum component
+   absolute value, i.e. L-infinity norm */
 double inf_norm_3x3(double A[3][3])
 {
   double maxv = 0;
@@ -131,4 +133,30 @@ void eigenvector_3x3(double A[3][3], double l, double v[3])
   v[0] = 1;
   v[1] = 0;
   v[2] = 0;
+}
+
+static void scale_vector(double const a[], double s, double b[], unsigned n)
+{
+  for (unsigned i = 0; i < n; ++i)
+    b[i] = a[i] * s;
+}
+
+void least_inertial_axis(double IC[3][3], double a[3])
+{
+  /* our characteristic-polynomial-based eigensolver
+     doesn't handle high component values very well,
+     so it is important to normalize this matrix first. */
+  double ICmag = inf_norm_3x3(IC);
+  if (ICmag == 0)
+    ICmag = 1;
+  double normIC[3][3];
+  scale_3x3(IC, 1.0 / ICmag, normIC);
+  double l[3];
+  unsigned nl = eigenvals_3x3(normIC, l);
+  double minl = l[0];
+  for (unsigned i = 1; i < nl; ++i)
+    if (fabs(l[i]) < fabs(minl))
+      minl = l[i];
+  eigenvector_3x3(normIC, minl, a);
+  scale_vector(a, 1.0 / vector_norm(a, 3), a, 3);
 }

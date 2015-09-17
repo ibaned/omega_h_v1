@@ -9,4 +9,6 @@ double inf_norm_3x3(double A[3][3]);
 
 void eigenvector_3x3(double A[3][3], double l, double v[3]);
 
+void least_inertial_axis(double IC[3][3], double a[3]);
+
 #endif
