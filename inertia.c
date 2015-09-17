@@ -47,6 +47,7 @@ double inf_norm_3x3(double A[3][3])
   return maxv;
 }
 
+/* characteristic polynomial of a 3x3 matrix */
 static void char_poly_3x3(double A[3][3],
     double* a, double* b, double* c, double* d)
 {
