@@ -102,4 +102,11 @@ static inline double det_3x3(double m[3][3])
   return dot_product(m[2], tmp, 3);
 }
 
+static inline void transp_3x3(double in[3][3], double out[3][3])
+{
+  for (unsigned i = 0; i < 3; ++i)
+  for (unsigned j = 0; j < 3; ++j)
+    out[i][j] = in[j][i];
+}
+
 #endif
