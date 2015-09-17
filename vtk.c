@@ -12,13 +12,6 @@ static unsigned const vtk_types[4] = {
   10
 };
 
-/* this function can be a time hog,
- * no fault of our own really, just printf and friends
- * are fairly slow.
- * if you're so inclined, add binary functionality
- * (the VTK format supports it)
- */
-
 static void write_nodal_field(FILE* file, struct mesh* m, struct const_field* field)
 {
   fprintf(file, "<DataArray type=\"Float64\" Name=\"%s\""
@@ -31,6 +24,18 @@ static void write_nodal_field(FILE* file, struct mesh* m, struct const_field* fi
       fprintf(file, " %e", *p++);
     fprintf(file, "\n");
   }
+  fprintf(file, "</DataArray>\n");
+}
+
+static void write_nodal_label(FILE* file, struct mesh* m, struct const_label* label)
+{
+  fprintf(file, "<DataArray type=\"UInt32\" Name=\"%s\""
+             " NumberOfComponents=\"1\" format=\"ascii\">\n",
+             label->name);
+  unsigned nverts = mesh_count(m, 0);
+  unsigned const* p = label->data;
+  for (unsigned i = 0; i < nverts; ++i)
+    fprintf(file, " %u\n", p[i]);
   fprintf(file, "</DataArray>\n");
 }
 
@@ -48,6 +53,13 @@ static void write_elem_field(FILE* file, struct mesh* m, struct const_field* fie
   }
   fprintf(file, "</DataArray>\n");
 }
+
+/* this function can be a time hog,
+ * no fault of our own really, just printf and friends
+ * are fairly slow.
+ * if you're so inclined, add binary functionality
+ * (the VTK format supports it)
+ */
 
 void write_vtk(struct mesh* m, char const* filename)
 {
@@ -85,13 +97,9 @@ void write_vtk(struct mesh* m, char const* filename)
   fprintf(file, "</DataArray>\n");
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
-  if (mesh_find_nodal_label(m, "class_dim")) {
-    unsigned const* class_dim = mesh_find_nodal_label(m, "class_dim")->data;
-    fprintf(file, "<DataArray type=\"UInt32\" Name=\"class_dim\""
-               " NumberOfComponents=\"1\" format=\"ascii\">\n");
-    for (unsigned i = 0; i < nverts; ++i)
-      fprintf(file, "%u\n", class_dim[i]);
-    fprintf(file, "</DataArray>\n");
+  for (unsigned i = 0; i < mesh_count_nodal_labels(m); ++i) {
+    struct const_label* label = mesh_get_nodal_label(m, i);
+    write_nodal_label(file, m, label);
   }
   for (unsigned i = 0; i < mesh_count_nodal_fields(m); ++i) {
     struct const_field* field = mesh_get_nodal_field(m, i);
@@ -128,3 +136,14 @@ void write_vtk_step(struct mesh* m)
   write_vtk(m, fname);
   ++the_step;
 }
+
+/*
+static unsigned look_for(FILE* f,
+    char line[], unsigned line_size, char const target[])
+{
+  while (fgets(line, line_size, f))
+    if (strstr(line, target))
+      return 1;
+  return 0;
+}
+*/
