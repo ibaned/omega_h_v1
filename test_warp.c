@@ -71,13 +71,13 @@ static void set_size_field(struct mesh* m)
   mesh_element_gradients(m, "dye");
   mesh_recover_by_volume(m, "grad_dye");
   mesh_free_elem_field(m,  "grad_dye");
-  mesh_element_gradients(m, "rcov_grad_dye");
-  mesh_free_nodal_field(m,  "rcov_grad_dye");
-  mesh_recover_by_volume(m, "grad_rcov_grad_dye");
-  mesh_free_elem_field(m,  "grad_rcov_grad_dye");
+  mesh_element_gradients(m, "grad_dye");
+  mesh_free_nodal_field(m,  "grad_dye");
+  mesh_recover_by_volume(m, "grad_grad_dye");
+  mesh_free_elem_field(m,  "grad_grad_dye");
   double weight = 0.075 / 100.0;
-  mesh_size_from_hessian(m, "rcov_grad_rcov_grad_dye", &weight, 0.025, 0.1);
-  mesh_free_nodal_field(m, "rcov_grad_rcov_grad_dye");
+  mesh_size_from_hessian(m, "grad_grad_dye", &weight, 0.025, 0.1);
+  mesh_free_nodal_field(m, "grad_grad_dye");
 }
 
 static void warped_adapt(struct mesh** p_m)

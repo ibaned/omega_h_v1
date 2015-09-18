@@ -48,11 +48,6 @@ struct const_field* mesh_recover_by_volume(
       elem_sizes,
       f->ncomps, f->data);
   mesh_free_elem_field(m, "elem_size");
-  static char const* prefix = "rcov_";
-  char* rcov_name = loop_malloc(strlen(name) + strlen(prefix) + 1);
-  strcpy(rcov_name, prefix);
-  strcat(rcov_name, name);
-  struct const_field* out = mesh_add_nodal_field(m, rcov_name, f->ncomps, data);
-  loop_free(rcov_name);
+  struct const_field* out = mesh_add_nodal_field(m, name, f->ncomps, data);
   return out;
 }

@@ -63,30 +63,12 @@ static void dye_fun(double const coords[3], double v[])
   v[0] = 4 * dir * (.25 - vector_norm(x, 3));
 }
 
-/*
-static void set_size_field(struct mesh* m)
-{
-  mesh_free_nodal_field(m, "adapt_size");
-  mesh_element_gradients(m, "dye");
-  mesh_recover_by_volume(m, "grad_dye");
-  mesh_free_elem_field(m,  "grad_dye");
-  mesh_element_gradients(m, "rcov_grad_dye");
-  mesh_free_nodal_field(m,  "rcov_grad_dye");
-  mesh_recover_by_volume(m, "grad_rcov_grad_dye");
-  mesh_free_elem_field(m,  "grad_rcov_grad_dye");
-  double weight = 0.05 / 100.0;
-  mesh_size_from_hessian(m, "rcov_grad_rcov_grad_dye", &weight, 0.05, 0.1);
-  mesh_free_nodal_field(m, "rcov_grad_rcov_grad_dye");
-}
-*/
-
 static void warped_adapt(struct mesh** p_m)
 {
   static unsigned const n = 6;
   for (unsigned i = 0; i < n; ++i) {
     printf("\n WARP TO LIMIT %u\n", i);
     unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
-  //set_size_field(*p_m);
     write_vtk_step(*p_m);
     mesh_adapt(p_m, size_floor, good_qual_floor, nsliver_layers, max_ops);
     if (done)
