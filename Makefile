@@ -97,8 +97,8 @@ clean:
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
 #and uses SED to change the rules
-#such that output is both an object file and a
-#dependency file
+#such that the output is both an object file and a
+#dependency file.
 #it warrants further explanation:
 #  cc -MM foo.c
 #will produce a dependency line such as:
@@ -120,9 +120,9 @@ objs/%.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 #include the auto-generated dependency files for
-#all source files
+#all source files.
 #this is the funny recursion that keeps
-#header file dependencies worked out at all times
+#header file dependencies worked out at all times.
 include $(depfiles)
 
 #"all" and "clean" are targets but not files or directories

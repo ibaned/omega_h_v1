@@ -71,8 +71,10 @@ struct mesh* subset_mesh(
   struct mesh* out = new_mesh(elem_dim);
   mesh_set_ents(out, 0, nverts_out, 0);
   mesh_set_ents(out, elem_dim, nelems_out, verts_of_elems_out);
-  double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
-  double* coords_out = doubles_subset(nverts, 3, coords, vert_offsets);
-  mesh_add_nodal_field(out, "coordinates", 3, coords_out);
+  for (unsigned i = 0; i < mesh_count_nodal_fields(m); ++i) {
+    struct const_field* f = mesh_get_nodal_field(m, i);
+    double* data_out = doubles_subset(nverts, f->ncomps, f->data, vert_offsets);
+    mesh_add_nodal_field(out, f->name, f->ncomps, data_out);
+  }
   return out;
 }

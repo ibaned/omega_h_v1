@@ -163,7 +163,7 @@ static void seek_prefix(FILE* f,
   abort();
 }
 
-typedef char line_t[256];
+typedef char line_t[1024];
 
 static void read_attrib(char const elem[], char const name[],
     char val[])
