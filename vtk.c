@@ -154,32 +154,45 @@ static unsigned seek_prefix(FILE* f,
   return 0;
 }
 
-static char* read_attrib(char elem[], char const name[])
+typedef char line_t[256];
+
+static void read_attrib(char const elem[], char const name[],
+    char val[])
 {
-  char* pname = strstr(elem, name);
+  char const* pname = strstr(elem, name);
   assert(pname);
-  assert(pname[strlen(name) + 1] == '\"');
-  char* val = strtok(pname + strlen(name) + 2, "\"");
-  assert(val && strlen(val));
-  return val;
+  line_t assign;
+  strcpy(assign, pname);
+  assert(assign[strlen(name) + 1] == '\"');
+  char const* pval = strtok(assign + strlen(name) + 2, "\"");
+  assert(pval && strlen(pval));
+  strcpy(val, pval);
 }
 
-static char* read_array_name(char header[])
+static void read_array_name(char const header[], char name[])
 {
-  return read_attrib(header, "Name");
+  read_attrib(header, "Name", name);
 }
 
 enum array_type { FIELD, LABEL };
 
-static enum array_type read_array_type(char header[])
+static enum array_type read_array_type(char const header[])
 {
-  return strstr(read_attrib(header, "type"), "Float") ?
-        FIELD : LABEL;
+  line_t val;
+  read_attrib(header, "type", val);
+  return strstr(val, "Float") ? FIELD : LABEL;
+}
+
+static unsigned read_int_attrib(char const header[], char const attrib[])
+{
+  line_t val;
+  read_attrib(header, attrib, val);
+  return (unsigned) atoi(val);
 }
 
 static unsigned read_array_ncomps(char header[])
 {
-  return (unsigned) atoi(read_attrib(header, "NumberOfComponents"));
+  return read_int_attrib(header, "NumberOfComponents");
 }
 
 static unsigned* read_ints(FILE* f, unsigned n)
@@ -200,16 +213,16 @@ static double* read_doubles(FILE* f, unsigned n)
 
 static void read_size(FILE* f, unsigned* nverts, unsigned* nelems)
 {
-  char line[256];
+  line_t line;
   assert(seek_prefix(f, line, sizeof(line), "<Piece"));
-  *nverts = (unsigned) atoi(read_attrib(line, "NumberOfPoints"));
-  *nelems = (unsigned) atoi(read_attrib(line, "NumberOfCells"));
+  *nverts = read_int_attrib(line, "NumberOfPoints");
+  *nelems = read_int_attrib(line, "NumberOfCells");
 }
 
 static unsigned read_dimension(FILE* f, unsigned nelems)
 {
   assert(nelems);
-  char line[256];
+  line_t line;
   assert(seek_prefix(f, line, sizeof(line), types_header));
   unsigned* types = read_ints(f, nelems);
   unsigned dim;
@@ -226,11 +239,12 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
 static unsigned read_mesh_array(FILE* f, struct mesh* m,
     unsigned dim)
 {
-  char line[256];
+  line_t line;
   if (!seek_prefix(f, line, sizeof(line), "<DataArray"))
     return 0;
   enum array_type at = read_array_type(line);
-  char* name = read_array_name(line);
+  line_t name;
+  read_array_name(line, name);
   if (at == FIELD) {
     unsigned ncomps = read_array_ncomps(line);
     double* data = read_doubles(f, mesh_count(m, dim) * ncomps);
@@ -247,17 +261,19 @@ static unsigned read_mesh_array(FILE* f, struct mesh* m,
 
 static void read_verts(FILE* f, struct mesh* m)
 {
-  char line[256];
+  line_t line;
   seek_prefix(f, line, sizeof(line), "<Points");
   read_mesh_array(f, m, 0);
 }
 
 static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
 {
-  char line[256];
+  line_t line;
   seek_prefix(f, line, sizeof(line), "<Cells");
   seek_prefix(f, line, sizeof(line), "<DataArray");
-  assert(!strcmp("connectivity", read_array_name(line)));
+  line_t name;
+  read_array_name(line, name);
+  assert(!strcmp("connectivity", name));
   unsigned dim = mesh_dim(m);
   unsigned verts_per_elem = the_down_degrees[dim][0];
   unsigned* data = read_ints(f, nelems * verts_per_elem);
