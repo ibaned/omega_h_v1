@@ -64,6 +64,12 @@ find_roots.c \
 inertia.c \
 derive_faces.c
 
+ifeq "$(USE_MPI)" "yes"
+sources += comm_mpi.c
+else
+sources += comm_serial.c
+endif
+
 objects := $(patsubst %.c,objs/%.o,$(sources))
 depfiles := $(patsubst %.c,deps/%.dep,$(sources))
 
