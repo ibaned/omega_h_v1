@@ -1,0 +1,18 @@
+Compiling:
+  Copy one of the *config.mk files and call
+  it config.mk, or write your own.
+  Then you can run `make`.
+  By default, this will just compile the objects.
+  To link the program "foo.exe", run
+    make foo.exe
+  Where "foo.c" has the main() function.
+
+Included programs:
+  test_warp.exe: Runs a 2D mesh adaptation test
+    including mesh motion with a size field based
+    on the hessian of a dye field.
+  test_warp_3d.exe: Runs a 3D mesh adaptation test
+    similar to test_warp.exe except the size field
+    is constant.
+  vtk_surfer.exe: A VTK file post-processing tool,
+    run with no arguments for more information.
