@@ -73,7 +73,8 @@ edge_ring.c \
 edge_swap.c \
 loop.c \
 find_roots.c \
-inertia.c
+inertia.c \
+derive_faces.c
 
 common_objects := $(patsubst %.c,objs/%.o,$(common_sources))
 

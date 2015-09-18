@@ -2,7 +2,8 @@
 #include <assert.h>        // for assert
 #include <string.h>        // for memcpy, memset
 #include "loop.h"          // for free, malloc, calloc
-#include "bridge_graph.h"  // for bridge_graph
+#include "bridge_graph.h"  // for bridge_dual_graph, bridge_graph
+#include "derive_faces.h"  // for derive_faces
 #include "field.h"         // for find_field, fields, add_field, free_field
 #include "graph.h"         // for graph (ptr only), free_graph, const_graph
 #include "label.h"         // for labels, add_label, find_label, free_labels
@@ -129,14 +130,31 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
         verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
     mesh_set_down(m, high_dim, low_dim, lows_of_highs);
   } else { /* deriving intermediate entities (entity to vertex connectivity) */
-    assert(high_dim == 1); /* deriving edges */
-    struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
-    unsigned nverts = m->counts[0];
-    unsigned nedges;
-    unsigned* verts_of_edges;
-    bridge_graph(nverts, verts_of_verts->offsets, verts_of_verts->adj,
-        &nedges, &verts_of_edges);
-    mesh_set_ents(m, 1, nedges, verts_of_edges);
+    if (high_dim == 1) { /* deriving edges */
+      struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
+      unsigned nverts = m->counts[0];
+      unsigned nedges;
+      unsigned* verts_of_edges;
+      bridge_graph(nverts, verts_of_verts->offsets, verts_of_verts->adj,
+          &nedges, &verts_of_edges);
+      mesh_set_ents(m, 1, nedges, verts_of_edges);
+    } else { /* deriving faces in 3D */
+      assert(high_dim == 2);
+      assert(m->elem_dim == 3);
+      unsigned const* elems_of_elems = mesh_ask_dual(m);
+      unsigned nelems = m->counts[m->elem_dim];
+      unsigned const* verts_of_elems = m->down[m->elem_dim][0];
+      unsigned nfaces;
+      unsigned* elems_of_faces;
+      unsigned* elem_face_of_faces;
+      bridge_dual_graph(m->elem_dim, nelems, elems_of_elems,
+          &nfaces, &elems_of_faces, &elem_face_of_faces);
+      unsigned* verts_of_faces = derive_faces(nfaces, verts_of_elems,
+          elems_of_faces, elem_face_of_faces);
+      loop_free(elems_of_faces);
+      loop_free(elem_face_of_faces);
+      mesh_set_ents(m, 2, nfaces, verts_of_faces);
+    }
   }
   return m->down[high_dim][low_dim];
 }
