@@ -70,12 +70,20 @@ else
 sources += comm_serial.c
 endif
 
+targets ?= \
+test_warp.exe \
+test_warp_3d.exe \
+vtk_surfer.exe
+
+target_sources := $(patsubst %.exe,%.c,$(targets))
+target_depfiles := $(patsubst %.exe,deps/%.dep,$(targets))
+
 objects := $(patsubst %.c,objs/%.o,$(sources))
 depfiles := $(patsubst %.c,deps/%.dep,$(sources))
 
 #by default, the compilation target is to compile
 #all .c files into objects
-all: $(objects)
+all: $(targets)
 
 #general rule for an executable: link its object
 #file with all the $(common_objects)
@@ -118,7 +126,7 @@ objs/%.o: %.c
 #all source files.
 #this is the funny recursion that keeps
 #header file dependencies worked out at all times.
-include $(depfiles)
+include $(depfiles) $(target_depfiles)
 
 #"all" and "clean" are targets but not files or directories
 .PHONY: all clean
