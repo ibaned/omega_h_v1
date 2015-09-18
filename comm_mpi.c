@@ -26,6 +26,13 @@ struct comm* comm_world(void)
   return &world;
 }
 
+static struct comm self = { MPI_COMM_SELF };
+
+struct comm* comm_self(void)
+{
+  return &self;
+}
+
 unsigned comm_rank(struct comm* c)
 {
   int rank;
