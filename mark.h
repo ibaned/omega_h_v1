@@ -36,4 +36,10 @@ void unmark_boundary(
 
 unsigned* mesh_mark_slivers(struct mesh* m, double good_qual, unsigned nlayers);
 
+unsigned* mark_part_boundary(
+    unsigned nsides,
+    unsigned const* elems_of_sides_offsets);
+
+unsigned* mesh_mark_part_boundary(struct mesh* m);
+
 #endif

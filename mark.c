@@ -150,3 +150,21 @@ unsigned* mesh_mark_slivers(struct mesh* m, double good_qual, unsigned nlayers)
   mesh_mark_dual_layers(m, &slivers, nlayers);
   return slivers;
 }
+
+unsigned* mark_part_boundary(
+    unsigned nsides,
+    unsigned const* elems_of_sides_offsets)
+{
+  unsigned* out = loop_malloc(sizeof(unsigned) * nsides);
+  for (unsigned i = 0; i < nsides; ++i)
+    out[i] = ( elems_of_sides_offsets[i + 1]
+             - elems_of_sides_offsets[i]    ) < 2;
+  return out;
+}
+
+unsigned* mesh_mark_part_boundary(struct mesh* m)
+{
+  unsigned dim = mesh_dim(m);
+  return mark_part_boundary(mesh_count(m, dim - 1),
+      mesh_ask_up(m, dim - 1, dim)->offsets);
+}
