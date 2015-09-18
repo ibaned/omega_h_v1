@@ -70,7 +70,6 @@ static char const* types_header =
 
 void write_vtk(struct mesh* m, char const* filename)
 {
-  printf("writing %s\n", filename);
   unsigned elem_dim = mesh_dim(m);
   unsigned nverts = mesh_count(m, 0);
   unsigned nelems = mesh_count(m, elem_dim);
