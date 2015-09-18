@@ -144,14 +144,23 @@ void write_vtk_step(struct mesh* m)
   ++the_step;
 }
 
-static unsigned seek_prefix(FILE* f,
+static unsigned seek_prefix_next(FILE* f,
+    char line[], unsigned line_size, char const prefix[])
+{
+  unsigned pl = (unsigned) strlen(prefix);
+  if (!fgets(line, (int) line_size, f))
+    return 0;
+  return !strncmp(line, prefix, pl);
+}
+
+static void seek_prefix(FILE* f,
     char line[], unsigned line_size, char const prefix[])
 {
   unsigned pl = (unsigned) strlen(prefix);
   while (fgets(line, (int) line_size, f))
     if (!strncmp(line, prefix, pl))
-      return 1;
-  return 0;
+      return;
+  abort();
 }
 
 typedef char line_t[256];
@@ -214,7 +223,7 @@ static double* read_doubles(FILE* f, unsigned n)
 static void read_size(FILE* f, unsigned* nverts, unsigned* nelems)
 {
   line_t line;
-  assert(seek_prefix(f, line, sizeof(line), "<Piece"));
+  seek_prefix(f, line, sizeof(line), "<Piece");
   *nverts = read_int_attrib(line, "NumberOfPoints");
   *nelems = read_int_attrib(line, "NumberOfCells");
 }
@@ -223,7 +232,7 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
 {
   assert(nelems);
   line_t line;
-  assert(seek_prefix(f, line, sizeof(line), types_header));
+  seek_prefix(f, line, sizeof(line), types_header);
   unsigned* types = read_ints(f, nelems);
   unsigned dim;
   for (dim = 0; dim < 4; ++dim)
@@ -240,7 +249,7 @@ static unsigned read_mesh_array(FILE* f, struct mesh* m,
     unsigned dim)
 {
   line_t line;
-  if (!seek_prefix(f, line, sizeof(line), "<DataArray"))
+  if (!seek_prefix_next(f, line, sizeof(line), "<DataArray"))
     return 0;
   enum array_type at = read_array_type(line);
   line_t name;
@@ -259,6 +268,7 @@ static unsigned read_mesh_array(FILE* f, struct mesh* m,
     else
       loop_host_free(data); /* ignoring element labels */
   }
+  seek_prefix(f, line, sizeof(line), "</DataArray");
   return 1;
 }
 
@@ -266,7 +276,8 @@ static void read_verts(FILE* f, struct mesh* m)
 {
   line_t line;
   seek_prefix(f, line, sizeof(line), "<Points");
-  read_mesh_array(f, m, 0);
+  unsigned ok = read_mesh_array(f, m, 0);
+  assert(ok);
 }
 
 static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
@@ -300,11 +311,21 @@ static struct mesh* read_vtk_mesh(FILE* f)
   return m;
 }
 
+static void read_vtk_fields(FILE* f, struct mesh* m)
+{
+  line_t line;
+  seek_prefix(f, line, sizeof(line), "<PointData");
+  while(read_mesh_array(f, m, 0));
+  seek_prefix(f, line, sizeof(line), "<CellData");
+  while(read_mesh_array(f, m, mesh_dim(m)));
+}
+
 struct mesh* read_vtk(char const* filename)
 {
   FILE* f = fopen(filename, "r");
   assert(f);
   struct mesh* m = read_vtk_mesh(f);
+  read_vtk_fields(f, m);
   fclose(f);
   return m;
 }
