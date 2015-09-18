@@ -8,21 +8,9 @@
 #which can be told to ignore config.mk
 include config.mk
 
-#take *all* files ending in .c, use that as
-#the list of sources to compile
-sources := $(wildcard *.c)
-#the list of objects to compile is derived
-#from the list of source by changing .c to .o
-#and moving it to the objs/ directory
-objects := $(patsubst %.c,objs/%.o,$(sources))
-#the list of dependency files is also derived
-#from the list of source by changing .c to .dep
-#and moving it to the deps/ directory
-depfiles := $(patsubst %.c,deps/%.dep,$(sources))
-
 #these are source containing "library" functions,
 #basically any source without a main() function
-common_sources := \
+sources := \
 star.c \
 tables.c \
 up_from_down.c \
@@ -76,7 +64,8 @@ find_roots.c \
 inertia.c \
 derive_faces.c
 
-common_objects := $(patsubst %.c,objs/%.o,$(common_sources))
+objects := $(patsubst %.c,objs/%.o,$(sources))
+depfiles := $(patsubst %.c,deps/%.dep,$(sources))
 
 #by default, the compilation target is to compile
 #all .c files into objects
@@ -86,7 +75,7 @@ all: $(objects)
 #file with all the $(common_objects)
 # $@ is the thing being built and $^ is all
 #the things it depends on (the objects)
-%.exe: objs/%.o $(common_objects)
+%.exe: objs/%.o $(objects)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 #cleanup removes dependency files, object files,
