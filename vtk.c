@@ -1,9 +1,13 @@
 #include "vtk.h"
-#include <stdio.h>          // for fprintf, FILE, fclose, fopen, printf
-#include "field.h"          // for const_field
-#include "label.h"          // for const_label
-#include "mesh.h"           // for mesh_count, mesh_dim, mesh_find_nodal_label
-#include "tables.h"         // for the_down_degrees
+#include <stdio.h>   // for fprintf, FILE, fclose, fopen, printf
+#include "field.h"   // for const_field
+#include "label.h"   // for const_label
+#include "mesh.h"    // for mesh_count, mesh_dim, mesh_find_nodal_label
+#include "tables.h"  // for the_down_degrees
+#include "loop.h"    // for loop_host_malloc
+#include <string.h>  // for strlen
+#include <assert.h>  // for assert
+#include <stdlib.h>  // for atoi
 
 static unsigned const vtk_types[4] = {
   1,
@@ -54,6 +58,9 @@ static void write_elem_field(FILE* file, struct mesh* m, struct const_field* fie
   fprintf(file, "</DataArray>\n");
 }
 
+static char const* types_header =
+"<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">";
+
 /* this function can be a time hog,
  * no fault of our own really, just printf and friends
  * are fairly slow.
@@ -90,7 +97,7 @@ void write_vtk(struct mesh* m, char const* filename)
   for (unsigned i = 0; i < nelems; ++i)
     fprintf(file, "%u\n", (i + 1) * down_degree);
   fprintf(file, "</DataArray>\n");
-  fprintf(file, "<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n");
+  fprintf(file, "%s\n", types_header);
   unsigned type = vtk_types[elem_dim];
   for (unsigned i = 0; i < nelems; ++i)
     fprintf(file, "%u\n", type);
@@ -137,13 +144,142 @@ void write_vtk_step(struct mesh* m)
   ++the_step;
 }
 
-/*
-static unsigned look_for(FILE* f,
-    char line[], unsigned line_size, char const target[])
+static unsigned seek_prefix(FILE* f,
+    char line[], unsigned line_size, char const prefix[])
 {
-  while (fgets(line, line_size, f))
-    if (strstr(line, target))
+  unsigned pl = (unsigned) strlen(prefix);
+  while (fgets(line, (int) line_size, f))
+    if (!strncmp(line, prefix, pl))
       return 1;
   return 0;
 }
-*/
+
+static char* read_attrib(char elem[], char const name[])
+{
+  char* pname = strstr(elem, name);
+  assert(pname);
+  assert(pname[strlen(name) + 1] == '\"');
+  char* val = strtok(pname + strlen(name) + 2, "\"");
+  assert(val && strlen(val));
+  return val;
+}
+
+static char* read_array_name(char header[])
+{
+  return read_attrib(header, "Name");
+}
+
+enum array_type { FIELD, LABEL };
+
+static enum array_type read_array_type(char header[])
+{
+  return strstr(read_attrib(header, "type"), "Float") ?
+        FIELD : LABEL;
+}
+
+static unsigned read_array_ncomps(char header[])
+{
+  return (unsigned) atoi(read_attrib(header, "NumberOfComponents"));
+}
+
+static unsigned* read_ints(FILE* f, unsigned n)
+{
+  unsigned* out = loop_host_malloc(sizeof(unsigned) * n);
+  for (unsigned i = 0; i < n; ++i)
+    fscanf(f, "%u", &out[i]);
+  return out;
+}
+
+static double* read_doubles(FILE* f, unsigned n)
+{
+  double* out = loop_host_malloc(sizeof(double) * n);
+  for (unsigned i = 0; i < n; ++i)
+    fscanf(f, "%lf", &out[i]);
+  return out;
+}
+
+static void read_size(FILE* f, unsigned* nverts, unsigned* nelems)
+{
+  char line[256];
+  assert(seek_prefix(f, line, sizeof(line), "<Piece"));
+  *nverts = (unsigned) atoi(read_attrib(line, "NumberOfPoints"));
+  *nelems = (unsigned) atoi(read_attrib(line, "NumberOfCells"));
+}
+
+static unsigned read_dimension(FILE* f, unsigned nelems)
+{
+  assert(nelems);
+  char line[256];
+  assert(seek_prefix(f, line, sizeof(line), types_header));
+  unsigned* types = read_ints(f, nelems);
+  unsigned dim;
+  for (dim = 0; dim < 4; ++dim)
+    if (types[0] == vtk_types[dim])
+      break;
+  assert(dim < 4);
+  for (unsigned i = 1; i < nelems; ++i)
+    assert(types[i] == vtk_types[dim]);
+  loop_host_free(types);
+  return dim;
+}
+
+static unsigned read_mesh_array(FILE* f, struct mesh* m,
+    unsigned dim)
+{
+  char line[256];
+  if (!seek_prefix(f, line, sizeof(line), "<DataArray"))
+    return 0;
+  enum array_type at = read_array_type(line);
+  char* name = read_array_name(line);
+  if (at == FIELD) {
+    unsigned ncomps = read_array_ncomps(line);
+    double* data = read_doubles(f, mesh_count(m, dim) * ncomps);
+    if (dim == 0)
+      mesh_add_nodal_field(m, name, ncomps, data);
+    else
+      mesh_add_elem_field(m, name, ncomps, data);
+  } else {
+    unsigned* data = read_ints(f, mesh_count(m, dim));
+    mesh_add_nodal_label(m, name, data);
+  }
+  return 1;
+}
+
+static void read_verts(FILE* f, struct mesh* m)
+{
+  char line[256];
+  seek_prefix(f, line, sizeof(line), "<Points");
+  read_mesh_array(f, m, 0);
+}
+
+static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
+{
+  char line[256];
+  seek_prefix(f, line, sizeof(line), "<Cells");
+  seek_prefix(f, line, sizeof(line), "<DataArray");
+  assert(!strcmp("connectivity", read_array_name(line)));
+  unsigned dim = mesh_dim(m);
+  unsigned verts_per_elem = the_down_degrees[dim][0];
+  unsigned* data = read_ints(f, nelems * verts_per_elem);
+  mesh_set_ents(m, dim, nelems, data);
+}
+
+struct mesh* read_vtk(char const* filename)
+{
+  FILE* f = fopen(filename, "r");
+  assert(f);
+  unsigned nverts, nelems;
+  read_size(f, &nverts, &nelems);
+  if (!nelems) {
+    fclose(f);
+    return new_mesh(0);
+  }
+  unsigned dim = read_dimension(f, nelems);
+  struct mesh* m = new_mesh(dim);
+  mesh_set_ents(m, 0, nverts, 0);
+  rewind(f);
+  read_verts(f, m);
+  read_elems(f, m, nelems);
+  fclose(f);
+  return m;
+}
