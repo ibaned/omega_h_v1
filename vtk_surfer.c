@@ -9,32 +9,40 @@
 #include <assert.h>
 #include <stdio.h>
 
-static void list_fields(struct mesh* m)
-{
-  for (unsigned i = 0; i < mesh_count_nodal_fields(m); ++i)
-    printf("nodal field \"%s\"\n",
-        mesh_get_nodal_field(m, i)->name);
-  for (unsigned i = 0; i < mesh_count_elem_fields(m); ++i)
-    printf("element field \"%s\"\n",
-        mesh_get_elem_field(m, i)->name);
-}
+static char const* help_str =
+"         ~~~    O__\n"
+"       ~~~     /|\n"
+"      ~~~~~     |\\\n"
+"     ~~~~~~~~ =========\n"
+"   ~~~~~~~~~~~~~~~\n"
+"~~~~~~~~~~~~~~~~~~~~~~~\n"
+"\nNAME\n"
+"\tvtk_surfer.exe -- extract surface from large VTK files\n"
+"\nSYNOPSIS\n"
+"\tvtk_surfer.exe input.vtu output.vtu\n"
+"\nDESCRIPTION\n"
+"\tvtk_surfer will read a single mesh part,\n"
+"\tproject all element fields to nodes,\n"
+"\tand write out the surface nodes and triangles.\n";
+
 
 int main(int argc, char** argv)
 {
-  assert(argc == 3);
+  if (argc != 3) {
+    printf("%s", help_str);
+    return -1;
+  }
   struct mesh* m = read_vtk(argv[1]);
   for (unsigned i = 0; i < mesh_count_elem_fields(m); ++i) {
     struct const_field* f = mesh_get_elem_field(m, i);
     mesh_recover_by_volume(m, f->name);
   }
-  list_fields(m);
   unsigned d = mesh_dim(m);
   unsigned ns = mesh_count(m, d - 1);
   unsigned* pb = mesh_mark_part_boundary(m);
   unsigned* off = ints_exscan(pb, ns);
   loop_free(pb);
   struct mesh* sm = subset_mesh(m, d - 1, off);
-  list_fields(sm);
   free_mesh(m);
   loop_free(off);
   write_vtk(sm, argv[2]);
