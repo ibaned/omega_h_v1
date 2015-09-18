@@ -39,3 +39,14 @@ unsigned comm_size(struct comm* c)
   CALL(MPI_Comm_size(c->c, &size));
   return (unsigned) size;
 }
+
+void comm_add_doubles(struct comm* c, double* p, unsigned n)
+{
+  CALL(MPI_Allreduce(p, MPI_IN_PLACE, (int) n, MPI_DOUBLE, MPI_SUM, c->c));
+}
+
+unsigned long comm_add_ulong(struct comm* c, unsigned long x)
+{
+  CALL(MPI_Allreduce(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_SUM, c->c));
+  return x;
+}
