@@ -254,7 +254,10 @@ static unsigned read_mesh_array(FILE* f, struct mesh* m,
       mesh_add_elem_field(m, name, ncomps, data);
   } else {
     unsigned* data = read_ints(f, mesh_count(m, dim));
-    mesh_add_nodal_label(m, name, data);
+    if (dim == 0)
+      mesh_add_nodal_label(m, name, data);
+    else
+      loop_host_free(data); /* ignoring element labels */
   }
   return 1;
 }
@@ -280,10 +283,8 @@ static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
   mesh_set_ents(m, dim, nelems, data);
 }
 
-struct mesh* read_vtk(char const* filename)
+static struct mesh* read_vtk_mesh(FILE* f)
 {
-  FILE* f = fopen(filename, "r");
-  assert(f);
   unsigned nverts, nelems;
   read_size(f, &nverts, &nelems);
   if (!nelems) {
@@ -296,6 +297,14 @@ struct mesh* read_vtk(char const* filename)
   rewind(f);
   read_verts(f, m);
   read_elems(f, m, nelems);
+  return m;
+}
+
+struct mesh* read_vtk(char const* filename)
+{
+  FILE* f = fopen(filename, "r");
+  assert(f);
+  struct mesh* m = read_vtk_mesh(f);
   fclose(f);
   return m;
 }
