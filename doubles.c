@@ -34,6 +34,9 @@ double* doubles_copy(double const a[], unsigned n)
   return b;
 }
 
+/* ambitious note to self: this could be one source
+   of partitionig/ordering dependence from inputs
+   to outputs. */
 double doubles_sum(double const a[], unsigned n)
 {
   double s = 0;
