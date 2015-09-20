@@ -74,7 +74,8 @@ endif
 targets ?= \
 test_warp.exe \
 test_warp_3d.exe \
-vtk_surfer.exe
+vtk_surfer.exe \
+test_node_ele.exe
 
 target_sources := $(patsubst %.exe,%.c,$(targets))
 target_depfiles := $(patsubst %.exe,deps/%.dep,$(targets))

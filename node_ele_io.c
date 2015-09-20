@@ -88,8 +88,11 @@ void read_dot_ele(struct mesh* m, char const* filename)
     attrib = loop_host_malloc(sizeof(double) * nelems * nattrib);
   for (unsigned i = 0; i < nelems; ++i) {
     fscanf(f, "%*u");
-    for (unsigned j = 0; j < verts_per_elem; ++j)
-      fscanf(f, "%u", verts_of_elems + i * verts_per_elem + j);
+    for (unsigned j = 0; j < verts_per_elem; ++j) {
+      unsigned v;
+      fscanf(f, "%u", &v);
+      verts_of_elems[i * verts_per_elem + j] = v - 1;
+    }
     for (unsigned j = 0; j < nattrib; ++j)
       fscanf(f, "%lf", attrib + i * nattrib + j);
   }
@@ -113,8 +116,10 @@ void write_dot_ele(struct mesh* m, char const* filename)
   fprintf(f, "%u %u %u\n", nelems, verts_per_elem, nattrib);
   for (unsigned i = 0; i < nelems; ++i) {
     fprintf(f, " %u", i + 1);
-    for (unsigned j = 0; j < verts_per_elem; ++j)
-      fprintf(f, " %u", verts_of_elems[i * verts_per_elem + j]);
+    for (unsigned j = 0; j < verts_per_elem; ++j) {
+      unsigned v = verts_of_elems[i * verts_per_elem + j];
+      fprintf(f, " %u", v + 1);
+    }
     for (unsigned j = 0; j < nattrib; ++j)
       fprintf(f, " %f", attribf->data[i * nattrib + j]);
     fprintf(f, "\n");
