@@ -62,7 +62,8 @@ edge_swap.c \
 loop.c \
 find_roots.c \
 inertia.c \
-derive_faces.c
+derive_faces.c \
+node_ele_io.c
 
 ifeq "$(USE_MPI)" "yes"
 sources += comm_mpi.c
