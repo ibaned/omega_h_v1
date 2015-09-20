@@ -12,6 +12,12 @@
 #include "tables.h"        // for the_box_conns, the_box_coords, the_box_n...
 #include "up_from_down.h"  // for up_from_down
 
+struct up {
+  unsigned* offsets;
+  unsigned* adj;
+  unsigned* directions;
+};
+
 struct mesh {
   unsigned elem_dim;
   int padding__;
@@ -24,7 +30,7 @@ struct mesh {
   struct labels labels[4];
 };
 
-struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
+static struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
 {
   struct up* u = loop_malloc(sizeof(*u));
   u->offsets = offsets;
@@ -33,7 +39,7 @@ struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
   return u;
 }
 
-void free_up(struct up* u)
+static void free_up(struct up* u)
 {
   if (!u)
     return;
@@ -114,6 +120,13 @@ struct const_label* mesh_find_label(struct mesh* m, unsigned dim,
   return (struct const_label*) find_label(&m->labels[dim], name);
 }
 
+static void set_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
+    unsigned* adj)
+{
+  assert( ! m->down[high_dim][low_dim]);
+  m->down[high_dim][low_dim] = adj;
+}
+
 unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
 {
   assert(low_dim < high_dim);
@@ -125,7 +138,7 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
     struct const_up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
     unsigned* lows_of_highs = reflect_down(high_dim, low_dim, nhighs,
         verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
-    mesh_set_down(m, high_dim, low_dim, lows_of_highs);
+    set_down(m, high_dim, low_dim, lows_of_highs);
   } else { /* deriving intermediate entities (entity to vertex connectivity) */
     if (high_dim == 1) { /* deriving edges */
       struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
@@ -156,6 +169,13 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
   return m->down[high_dim][low_dim];
 }
 
+static void set_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
+    struct up* adj)
+{
+  assert( ! m->up[low_dim][high_dim]);
+  m->up[low_dim][high_dim] = adj;
+}
+
 struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim)
 {
   assert(low_dim < high_dim);
@@ -169,8 +189,15 @@ struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim
   unsigned* directions;
   up_from_down(high_dim, low_dim, nhighs, nlows, lows_of_highs,
       &offsets, &highs_of_lows, &directions);
-  mesh_set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
+  set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
   return (struct const_up*) m->up[low_dim][high_dim];
+}
+
+static void set_star(struct mesh* m, unsigned low_dim, unsigned high_dim,
+    struct graph* adj)
+{
+  assert( ! m->star[low_dim][high_dim]);
+  m->star[low_dim][high_dim] = adj;
 }
 
 struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned high_dim)
@@ -185,8 +212,14 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
   unsigned* adj;
   get_star(low_dim, high_dim, nlows, highs_of_lows->offsets, highs_of_lows->adj,
       lows_of_highs, &offsets, &adj);
-  mesh_set_star(m, low_dim, high_dim, new_graph(offsets, adj));
+  set_star(m, low_dim, high_dim, new_graph(offsets, adj));
   return (struct const_graph*) m->star[low_dim][high_dim];
+}
+
+static void set_dual(struct mesh* m, unsigned* adj)
+{
+  assert( ! m->dual);
+  m->dual = adj;
 }
 
 unsigned const* mesh_ask_dual(struct mesh* m)
@@ -198,41 +231,14 @@ unsigned const* mesh_ask_dual(struct mesh* m)
   struct const_up* elems_of_verts = mesh_ask_up(m, 0, m->elem_dim);
   unsigned* elems_of_elems = get_dual(m->elem_dim, nelems, verts_of_elems,
       elems_of_verts->offsets, elems_of_verts->adj);
-  mesh_set_dual(m, elems_of_elems);
+  set_dual(m, elems_of_elems);
   return m->dual;
-}
-
-void mesh_set_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
-    unsigned* adj)
-{
-  assert( ! m->down[high_dim][low_dim]);
-  m->down[high_dim][low_dim] = adj;
-}
-
-void mesh_set_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
-    struct up* adj)
-{
-  assert( ! m->up[low_dim][high_dim]);
-  m->up[low_dim][high_dim] = adj;
-}
-
-void mesh_set_star(struct mesh* m, unsigned low_dim, unsigned high_dim,
-    struct graph* adj)
-{
-  assert( ! m->star[low_dim][high_dim]);
-  m->star[low_dim][high_dim] = adj;
-}
-
-void mesh_set_dual(struct mesh* m, unsigned* adj)
-{
-  assert( ! m->dual);
-  m->dual = adj;
 }
 
 void mesh_set_ents(struct mesh* m, unsigned dim, unsigned n, unsigned* verts)
 {
   m->counts[dim] = n;
-  mesh_set_down(m, dim, 0, verts);
+  set_down(m, dim, 0, verts);
 }
 
 struct const_field* mesh_add_field(struct mesh* m, unsigned dim, char const* name,
