@@ -101,6 +101,10 @@ void write_vtk(struct mesh* m, char const* filename)
   }
   fprintf(file, "</PointData>\n");
   fprintf(file, "<CellData>\n");
+  for (unsigned i = 0; i < mesh_count_labels(m, mesh_dim(m)); ++i) {
+    struct const_label* label = mesh_get_label(m, mesh_dim(m), i);
+    write_label(file, m, mesh_dim(m), label);
+  }
   for (unsigned i = 0; i < mesh_count_fields(m, mesh_dim(m)); ++i) {
     struct const_field* field = mesh_get_field(m, mesh_dim(m), i);
     if (field != coord_field)
