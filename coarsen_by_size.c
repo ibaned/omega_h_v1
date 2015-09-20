@@ -14,8 +14,8 @@ unsigned coarsen_by_size(
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
-  double const* sizes = mesh_find_nodal_field(m, "adapt_size")->data;
+  double const* coords = mesh_find_field(m, 0, "coordinates")->data;
+  double const* sizes = mesh_find_field(m, 0, "adapt_size")->data;
   double* edge_sizes = measure_edges(nedges, verts_of_edges, coords, sizes);
   unsigned* col_codes = loop_malloc(sizeof(unsigned) * nedges);
   for (unsigned i = 0; i < nedges; ++i) {

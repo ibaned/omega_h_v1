@@ -30,8 +30,9 @@ unsigned comm_size(struct comm* c)
   return 1;
 }
 
-void comm_add_doubles(double* p, unsigned n)
+void comm_add_doubles(struct comm* c, double* p, unsigned n)
 {
+  (void) c;
   (void) p;
   (void) n;
 }
@@ -39,5 +40,5 @@ void comm_add_doubles(double* p, unsigned n)
 unsigned long comm_add_ulong(struct comm* c, unsigned long x)
 {
   (void) c;
-  (void) x;
+  return x;
 }

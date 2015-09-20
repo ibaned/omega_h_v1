@@ -2,7 +2,7 @@
 #include <stdio.h>   // for fprintf, FILE, fclose, fopen, printf
 #include "field.h"   // for const_field
 #include "label.h"   // for const_label
-#include "mesh.h"    // for mesh_count, mesh_dim, mesh_find_nodal_label
+#include "mesh.h"    // for mesh_count, mesh_dim, mesh_find_label
 #include "tables.h"  // for the_down_degrees
 #include "loop.h"    // for loop_host_malloc
 #include <string.h>  // for strlen
@@ -16,14 +16,15 @@ static unsigned const vtk_types[4] = {
   10
 };
 
-static void write_nodal_field(FILE* file, struct mesh* m, struct const_field* field)
+static void write_field(FILE* file, struct mesh* m, unsigned dim,
+    struct const_field* field)
 {
   fprintf(file, "<DataArray type=\"Float64\" Name=\"%s\""
              " NumberOfComponents=\"%u\" format=\"ascii\">\n",
              field->name, field->ncomps);
-  unsigned nverts = mesh_count(m, 0);
+  unsigned nents = mesh_count(m, dim);
   double const* p = field->data;
-  for (unsigned i = 0; i < nverts; ++i) {
+  for (unsigned i = 0; i < nents; ++i) {
     for (unsigned j = 0; j < field->ncomps; ++j)
       fprintf(file, " %e", *p++);
     fprintf(file, "\n");
@@ -31,30 +32,16 @@ static void write_nodal_field(FILE* file, struct mesh* m, struct const_field* fi
   fprintf(file, "</DataArray>\n");
 }
 
-static void write_nodal_label(FILE* file, struct mesh* m, struct const_label* label)
+static void write_label(FILE* file, struct mesh* m, unsigned dim,
+    struct const_label* label)
 {
   fprintf(file, "<DataArray type=\"UInt32\" Name=\"%s\""
              " NumberOfComponents=\"1\" format=\"ascii\">\n",
              label->name);
-  unsigned nverts = mesh_count(m, 0);
+  unsigned nents = mesh_count(m, dim);
   unsigned const* p = label->data;
-  for (unsigned i = 0; i < nverts; ++i)
+  for (unsigned i = 0; i < nents; ++i)
     fprintf(file, " %u\n", p[i]);
-  fprintf(file, "</DataArray>\n");
-}
-
-static void write_elem_field(FILE* file, struct mesh* m, struct const_field* field)
-{
-  fprintf(file, "<DataArray type=\"Float64\" Name=\"%s\""
-             " NumberOfComponents=\"%u\" format=\"ascii\">\n",
-             field->name, field->ncomps);
-  unsigned nverts = mesh_count(m, mesh_dim(m));
-  double const* p = field->data;
-  for (unsigned i = 0; i < nverts; ++i) {
-    for (unsigned j = 0; j < field->ncomps; ++j)
-      fprintf(file, " %e", *p++);
-    fprintf(file, "\n");
-  }
   fprintf(file, "</DataArray>\n");
 }
 
@@ -79,8 +66,8 @@ void write_vtk(struct mesh* m, char const* filename)
   fprintf(file, "<UnstructuredGrid>\n");
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\">\n", nverts, nelems);
   fprintf(file, "<Points>\n");
-  struct const_field* coord_field = mesh_find_nodal_field(m, "coordinates");
-  write_nodal_field(file, m, coord_field);
+  struct const_field* coord_field = mesh_find_field(m, 0, "coordinates");
+  write_field(file, m, 0, coord_field);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
   fprintf(file, "<DataArray type=\"UInt32\" Name=\"connectivity\" format=\"ascii\">\n");
@@ -103,21 +90,21 @@ void write_vtk(struct mesh* m, char const* filename)
   fprintf(file, "</DataArray>\n");
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
-  for (unsigned i = 0; i < mesh_count_nodal_labels(m); ++i) {
-    struct const_label* label = mesh_get_nodal_label(m, i);
-    write_nodal_label(file, m, label);
+  for (unsigned i = 0; i < mesh_count_labels(m, 0); ++i) {
+    struct const_label* label = mesh_get_label(m, 0, i);
+    write_label(file, m, 0, label);
   }
-  for (unsigned i = 0; i < mesh_count_nodal_fields(m); ++i) {
-    struct const_field* field = mesh_get_nodal_field(m, i);
+  for (unsigned i = 0; i < mesh_count_fields(m, 0); ++i) {
+    struct const_field* field = mesh_get_field(m, 0, i);
     if (field != coord_field)
-      write_nodal_field(file, m, field);
+      write_field(file, m, 0, field);
   }
   fprintf(file, "</PointData>\n");
   fprintf(file, "<CellData>\n");
-  for (unsigned i = 0; i < mesh_count_elem_fields(m); ++i) {
-    struct const_field* field = mesh_get_elem_field(m, i);
+  for (unsigned i = 0; i < mesh_count_fields(m, mesh_dim(m)); ++i) {
+    struct const_field* field = mesh_get_field(m, mesh_dim(m), i);
     if (field != coord_field)
-      write_elem_field(file, m, field);
+      write_field(file, m, mesh_dim(m), field);
   }
   fprintf(file, "</CellData>\n");
   fprintf(file, "</Piece>\n");
@@ -256,16 +243,10 @@ static unsigned read_mesh_array(FILE* f, struct mesh* m,
   if (at == FIELD) {
     unsigned ncomps = read_array_ncomps(line);
     double* data = read_doubles(f, mesh_count(m, dim) * ncomps);
-    if (dim == 0)
-      mesh_add_nodal_field(m, name, ncomps, data);
-    else
-      mesh_add_elem_field(m, name, ncomps, data);
+    mesh_add_field(m, dim, name, ncomps, data);
   } else {
     unsigned* data = read_ints(f, mesh_count(m, dim));
-    if (dim == 0)
-      mesh_add_nodal_label(m, name, data);
-    else
-      loop_host_free(data); /* ignoring element labels */
+    mesh_add_label(m, dim, name, data);
   }
   seek_prefix(f, line, sizeof(line), "</DataArray");
   return 1;

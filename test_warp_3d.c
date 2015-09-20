@@ -5,7 +5,7 @@
 #include "algebra.h"         // for subtract_vectors, vector_norm
 #include "classify_box.h"    // for mesh_classify_box
 #include "eval_field.h"      // for mesh_eval_field
-#include "mesh.h"            // for free_mesh, mesh_free_nodal_field, new_bo...
+#include "mesh.h"            // for free_mesh, mesh_free_field, new_bo...
 #include "refine_by_size.h"  // for refine_by_size
 #include "vtk.h"             // for write_vtk_step, start_vtk_steps
 #include "warp_to_limit.h"   // for mesh_warp_to_limit
@@ -94,7 +94,7 @@ int main()
       mesh_eval_field(m, "warp", 3, warp_fun);
       printf("new warp field\n");
       warped_adapt(&m);
-      mesh_free_nodal_field(m, "warp");
+      mesh_free_field(m, 0, "warp");
     }
     the_rotation = -the_rotation;
   }

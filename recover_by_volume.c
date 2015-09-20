@@ -3,7 +3,7 @@
 #include "loop.h"  // for malloc, free
 #include <string.h>  // for strlen
 #include "field.h"   // for const_field
-#include "mesh.h"    // for mesh_ask_up, mesh_dim, mesh_find_elem_field
+#include "mesh.h"    // for mesh_ask_up, mesh_dim, mesh_find_field
 #include "size.h"    // for mesh_element_sizes
 
 double* recover_by_volume(
@@ -40,14 +40,15 @@ struct const_field* mesh_recover_by_volume(
     struct mesh* m, char const* name)
 {
   mesh_element_sizes(m);
-  double const* elem_sizes = mesh_find_elem_field(m, "elem_size")->data;
-  struct const_field* f = mesh_find_elem_field(m, name);
+  double const* elem_sizes = mesh_find_field(
+      m, mesh_dim(m), "elem_size")->data;
+  struct const_field* f = mesh_find_field(m, mesh_dim(m), name);
   double* data = recover_by_volume(mesh_count(m, 0),
       mesh_ask_up(m, 0, mesh_dim(m))->offsets,
       mesh_ask_up(m, 0, mesh_dim(m))->adj,
       elem_sizes,
       f->ncomps, f->data);
-  mesh_free_elem_field(m, "elem_size");
-  struct const_field* out = mesh_add_nodal_field(m, name, f->ncomps, data);
+  mesh_free_field(m, mesh_dim(m), "elem_size");
+  struct const_field* out = mesh_add_field(m, 0, name, f->ncomps, data);
   return out;
 }

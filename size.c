@@ -3,7 +3,7 @@
 #include "algebra.h"  // for subtract_vectors, copy_vector, cross_product
 #include "doubles.h"  // for doubles_sum
 #include "field.h"    // for const_field
-#include "mesh.h"     // for mesh_dim, mesh_count, mesh_find_elem_field, mes...
+#include "mesh.h"     // for mesh_dim, mesh_count, mesh_find_field, mes...
 #include "tables.h"   // for the_down_degrees
 
 double edge_length(double coords[2][3])
@@ -97,13 +97,13 @@ double* element_sizes(
 
 double const* mesh_element_sizes(struct mesh* m)
 {
-  if (!mesh_find_elem_field(m, "elem_size")) {
+  if (!mesh_find_field(m, mesh_dim(m), "elem_size")) {
     double* data = element_sizes(mesh_dim(m), mesh_count(m, mesh_dim(m)),
         mesh_ask_down(m, mesh_dim(m), 0),
-        mesh_find_nodal_field(m, "coordinates")->data);
-    mesh_add_elem_field(m, "elem_size", 1, data);
+        mesh_find_field(m, 0, "coordinates")->data);
+    mesh_add_field(m, mesh_dim(m), "elem_size", 1, data);
   }
-  return mesh_find_elem_field(m, "elem_size")->data;
+  return mesh_find_field(m, mesh_dim(m), "elem_size")->data;
 }
 
 double mesh_domain_size(struct mesh* m)

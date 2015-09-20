@@ -24,6 +24,6 @@ void mesh_eval_field(struct mesh* m, char const* name, unsigned ncomps,
     void (*fun)(double const x[3], double out[]))
 {
   double* data = eval_field(mesh_count(m, 0),
-      mesh_find_nodal_field(m, "coordinates")->data, ncomps, fun);
-  mesh_add_nodal_field(m, name, ncomps, data);
+      mesh_find_field(m, 0, "coordinates")->data, ncomps, fun);
+  mesh_add_field(m, 0, name, ncomps, data);
 }

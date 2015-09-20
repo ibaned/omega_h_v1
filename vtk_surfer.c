@@ -33,8 +33,8 @@ int main(int argc, char** argv)
     return -1;
   }
   struct mesh* m = read_vtk(argv[1]);
-  for (unsigned i = 0; i < mesh_count_elem_fields(m); ++i) {
-    struct const_field* f = mesh_get_elem_field(m, i);
+  for (unsigned i = 0; i < mesh_count_fields(m, mesh_dim(m)); ++i) {
+    struct const_field* f = mesh_get_field(m, mesh_dim(m), i);
     mesh_recover_by_volume(m, f->name);
   }
   unsigned d = mesh_dim(m);

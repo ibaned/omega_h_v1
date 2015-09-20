@@ -25,7 +25,7 @@ unsigned swap_common(
   if (!ints_max(candidates, nedges))
     return 0;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  unsigned const* class_dim = mesh_find_nodal_label(m, "class_dim")->data;
+  unsigned const* class_dim = mesh_find_label(m, 0, "class_dim")->data;
   unmark_boundary(elem_dim, 1, nedges, verts_of_edges, class_dim, candidates);
   if (!ints_max(candidates, nedges))
     return 0;
@@ -36,7 +36,7 @@ unsigned swap_common(
   unsigned const* elems_of_edges_directions =
     mesh_ask_up(m, 1, elem_dim)->directions;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
+  double const* coords = mesh_find_field(m, 0, "coordinates")->data;
   double* elem_quals = mesh_qualities(m);
   double* edge_quals;
   unsigned* edge_codes;
@@ -87,15 +87,15 @@ unsigned swap_common(
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts, 0);
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
-  for (unsigned i = 0; i < mesh_count_nodal_fields(m); ++i) {
-    struct const_field* f = mesh_get_nodal_field(m, i);
+  for (unsigned i = 0; i < mesh_count_fields(m, 0); ++i) {
+    struct const_field* f = mesh_get_field(m, 0, i);
     double* data = doubles_copy(f->data, nverts * f->ncomps);
-    mesh_add_nodal_field(m_out, f->name, f->ncomps, data);
+    mesh_add_field(m_out, 0, f->name, f->ncomps, data);
   }
-  for (unsigned i = 0; i < mesh_count_nodal_labels(m); ++i) {
-    struct const_label* l = mesh_get_nodal_label(m, i);
+  for (unsigned i = 0; i < mesh_count_labels(m, 0); ++i) {
+    struct const_label* l = mesh_get_label(m, 0, i);
     unsigned* data = ints_copy(l->data, nverts);
-    mesh_add_nodal_label(m_out, l->name, data);
+    mesh_add_label(m_out, 0, l->name, data);
   }
   free_mesh(m);
   *p_m = m_out;

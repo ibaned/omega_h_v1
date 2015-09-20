@@ -25,7 +25,7 @@ unsigned* classify_box(
 
 void mesh_classify_box(struct mesh* m)
 {
-  mesh_add_nodal_label(m, "class_dim",
+  mesh_add_label(m, 0, "class_dim",
       classify_box(mesh_count(m, 0),
-        mesh_find_nodal_field(m, "coordinates")->data));
+        mesh_find_field(m, 0, "coordinates")->data));
 }

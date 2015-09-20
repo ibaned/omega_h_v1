@@ -141,7 +141,7 @@ double* mesh_qualities(struct mesh* m)
   return element_qualities(mesh_dim(m),
       mesh_count(m, mesh_dim(m)),
       mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_nodal_field(m, "coordinates")->data);
+      mesh_find_field(m, 0, "coordinates")->data);
 }
 
 double mesh_min_quality(struct mesh* m)
@@ -149,5 +149,5 @@ double mesh_min_quality(struct mesh* m)
   return min_element_quality(mesh_dim(m),
       mesh_count(m, mesh_dim(m)),
       mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_nodal_field(m, "coordinates")->data);
+      mesh_find_field(m, 0, "coordinates")->data);
 }

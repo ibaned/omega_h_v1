@@ -34,22 +34,22 @@ struct mesh* read_dot_node(char const* filename)
   }
   fclose(f);
   mesh_set_ents(m, 0, nnodes, 0);
-  mesh_add_nodal_field(m, "coordinates", 3, coords);
+  mesh_add_field(m, 0, "coordinates", 3, coords);
   if (nattrib)
-    mesh_add_nodal_field(m, "attributes", nattrib, attrib);
+    mesh_add_field(m, 0, "attributes", nattrib, attrib);
   if (nbdrys)
-    mesh_add_nodal_label(m, "boundary", bdry);
+    mesh_add_label(m, 0, "boundary", bdry);
   return m;
 }
 
 void write_dot_node(struct mesh* m, char const* filename)
 {
   double const* coords =
-    mesh_find_nodal_field(m, "coordinates")->data;
+    mesh_find_field(m, 0, "coordinates")->data;
   struct const_field* attribf =
-    mesh_find_nodal_field(m, "attributes");
+    mesh_find_field(m, 0, "attributes");
   struct const_label* bdryl =
-    mesh_find_nodal_label(m, "boundary");
+    mesh_find_label(m, 0, "boundary");
   unsigned nnodes = mesh_count(m, 0);
   unsigned dim = mesh_dim(m);
   unsigned nattrib = 0;
@@ -99,7 +99,7 @@ void read_dot_ele(struct mesh* m, char const* filename)
   fclose(f);
   mesh_set_ents(m, elem_dim, nelems, verts_of_elems);
   if (nattrib)
-    mesh_add_elem_field(m, "attributes", nattrib, attrib);
+    mesh_add_field(m, elem_dim, "attributes", nattrib, attrib);
 }
 
 void write_dot_ele(struct mesh* m, char const* filename)
@@ -109,7 +109,7 @@ void write_dot_ele(struct mesh* m, char const* filename)
   unsigned verts_per_elem = elem_dim + 1;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned nattrib = 0;
-  struct const_field* attribf = mesh_find_elem_field(m, "attributes");
+  struct const_field* attribf = mesh_find_field(m, elem_dim, "attributes");
   if (attribf)
     nattrib = attribf->ncomps;
   FILE* f = fopen(filename, "w");

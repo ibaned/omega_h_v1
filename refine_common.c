@@ -34,7 +34,7 @@ unsigned refine_common(
     mesh_ask_up(m, src_dim, elem_dim)->adj;
   unsigned const* elems_of_srcs_directions =
     mesh_ask_up(m, src_dim, elem_dim)->directions;
-  double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
+  double const* coords = mesh_find_field(m, 0, "coordinates")->data;
   double* elem_quals = 0;
   if (require_better)
     elem_quals = mesh_qualities(m);
@@ -81,23 +81,23 @@ unsigned refine_common(
   struct mesh* m_out = new_mesh(elem_dim);
   unsigned nverts_out = nverts + nsplit_srcs;
   mesh_set_ents(m_out, 0, nverts_out, 0);
-  for (unsigned i = 0; i < mesh_count_nodal_fields(m); ++i) {
-    struct const_field* f = mesh_get_nodal_field(m, i);
+  for (unsigned i = 0; i < mesh_count_fields(m, 0); ++i) {
+    struct const_field* f = mesh_get_field(m, 0, i);
     double* gen_vals = refine_nodal(src_dim, nsrcs, verts_of_srcs,
         gen_offset_of_srcs, f->ncomps, f->data);
     double* vals_out = concat_doubles(f->ncomps, f->data, nverts,
         gen_vals, nsplit_srcs);
     loop_free(gen_vals);
-    mesh_add_nodal_field(m_out, f->name, f->ncomps, vals_out);
+    mesh_add_field(m_out, 0, f->name, f->ncomps, vals_out);
   }
-  if (mesh_find_nodal_label(m, "class_dim")) {
-    unsigned const* class_dim = mesh_find_nodal_label(m, "class_dim")->data;
+  if (mesh_find_label(m, 0, "class_dim")) {
+    unsigned const* class_dim = mesh_find_label(m, 0, "class_dim")->data;
     unsigned* gen_class_dim = refine_class(src_dim, nsrcs, verts_of_srcs,
         gen_offset_of_srcs, class_dim);
     unsigned* class_dim_out = concat_ints(1, class_dim, nverts,
         gen_class_dim, nsplit_srcs);
     loop_free(gen_class_dim);
-    mesh_add_nodal_label(m_out, "class_dim", class_dim_out);
+    mesh_add_label(m_out, 0, "class_dim", class_dim_out);
   }
   loop_free(gen_offset_of_srcs);
   unsigned* offset_of_same_elems = ints_negate_offsets(

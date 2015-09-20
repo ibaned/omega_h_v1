@@ -20,9 +20,8 @@ struct mesh {
   struct up* up[4][4];
   struct graph* star[4][4];
   unsigned* dual;
-  struct fields nodal_fields;
-  struct labels nodal_labels;
-  struct fields elem_fields;
+  struct fields fields[4];
+  struct labels labels[4];
 };
 
 struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
@@ -66,7 +65,7 @@ struct mesh* new_box_mesh(unsigned elem_dim)
   double* coords = loop_malloc(nbytes);
   memcpy(coords, the_box_coords[elem_dim], nbytes);
   mesh_set_ents(m, elem_dim, nelems, verts_of_elems);
-  mesh_add_nodal_field(m, "coordinates", 3, coords);
+  mesh_add_field(m, 0, "coordinates", 3, coords);
   return m;
 }
 
@@ -96,25 +95,23 @@ void free_mesh(struct mesh* m)
       free_graph(m->star[low_dim][high_dim]);
     }
   loop_free(m->dual);
-  free_fields(&m->nodal_fields);
-  free_labels(&m->nodal_labels);
-  free_fields(&m->elem_fields);
+  for (unsigned d = 0; d < 4; ++d) {
+    free_fields(&m->fields[d]);
+    free_labels(&m->labels[d]);
+  }
   loop_free(m);
 }
 
-struct const_field* mesh_find_nodal_field(struct mesh* m, char const* name)
+struct const_field* mesh_find_field(struct mesh* m, unsigned dim,
+    char const* name)
 {
-  return (struct const_field*) find_field(&m->nodal_fields, name);
+  return (struct const_field*) find_field(&m->fields[dim], name);
 }
 
-struct const_field* mesh_find_elem_field(struct mesh* m, char const* name)
+struct const_label* mesh_find_label(struct mesh* m, unsigned dim,
+    char const* name)
 {
-  return (struct const_field*) find_field(&m->elem_fields, name);
-}
-
-struct const_label* mesh_find_nodal_label(struct mesh* m, char const* name)
-{
-  return (struct const_label*) find_label(&m->nodal_labels, name);
+  return (struct const_label*) find_label(&m->labels[dim], name);
 }
 
 unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
@@ -238,70 +235,45 @@ void mesh_set_ents(struct mesh* m, unsigned dim, unsigned n, unsigned* verts)
   mesh_set_down(m, dim, 0, verts);
 }
 
-struct const_field* mesh_add_nodal_field(struct mesh* m, char const* name,
+struct const_field* mesh_add_field(struct mesh* m, unsigned dim, char const* name,
     unsigned ncomps, double* data)
 {
   struct field* f = new_field(name, ncomps, data);
-  add_field(&m->nodal_fields, f);
+  add_field(&m->fields[dim], f);
   return (struct const_field*) f;
 }
 
-void mesh_free_nodal_field(struct mesh* m, char const* name)
+void mesh_free_field(struct mesh* m, unsigned dim, char const* name)
 {
-  struct field* f = find_field(&m->nodal_fields, name);
-  remove_field(&m->nodal_fields, f);
+  struct field* f = find_field(&m->fields[dim], name);
+  remove_field(&m->fields[dim], f);
   free_field(f);
 }
 
-struct const_label* mesh_add_nodal_label(struct mesh* m, char const* name,
+struct const_label* mesh_add_label(struct mesh* m, unsigned dim, char const* name,
     unsigned* data)
 {
   struct label* l = new_label(name, data);
-  add_label(&m->nodal_labels, l);
+  add_label(&m->labels[dim], l);
   return (struct const_label*) l;
 }
 
-unsigned mesh_count_nodal_fields(struct mesh* m)
+unsigned mesh_count_fields(struct mesh* m, unsigned dim)
 {
-  return m->nodal_fields.n;
+  return m->fields[dim].n;
 }
 
-struct const_field* mesh_get_nodal_field(struct mesh* m, unsigned i)
+struct const_field* mesh_get_field(struct mesh* m, unsigned dim, unsigned i)
 {
-  return (struct const_field*) m->nodal_fields.at[i];
+  return (struct const_field*) m->fields[dim].at[i];
 }
 
-unsigned mesh_count_nodal_labels(struct mesh* m)
+unsigned mesh_count_labels(struct mesh* m, unsigned dim)
 {
-  return m->nodal_labels.n;
+  return m->labels[dim].n;
 }
 
-struct const_label* mesh_get_nodal_label(struct mesh* m, unsigned i)
+struct const_label* mesh_get_label(struct mesh* m, unsigned dim, unsigned i)
 {
-  return (struct const_label*) m->nodal_labels.at[i];
-}
-
-struct const_field* mesh_add_elem_field(struct mesh* m, char const* name,
-    unsigned ncomps, double* data)
-{
-  struct field* f = new_field(name, ncomps, data);
-  add_field(&m->elem_fields, f);
-  return (struct const_field*) f;
-}
-
-void mesh_free_elem_field(struct mesh* m, char const* name)
-{
-  struct field* f = find_field(&m->elem_fields, name);
-  remove_field(&m->elem_fields, f);
-  free_field(f);
-}
-
-unsigned mesh_count_elem_fields(struct mesh* m)
-{
-  return m->elem_fields.n;
-}
-
-struct const_field* mesh_get_elem_field(struct mesh* m, unsigned i)
-{
-  return (struct const_field*) m->elem_fields.at[i];
+  return (struct const_label*) m->labels[dim].at[i];
 }

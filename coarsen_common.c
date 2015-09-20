@@ -28,11 +28,11 @@ unsigned coarsen_common(
   if (ints_max(col_codes, nedges) == DONT_COLLAPSE)
     return 0;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  double const* coords = mesh_find_nodal_field(m, "coordinates")->data;
+  double const* coords = mesh_find_field(m, 0, "coordinates")->data;
   unsigned nverts = mesh_count(m, 0);
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
-  unsigned const* class_dim = mesh_find_nodal_label(m, "class_dim")->data;
+  unsigned const* class_dim = mesh_find_label(m, 0, "class_dim")->data;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned const* verts_of_verts_offsets = mesh_ask_star(m, 0, elem_dim)->offsets;
   unsigned const* verts_of_verts = mesh_ask_star(m, 0, elem_dim)->adj;
@@ -110,15 +110,15 @@ unsigned coarsen_common(
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts_out, 0);
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
-  for (unsigned i = 0; i < mesh_count_nodal_fields(m); ++i) {
-    struct const_field* f = mesh_get_nodal_field(m, i);
+  for (unsigned i = 0; i < mesh_count_fields(m, 0); ++i) {
+    struct const_field* f = mesh_get_field(m, 0, i);
     double* vals_out = doubles_subset(nverts, f->ncomps, f->data,
         offset_of_same_verts);
-    mesh_add_nodal_field(m_out, f->name, f->ncomps, vals_out);
+    mesh_add_field(m_out, 0, f->name, f->ncomps, vals_out);
   }
   unsigned* class_dim_out = ints_subset(nverts, 1, class_dim,
       offset_of_same_verts);
-  mesh_add_nodal_label(m_out, "class_dim", class_dim_out);
+  mesh_add_label(m_out, 0, "class_dim", class_dim_out);
   loop_free(offset_of_same_verts);
   free_mesh(m);
   *p_m = m_out;
