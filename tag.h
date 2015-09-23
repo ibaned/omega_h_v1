@@ -2,8 +2,8 @@
 #define TAG_H
 
 enum tag_type {
-  U32,
-  F64,
+  TAG_U32,
+  TAG_F64,
   TAG_TYPES
 };
 
