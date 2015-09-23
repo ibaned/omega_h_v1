@@ -28,19 +28,12 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim,
     unsigned high_dim);
 unsigned const* mesh_ask_dual(struct mesh* m);
 
-struct const_field* mesh_add_field(struct mesh* m, unsigned dim, char const* name,
-    unsigned ncomps, double* data);
-void mesh_free_field(struct mesh* m, unsigned dim, char const* name);
+struct const_tag* mesh_add_tag(struct mesh* m, unsigned dim, enum tag_type type,
+    char const* name,  unsigned ncomps, double* data);
+void mesh_free_tag(struct mesh* m, unsigned dim, char const* name);
 struct const_field* mesh_find_field(struct mesh* m, unsigned dim,
     char const* name);
 unsigned mesh_count_fields(struct mesh* m, unsigned dim);
 struct const_field* mesh_get_field(struct mesh* m, unsigned dim, unsigned i);
-
-struct const_label* mesh_add_label(struct mesh* m, unsigned dim, char const* name,
-    unsigned* data);
-struct const_label* mesh_find_label(struct mesh* m, unsigned dim,
-    char const* name);
-unsigned mesh_count_labels(struct mesh* m, unsigned dim);
-struct const_label* mesh_get_label(struct mesh* m, unsigned dim, unsigned i);
 
 #endif

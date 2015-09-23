@@ -57,15 +57,20 @@ static unsigned find_i(struct type_tags* tt, char const* name)
   return i;
 }
 
-void remove_tag(struct tags* ts, enum tag_type type, char const* name)
+void remove_tag(struct tags* ts, char const* name)
 {
-  struct type_tags* tt = &ts->of[type];
-  unsigned i = find_i(tt, name);
-  assert(i < tt->n);
-  free_tag(tt->at[i]);
-  tt->n--;
-  for (; i < tt->n; ++i)
-    tt->at[i] = tt->at[i + 1];
+  for (enum tag_type type = 0; type < TAG_TYPES; ++type) {
+    struct type_tags* tt = &ts->of[type];
+    unsigned i = find_i(tt, name);
+    if (i >= tt->n)
+      continue;
+    free_tag(tt->at[i]);
+    tt->n--;
+    for (; i < tt->n; ++i)
+      tt->at[i] = tt->at[i + 1];
+    return;
+  }
+  assert(0);
 }
 
 struct const_tag* find_tag(struct tags* ts, char const* name)

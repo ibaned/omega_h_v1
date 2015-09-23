@@ -27,7 +27,7 @@ struct tags {
 void free_tags(struct tags* ts);
 struct const_tag* add_tag(struct tags* ts, enum tag_type type, char const* name,
     unsigned ncomps, void* data);
-void remove_tag(struct tags* ts, enum tag_type type, char const* name);
+void remove_tag(struct tags* ts, char const* name);
 struct const_tag* find_tag(struct tags* ts, char const* name);
 unsigned count_tags(struct tags* ts, enum tag_type type);
 struct const_tag* get_tag(struct tags* ts, enum tag_type type, unsigned i);
