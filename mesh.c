@@ -117,7 +117,7 @@ struct const_field* mesh_find_field(struct mesh* m, unsigned dim,
 struct const_label* mesh_find_label(struct mesh* m, unsigned dim,
     char const* name)
 {
-  return (struct const_label*) find_label(&m->labels[dim], name);
+  return find_label(&m->labels[dim], name);
 }
 
 static void set_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
@@ -255,9 +255,7 @@ void mesh_free_field(struct mesh* m, unsigned dim, char const* name)
 struct const_label* mesh_add_label(struct mesh* m, unsigned dim, char const* name,
     unsigned* data)
 {
-  struct label* l = new_label(name, data);
-  add_label(&m->labels[dim], l);
-  return (struct const_label*) l;
+  return add_label(&m->labels[dim], name, data);
 }
 
 unsigned mesh_count_fields(struct mesh* m, unsigned dim)
@@ -277,5 +275,5 @@ unsigned mesh_count_labels(struct mesh* m, unsigned dim)
 
 struct const_label* mesh_get_label(struct mesh* m, unsigned dim, unsigned i)
 {
-  return (struct const_label*) m->labels[dim].at[i];
+  return get_label(&m->labels[dim], i);
 }

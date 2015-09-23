@@ -39,19 +39,19 @@ struct const_field* add_field(struct fields* fs, char const* name,
   return (struct const_field*) f;
 }
 
-static int find_field_i(struct fields* fs, char const* name)
+static unsigned find_field_i(struct fields* fs, char const* name)
 {
-  for (unsigned i = 0; i < fs->n; ++i)
+  unsigned i;
+  for (i = 0; i < fs->n; ++i)
     if (!strcmp(fs->at[i]->name, name))
-      return (int) i;
-  return -1;
+      break;
+  return i;
 }
 
 void remove_field(struct fields* fs, char const* name)
 {
-  int i0 = find_field_i(fs, name);
-  assert(i0 >= 0);
-  unsigned i = (unsigned) i0;
+  unsigned i = find_field_i(fs, name);
+  assert(i < fs->n);
   free_field(fs->at[i]);
   fs->n--;
   for (; i < fs->n; ++i)
@@ -67,8 +67,8 @@ void free_fields(struct fields* fs)
 
 struct const_field* find_field(struct fields* fs, char const* name)
 {
-  int i = find_field_i(fs, name);
-  if (i >= 0)
+  unsigned i = find_field_i(fs, name);
+  if (i < fs->n)
     return get_field(fs, (unsigned) i);
   return 0;
 }
