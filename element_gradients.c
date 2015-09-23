@@ -62,7 +62,7 @@ struct const_tag* mesh_element_gradients(
   strcpy(grad_name, prefix);
   strcat(grad_name, t->name);
   struct const_tag* out = mesh_add_tag(
-      m, TAG_F64, mesh_dim(m), grad_name, t->ncomps * 3, data);
+      m, mesh_dim(m), TAG_F64, grad_name, t->ncomps * 3, data);
   loop_free(grad_name);
   return out;
 }
