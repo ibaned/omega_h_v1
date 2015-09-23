@@ -63,7 +63,8 @@ loop.c \
 find_roots.c \
 inertia.c \
 derive_faces.c \
-node_ele_io.c
+node_ele_io.c \
+cloud.c
 
 ifeq "$(USE_MPI)" "yes"
 sources += comm_mpi.c
