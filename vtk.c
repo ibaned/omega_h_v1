@@ -32,6 +32,7 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
           fprintf(file, " %u", *p++);
         fprintf(file, "\n");
       }
+      break;
     }
     case TAG_F64: {
       double const* p = tag->data;
@@ -40,6 +41,7 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
           fprintf(file, " %e", *p++);
         fprintf(file, "\n");
       }
+      break;
     }
   }
   fprintf(file, "</DataArray>\n");
@@ -240,7 +242,9 @@ static unsigned read_mesh_array(FILE* f, struct mesh* m,
   void* data;
   switch (type) {
     case TAG_U32: data = read_ints(f, mesh_count(m, dim) * ncomps);
+                  break;
     case TAG_F64: data = read_doubles(f, mesh_count(m, dim) * ncomps);
+                  break;
   }
   mesh_add_tag(m, dim, type, name, ncomps, data);
   seek_prefix(f, line, sizeof(line), "</DataArray");
