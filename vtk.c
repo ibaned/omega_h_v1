@@ -16,13 +16,12 @@ static unsigned const vtk_types[4] = {
   10
 };
 
-static void write_field(FILE* file, struct mesh* m, unsigned dim,
+static void write_field(FILE* file, unsigned nents,
     struct const_field* field)
 {
   fprintf(file, "<DataArray type=\"Float64\" Name=\"%s\""
              " NumberOfComponents=\"%u\" format=\"ascii\">\n",
              field->name, field->ncomps);
-  unsigned nents = mesh_count(m, dim);
   double const* p = field->data;
   for (unsigned i = 0; i < nents; ++i) {
     for (unsigned j = 0; j < field->ncomps; ++j)
@@ -32,13 +31,12 @@ static void write_field(FILE* file, struct mesh* m, unsigned dim,
   fprintf(file, "</DataArray>\n");
 }
 
-static void write_label(FILE* file, struct mesh* m, unsigned dim,
+static void write_label(FILE* file, unsigned nents,
     struct const_label* label)
 {
   fprintf(file, "<DataArray type=\"UInt32\" Name=\"%s\""
              " NumberOfComponents=\"1\" format=\"ascii\">\n",
              label->name);
-  unsigned nents = mesh_count(m, dim);
   unsigned const* p = label->data;
   for (unsigned i = 0; i < nents; ++i)
     fprintf(file, " %u\n", p[i]);
@@ -67,7 +65,7 @@ void write_vtk(struct mesh* m, char const* filename)
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\">\n", nverts, nelems);
   fprintf(file, "<Points>\n");
   struct const_field* coord_field = mesh_find_field(m, 0, "coordinates");
-  write_field(file, m, 0, coord_field);
+  write_field(file, nverts, coord_field);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
   fprintf(file, "<DataArray type=\"UInt32\" Name=\"connectivity\" format=\"ascii\">\n");
@@ -92,23 +90,23 @@ void write_vtk(struct mesh* m, char const* filename)
   fprintf(file, "<PointData>\n");
   for (unsigned i = 0; i < mesh_count_labels(m, 0); ++i) {
     struct const_label* label = mesh_get_label(m, 0, i);
-    write_label(file, m, 0, label);
+    write_label(file, nverts, label);
   }
   for (unsigned i = 0; i < mesh_count_fields(m, 0); ++i) {
     struct const_field* field = mesh_get_field(m, 0, i);
     if (field != coord_field)
-      write_field(file, m, 0, field);
+      write_field(file, nverts, field);
   }
   fprintf(file, "</PointData>\n");
   fprintf(file, "<CellData>\n");
   for (unsigned i = 0; i < mesh_count_labels(m, mesh_dim(m)); ++i) {
     struct const_label* label = mesh_get_label(m, mesh_dim(m), i);
-    write_label(file, m, mesh_dim(m), label);
+    write_label(file, nelems, label);
   }
   for (unsigned i = 0; i < mesh_count_fields(m, mesh_dim(m)); ++i) {
     struct const_field* field = mesh_get_field(m, mesh_dim(m), i);
     if (field != coord_field)
-      write_field(file, m, mesh_dim(m), field);
+      write_field(file, nelems, field);
   }
   fprintf(file, "</CellData>\n");
   fprintf(file, "</Piece>\n");
