@@ -1,7 +1,5 @@
 #include "vtk.h"
 #include <stdio.h>   // for fprintf, FILE, fclose, fopen, printf
-#include "field.h"   // for const_field
-#include "label.h"   // for const_label
 #include "mesh.h"    // for mesh_count, mesh_dim, mesh_find_label
 #include "tables.h"  // for the_down_degrees
 #include "loop.h"    // for loop_host_malloc
@@ -9,37 +7,41 @@
 #include <assert.h>  // for assert
 #include <stdlib.h>  // for atoi
 
-static unsigned const vtk_types[4] = {
+static unsigned const cell_types[4] = {
   1,
   3,
   5,
   10
 };
 
-static void write_field(FILE* file, unsigned nents,
-    struct const_field* field)
-{
-  fprintf(file, "<DataArray type=\"Float64\" Name=\"%s\""
-             " NumberOfComponents=\"%u\" format=\"ascii\">\n",
-             field->name, field->ncomps);
-  double const* p = field->data;
-  for (unsigned i = 0; i < nents; ++i) {
-    for (unsigned j = 0; j < field->ncomps; ++j)
-      fprintf(file, " %e", *p++);
-    fprintf(file, "\n");
-  }
-  fprintf(file, "</DataArray>\n");
-}
+static char const* const type_names[TAG_TYPES] = {
+  [TAG_U32] = "UInt32",
+  [TAG_F64] = "Float64"
+};
 
-static void write_label(FILE* file, unsigned nents,
-    struct const_label* label)
+static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
 {
-  fprintf(file, "<DataArray type=\"UInt32\" Name=\"%s\""
-             " NumberOfComponents=\"1\" format=\"ascii\">\n",
-             label->name);
-  unsigned const* p = label->data;
-  for (unsigned i = 0; i < nents; ++i)
-    fprintf(file, " %u\n", p[i]);
+  fprintf(file, "<DataArray type=\"%s\" Name=\"%s\""
+             " NumberOfComponents=\"%u\" format=\"ascii\">\n",
+             type_names[tag->type], tag->name, tag->ncomps);
+  switch (tag->type) {
+    case TAG_U32: {
+      unsigned const* p = tag->data;
+      for (unsigned i = 0; i < nents; ++i) {
+        for (unsigned j = 0; j < tag->ncomps; ++j)
+          fprintf(file, " %u", *p++);
+        fprintf(file, "\n");
+      }
+    }
+    case TAG_F64: {
+      double const* p = tag->data;
+      for (unsigned i = 0; i < nents; ++i) {
+        for (unsigned j = 0; j < tag->ncomps; ++j)
+          fprintf(file, " %e", *p++);
+        fprintf(file, "\n");
+      }
+    }
+  }
   fprintf(file, "</DataArray>\n");
 }
 
@@ -64,8 +66,8 @@ void write_vtk(struct mesh* m, char const* filename)
   fprintf(file, "<UnstructuredGrid>\n");
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\">\n", nverts, nelems);
   fprintf(file, "<Points>\n");
-  struct const_field* coord_field = mesh_find_field(m, 0, "coordinates");
-  write_field(file, nverts, coord_field);
+  struct const_tag* coord_tag = mesh_find_tag(m, 0, "coordinates");
+  write_tag(file, nverts, coord_tag);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
   fprintf(file, "<DataArray type=\"UInt32\" Name=\"connectivity\" format=\"ascii\">\n");
@@ -82,31 +84,22 @@ void write_vtk(struct mesh* m, char const* filename)
     fprintf(file, "%u\n", (i + 1) * down_degree);
   fprintf(file, "</DataArray>\n");
   fprintf(file, "%s\n", types_header);
-  unsigned type = vtk_types[elem_dim];
+  unsigned type = cell_types[elem_dim];
   for (unsigned i = 0; i < nelems; ++i)
     fprintf(file, "%u\n", type);
   fprintf(file, "</DataArray>\n");
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
-  for (unsigned i = 0; i < mesh_count_labels(m, 0); ++i) {
-    struct const_label* label = mesh_get_label(m, 0, i);
-    write_label(file, nverts, label);
-  }
-  for (unsigned i = 0; i < mesh_count_fields(m, 0); ++i) {
-    struct const_field* field = mesh_get_field(m, 0, i);
-    if (field != coord_field)
-      write_field(file, nverts, field);
+  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
+    struct const_tag* tag = mesh_get_tag(m, 0, i);
+    if (tag != coord_tag)
+      write_tag(file, nverts, tag);
   }
   fprintf(file, "</PointData>\n");
   fprintf(file, "<CellData>\n");
-  for (unsigned i = 0; i < mesh_count_labels(m, mesh_dim(m)); ++i) {
-    struct const_label* label = mesh_get_label(m, mesh_dim(m), i);
-    write_label(file, nelems, label);
-  }
-  for (unsigned i = 0; i < mesh_count_fields(m, mesh_dim(m)); ++i) {
-    struct const_field* field = mesh_get_field(m, mesh_dim(m), i);
-    if (field != coord_field)
-      write_field(file, nelems, field);
+  for (unsigned i = 0; i < mesh_count_tags(m, mesh_dim(m)); ++i) {
+    struct const_tag* tag = mesh_get_tag(m, mesh_dim(m), i);
+    write_tag(file, nelems, tag);
   }
   fprintf(file, "</CellData>\n");
   fprintf(file, "</Piece>\n");
@@ -171,13 +164,14 @@ static void read_array_name(char const header[], char name[])
   read_attrib(header, "Name", name);
 }
 
-enum array_type { FIELD, LABEL };
-
-static enum array_type read_array_type(char const header[])
+static enum tag_type read_array_type(char const header[])
 {
   line_t val;
   read_attrib(header, "type", val);
-  return strstr(val, "Float") ? FIELD : LABEL;
+  for (unsigned type = 0; type < TAG_TYPES; ++type)
+    if (!strcmp(type_names[type], val))
+      return type;
+  assert(0);
 }
 
 static unsigned read_int_attrib(char const header[], char const attrib[])
@@ -224,11 +218,11 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
   unsigned* types = read_ints(f, nelems);
   unsigned dim;
   for (dim = 0; dim < 4; ++dim)
-    if (types[0] == vtk_types[dim])
+    if (types[0] == cell_types[dim])
       break;
   assert(dim < 4);
   for (unsigned i = 1; i < nelems; ++i)
-    assert(types[i] == vtk_types[dim]);
+    assert(types[i] == cell_types[dim]);
   loop_host_free(types);
   return dim;
 }
@@ -239,17 +233,16 @@ static unsigned read_mesh_array(FILE* f, struct mesh* m,
   line_t line;
   if (!seek_prefix_next(f, line, sizeof(line), "<DataArray"))
     return 0;
-  enum array_type at = read_array_type(line);
+  enum tag_type type = read_array_type(line);
   line_t name;
   read_array_name(line, name);
-  if (at == FIELD) {
-    unsigned ncomps = read_array_ncomps(line);
-    double* data = read_doubles(f, mesh_count(m, dim) * ncomps);
-    mesh_add_field(m, dim, name, ncomps, data);
-  } else {
-    unsigned* data = read_ints(f, mesh_count(m, dim));
-    mesh_add_label(m, dim, name, data);
+  unsigned ncomps = read_array_ncomps(line);
+  void* data;
+  switch (type) {
+    case TAG_U32: data = read_ints(f, mesh_count(m, dim) * ncomps);
+    case TAG_F64: data = read_doubles(f, mesh_count(m, dim) * ncomps);
   }
+  mesh_add_tag(m, dim, type, name, ncomps, data);
   seek_prefix(f, line, sizeof(line), "</DataArray");
   return 1;
 }

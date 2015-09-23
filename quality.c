@@ -3,7 +3,6 @@
 #include "loop.h"   // for free, malloc
 #include "algebra.h"  // for copy_vector, vector_squared_distance
 #include "doubles.h"  // for doubles_min
-#include "field.h"    // for const_field
 #include "mesh.h"     // for mesh_dim, mesh_ask_down, mesh_count, mesh_find_...
 #include "size.h"     // for triangle_area, tet_volume, triangle_z_area
 #include "tables.h"   // for the_canonical_orders, MAX_DOWN, the_down_degrees
@@ -141,7 +140,7 @@ double* mesh_qualities(struct mesh* m)
   return element_qualities(mesh_dim(m),
       mesh_count(m, mesh_dim(m)),
       mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_field(m, 0, "coordinates")->data);
+      mesh_find_tag(m, 0, "coordinates")->data);
 }
 
 double mesh_min_quality(struct mesh* m)
@@ -149,5 +148,5 @@ double mesh_min_quality(struct mesh* m)
   return min_element_quality(mesh_dim(m),
       mesh_count(m, mesh_dim(m)),
       mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_field(m, 0, "coordinates")->data);
+      mesh_find_tag(m, 0, "coordinates")->data);
 }

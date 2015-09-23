@@ -1,7 +1,6 @@
 #include "classify_box.h"
 #include <math.h>    // for fabs
 #include "loop.h"  // for malloc
-#include "field.h"   // for const_field
 #include "mesh.h"    // for mesh_add_nodal_label, mesh_count, mesh_find_noda...
 
 #define EPSILON 1e-10
@@ -25,7 +24,7 @@ unsigned* classify_box(
 
 void mesh_classify_box(struct mesh* m)
 {
-  mesh_add_label(m, 0, "class_dim",
+  mesh_add_tag(m, 0, TAG_U32, "class_dim", 1,
       classify_box(mesh_count(m, 0),
-        mesh_find_field(m, 0, "coordinates")->data));
+        mesh_find_tag(m, 0, "coordinates")->data));
 }

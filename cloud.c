@@ -1,14 +1,11 @@
 #include "cloud.h"
-#include "field.h"
-#include "label.h"
 #include "loop.h"
 #include <string.h>
 
 struct cloud {
   unsigned count;
   int padding__;
-  struct fields fields;
-  struct labels labels;
+  struct tags tags;
 };
 
 struct cloud* new_cloud(unsigned count)
@@ -21,8 +18,7 @@ struct cloud* new_cloud(unsigned count)
 
 void free_cloud(struct cloud* c)
 {
-  free_fields(&c->fields);
-  free_labels(&c->labels);
+  free_tags(&c->tags);
 }
 
 unsigned cloud_count(struct cloud* c)
@@ -30,54 +26,28 @@ unsigned cloud_count(struct cloud* c)
   return c->count;
 }
 
-struct const_field* cloud_add_field(struct cloud* c, char const* name,
-    unsigned ncomps, double* data)
+struct const_tag* cloud_add_tag(struct cloud* c, enum tag_type type,
+    char const* name, unsigned ncomps, double* data)
 {
-  return add_field(&c->fields, name, ncomps, data);
+  return add_tag(&c->tags, type, name, ncomps, data);
 }
 
-void cloud_free_field(struct cloud* c, char const* name)
+void cloud_free_tag(struct cloud* c, char const* name)
 {
-  remove_field(&c->fields, name);
+  remove_tag(&c->tags, name);
 }
 
-struct const_field* cloud_find_field(struct cloud* c, char const* name)
+struct const_tag* cloud_find_tag(struct cloud* c, char const* name)
 {
-  return (struct const_field*) find_field(&c->fields, name);
+  return (struct const_tag*) find_tag(&c->tags, name);
 }
 
-unsigned cloud_count_fields(struct cloud* c)
+unsigned cloud_count_tags(struct cloud* c)
 {
-  return c->fields.n;
+  return c->tags.n;
 }
 
-struct const_field* cloud_get_field(struct cloud* c, unsigned i)
+struct const_tag* cloud_get_tag(struct cloud* c, unsigned i)
 {
-  return get_field(&c->fields, i);
-}
-
-struct const_label* cloud_add_label(struct cloud* c, char const* name,
-    unsigned* data)
-{
-  return add_label(&c->labels, name, data);
-}
-
-void cloud_free_label(struct cloud* c, char const* name)
-{
-  remove_label(&c->labels, name);
-}
-
-struct const_label* cloud_find_label(struct cloud* c, char const* name)
-{
-  return find_label(&c->labels, name);
-}
-
-unsigned cloud_count_labels(struct cloud* c)
-{
-  return c->labels.n;
-}
-
-struct const_label* cloud_get_label(struct cloud* c, unsigned i)
-{
-  return get_label(&c->labels, i);
+  return get_tag(&c->tags, i);
 }

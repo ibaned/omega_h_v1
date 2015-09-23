@@ -3,11 +3,9 @@
 #include "loop.h"          // for free
 #include "concat.h"          // for concat_verts_of_elems
 #include "doubles.h"         // for doubles_copy
-#include "field.h"           // for const_field
 #include "graph.h"           // for const_graph
 #include "indset.h"          // for find_indset
 #include "ints.h"            // for ints_max, ints_exscan, ints_copy, ints_n...
-#include "label.h"           // for const_label
 #include "mark.h"            // for mesh_mark_up, unmark_boundary
 #include "mesh.h"            // for mesh_ask_up, mesh_count, mesh_ask_down
 #include "quality.h"         // for mesh_qualities
@@ -25,7 +23,7 @@ unsigned swap_common(
   if (!ints_max(candidates, nedges))
     return 0;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  unsigned const* class_dim = mesh_find_label(m, 0, "class_dim")->data;
+  unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->data;
   unmark_boundary(elem_dim, 1, nedges, verts_of_edges, class_dim, candidates);
   if (!ints_max(candidates, nedges))
     return 0;
@@ -36,7 +34,7 @@ unsigned swap_common(
   unsigned const* elems_of_edges_directions =
     mesh_ask_up(m, 1, elem_dim)->directions;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  double const* coords = mesh_find_field(m, 0, "coordinates")->data;
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->data;
   double* elem_quals = mesh_qualities(m);
   double* edge_quals;
   unsigned* edge_codes;
@@ -87,15 +85,16 @@ unsigned swap_common(
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts, 0);
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
-  for (unsigned i = 0; i < mesh_count_fields(m, 0); ++i) {
-    struct const_field* f = mesh_get_field(m, 0, i);
-    double* data = doubles_copy(f->data, nverts * f->ncomps);
-    mesh_add_field(m_out, 0, f->name, f->ncomps, data);
-  }
-  for (unsigned i = 0; i < mesh_count_labels(m, 0); ++i) {
-    struct const_label* l = mesh_get_label(m, 0, i);
-    unsigned* data = ints_copy(l->data, nverts);
-    mesh_add_label(m_out, 0, l->name, data);
+  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
+    struct const_tag* t = mesh_get_tag(m, 0, i);
+    void* data;
+    switch (t->type) {
+      case TAG_F64: data = doubles_copy(t->data, nverts * t->ncomps);
+                    break;
+      case TAG_U32: data = ints_copy(t->data, nverts * t->ncomps);
+                    break;
+    };
+    mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, data);
   }
   free_mesh(m);
   *p_m = m_out;

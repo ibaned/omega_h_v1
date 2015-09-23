@@ -11,7 +11,7 @@ double* recover_by_volume(
 
 struct mesh;
 
-struct const_field* mesh_recover_by_volume(
+struct const_tag* mesh_recover_by_volume(
     struct mesh* m, char const* name);
 
 #endif

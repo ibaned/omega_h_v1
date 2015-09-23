@@ -2,7 +2,6 @@
 #include <stdio.h>    // for printf
 #include "loop.h"     // for malloc
 #include "doubles.h"  // for doubles_axpy
-#include "field.h"    // for const_field
 #include "mesh.h"     // for mesh_dim, mesh_add_nodal_field, mesh_count, mes...
 #include "quality.h"  // for min_element_quality
 
@@ -62,13 +61,13 @@ unsigned mesh_warp_to_limit(struct mesh* m, double qual_floor)
       mesh_count(m, mesh_dim(m)),
       mesh_count(m, 0),
       mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_field(m, 0, "coordinates")->data,
-      mesh_find_field(m, 0, "warp")->data,
+      mesh_find_tag(m, 0, "coordinates")->data,
+      mesh_find_tag(m, 0, "warp")->data,
       qual_floor,
       &coords, &warps);
-  mesh_free_field(m, 0, "coordinates");
-  mesh_free_field(m, 0, "warp");
-  mesh_add_field(m, 0, "coordinates", 3, coords);
-  mesh_add_field(m, 0, "warp", 3, warps);
+  mesh_free_tag(m, 0, "coordinates");
+  mesh_free_tag(m, 0, "warp");
+  mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, coords);
+  mesh_add_tag(m, 0, TAG_F64, "warp", 3, warps);
   return ok;
 }

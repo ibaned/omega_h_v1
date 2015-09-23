@@ -4,7 +4,6 @@
 #include "subset.h"
 #include "loop.h"
 #include "ints.h"
-#include "field.h"
 #include "recover_by_volume.h"
 #include <assert.h>
 #include <stdio.h>
@@ -33,8 +32,10 @@ int main(int argc, char** argv)
     return -1;
   }
   struct mesh* m = read_vtk(argv[1]);
-  for (unsigned i = 0; i < mesh_count_fields(m, mesh_dim(m)); ++i) {
-    struct const_field* f = mesh_get_field(m, mesh_dim(m), i);
+  for (unsigned i = 0; i < mesh_count_tags(m, mesh_dim(m)); ++i) {
+    struct const_tag* f = mesh_get_tag(m, mesh_dim(m), i);
+    if (f->type != TAG_F64)
+      continue;
     mesh_recover_by_volume(m, f->name);
   }
   unsigned d = mesh_dim(m);

@@ -7,11 +7,9 @@
 #include "collapses_to_elements.h"  // for collapses_to_elements
 #include "collapses_to_verts.h"     // for collapses_to_verts
 #include "concat.h"                 // for concat_verts_of_elems
-#include "field.h"                  // for const_field
 #include "graph.h"                  // for const_graph
 #include "indset.h"                 // for find_indset
 #include "ints.h"                   // for ints_max, ints_exscan, ints_negat...
-#include "label.h"                  // for const_label
 #include "mesh.h"                   // for mesh_ask_up, const_up, mesh_count
 #include "quality.h"                // for element_qualities
 #include "subset.h"                 // for doubles_subset, ints_subset
@@ -28,11 +26,11 @@ unsigned coarsen_common(
   if (ints_max(col_codes, nedges) == DONT_COLLAPSE)
     return 0;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  double const* coords = mesh_find_field(m, 0, "coordinates")->data;
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->data;
   unsigned nverts = mesh_count(m, 0);
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
-  unsigned const* class_dim = mesh_find_label(m, 0, "class_dim")->data;
+  unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->data;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned const* verts_of_verts_offsets = mesh_ask_star(m, 0, elem_dim)->offsets;
   unsigned const* verts_of_verts = mesh_ask_star(m, 0, elem_dim)->adj;
@@ -110,15 +108,17 @@ unsigned coarsen_common(
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts_out, 0);
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
-  for (unsigned i = 0; i < mesh_count_fields(m, 0); ++i) {
-    struct const_field* f = mesh_get_field(m, 0, i);
-    double* vals_out = doubles_subset(nverts, f->ncomps, f->data,
+  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
+    struct const_tag* t = mesh_get_tag(m, 0, i);
+    if (t->type != TAG_F64)
+      continue;
+    double* vals_out = doubles_subset(nverts, t->ncomps, t->data,
         offset_of_same_verts);
-    mesh_add_field(m_out, 0, f->name, f->ncomps, vals_out);
+    mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
   }
   unsigned* class_dim_out = ints_subset(nverts, 1, class_dim,
       offset_of_same_verts);
-  mesh_add_label(m_out, 0, "class_dim", class_dim_out);
+  mesh_add_tag(m_out, 0, TAG_U32, "class_dim", 1, class_dim_out);
   loop_free(offset_of_same_verts);
   free_mesh(m);
   *p_m = m_out;

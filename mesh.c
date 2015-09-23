@@ -4,9 +4,7 @@
 #include "loop.h"          // for free, malloc, calloc
 #include "bridge_graph.h"  // for bridge_dual_graph, bridge_graph
 #include "derive_faces.h"  // for derive_faces
-#include "field.h"         // for find_field, fields, add_field, free_field
 #include "graph.h"         // for graph (ptr only), free_graph, const_graph
-#include "label.h"         // for labels, add_label, find_label, free_labels
 #include "reflect_down.h"  // for get_dual, reflect_down
 #include "star.h"          // for get_star
 #include "tables.h"        // for the_box_conns, the_box_coords, the_box_n...
@@ -26,8 +24,7 @@ struct mesh {
   struct up* up[4][4];
   struct graph* star[4][4];
   unsigned* dual;
-  struct fields fields[4];
-  struct labels labels[4];
+  struct tags tags[4];
 };
 
 static struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
@@ -71,7 +68,7 @@ struct mesh* new_box_mesh(unsigned elem_dim)
   double* coords = loop_malloc(nbytes);
   memcpy(coords, the_box_coords[elem_dim], nbytes);
   mesh_set_ents(m, elem_dim, nelems, verts_of_elems);
-  mesh_add_field(m, 0, "coordinates", 3, coords);
+  mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, coords);
   return m;
 }
 
@@ -101,23 +98,15 @@ void free_mesh(struct mesh* m)
       free_graph(m->star[low_dim][high_dim]);
     }
   loop_free(m->dual);
-  for (unsigned d = 0; d < 4; ++d) {
-    free_fields(&m->fields[d]);
-    free_labels(&m->labels[d]);
-  }
+  for (unsigned d = 0; d < 4; ++d)
+    free_tags(&m->tags[d]);
   loop_free(m);
 }
 
-struct const_field* mesh_find_field(struct mesh* m, unsigned dim,
+struct const_tag* mesh_find_tag(struct mesh* m, unsigned dim,
     char const* name)
 {
-  return find_field(&m->fields[dim], name);
-}
-
-struct const_label* mesh_find_label(struct mesh* m, unsigned dim,
-    char const* name)
-{
-  return find_label(&m->labels[dim], name);
+  return find_tag(&m->tags[dim], name);
 }
 
 static void set_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
@@ -241,39 +230,23 @@ void mesh_set_ents(struct mesh* m, unsigned dim, unsigned n, unsigned* verts)
   set_down(m, dim, 0, verts);
 }
 
-struct const_field* mesh_add_field(struct mesh* m, unsigned dim, char const* name,
-    unsigned ncomps, double* data)
+struct const_tag* mesh_add_tag(struct mesh* m, unsigned dim, enum tag_type type,
+    char const* name, unsigned ncomps, void* data)
 {
-  return add_field(&m->fields[dim], name, ncomps, data);
+  return add_tag(&m->tags[dim], type, name, ncomps, data);
 }
 
-void mesh_free_field(struct mesh* m, unsigned dim, char const* name)
+void mesh_free_tag(struct mesh* m, unsigned dim, char const* name)
 {
-  remove_field(&m->fields[dim], name);
+  remove_tag(&m->tags[dim], name);
 }
 
-struct const_label* mesh_add_label(struct mesh* m, unsigned dim, char const* name,
-    unsigned* data)
+unsigned mesh_count_tags(struct mesh* m, unsigned dim)
 {
-  return add_label(&m->labels[dim], name, data);
+  return count_tags(&m->tags[dim]);
 }
 
-unsigned mesh_count_fields(struct mesh* m, unsigned dim)
+struct const_tag* mesh_get_tag(struct mesh* m, unsigned dim, unsigned i)
 {
-  return m->fields[dim].n;
-}
-
-struct const_field* mesh_get_field(struct mesh* m, unsigned dim, unsigned i)
-{
-  return get_field(&m->fields[dim], i);
-}
-
-unsigned mesh_count_labels(struct mesh* m, unsigned dim)
-{
-  return m->labels[dim].n;
-}
-
-struct const_label* mesh_get_label(struct mesh* m, unsigned dim, unsigned i)
-{
-  return get_label(&m->labels[dim], i);
+  return get_tag(&m->tags[dim], i);
 }

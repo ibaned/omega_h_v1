@@ -1,11 +1,9 @@
 #include "refine_common.h"
 #include "loop.h"              // for free, malloc
 #include "concat.h"              // for concat_doubles, concat_ints, concat_...
-#include "field.h"               // for const_field
 #include "graph.h"               // for const_graph
 #include "indset.h"              // for find_indset
 #include "ints.h"                // for ints_max, ints_exscan, ints_negate_o...
-#include "label.h"               // for const_label
 #include "mesh.h"                // for mesh_ask_down, mesh_ask_up, mesh_count
 #include "quality.h"             // for mesh_qualities
 #include "refine_class.h"        // for refine_class
@@ -34,7 +32,7 @@ unsigned refine_common(
     mesh_ask_up(m, src_dim, elem_dim)->adj;
   unsigned const* elems_of_srcs_directions =
     mesh_ask_up(m, src_dim, elem_dim)->directions;
-  double const* coords = mesh_find_field(m, 0, "coordinates")->data;
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->data;
   double* elem_quals = 0;
   if (require_better)
     elem_quals = mesh_qualities(m);
@@ -81,23 +79,25 @@ unsigned refine_common(
   struct mesh* m_out = new_mesh(elem_dim);
   unsigned nverts_out = nverts + nsplit_srcs;
   mesh_set_ents(m_out, 0, nverts_out, 0);
-  for (unsigned i = 0; i < mesh_count_fields(m, 0); ++i) {
-    struct const_field* f = mesh_get_field(m, 0, i);
+  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
+    struct const_tag* t = mesh_get_tag(m, 0, i);
+    if (t->type != TAG_F64)
+      continue;
     double* gen_vals = refine_nodal(src_dim, nsrcs, verts_of_srcs,
-        gen_offset_of_srcs, f->ncomps, f->data);
-    double* vals_out = concat_doubles(f->ncomps, f->data, nverts,
+        gen_offset_of_srcs, t->ncomps, t->data);
+    double* vals_out = concat_doubles(t->ncomps, t->data, nverts,
         gen_vals, nsplit_srcs);
     loop_free(gen_vals);
-    mesh_add_field(m_out, 0, f->name, f->ncomps, vals_out);
+    mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
   }
-  if (mesh_find_label(m, 0, "class_dim")) {
-    unsigned const* class_dim = mesh_find_label(m, 0, "class_dim")->data;
+  if (mesh_find_tag(m, 0, "class_dim")) {
+    unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->data;
     unsigned* gen_class_dim = refine_class(src_dim, nsrcs, verts_of_srcs,
         gen_offset_of_srcs, class_dim);
     unsigned* class_dim_out = concat_ints(1, class_dim, nverts,
         gen_class_dim, nsplit_srcs);
     loop_free(gen_class_dim);
-    mesh_add_label(m_out, 0, "class_dim", class_dim_out);
+    mesh_add_tag(m_out, 0, TAG_U32, "class_dim", 1, class_dim_out);
   }
   loop_free(gen_offset_of_srcs);
   unsigned* offset_of_same_elems = ints_negate_offsets(

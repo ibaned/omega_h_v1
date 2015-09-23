@@ -1,6 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include "tag.h"
+
 struct graph;
 struct mesh;
 
@@ -29,11 +31,10 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim,
 unsigned const* mesh_ask_dual(struct mesh* m);
 
 struct const_tag* mesh_add_tag(struct mesh* m, unsigned dim, enum tag_type type,
-    char const* name,  unsigned ncomps, double* data);
+    char const* name, unsigned ncomps, void* data);
 void mesh_free_tag(struct mesh* m, unsigned dim, char const* name);
-struct const_field* mesh_find_field(struct mesh* m, unsigned dim,
-    char const* name);
-unsigned mesh_count_fields(struct mesh* m, unsigned dim);
-struct const_field* mesh_get_field(struct mesh* m, unsigned dim, unsigned i);
+struct const_tag* mesh_find_tag(struct mesh* m, unsigned dim, char const* name);
+unsigned mesh_count_tags(struct mesh* m, unsigned dim);
+struct const_tag* mesh_get_tag(struct mesh* m, unsigned dim, unsigned i);
 
 #endif

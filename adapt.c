@@ -5,7 +5,6 @@
 #include "coarsen_by_size.h"  // for coarsen_by_size
 #include "coarsen_slivers.h"  // for coarsen_slivers
 #include "doubles.h"          // for doubles_max, doubles_min
-#include "field.h"            // for const_field
 #include "measure_edges.h"    // for measure_edges
 #include "mesh.h"             // for mesh_count, mesh_dim, mesh_find_field
 #include "quality.h"          // for mesh_min_quality
@@ -23,8 +22,8 @@ static void adapt_summary(struct mesh* m)
   printf("min quality %.2e, ", mesh_min_quality(m));
   unsigned nedges = mesh_count(m, 1);
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  double const* coords = mesh_find_field(m, 0, "coordinates")->data;
-  double const* size = mesh_find_field(m, 0, "adapt_size")->data;
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->data;
+  double const* size = mesh_find_tag(m, 0, "adapt_size")->data;
   double* edge_sizes = measure_edges(nedges, verts_of_edges, coords, size);
   double min = doubles_min(edge_sizes, nedges);
   double max = doubles_max(edge_sizes, nedges);

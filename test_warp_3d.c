@@ -94,7 +94,7 @@ int main()
       mesh_eval_field(m, "warp", 3, warp_fun);
       printf("new warp field\n");
       warped_adapt(&m);
-      mesh_free_field(m, 0, "warp");
+      mesh_free_tag(m, 0, "warp");
     }
     the_rotation = -the_rotation;
   }

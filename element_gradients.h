@@ -11,7 +11,7 @@ double* element_gradients(
 
 struct mesh;
 
-struct const_field* mesh_element_gradients(
+struct const_tag* mesh_element_gradients(
     struct mesh* m, char const* name);
 
 #endif

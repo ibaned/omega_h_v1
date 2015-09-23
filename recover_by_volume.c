@@ -2,7 +2,6 @@
 #include <string.h>  // for strcat, strcpy
 #include "loop.h"  // for malloc, free
 #include <string.h>  // for strlen
-#include "field.h"   // for const_field
 #include "mesh.h"    // for mesh_ask_up, mesh_dim, mesh_find_field
 #include "size.h"    // for mesh_element_sizes
 
@@ -36,19 +35,19 @@ double* recover_by_volume(
   return comps_of_verts;
 }
 
-struct const_field* mesh_recover_by_volume(
+struct const_tag* mesh_recover_by_volume(
     struct mesh* m, char const* name)
 {
   mesh_element_sizes(m);
-  double const* elem_sizes = mesh_find_field(
+  double const* elem_sizes = mesh_find_tag(
       m, mesh_dim(m), "elem_size")->data;
-  struct const_field* f = mesh_find_field(m, mesh_dim(m), name);
+  struct const_tag* t = mesh_find_tag(m, mesh_dim(m), name);
   double* data = recover_by_volume(mesh_count(m, 0),
       mesh_ask_up(m, 0, mesh_dim(m))->offsets,
       mesh_ask_up(m, 0, mesh_dim(m))->adj,
       elem_sizes,
-      f->ncomps, f->data);
-  mesh_free_field(m, mesh_dim(m), "elem_size");
-  struct const_field* out = mesh_add_field(m, 0, name, f->ncomps, data);
+      t->ncomps, t->data);
+  mesh_free_tag(m, mesh_dim(m), "elem_size");
+  struct const_tag* out = mesh_add_tag(m, 0, TAG_F64, name, t->ncomps, data);
   return out;
 }

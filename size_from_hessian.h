@@ -11,7 +11,7 @@ double* size_from_hessian(
 
 struct mesh;
 
-struct const_field* mesh_size_from_hessian(struct mesh* m, char const* hess_name,
+struct const_tag* mesh_size_from_hessian(struct mesh* m, char const* hess_name,
     double const sol_comp_weights[], double min_h, double max_h);
 
 #endif

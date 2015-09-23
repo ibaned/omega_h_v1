@@ -67,17 +67,17 @@ static void dye_fun(double const coords[3], double v[])
 
 static void set_size_field(struct mesh* m)
 {
-  mesh_free_field(m, 0, "adapt_size");
+  mesh_free_tag(m, 0, "adapt_size");
   mesh_element_gradients(m, "dye");
   mesh_recover_by_volume(m, "grad_dye");
-  mesh_free_field(m, mesh_dim(m),  "grad_dye");
+  mesh_free_tag(m, mesh_dim(m),  "grad_dye");
   mesh_element_gradients(m, "grad_dye");
-  mesh_free_field(m, 0, "grad_dye");
+  mesh_free_tag(m, 0, "grad_dye");
   mesh_recover_by_volume(m, "grad_grad_dye");
-  mesh_free_field(m, mesh_dim(m), "grad_grad_dye");
+  mesh_free_tag(m, mesh_dim(m), "grad_grad_dye");
   double weight = 0.075 / 100.0;
   mesh_size_from_hessian(m, "grad_grad_dye", &weight, 0.025, 0.1);
-  mesh_free_field(m, 0, "grad_grad_dye");
+  mesh_free_tag(m, 0, "grad_grad_dye");
 }
 
 static void warped_adapt(struct mesh** p_m)
@@ -111,7 +111,7 @@ int main()
       mesh_eval_field(m, "warp", 3, warp_fun);
       printf("new warp field\n");
       warped_adapt(&m);
-      mesh_free_field(m, 0, "warp");
+      mesh_free_tag(m, 0, "warp");
     }
     the_rotation = -the_rotation;
   }

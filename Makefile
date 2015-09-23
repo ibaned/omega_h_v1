@@ -40,8 +40,6 @@ collapses_to_elements.c \
 refine_class.c \
 mesh.c \
 graph.c \
-field.c \
-label.c \
 warp_to_limit.c \
 eval_field.c \
 element_gradients.c \
@@ -64,7 +62,8 @@ find_roots.c \
 inertia.c \
 derive_faces.c \
 node_ele_io.c \
-cloud.c
+cloud.c \
+tag.c
 
 ifeq "$(USE_MPI)" "yes"
 sources += comm_mpi.c

@@ -1,7 +1,6 @@
 #include "subset.h"
 #include <string.h>  // for memcpy
 #include "loop.h"  // for free, malloc
-#include "field.h"   // for const_field
 #include "ints.h"    // for ints_exscan, ints_unscan
 #include "mark.h"    // for mesh_mark_down
 #include "mesh.h"    // for mesh_count, mesh_set_ents, mesh_add_noda...
@@ -71,10 +70,18 @@ struct mesh* subset_mesh(
   struct mesh* out = new_mesh(elem_dim);
   mesh_set_ents(out, 0, nverts_out, 0);
   mesh_set_ents(out, elem_dim, nelems_out, verts_of_elems_out);
-  for (unsigned i = 0; i < mesh_count_fields(m, 0); ++i) {
-    struct const_field* f = mesh_get_field(m, 0, i);
-    double* data_out = doubles_subset(nverts, f->ncomps, f->data, vert_offsets);
-    mesh_add_field(out, 0, f->name, f->ncomps, data_out);
+  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
+    struct const_tag* t = mesh_get_tag(m, 0, i);
+    void* data_out;
+    switch (t->type) {
+      case TAG_F64: data_out = doubles_subset(
+                        nverts, t->ncomps, t->data, vert_offsets);
+                    break;
+      case TAG_U32: data_out = ints_subset(
+                        nverts, t->ncomps, t->data, vert_offsets);
+                    break;
+    }
+    mesh_add_tag(out, 0, t->type, t->name, t->ncomps, data_out);
   }
   return out;
 }

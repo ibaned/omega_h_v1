@@ -2,7 +2,6 @@
 #include <assert.h>   // for assert
 #include "loop.h"   // for malloc
 #include "algebra.h"  // for vector_norm
-#include "field.h"    // for const_field
 #include "mesh.h"     // for mesh_add_nodal_field, mesh_count, mesh_find_nod...
 
 double* size_from_hessian(
@@ -40,11 +39,11 @@ double* size_from_hessian(
   return out;
 }
 
-struct const_field* mesh_size_from_hessian(struct mesh* m, char const* hess_name,
+struct const_tag* mesh_size_from_hessian(struct mesh* m, char const* hess_name,
     double const sol_comp_weights[], double min_h, double max_h)
 {
-  struct const_field* hf = mesh_find_field(m, 0, hess_name);
+  struct const_tag* hf = mesh_find_tag(m, 0, hess_name);
   double* data = size_from_hessian(mesh_count(m, 0),
       hf->ncomps, hf->data, sol_comp_weights, min_h, max_h);
-  return mesh_add_field(m, 0, "adapt_size", 1, data);
+  return mesh_add_tag(m, 0, TAG_F64, "adapt_size", 1, data);
 }

@@ -4,7 +4,6 @@
 #include <string.h>    // for strlen
 #include <assert.h>    // for assert
 #include "algebra.h"   // for copy_vector
-#include "field.h"     // for const_field
 #include "jacobian.h"  // for element_jacobian, jacobian_inverter, the...
 #include "mesh.h"      // for mesh_dim, mesh_find_nodal_field, mesh_ad...
 #include "tables.h"    // for the_down_degrees
@@ -50,20 +49,20 @@ double* element_gradients(
   return out;
 }
 
-struct const_field* mesh_element_gradients(
+struct const_tag* mesh_element_gradients(
     struct mesh* m, char const* name)
 {
-  struct const_field* f = mesh_find_field(m, 0, name);
+  struct const_tag* t = mesh_find_tag(m, 0, name);
   double* data = element_gradients(mesh_dim(m), mesh_count(m, mesh_dim(m)),
       mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_field(m, 0, "coordinates")->data,
-      f->ncomps, f->data);
+      mesh_find_tag(m, 0, "coordinates")->data,
+      t->ncomps, t->data);
   static char const* prefix = "grad_";
-  char* grad_name = loop_malloc(strlen(f->name) + strlen(prefix) + 1);
+  char* grad_name = loop_malloc(strlen(t->name) + strlen(prefix) + 1);
   strcpy(grad_name, prefix);
-  strcat(grad_name, f->name);
-  struct const_field* out = mesh_add_field(
-      m, mesh_dim(m), grad_name, f->ncomps * 3, data);
+  strcat(grad_name, t->name);
+  struct const_tag* out = mesh_add_tag(
+      m, TAG_F64, mesh_dim(m), grad_name, t->ncomps * 3, data);
   loop_free(grad_name);
   return out;
 }
