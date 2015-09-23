@@ -111,7 +111,7 @@ void free_mesh(struct mesh* m)
 struct const_field* mesh_find_field(struct mesh* m, unsigned dim,
     char const* name)
 {
-  return (struct const_field*) find_field(&m->fields[dim], name);
+  return find_field(&m->fields[dim], name);
 }
 
 struct const_label* mesh_find_label(struct mesh* m, unsigned dim,
@@ -244,16 +244,12 @@ void mesh_set_ents(struct mesh* m, unsigned dim, unsigned n, unsigned* verts)
 struct const_field* mesh_add_field(struct mesh* m, unsigned dim, char const* name,
     unsigned ncomps, double* data)
 {
-  struct field* f = new_field(name, ncomps, data);
-  add_field(&m->fields[dim], f);
-  return (struct const_field*) f;
+  return add_field(&m->fields[dim], name, ncomps, data);
 }
 
 void mesh_free_field(struct mesh* m, unsigned dim, char const* name)
 {
-  struct field* f = find_field(&m->fields[dim], name);
-  remove_field(&m->fields[dim], f);
-  free_field(f);
+  remove_field(&m->fields[dim], name);
 }
 
 struct const_label* mesh_add_label(struct mesh* m, unsigned dim, char const* name,
@@ -271,7 +267,7 @@ unsigned mesh_count_fields(struct mesh* m, unsigned dim)
 
 struct const_field* mesh_get_field(struct mesh* m, unsigned dim, unsigned i)
 {
-  return (struct const_field*) m->fields[dim].at[i];
+  return get_field(&m->fields[dim], i);
 }
 
 unsigned mesh_count_labels(struct mesh* m, unsigned dim)

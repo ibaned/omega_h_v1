@@ -1,13 +1,6 @@
 #ifndef FIELD_H
 #define FIELD_H
 
-struct field {
-  char* name;
-  unsigned ncomps;
-  int padding__;
-  double* data;
-};
-
 struct const_field {
   char const* const name;
   unsigned const ncomps;
@@ -15,18 +8,17 @@ struct const_field {
   double const* const data;
 };
 
-struct field* new_field(char const* name, unsigned ncomps, double* data);
-void free_field(struct field* f);
-
 struct fields {
   unsigned n;
   int padding__;
   struct field** at;
 };
 
-void add_field(struct fields* fs, struct field* f);
-void remove_field(struct fields* fs, struct field* f);
+struct const_field* add_field(struct fields* fs, char const* name,
+    unsigned ncomps, double* data);
+void remove_field(struct fields* fs, char const* name);
 void free_fields(struct fields* fs);
-struct field* find_field(struct fields* fs, char const* name);
+struct const_field* find_field(struct fields* fs, char const* name);
+struct const_field* get_field(struct fields* fs, unsigned i);
 
 #endif
