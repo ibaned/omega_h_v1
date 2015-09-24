@@ -1,16 +1,10 @@
 #include "vtk.h"
 #include "mesh.h"
 
-int main()
+int main(int argc, char** argv)
 {
-//{
-//  struct mesh* m = new_box_mesh(3);
-//  write_vtk(m, "one.vtu");
-//  free_mesh(m);
-//}
-  {
-    struct mesh* m = read_vtk("one.vtu");
-    write_vtk(m, "two.vtu");
-    free_mesh(m);
-  }
+  (void) argc;
+  struct mesh* m = read_vtk(argv[1]);
+  write_vtk(m, argv[2]);
+  free_mesh(m);
 }

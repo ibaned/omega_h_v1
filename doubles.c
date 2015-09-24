@@ -44,3 +44,15 @@ double doubles_sum(double const a[], unsigned n)
     s += a[i];
   return s;
 }
+
+double* doubles_exscan(double const* a, unsigned n)
+{
+  double* o = loop_malloc(sizeof(double) * (n + 1));
+  double sum = 0;
+  o[0] = 0;
+  for (unsigned i = 0; i < n; ++i) {
+    sum += a[i];
+    o[i + 1] = sum;
+  }
+  return o;
+}
