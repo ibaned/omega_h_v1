@@ -27,7 +27,7 @@ unsigned cloud_count(struct cloud* c)
 }
 
 struct const_tag* cloud_add_tag(struct cloud* c, enum tag_type type,
-    char const* name, unsigned ncomps, double* data)
+    char const* name, unsigned ncomps, void* data)
 {
   return add_tag(&c->tags, type, name, ncomps, data);
 }
