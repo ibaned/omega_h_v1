@@ -26,7 +26,8 @@ static void form_elem_cloud_2d(
   unsigned res;
   for (res = 1; ((res * (res + 1)) / 2) < elem_pts; ++res);
   fprintf(stderr, "resolution %u\n", res);
-  double dxi = 1.0 / (res + 1);
+  double dxi = 1.0 / (res + 2);
+  fprintf(stderr, "dxi %f\n", dxi);
   unsigned elem_pt = 0;
   unsigned pt_offset = elem_pt_offsets[elem];
   double const* elem_x[3];
@@ -37,10 +38,12 @@ static void form_elem_cloud_2d(
   for (unsigned j = 0; j < (res - i); ++j) {
     if (elem_pt == elem_pts)
       return;
+    fprintf(stderr, "local point %u\n", elem_pt);
     double xi[3];
     xi[0] = (i + 1) * dxi;
     xi[1] = (j + 1) * dxi;
     xi[2] = 1.0 - xi[0] - xi[1];
+    fprintf(stderr, "parent coordinates %f %f %f\n", xi[0], xi[1], xi[2]);
     double* coords_of_pt = coords_of_pts + (pt_offset + elem_pt) * 3;
     for (unsigned k = 0; k < 3; ++k)
       coords_of_pt[k] = 0;
