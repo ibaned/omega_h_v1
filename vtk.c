@@ -1,17 +1,35 @@
 #include "vtk.h"
 #include <stdio.h>   // for fprintf, FILE, fclose, fopen, printf
 #include "mesh.h"    // for mesh_count, mesh_dim, mesh_find_label
+#include "cloud.h"
 #include "tables.h"  // for the_down_degrees
 #include "loop.h"    // for loop_host_malloc
 #include <string.h>  // for strlen
 #include <assert.h>  // for assert
 #include <stdlib.h>  // for atoi
 
-static unsigned const cell_types[4] = {
-  1,
-  3,
-  5,
-  10
+enum cell_type {
+  VTK_VERTEX         = 1,
+  VTK_POLY_VERTEX    = 2,
+  VTK_LINE           = 3,
+  VTK_POLY_LINE      = 4,
+  VTK_TRIANGLE       = 5,
+  VTK_TRIANGLE_STRIP = 6,
+  VTK_POLYGON        = 7,
+  VTK_PIXEL          = 8,
+  VTK_QUAD           = 9,
+  VTK_TETRA          =10,
+  VTK_VOXEL          =11,
+  VTK_HEXAHEDRON     =12,
+  VTK_WEDGE          =13,
+  VTK_PYRAMID        =14,
+};
+
+static enum cell_type const simplex_types[4] = {
+  VTK_VERTEX,
+  VTK_LINE,
+  VTK_TRIANGLE,
+  VTK_TETRA
 };
 
 static char const* const type_names[TAG_TYPES] = {
@@ -86,7 +104,7 @@ void write_vtk(struct mesh* m, char const* filename)
     fprintf(file, "%u\n", (i + 1) * down_degree);
   fprintf(file, "</DataArray>\n");
   fprintf(file, "%s\n", types_header);
-  unsigned type = cell_types[elem_dim];
+  unsigned type = simplex_types[elem_dim];
   for (unsigned i = 0; i < nelems; ++i)
     fprintf(file, "%u\n", type);
   fprintf(file, "</DataArray>\n");
@@ -220,11 +238,11 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
   unsigned* types = read_ints(f, nelems);
   unsigned dim;
   for (dim = 0; dim < 4; ++dim)
-    if (types[0] == cell_types[dim])
+    if (types[0] == simplex_types[dim])
       break;
   assert(dim < 4);
   for (unsigned i = 1; i < nelems; ++i)
-    assert(types[i] == cell_types[dim]);
+    assert(types[i] == simplex_types[dim]);
   loop_host_free(types);
   return dim;
 }
@@ -307,4 +325,42 @@ struct mesh* read_vtk(char const* filename)
   read_vtk_fields(f, m);
   fclose(f);
   return m;
+}
+
+void write_vtk_cloud(struct cloud* c, char const* filename)
+{
+  unsigned npts = cloud_count(c);
+  FILE* file = fopen(filename, "w");
+  fprintf(file, "<VTKFile type=\"UnstructuredGrid\">\n");
+  fprintf(file, "<UnstructuredGrid>\n");
+  fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"1\">\n", npts);
+  fprintf(file, "<Points>\n");
+  struct const_tag* coord_tag = cloud_find_tag(c, "coordinates");
+  write_tag(file, npts, coord_tag);
+  fprintf(file, "</Points>\n");
+  fprintf(file, "<Cells>\n");
+  fprintf(file, "<DataArray type=\"UInt32\" Name=\"connectivity\" format=\"ascii\">\n");
+  for (unsigned i = 0; i < npts; ++i)
+    fprintf(file, "%u\n", i);
+  fprintf(file, "</DataArray>\n");
+  fprintf(file, "<DataArray type=\"UInt32\" Name=\"offsets\" format=\"ascii\">\n");
+  fprintf(file, "%u\n", npts);
+  fprintf(file, "</DataArray>\n");
+  fprintf(file, "%s\n", types_header);
+  fprintf(file, "%u\n", VTK_POLY_VERTEX);
+  fprintf(file, "</DataArray>\n");
+  fprintf(file, "</Cells>\n");
+  fprintf(file, "<PointData>\n");
+  for (unsigned i = 0; i < cloud_count_tags(c); ++i) {
+    struct const_tag* tag = cloud_get_tag(c, i);
+    if (tag != coord_tag)
+      write_tag(file, npts, tag);
+  }
+  fprintf(file, "</PointData>\n");
+  fprintf(file, "<CellData>\n");
+  fprintf(file, "</CellData>\n");
+  fprintf(file, "</Piece>\n");
+  fprintf(file, "</UnstructuredGrid>\n");
+  fprintf(file, "</VTKFile>\n");
+  fclose(file);
 }
