@@ -7,6 +7,8 @@
 #include <math.h>
 #include <assert.h>
 
+#include <stdio.h>
+
 static void form_elem_cloud_2d(
     unsigned elem,
     unsigned const* elem_pt_offsets,
@@ -15,12 +17,15 @@ static void form_elem_cloud_2d(
     double* coords_of_pts,
     unsigned* elem_of_pts)
 {
+  fprintf(stderr, "forming cloud for element %u\n", elem);
   unsigned elem_pts = (elem_pt_offsets[elem + 1]
                      - elem_pt_offsets[elem]);
+  fprintf(stderr, "%u points in this element\n", elem_pts);
   if (!elem_pts)
     return;
   unsigned res;
   for (res = 1; ((res * (res + 1)) / 2) < elem_pts; ++res);
+  fprintf(stderr, "resolution %u\n", res);
   double dxi = 1.0 / (res + 1);
   unsigned elem_pt = 0;
   unsigned pt_offset = elem_pt_offsets[elem];
@@ -54,15 +59,19 @@ struct cloud* form_cloud(struct mesh* m)
   double const* elem_density = mesh_find_tag(m, dim, "cloud_density")->data;
   double const* elem_size = mesh_element_sizes(m);
   double* pts_of_elems = loop_malloc(sizeof(double) * nelems);
-  for (unsigned i = 0; i < nelems; ++i)
+  for (unsigned i = 0; i < nelems; ++i) {
     pts_of_elems[i] = elem_size[i] * elem_density[i];
+    fprintf(stderr, "%f real points for element %u\n", pts_of_elems[i], i);
+  }
   double* real_offset = doubles_exscan(pts_of_elems, nelems);
   loop_free(pts_of_elems);
-  unsigned* uint_offset = loop_malloc(sizeof(unsigned) * nelems);
-  for (unsigned i = 0; i < nelems; ++i)
+  unsigned* uint_offset = loop_malloc(sizeof(unsigned) * (nelems + 1));
+  for (unsigned i = 0; i <= nelems; ++i) {
     uint_offset[i] = (unsigned) (floor(real_offset[i]));
+  }
   loop_free(real_offset);
   unsigned npts = uint_offset[nelems];
+  fprintf(stderr, "%u total cloud points\n", npts);
   struct cloud* c = new_cloud(npts);
   unsigned* pt_elem = loop_malloc(sizeof(unsigned) * npts);
   double* pt_coords = loop_malloc(sizeof(double) * npts * 3);
