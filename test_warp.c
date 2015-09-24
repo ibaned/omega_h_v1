@@ -98,17 +98,17 @@ static void warped_adapt(struct mesh** p_m)
 int main()
 {
   struct mesh* m = new_box_mesh(2);
-  mesh_eval_field(m, "adapt_size", 1, size_fun);
+  mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
   while (refine_by_size(&m, 0));
   mesh_classify_box(m);
   start_vtk_steps("warp");
-  mesh_eval_field(m, "dye", 1, dye_fun);
+  mesh_eval_field(m, 0, "dye", 1, dye_fun);
   set_size_field(m);
   write_vtk_step(m);
   mesh_adapt(&m, size_floor, good_qual_floor, nsliver_layers, max_ops);
   for (unsigned i = 0; i < 2; ++i) {
     for (unsigned j = 0; j < 4; ++j) {
-      mesh_eval_field(m, "warp", 3, warp_fun);
+      mesh_eval_field(m, 0, "warp", 3, warp_fun);
       printf("new warp field\n");
       warped_adapt(&m);
       mesh_free_tag(m, 0, "warp");

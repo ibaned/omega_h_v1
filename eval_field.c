@@ -3,26 +3,24 @@
 #include "mesh.h"    // for mesh_add_nodal_field, mesh_count, mesh_find_noda...
 
 double* eval_field(
-    unsigned nverts,
+    unsigned nents,
     double const* coords,
     unsigned ncomps,
     void (*fun)(double const x[3], double out[]))
 {
-  double* out = loop_malloc(sizeof(double) * ncomps * nverts);
-  double const* vert_coords = coords;
-  double* vert_comps = out;
-  for (unsigned i = 0; i < nverts; ++i) {
-    fun(vert_coords, vert_comps);
-    vert_coords += 3;
-    vert_comps += ncomps;
+  double* out = loop_malloc(sizeof(double) * ncomps * nents);
+  for (unsigned i = 0; i < nents; ++i) {
+    double const* ent_coords = coords + i * 3;
+    double* ent_out = out + i * ncomps;
+    fun(ent_coords, ent_out);
   }
   return out;
 }
 
-void mesh_eval_field(struct mesh* m, char const* name, unsigned ncomps,
-    void (*fun)(double const x[3], double out[]))
+void mesh_eval_field(struct mesh* m, unsigned ent_dim, char const* name,
+    unsigned ncomps, void (*fun)(double const x[3], double out[]))
 {
-  double* data = eval_field(mesh_count(m, 0),
-      mesh_find_tag(m, 0, "coordinates")->data, ncomps, fun);
-  mesh_add_tag(m, 0, TAG_F64, name, ncomps, data);
+  double* data = eval_field(mesh_count(m, ent_dim),
+      mesh_find_tag(m, ent_dim, "coordinates")->data, ncomps, fun);
+  mesh_add_tag(m, ent_dim, TAG_F64, name, ncomps, data);
 }
