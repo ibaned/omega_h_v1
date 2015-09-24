@@ -64,7 +64,8 @@ derive_faces.c \
 node_ele_io.c \
 cloud.c \
 tag.c \
-form_cloud.c
+form_cloud.c \
+element_field.c
 
 ifeq "$(USE_MPI)" "yes"
 sources += comm_mpi.c

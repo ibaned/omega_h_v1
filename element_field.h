@@ -19,4 +19,15 @@ static inline void average_element_field(
     out[i] /= verts_per_elem;
 }
 
+double* interp_to_elems(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* verts_of_elems,
+    unsigned ncomps,
+    double const* in);
+
+struct mesh;
+
+void mesh_interp_to_elems(struct mesh* m, char const* name);
+
 #endif
