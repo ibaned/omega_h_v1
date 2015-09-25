@@ -11,13 +11,13 @@ unsigned find_linear_root(double a, double b, double* root);
    the return value is the number of roots */
 unsigned find_quadratic_roots(
     double a, double b, double c,
-    double roots[]);
+    double* roots);
 
 /* finds the real roots of the cubic polynomial
    a * x^3 + b * x^2 + c * x + d = 0
    the return value is the number of roots */
 unsigned find_cubic_roots(
     double a, double b, double c, double d,
-    double roots[]);
+    double* roots);
 
 #endif

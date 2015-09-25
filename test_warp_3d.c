@@ -18,7 +18,7 @@ static double const size_floor = 1. / 3.;
 static unsigned const nsliver_layers = 4;
 static unsigned const max_ops = 50;
 
-static void size_fun(double const x[], double s[])
+static void size_fun(double const* x, double* s)
 {
   (void)x;
   s[0] = 0.2;
@@ -26,7 +26,7 @@ static void size_fun(double const x[], double s[])
 
 static double the_rotation = 3.14159265359 / 4;
 
-static void warp_fun(double const coords[3], double v[])
+static void warp_fun(double const* coords, double* v)
 {
   double x[3];
   double const mid[3] = {.5, .5, 0};
@@ -45,7 +45,7 @@ static void warp_fun(double const coords[3], double v[])
   subtract_vectors(dst, x, v, 3);
 }
 
-static void dye_fun(double const coords[3], double v[])
+static void dye_fun(double const* coords, double* v)
 {
   double x[3];
   double const l[3] = {.25, .5, .5};

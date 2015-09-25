@@ -3,16 +3,16 @@
 
 unsigned* concat_ints(
     unsigned width,
-    unsigned const a[],
+    unsigned const* a,
     unsigned na,
-    unsigned const b[],
+    unsigned const* b,
     unsigned nb);
 
 double* concat_doubles(
     unsigned width,
-    double const a[],
+    double const* a,
     unsigned na,
-    double const b[],
+    double const* b,
     unsigned nb);
 
 void concat_verts_of_elems(

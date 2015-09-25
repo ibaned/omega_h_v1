@@ -1,12 +1,12 @@
 #include "reflect_down.h"
 #include <assert.h>  // for assert
-#include "loop.h"  // for malloc
+#include "loop.h"    // for malloc
 #include "ints.h"    // for has
 #include "tables.h"  // for the_down_degrees, MAX_UP, INVALID, the_canonical...
 
 static unsigned copy(
-    unsigned const a[],
-    unsigned b[],
+    unsigned const* a,
+    unsigned* b,
     unsigned n)
 {
   for (unsigned i = 0; i < n; ++i)
@@ -15,8 +15,8 @@ static unsigned copy(
 }
 
 static unsigned copy_except(
-    unsigned const a[],
-    unsigned b[],
+    unsigned const* a,
+    unsigned* b,
     unsigned n,
     unsigned exclude_this)
 {
@@ -28,9 +28,9 @@ static unsigned copy_except(
 }
 
 static unsigned intersect(
-    unsigned a[],
+    unsigned* a,
     unsigned na,
-    unsigned const b[],
+    unsigned const* b,
     unsigned nb)
 {
   unsigned j = 0;

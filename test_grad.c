@@ -7,7 +7,7 @@
 #include "vtk.h"
 #include "size_from_hessian.h"
 
-static void dye_fun(double const coords[3], double v[])
+static void dye_fun(double const* coords, double* v)
 {
   double x[3];
   double const l[3] = {.25, .5, .5};
@@ -25,7 +25,7 @@ static void dye_fun(double const coords[3], double v[])
   v[0] = 4 * dir * (.25 - vector_norm(x, 3));
 }
 
-static void size_fun(double const x[], double s[])
+static void size_fun(double const* x, double* s)
 {
   (void) x;
   s[0] = 0.1;

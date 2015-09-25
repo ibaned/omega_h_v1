@@ -82,7 +82,7 @@ double tet_quality(double coords[4][3])
   return quality / PERFECT_TET_QUALITY;
 }
 
-static double one(double x[][3])
+static double one(double (*x)[3])
 {
   (void) x;
   return 1;

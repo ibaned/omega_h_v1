@@ -146,7 +146,7 @@ void write_vtk_step(struct mesh* m)
 }
 
 static unsigned seek_prefix_next(FILE* f,
-    char line[], unsigned line_size, char const prefix[])
+    char* line, unsigned line_size, char const* prefix)
 {
   unsigned pl = (unsigned) strlen(prefix);
   if (!fgets(line, (int) line_size, f))
@@ -155,7 +155,7 @@ static unsigned seek_prefix_next(FILE* f,
 }
 
 static void seek_prefix(FILE* f,
-    char line[], unsigned line_size, char const prefix[])
+    char* line, unsigned line_size, char const* prefix)
 {
   unsigned pl = (unsigned) strlen(prefix);
   while (fgets(line, (int) line_size, f))
@@ -166,8 +166,8 @@ static void seek_prefix(FILE* f,
 
 typedef char line_t[1024];
 
-static void read_attrib(char const elem[], char const name[],
-    char val[])
+static void read_attrib(char const* elem, char const* name,
+    char* val)
 {
   char const* pname = strstr(elem, name);
   assert(pname);
@@ -179,12 +179,12 @@ static void read_attrib(char const elem[], char const name[],
   strcpy(val, pval);
 }
 
-static void read_array_name(char const header[], char name[])
+static void read_array_name(char const* header, char* name)
 {
   read_attrib(header, "Name", name);
 }
 
-static enum tag_type read_array_type(char const header[])
+static enum tag_type read_array_type(char const* header)
 {
   line_t val;
   read_attrib(header, "type", val);
@@ -194,14 +194,14 @@ static enum tag_type read_array_type(char const header[])
   assert(0);
 }
 
-static unsigned read_int_attrib(char const header[], char const attrib[])
+static unsigned read_int_attrib(char const* header, char const* attrib)
 {
   line_t val;
   read_attrib(header, attrib, val);
   return (unsigned) atoi(val);
 }
 
-static unsigned read_array_ncomps(char header[])
+static unsigned read_array_ncomps(char* header)
 {
   return read_int_attrib(header, "NumberOfComponents");
 }

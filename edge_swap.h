@@ -13,14 +13,14 @@ struct swap_choice {
 
 struct swap_choice choose_edge_swap(
     unsigned ring_size,
-    double edge_x[2][3],
-    double ring_x[][3]);
+    double (*edge_x)[3],
+    double (*ring_x)[3]);
 
 void apply_edge_swap(
     unsigned ring_size,
     unsigned code,
-    unsigned const edge_v[2],
-    unsigned const ring_v[],
-    unsigned out[]);
+    unsigned const* edge_v,
+    unsigned const* ring_v,
+    unsigned* out);
 
 #endif

@@ -23,9 +23,9 @@ static void* concat_general(
 
 unsigned* concat_ints(
     unsigned width,
-    unsigned const a[],
+    unsigned const* a,
     unsigned na,
-    unsigned const b[],
+    unsigned const* b,
     unsigned nb)
 {
   return concat_general(sizeof(unsigned), width, a, na, b, nb);
@@ -33,9 +33,9 @@ unsigned* concat_ints(
 
 double* concat_doubles(
     unsigned width,
-    double const a[],
+    double const* a,
     unsigned na,
-    double const b[],
+    double const* b,
     unsigned nb)
 {
   return concat_general(sizeof(double), width, a, na, b, nb);

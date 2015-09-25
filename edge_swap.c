@@ -227,8 +227,8 @@ static unsigned const* const meshes[MAX_EDGE_SWAP+1] =
 
 struct swap_choice choose_edge_swap(
     unsigned ring_size,
-    double edge_x[2][3],
-    double ring_x[][3])
+    double (*edge_x)[3],
+    double (*ring_x)[3])
 {
   unsigned tris_per_mesh = swap_mesh_sizes[ring_size];
   unsigned nmeshes = mesh_counts[ring_size];
@@ -285,8 +285,8 @@ void apply_edge_swap(
     unsigned ring_size,
     unsigned code,
     unsigned const edge_v[2],
-    unsigned const ring_v[],
-    unsigned out[])
+    unsigned const* ring_v,
+    unsigned* out)
 {
   unsigned* p = out;
   unsigned tris_per_mesh = swap_mesh_sizes[ring_size];

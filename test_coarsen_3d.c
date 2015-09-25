@@ -9,7 +9,7 @@
 #include "refine_by_size.h"   // for refine_by_size
 #include "vtk.h"              // for write_vtk
 
-static void fine_fun(double const x[], double s[])
+static void fine_fun(double const* x, double* s)
 {
   double coarse = 0.5;
   double fine = 0.05;
@@ -18,7 +18,7 @@ static void fine_fun(double const x[], double s[])
   s[0] = coarse * d + fine * (1 - d);
 }
 
-static void coarse_fun(double const x[], double s[])
+static void coarse_fun(double const* x, double* s)
 {
   (void) x;
   s[0] = 2;

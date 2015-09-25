@@ -8,7 +8,7 @@ unsigned find_edge_ring(
     unsigned const* tets_of_edges_directions,
     unsigned const* verts_of_edges,
     unsigned const* verts_of_tets,
-    unsigned edge_v[2],
-    unsigned ring_v[]);
+    unsigned* edge_v,
+    unsigned* ring_v);
 
 #endif

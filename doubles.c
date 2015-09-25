@@ -1,7 +1,7 @@
 #include "doubles.h"
 #include "loop.h"
 
-double doubles_max(double const a[], unsigned n)
+double doubles_max(double const* a, unsigned n)
 {
   double max = a[0];
   for (unsigned i = 1; i < n; ++i)
@@ -10,7 +10,7 @@ double doubles_max(double const a[], unsigned n)
   return max;
 }
 
-double doubles_min(double const a[], unsigned n)
+double doubles_min(double const* a, unsigned n)
 {
   double min = a[0];
   for (unsigned i = 1; i < n; ++i)
@@ -19,14 +19,14 @@ double doubles_min(double const a[], unsigned n)
   return min;
 }
 
-void doubles_axpy(double a, double const x[], double const y[],
-    double out[], unsigned n)
+void doubles_axpy(double a, double const* x, double const* y,
+    double* out, unsigned n)
 {
   for (unsigned i = 0; i < n; ++i)
     out[i] = a * x[i] + y[i];
 }
 
-double* doubles_copy(double const a[], unsigned n)
+double* doubles_copy(double const* a, unsigned n)
 {
   double* b = loop_malloc(sizeof(double) * n);
   for (unsigned i = 0; i < n; ++i)
@@ -37,7 +37,7 @@ double* doubles_copy(double const a[], unsigned n)
 /* ambitious note to self: this could be one source
    of partitionig/ordering dependence from inputs
    to outputs. */
-double doubles_sum(double const a[], unsigned n)
+double doubles_sum(double const* a, unsigned n)
 {
   double s = 0;
   for (unsigned i = 0; i < n; ++i)

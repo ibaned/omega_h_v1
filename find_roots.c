@@ -12,7 +12,7 @@ unsigned find_linear_root(double a, double b, double* root)
 
 unsigned find_quadratic_roots(
     double a, double b, double c,
-    double roots[])
+    double* roots)
 {
   if (a == 0)
     return find_linear_root(b, c, roots);
@@ -30,7 +30,7 @@ unsigned find_quadratic_roots(
 
 unsigned find_cubic_roots(
     double a, double b, double c, double d,
-    double roots[])
+    double* roots)
 {
   if (a == 0)
     return find_quadratic_roots(b, c, d, roots);

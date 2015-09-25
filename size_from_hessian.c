@@ -40,7 +40,7 @@ double* size_from_hessian(
 }
 
 struct const_tag* mesh_size_from_hessian(struct mesh* m, char const* hess_name,
-    double const sol_comp_weights[], double min_h, double max_h)
+    double const* sol_comp_weights, double min_h, double max_h)
 {
   struct const_tag* hf = mesh_find_tag(m, 0, hess_name);
   double* data = size_from_hessian(mesh_count(m, 0),

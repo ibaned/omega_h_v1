@@ -60,7 +60,7 @@ static void char_poly_3x3(double A[3][3],
   *d = det_3x3(A);
 }
 
-unsigned eigenvals_3x3(double A[3][3], double l[])
+unsigned eigenvals_3x3(double A[3][3], double* l)
 {
   double a,b,c,d;
   char_poly_3x3(A, &a, &b, &c, &d);
@@ -135,7 +135,7 @@ void eigenvector_3x3(double A[3][3], double l, double v[3])
   v[2] = 0;
 }
 
-static void scale_vector(double const a[], double s, double b[], unsigned n)
+static void scale_vector(double const* a, double s, double* b, unsigned n)
 {
   for (unsigned i = 0; i < n; ++i)
     b[i] = a[i] * s;

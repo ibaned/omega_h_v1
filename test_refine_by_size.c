@@ -1,6 +1,6 @@
 #include <math.h>            // for fabs
 #include <stdio.h>           // for printf
-#include "loop.h"          // for free
+#include "loop.h"            // for free
 #include "algebra.h"         // for vector_norm
 #include "doubles.h"         // for doubles_min
 #include "eval_field.h"      // for mesh_eval_field
@@ -9,7 +9,7 @@
 #include "refine_by_size.h"  // for refine_by_size
 #include "vtk.h"             // for write_vtk
 
-static void size_fun(double const x[], double s[])
+static void size_fun(double const* x, double* s)
 {
   double coarse = 0.5;
   double fine = 0.025;

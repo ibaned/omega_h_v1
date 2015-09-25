@@ -62,7 +62,7 @@ unsigned* ints_negate_offsets(unsigned const* a, unsigned n)
   return out;
 }
 
-void ints_fill(unsigned a[], unsigned n, unsigned v)
+void ints_fill(unsigned* a, unsigned n, unsigned v)
 {
   for (unsigned i = 0; i < n; ++i)
     a[i] = v;

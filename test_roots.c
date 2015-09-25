@@ -5,7 +5,7 @@
 
 /* kicks off the insert_root process with
    a[0] * x + a[1] = (x - r)        */
-static void init_root(double a[], double r)
+static void init_root(double* a, double r)
 {
   a[0] = 1;
   a[1] = -r;
@@ -15,7 +15,7 @@ static void init_root(double a[], double r)
   a[0] * x ^ (n - 1) + ... + a[n - 1] * x + a[n]
 times the binomial (x - r), resulting in the polynomial
   a[0] * x ^ n + ... + a[n] * x + a[n + 1]        */
-static void insert_root(double a[], unsigned n, double r)
+static void insert_root(double* a, unsigned n, double r)
 {
   double b[4];
   for (unsigned i = 0; i <= n; ++i)
@@ -27,7 +27,7 @@ static void insert_root(double a[], unsigned n, double r)
     a[i] = b[i];
 }
 
-static void gen_coeffs(unsigned dim, double const r[], double a[])
+static void gen_coeffs(unsigned dim, double const* r, double* a)
 {
   init_root(a, r[0]);
   for (unsigned i = 1; i < dim; ++i)
@@ -44,7 +44,7 @@ static double real_rand(void)
    probabilities. probs[i] has the probability
    of case (i) being selected, and the sum
    of probabilities should be 1 */
-static unsigned case_rand(double probs[], unsigned ncases)
+static unsigned case_rand(double* probs, unsigned ncases)
 {
   double v = real_rand();
   for (unsigned i = 0; i < ncases; ++i) {
@@ -55,7 +55,7 @@ static unsigned case_rand(double probs[], unsigned ncases)
   return ncases - 1;
 }
 
-static unsigned gen_test(double r[])
+static unsigned gen_test(double* r)
 {
   /* probabilities of testing a given
      polynomial order */
@@ -71,7 +71,7 @@ static unsigned gen_test(double r[])
   return dim;
 }
 
-static void run_test(unsigned dim, double const r[])
+static void run_test(unsigned dim, double const* r)
 {
   double a_in[4];
   gen_coeffs(dim, r, a_in);

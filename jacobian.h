@@ -12,7 +12,7 @@
      J = [ x_1 - x_0 | x_2 - x_0 | x_3 - x_0 ]
  */
 
-static inline void element_jacobian(unsigned nv, double x[][3],
+static inline void element_jacobian(unsigned nv, double (*x)[3],
     double jac[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
