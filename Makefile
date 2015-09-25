@@ -96,24 +96,30 @@ endif
 
 lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
 
+lib := lib/libaugust.a
+
 sources := $(lib_sources) $(test_sources)
 depfiles := $(patsubst %.c,deps/%.dep,$(sources))
 
 #by default, the compilation target is to compile
 #all the executable programs
-all: $(exes)
+all: $(lib) $(exes)
+
+$(lib): $(lib_objects)
+	ar cru $@ $^
+	ranlib $@
 
 #general rule for an executable: link its object
 #file with all the $(common_objects)
 # $@ is the thing being built and $^ is all
 #the things it depends on (the objects)
-bin/%.exe: objs/test_%.o $(lib_objects)
+bin/%.exe: objs/test_%.o $(lib)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -rf deps/*.dep objs/*.o bin/*.exe
+	rm -rf deps/*.dep objs/*.o bin/*.exe lib/*.a
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,

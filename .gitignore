@@ -1,4 +1,5 @@
 objs/*.o
 deps/*.dep
 bin/*.exe
+lib/*.a
 config.mk
