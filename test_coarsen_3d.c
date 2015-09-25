@@ -29,12 +29,12 @@ int main()
   struct mesh* m = new_box_mesh(3);
   char fname[64];
   unsigned i = 0;
-  mesh_eval_field(m, "adapt_size", 1, fine_fun);
+  mesh_eval_field(m, 0, "adapt_size", 1, fine_fun);
   while (refine_by_size(&m, 0)) {
     sprintf(fname, "ref_%u.vtu", i++);
     write_vtk(m, fname);
-    mesh_free_nodal_field(m, "adapt_size");
-    mesh_eval_field(m, "adapt_size", 1, fine_fun);
+    mesh_free_tag(m, 0, "adapt_size");
+    mesh_eval_field(m, 0, "adapt_size", 1, fine_fun);
   }
   mesh_classify_box(m);
   write_vtk(m, "init.vtu");
@@ -42,8 +42,8 @@ int main()
   printf("init minq %f\n", init_minq);
   double cor_qual_floor = 0.3;
   printf("coarsen quality floor %f\n", cor_qual_floor);
-  mesh_free_nodal_field(m, "adapt_size");
-  mesh_eval_field(m, "adapt_size", 1, coarse_fun);
+  mesh_free_tag(m, 0, "adapt_size");
+  mesh_eval_field(m, 0, "adapt_size", 1, coarse_fun);
   i = 0;
   while (coarsen_by_size(&m, cor_qual_floor, 0.5)) {
     sprintf(fname, "cor_%u.vtu", i++);

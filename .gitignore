@@ -1,4 +1,4 @@
-*.o
-*.dep
-*.exe
-*.vtu
+objs/*.o
+deps/*.dep
+bin/*.exe
+config.mk

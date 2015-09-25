@@ -8,9 +8,30 @@
 #which can be told to ignore config.mk
 include config.mk
 
+test_sources := \
+test_coarsen_3d.c \
+test_coarsen_by_size.c \
+test_eigenval.c \
+test_form_cloud.c \
+test_grad.c \
+test_inertia.c \
+test_node_ele.c \
+test_quality.c \
+test_read_vtk.c \
+test_refine_by_size.c \
+test_refine_topology.c \
+test_roots.c \
+test_up_from_down.c \
+test_vtk.c \
+test_warp.c \
+test_warp_3d.c
+
+exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
+test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
+
 #these are source containing "library" functions,
 #basically any source without a main() function
-sources := \
+lib_sources := \
 star.c \
 tables.c \
 up_from_down.c \
@@ -68,38 +89,31 @@ form_cloud.c \
 element_field.c
 
 ifeq "$(USE_MPI)" "yes"
-sources += comm_mpi.c
+lib_sources += comm_mpi.c
 else
-sources += comm_serial.c
+lib_sources += comm_serial.c
 endif
 
-targets ?= \
-test_warp.exe \
-test_warp_3d.exe \
-vtk_surfer.exe \
-test_node_ele.exe
+lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
 
-target_sources := $(patsubst %.exe,%.c,$(targets))
-target_depfiles := $(patsubst %.exe,deps/%.dep,$(targets))
-
-objects := $(patsubst %.c,objs/%.o,$(sources))
+sources := $(lib_sources) $(test_sources)
 depfiles := $(patsubst %.c,deps/%.dep,$(sources))
 
 #by default, the compilation target is to compile
-#all .c files into objects
-all: $(targets)
+#all the executable programs
+all: $(exes)
 
 #general rule for an executable: link its object
 #file with all the $(common_objects)
 # $@ is the thing being built and $^ is all
 #the things it depends on (the objects)
-%.exe: objs/%.o $(objects)
+bin/%.exe: objs/test_%.o $(lib_objects)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -rf deps/*.dep objs/*.o *.exe
+	rm -rf deps/*.dep objs/*.o bin/*.exe
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
@@ -130,7 +144,7 @@ objs/%.o: %.c
 #all source files.
 #this is the funny recursion that keeps
 #header file dependencies worked out at all times.
-include $(depfiles) $(target_depfiles)
+include $(depfiles)
 
 #"all" and "clean" are targets but not files or directories
 .PHONY: all clean
