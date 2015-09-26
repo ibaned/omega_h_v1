@@ -24,7 +24,8 @@ test_roots.c \
 test_up_from_down.c \
 test_vtk.c \
 test_warp.c \
-test_warp_3d.c
+test_warp_3d.c \
+test_vtk_surfer.c
 
 exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
 test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
