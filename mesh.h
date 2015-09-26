@@ -37,4 +37,7 @@ struct const_tag* mesh_find_tag(struct mesh* m, unsigned dim, char const* name);
 unsigned mesh_count_tags(struct mesh* m, unsigned dim);
 struct const_tag* mesh_get_tag(struct mesh* m, unsigned dim, unsigned i);
 
+struct tags* mesh_tags(struct mesh* m, unsigned dim);
+unsigned mesh_has_dim(struct mesh* m, unsigned dim);
+
 #endif

@@ -250,3 +250,13 @@ struct const_tag* mesh_get_tag(struct mesh* m, unsigned dim, unsigned i)
 {
   return get_tag(&m->tags[dim], i);
 }
+
+struct tags* mesh_tags(struct mesh* m, unsigned dim)
+{
+  return &m->tags[dim];
+}
+
+unsigned mesh_has_dim(struct mesh* m, unsigned dim)
+{
+  return m->down[dim][0] != 0;
+}
