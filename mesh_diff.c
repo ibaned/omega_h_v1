@@ -11,8 +11,8 @@
 static unsigned doubles_diff(double const* a, double const* b, unsigned n,
     double tol, double floor)
 {
-  assert(0 < tol);
-  assert(0 < floor);
+  assert(0 <= tol);
+  assert(0 <= floor);
   double* diffs = loop_malloc(sizeof(double) * n);
   for (unsigned i = 0; i < n; ++i) {
     double fa = fabs(a[i]);
