@@ -9,7 +9,4 @@ double* doubles_copy(double const* a, unsigned n);
 double doubles_sum(double const* a, unsigned n);
 double* doubles_exscan(double const* a, unsigned n);
 
-unsigned doubles_diff(double const* a, double const* b, unsigned n,
-    double tol, double floor);
-
 #endif
