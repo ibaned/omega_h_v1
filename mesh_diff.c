@@ -119,12 +119,14 @@ unsigned mesh_diff(struct mesh* a, struct mesh* b,
       return 1;
     }
     unsigned nents = mesh_count(a, d);
-    unsigned const* eva = mesh_ask_down(a, d, 0);
-    unsigned const* evb = mesh_ask_down(b, d, 0);
-    unsigned vpe = the_down_degrees[d][0];
-    if (ints_diff(eva, evb, vpe * nents)) {
-      printf("connectivity differs for dimension %u\n", d);
-      return 1;
+    if (d) {
+      unsigned const* eva = mesh_ask_down(a, d, 0);
+      unsigned const* evb = mesh_ask_down(b, d, 0);
+      unsigned vpe = the_down_degrees[d][0];
+      if (ints_diff(eva, evb, vpe * nents)) {
+        printf("connectivity differs for dimension %u\n", d);
+        return 1;
+      }
     }
     struct tags* tsa = mesh_tags(a, d);
     struct tags* tsb = mesh_tags(b, d);

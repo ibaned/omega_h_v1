@@ -258,5 +258,5 @@ struct tags* mesh_tags(struct mesh* m, unsigned dim)
 
 unsigned mesh_has_dim(struct mesh* m, unsigned dim)
 {
-  return m->down[dim][0] != 0;
+  return dim == 0 || m->down[dim][0] != 0;
 }
