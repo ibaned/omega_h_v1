@@ -1,5 +1,7 @@
 #include "doubles.h"
 #include "loop.h"
+#include <assert.h>
+#include <math.h>
 
 double doubles_max(double const* a, unsigned n)
 {
@@ -55,4 +57,22 @@ double* doubles_exscan(double const* a, unsigned n)
     o[i + 1] = sum;
   }
   return o;
+}
+
+unsigned doubles_diff(double const* a, double const* b, unsigned n,
+    double tol, double floor)
+{
+  assert(0 < tol);
+  assert(0 < floor);
+  for (unsigned i = 0; i < n; ++i) {
+    double fa = fabs(a[i]);
+    double fb = fabs(b[i]);
+    if (fa < floor && fb < floor)
+      continue;
+    double fm = fb > fa ? fb : fa;
+    double rel = fabs(a[i] - b[i]) / fm;
+    if (rel > tol)
+      return 1;
+  }
+  return 0;
 }
