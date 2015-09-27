@@ -6,6 +6,9 @@ Copy one of the *config.mk files and call
 it config.mk, or write your own.
 Then you can run `make`.
 
+This should result in several executables showing
+up as `bin/*.exe`.
+
 # Included programs:
 
 warp.exe: Runs a 2D mesh adaptation test
