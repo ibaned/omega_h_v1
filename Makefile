@@ -99,7 +99,7 @@ endif
 
 lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
 
-lib := lib/libaugust.a
+lib := lib/libomega_h.a
 
 sources := $(lib_sources) $(test_sources)
 depfiles := $(patsubst %.c,deps/%.dep,$(sources))
