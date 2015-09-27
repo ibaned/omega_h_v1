@@ -4,6 +4,6 @@
 struct cloud;
 struct mesh;
 
-void push_cloud(struct cloud* c, struct mesh* m)
+void push_cloud(struct cloud* c, struct mesh* m);
 
 #endif

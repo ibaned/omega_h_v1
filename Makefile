@@ -26,7 +26,8 @@ test_vtk.c \
 test_warp.c \
 test_warp_3d.c \
 test_vtk_surfer.c \
-test_vtkdiff.c
+test_vtkdiff.c \
+test_push_cloud.c
 
 exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
 test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
