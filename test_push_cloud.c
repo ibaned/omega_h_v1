@@ -32,6 +32,8 @@ int main()
   cloud_free_tag(c, "coordinates");
   cloud_rename_tag(c, "new_coords", "coordinates");
   write_vtk_cloud(c, "cloud_2.vtu");
+  push_cloud(c, m);
+  write_vtk_cloud(c, "cloud_3.vtu");
   free_cloud(c);
   free_mesh(m);
 }

@@ -19,9 +19,10 @@ static void push_particle_2d(
   unsigned const* const* elem_verts_of_edges =
     the_canonical_orders[2][1][0];
   unsigned elem = elem_of_pts[pt];
+  unsigned dir;
   while (1) {
     unsigned const* verts_of_elem = verts_of_elems + elem * 3;
-    unsigned dir = INVALID;
+    dir = INVALID;
     for (unsigned i = 0; i < 3; ++i) {
       unsigned const* elem_verts_of_edge =
         elem_verts_of_edges[i];
@@ -42,17 +43,20 @@ static void push_particle_2d(
       double d = dot_product(nl, rel, 3);
       if (d < 0) {
         dir = i;
-        unsigned const* elem_dual = dual + elem * 3;
-        elem = elem_dual[i];
         break;
       }
     }
-    if (dir == INVALID || elem == INVALID) {
-      elem_of_pts[pt] = elem;
-      last_dir_of_pts[pt] = dir;
-      return;
+    if (dir == INVALID) {
+      break;
+    } else {
+      unsigned next_elem = dual[elem * 3 + dir];
+      if (next_elem == INVALID)
+        break;
+      elem = next_elem;
     }
   }
+  elem_of_pts[pt] = elem;
+  last_dir_of_pts[pt] = dir;
 }
 
 void push_cloud(struct cloud* c, struct mesh* m)
