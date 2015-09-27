@@ -89,7 +89,8 @@ cloud.c \
 tag.c \
 form_cloud.c \
 element_field.c \
-mesh_diff.c
+mesh_diff.c \
+push_cloud.c
 
 ifeq "$(USE_MPI)" "yes"
 lib_sources += comm_mpi.c
