@@ -88,3 +88,15 @@ struct const_tag* get_tag(struct tags* ts, unsigned i)
 {
   return (struct const_tag*) ts->at[i];
 }
+
+void rename_tag(struct tags* ts, char const* oldname, char const* newname)
+{
+  if (!strcmp(oldname, newname))
+    return;
+  assert (!find_tag(ts, newname));
+  unsigned i = find_i(ts, oldname);
+  assert(i < ts->n);
+  loop_host_free(ts->at[i]->name);
+  ts->at[i]->name = loop_host_malloc(strlen(newname) + 1);
+  strcpy(ts->at[i]->name, newname);
+}
