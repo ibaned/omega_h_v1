@@ -19,6 +19,7 @@ struct cloud* new_cloud(unsigned count)
 void free_cloud(struct cloud* c)
 {
   free_tags(&c->tags);
+  loop_host_free(c);
 }
 
 unsigned cloud_count(struct cloud* c)

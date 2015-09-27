@@ -72,6 +72,7 @@ struct cloud* form_cloud(struct mesh* m)
   for (unsigned i = 0; i < nelems; ++i)
     form_elem_cloud_2d(i, uint_offset, verts_of_elems, vert_coords,
         pt_coords, pt_elem);
+  loop_free(uint_offset);
   cloud_add_tag(c, TAG_F64, "coordinates", 3, pt_coords);
   cloud_add_tag(c, TAG_U32, "mesh_elem", 1, pt_elem);
   return c;
