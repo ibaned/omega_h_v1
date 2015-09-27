@@ -12,4 +12,9 @@ struct mesh;
 void mesh_eval_field(struct mesh* m, unsigned ent_dim, char const* name,
     unsigned ncomps, void (*fun)(double const* x, double* out));
 
+struct cloud;
+
+void cloud_eval_field(struct cloud* m, char const* name,
+    unsigned ncomps, void (*fun)(double const* x, double* out));
+
 #endif

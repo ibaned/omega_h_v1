@@ -51,3 +51,9 @@ struct const_tag* cloud_get_tag(struct cloud* c, unsigned i)
 {
   return get_tag(&c->tags, i);
 }
+
+void cloud_rename_tag(struct cloud* c, char const* oldname,
+    char const* newname)
+{
+  rename_tag(&c->tags, oldname, newname);
+}
