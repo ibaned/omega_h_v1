@@ -58,3 +58,8 @@ void cloud_rename_tag(struct cloud* c, char const* oldname,
 {
   rename_tag(&c->tags, oldname, newname);
 }
+
+struct tags* cloud_tags(struct cloud* c)
+{
+  return &c->tags;
+}

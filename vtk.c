@@ -247,8 +247,7 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
   return dim;
 }
 
-static unsigned read_mesh_array(FILE* f, struct mesh* m,
-    unsigned dim)
+static unsigned read_tag(FILE* f, struct tags* ts, unsigned n)
 {
   line_t line;
   if (!seek_prefix_next(f, line, sizeof(line), "<DataArray"))
@@ -259,22 +258,36 @@ static unsigned read_mesh_array(FILE* f, struct mesh* m,
   unsigned ncomps = read_array_ncomps(line);
   void* data;
   switch (type) {
-    case TAG_U32: data = read_ints(f, mesh_count(m, dim) * ncomps);
+    case TAG_U32: data = read_ints(f, n * ncomps);
                   break;
-    case TAG_F64: data = read_doubles(f, mesh_count(m, dim) * ncomps);
+    case TAG_F64: data = read_doubles(f, n * ncomps);
                   break;
   }
-  mesh_add_tag(m, dim, type, name, ncomps, data);
+  add_tag(ts, type, name, ncomps, data);
   seek_prefix(f, line, sizeof(line), "</DataArray");
   return 1;
 }
 
-static void read_verts(FILE* f, struct mesh* m)
+static unsigned read_tags(FILE* f, char const* prefix, struct tags* ts,
+    unsigned n)
 {
   line_t line;
-  seek_prefix(f, line, sizeof(line), "<Points");
-  unsigned ok = read_mesh_array(f, m, 0);
-  assert(ok);
+  seek_prefix(f, line, sizeof(line), prefix);
+  unsigned nt = 0;
+  while(read_tag(f, ts, n))
+    ++nt;
+  return nt;
+}
+
+static void read_points(FILE* f, struct tags* ts, unsigned n)
+{
+  unsigned nt = read_tags(f, "<Points", ts, n);
+  assert(nt == 1);
+}
+
+static void read_verts(FILE* f, struct mesh* m)
+{
+  read_points(f, mesh_tags(m, 0), mesh_count(m, 0));
 }
 
 static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
@@ -295,10 +308,7 @@ static struct mesh* read_vtk_mesh(FILE* f)
 {
   unsigned nverts, nelems;
   read_size(f, &nverts, &nelems);
-  if (!nelems) {
-    fclose(f);
-    return new_mesh(0);
-  }
+  assert(nelems);
   unsigned dim = read_dimension(f, nelems);
   struct mesh* m = new_mesh(dim);
   mesh_set_ents(m, 0, nverts, 0);
@@ -310,11 +320,9 @@ static struct mesh* read_vtk_mesh(FILE* f)
 
 static void read_vtk_fields(FILE* f, struct mesh* m)
 {
-  line_t line;
-  seek_prefix(f, line, sizeof(line), "<PointData");
-  while(read_mesh_array(f, m, 0));
-  seek_prefix(f, line, sizeof(line), "<CellData");
-  while(read_mesh_array(f, m, mesh_dim(m)));
+  unsigned dim = mesh_dim(m);
+  read_tags(f, "<PointData", mesh_tags(m, 0), mesh_count(m, 0));
+  read_tags(f, "<CellData", mesh_tags(m, dim), mesh_count(m, dim));
 }
 
 struct mesh* read_vtk(char const* filename)
@@ -363,4 +371,18 @@ void write_vtk_cloud(struct cloud* c, char const* filename)
   fprintf(file, "</UnstructuredGrid>\n");
   fprintf(file, "</VTKFile>\n");
   fclose(file);
+}
+
+struct cloud* read_vtk_cloud(char const* filename)
+{
+  FILE* f = fopen(filename, "r");
+  assert(f);
+  unsigned npts, nelems;
+  read_size(f, &npts, &nelems);
+  assert(npts);
+  struct cloud* c = new_cloud(npts);
+  read_points(f, cloud_tags(c), npts);
+  read_tags(f, "<PointData", cloud_tags(c), npts);
+  fclose(f);
+  return c;
 }
