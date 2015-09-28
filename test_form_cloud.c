@@ -7,12 +7,12 @@
 #include "eval_field.h"
 #include "algebra.h"
 
-double const* c;
+static double const* cen;
 
 static void density_fun(double const x[3], double* d)
 {
-  double r = vector_distance(x, c, 3);
-  if (0.3 < r && r < 0.45)
+  double r = vector_distance(x, cen, 3);
+  if (0.1 < r && r < 0.15)
     *d = 1000;
   else
     *d = 0;
@@ -22,7 +22,7 @@ int main()
 {
   struct mesh* m = read_vtk("xgc.vtu");
   /* assume first vertex is center vertex */
-  c = mesh_find_tag(m, 0, "coordinates")->data;
+  cen = mesh_find_tag(m, 0, "coordinates")->data;
   mesh_interp_to_elems(m, "coordinates");
   mesh_eval_field(m, 2, "cloud_density", 1, density_fun);
   struct cloud* c = form_cloud(m);
