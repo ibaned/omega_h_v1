@@ -27,7 +27,8 @@ test_warp.c \
 test_warp_3d.c \
 test_vtk_surfer.c \
 test_vtkdiff.c \
-test_push_cloud.c
+test_push_cloud.c \
+test_qr.c
 
 exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
 test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
@@ -91,7 +92,8 @@ tag.c \
 form_cloud.c \
 element_field.c \
 mesh_diff.c \
-push_cloud.c
+push_cloud.c \
+qr.c
 
 ifeq "$(USE_MPI)" "yes"
 lib_sources += comm_mpi.c
