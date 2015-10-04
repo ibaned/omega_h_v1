@@ -75,3 +75,12 @@ unsigned uints_sum(unsigned const* a, unsigned n)
     sum += a[i];
   return sum;
 }
+
+unsigned long ulongs_max(unsigned long* a, unsigned n)
+{
+  unsigned long max = 0;
+  for (unsigned i = 0; i < n; ++i)
+    if (a[i] > max)
+      max = a[i];
+  return max;
+}
