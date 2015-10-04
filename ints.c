@@ -1,13 +1,13 @@
 #include "ints.h"
 #include "loop.h"
 
-void ints_zero(unsigned* a, unsigned n)
+void uints_zero(unsigned* a, unsigned n)
 {
   for (unsigned i = 0; i < n; ++i)
     a[i] = 0;
 }
 
-unsigned* ints_copy(unsigned const* a, unsigned n)
+unsigned* uints_copy(unsigned const* a, unsigned n)
 {
   unsigned* b = loop_malloc(sizeof(unsigned) * n);
   for (unsigned i = 0; i < n; ++i)
@@ -15,7 +15,7 @@ unsigned* ints_copy(unsigned const* a, unsigned n)
   return b;
 }
 
-unsigned ints_max(unsigned const* a, unsigned n)
+unsigned uints_max(unsigned const* a, unsigned n)
 {
   unsigned max = 0;
   for (unsigned i = 0; i < n; ++i)
@@ -24,7 +24,7 @@ unsigned ints_max(unsigned const* a, unsigned n)
   return max;
 }
 
-unsigned* ints_exscan(unsigned const* a, unsigned n)
+unsigned* uints_exscan(unsigned const* a, unsigned n)
 {
   unsigned* o = loop_malloc(sizeof(unsigned) * (n + 1));
   unsigned sum = 0;
@@ -36,7 +36,7 @@ unsigned* ints_exscan(unsigned const* a, unsigned n)
   return o;
 }
 
-unsigned* ints_unscan(unsigned const* a, unsigned n)
+unsigned* uints_unscan(unsigned const* a, unsigned n)
 {
   unsigned* o = loop_malloc(sizeof(unsigned) * n);
   for (unsigned i = 0; i < n; ++i)
@@ -44,7 +44,7 @@ unsigned* ints_unscan(unsigned const* a, unsigned n)
   return o;
 }
 
-unsigned* ints_negate(unsigned const* a, unsigned n)
+unsigned* uints_negate(unsigned const* a, unsigned n)
 {
   unsigned* o = loop_malloc(sizeof(unsigned) * n);
   for (unsigned i = 0; i < n; ++i)
@@ -52,23 +52,23 @@ unsigned* ints_negate(unsigned const* a, unsigned n)
   return o;
 }
 
-unsigned* ints_negate_offsets(unsigned const* a, unsigned n)
+unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
 {
-  unsigned* unscanned = ints_unscan(a, n);
-  unsigned* negated = ints_negate(unscanned, n);
+  unsigned* unscanned = uints_unscan(a, n);
+  unsigned* negated = uints_negate(unscanned, n);
   loop_free(unscanned);
-  unsigned* out = ints_exscan(negated, n);
+  unsigned* out = uints_exscan(negated, n);
   loop_free(negated);
   return out;
 }
 
-void ints_fill(unsigned* a, unsigned n, unsigned v)
+void uints_fill(unsigned* a, unsigned n, unsigned v)
 {
   for (unsigned i = 0; i < n; ++i)
     a[i] = v;
 }
 
-unsigned ints_sum(unsigned const* a, unsigned n)
+unsigned uints_sum(unsigned const* a, unsigned n)
 {
   unsigned sum = 0;
   for (unsigned i = 0; i < n; ++i)

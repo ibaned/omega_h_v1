@@ -9,10 +9,10 @@
 #include "concat.h"                 // for concat_verts_of_elems
 #include "graph.h"                  // for const_graph
 #include "indset.h"                 // for find_indset
-#include "ints.h"                   // for ints_max, ints_exscan, ints_negat...
+#include "ints.h"
 #include "mesh.h"                   // for mesh_ask_up, const_up, mesh_count
 #include "quality.h"                // for element_qualities
-#include "subset.h"                 // for doubles_subset, ints_subset
+#include "subset.h"
 #include "tables.h"                 // for the_down_degrees
 
 unsigned coarsen_common(
@@ -23,7 +23,7 @@ unsigned coarsen_common(
 {
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
-  if (ints_max(col_codes, nedges) == DONT_COLLAPSE)
+  if (uints_max(col_codes, nedges) == DONT_COLLAPSE)
     return 0;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   double const* coords = mesh_find_tag(m, 0, "coordinates")->data;
@@ -52,7 +52,7 @@ unsigned coarsen_common(
       elems_of_verts, elems_of_verts_directions, coords, quality_floor,
       elem_quals, require_better);
   loop_free(elem_quals);
-  if (ints_max(col_codes, nedges) == DONT_COLLAPSE) {
+  if (uints_max(col_codes, nedges) == DONT_COLLAPSE) {
     /* early return #2: all small edges failed their classif/quality checks */
     loop_free(quals_of_edges);
     return 0;
@@ -72,7 +72,7 @@ unsigned coarsen_common(
       candidates, qual_of_verts);
   loop_free(candidates);
   loop_free(qual_of_verts);
-  unsigned* gen_offset_of_verts = ints_exscan(indset, nverts);
+  unsigned* gen_offset_of_verts = uints_exscan(indset, nverts);
   loop_free(indset);
   unsigned* gen_offset_of_elems;
   unsigned* gen_vert_of_elems;
@@ -82,7 +82,7 @@ unsigned coarsen_common(
       gen_vert_of_verts, &gen_offset_of_elems, &gen_vert_of_elems,
       &gen_direction_of_elems, &offset_of_same_elems);
   loop_free(gen_vert_of_verts);
-  unsigned* offset_of_same_verts = ints_negate_offsets(
+  unsigned* offset_of_same_verts = uints_negate_offsets(
       gen_offset_of_verts, nverts);
   unsigned nverts_out = offset_of_same_verts[nverts];
   loop_free(gen_offset_of_verts);
@@ -116,7 +116,7 @@ unsigned coarsen_common(
         offset_of_same_verts);
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
   }
-  unsigned* class_dim_out = ints_subset(nverts, 1, class_dim,
+  unsigned* class_dim_out = uints_subset(nverts, 1, class_dim,
       offset_of_same_verts);
   mesh_add_tag(m_out, 0, TAG_U32, "class_dim", 1, class_dim_out);
   loop_free(offset_of_same_verts);

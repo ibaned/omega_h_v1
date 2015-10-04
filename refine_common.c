@@ -3,7 +3,7 @@
 #include "concat.h"              // for concat_doubles, concat_ints, concat_...
 #include "graph.h"               // for const_graph
 #include "indset.h"              // for find_indset
-#include "ints.h"                // for ints_max, ints_exscan, ints_negate_o...
+#include "ints.h"
 #include "mesh.h"                // for mesh_ask_down, mesh_ask_up, mesh_count
 #include "quality.h"             // for mesh_qualities
 #include "refine_class.h"        // for refine_class
@@ -22,7 +22,7 @@ unsigned refine_common(
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
-  if (!ints_max(candidates, nsrcs))
+  if (!uints_max(candidates, nsrcs))
     return 0;
   unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
@@ -41,7 +41,7 @@ unsigned refine_common(
       elems_of_srcs_directions, candidates, coords, qual_floor,
       elem_quals, require_better);
   loop_free(elem_quals);
-  if (!ints_max(candidates, nsrcs)) {
+  if (!uints_max(candidates, nsrcs)) {
     loop_free(src_quals);
     return 0;
   }
@@ -52,7 +52,7 @@ unsigned refine_common(
   unsigned* indset = find_indset(nsrcs, srcs_of_srcs_offsets, srcs_of_srcs,
       candidates, src_quals);
   loop_free(src_quals);
-  unsigned* gen_offset_of_srcs = ints_exscan(indset, nsrcs);
+  unsigned* gen_offset_of_srcs = uints_exscan(indset, nsrcs);
   loop_free(indset);
   unsigned nsplit_srcs = gen_offset_of_srcs[nsrcs];
   unsigned nverts = mesh_count(m, 0);
@@ -94,13 +94,13 @@ unsigned refine_common(
     unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->data;
     unsigned* gen_class_dim = refine_class(src_dim, nsrcs, verts_of_srcs,
         gen_offset_of_srcs, class_dim);
-    unsigned* class_dim_out = concat_ints(1, class_dim, nverts,
+    unsigned* class_dim_out = concat_uints(1, class_dim, nverts,
         gen_class_dim, nsplit_srcs);
     loop_free(gen_class_dim);
     mesh_add_tag(m_out, 0, TAG_U32, "class_dim", 1, class_dim_out);
   }
   loop_free(gen_offset_of_srcs);
-  unsigned* offset_of_same_elems = ints_negate_offsets(
+  unsigned* offset_of_same_elems = uints_negate_offsets(
       gen_offset_of_elems, nelems);
   loop_free(gen_offset_of_elems);
   unsigned nelems_out;

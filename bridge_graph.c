@@ -24,7 +24,7 @@ static void bridge_graph_general(
         ++degree_of_vert;
     degree_of_verts[i] = degree_of_vert;
   }
-  unsigned* bridge_offsets = ints_exscan(degree_of_verts, nverts);
+  unsigned* bridge_offsets = uints_exscan(degree_of_verts, nverts);
   loop_free(degree_of_verts);
   unsigned nedges = bridge_offsets[nverts];
   unsigned* verts_of_edges = loop_malloc(sizeof(unsigned) * nedges * 2);
@@ -72,8 +72,8 @@ void bridge_dual_graph(
 {
   unsigned faces_per_elem = the_down_degrees[elem_dim][elem_dim - 1];
   unsigned* degrees = loop_malloc(sizeof(unsigned) * nelems);
-  ints_fill(degrees, nelems, faces_per_elem);
-  unsigned* offsets = ints_exscan(degrees, nelems);
+  uints_fill(degrees, nelems, faces_per_elem);
+  unsigned* offsets = uints_exscan(degrees, nelems);
   loop_free(degrees);
   bridge_graph_general(nelems, offsets, elems_of_elems,
       nfaces_out, elems_of_faces_out, elem_face_of_faces_out);

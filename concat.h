@@ -1,7 +1,7 @@
 #ifndef CONCAT_H
 #define CONCAT_H
 
-unsigned* concat_ints(
+unsigned* concat_uints(
     unsigned width,
     unsigned const* a,
     unsigned na,

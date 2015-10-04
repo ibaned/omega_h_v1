@@ -18,7 +18,7 @@ void project_splits_to_elements(
   assert(elem_dim >= src_dim);
   unsigned srcs_per_elem = the_down_degrees[elem_dim][src_dim];
   unsigned* elem_will_split = loop_malloc(sizeof(unsigned) * nelems);
-  ints_zero(elem_will_split, nelems);
+  uints_zero(elem_will_split, nelems);
   unsigned* gen_vert_of_elems = loop_malloc(sizeof(unsigned) * nelems);
   unsigned* gen_direction_of_elems = loop_malloc(sizeof(unsigned) * nelems);
   for (unsigned i = 0; i < nelems; ++i) {
@@ -33,7 +33,7 @@ void project_splits_to_elements(
       break;
     }
   }
-  *gen_offset_of_elems_out = ints_exscan(elem_will_split, nelems);
+  *gen_offset_of_elems_out = uints_exscan(elem_will_split, nelems);
   *gen_direction_of_elems_out = gen_direction_of_elems;
   *gen_vert_of_elems_out = gen_vert_of_elems;
   loop_free(elem_will_split);

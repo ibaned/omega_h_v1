@@ -16,15 +16,15 @@ void up_from_down(
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned nuses = nhighs * lows_per_high;
   unsigned* degrees = loop_malloc(sizeof(unsigned) * nlows);
-  ints_zero(degrees, nlows);
+  uints_zero(degrees, nlows);
   for (unsigned i = 0; i < nuses; ++i)
     degrees[lows_of_highs[i]]++;
-  unsigned* offsets = ints_exscan(degrees, nlows);
+  unsigned* offsets = uints_exscan(degrees, nlows);
   unsigned* highs_of_lows = loop_malloc(sizeof(unsigned) * nuses);
   unsigned* directions = 0;
   if (directions_out)
     directions = loop_malloc(sizeof(unsigned) * nuses);
-  ints_zero(degrees, nlows);
+  uints_zero(degrees, nlows);
   for (unsigned i = 0; i < nuses; ++i) {
     unsigned high = i / lows_per_high;
     unsigned direction = i % lows_per_high;

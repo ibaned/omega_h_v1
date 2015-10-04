@@ -5,7 +5,7 @@
 #include "doubles.h"         // for doubles_copy
 #include "graph.h"           // for const_graph
 #include "indset.h"          // for find_indset
-#include "ints.h"            // for ints_max, ints_exscan, ints_copy, ints_n...
+#include "ints.h"
 #include "mark.h"            // for mesh_mark_up, unmark_boundary
 #include "mesh.h"            // for mesh_ask_up, mesh_count, mesh_ask_down
 #include "quality.h"         // for mesh_qualities
@@ -20,12 +20,12 @@ unsigned swap_common(
   unsigned elem_dim = mesh_dim(m);
   assert(elem_dim == 3);
   unsigned nedges = mesh_count(m, 1);
-  if (!ints_max(candidates, nedges))
+  if (!uints_max(candidates, nedges))
     return 0;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->data;
   unmark_boundary(elem_dim, 1, nedges, verts_of_edges, class_dim, candidates);
-  if (!ints_max(candidates, nedges))
+  if (!uints_max(candidates, nedges))
     return 0;
   unsigned const* elems_of_edges_offsets =
     mesh_ask_up(m, 1, elem_dim)->offsets;
@@ -44,7 +44,7 @@ unsigned swap_common(
       verts_of_edges, verts_of_elems, coords, elem_quals,
       &edge_quals, &edge_codes, &gen_elems_per_edge);
   loop_free(elem_quals);
-  if (!ints_max(candidates, nedges)) {
+  if (!uints_max(candidates, nedges)) {
     loop_free(edge_quals);
     loop_free(edge_codes);
     loop_free(gen_elems_per_edge);
@@ -58,7 +58,7 @@ unsigned swap_common(
   for (unsigned i = 0; i < nedges; ++i)
     if (!indset[i])
       gen_elems_per_edge[i] = 0;
-  unsigned* gen_offset_of_edges = ints_exscan(gen_elems_per_edge, nedges);
+  unsigned* gen_offset_of_edges = uints_exscan(gen_elems_per_edge, nedges);
   unsigned ngen_elems = gen_offset_of_edges[nedges];
   loop_free(gen_elems_per_edge);
   unsigned* verts_of_gen_elems = swap_topology(nedges, indset,
@@ -70,9 +70,9 @@ unsigned swap_common(
   unsigned* old_elems = mesh_mark_up(m, 1, elem_dim, indset);
   loop_free(indset);
   unsigned nelems = mesh_count(m, elem_dim);
-  unsigned* same_elems = ints_negate(old_elems, nelems);
+  unsigned* same_elems = uints_negate(old_elems, nelems);
   loop_free(old_elems);
-  unsigned* same_elem_offsets = ints_exscan(same_elems, nelems);
+  unsigned* same_elem_offsets = uints_exscan(same_elems, nelems);
   loop_free(same_elems);
   unsigned nelems_out;
   unsigned* verts_of_elems_out;
@@ -91,7 +91,7 @@ unsigned swap_common(
     switch (t->type) {
       case TAG_F64: data = doubles_copy(t->data, nverts * t->ncomps);
                     break;
-      case TAG_U32: data = ints_copy(t->data, nverts * t->ncomps);
+      case TAG_U32: data = uints_copy(t->data, nverts * t->ncomps);
                     break;
     };
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, data);

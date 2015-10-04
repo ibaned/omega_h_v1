@@ -45,7 +45,7 @@ void get_star(
   unsigned star_buf[MAX_UP * MAX_DOWN];
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned* degrees = loop_malloc(sizeof(unsigned) * nlows);
-  ints_zero(degrees, nlows);
+  uints_zero(degrees, nlows);
   for (unsigned i = 0; i < nlows; ++i)
     degrees[i] = get_ent_star(
         highs_of_lows_offsets,
@@ -54,7 +54,7 @@ void get_star(
         lows_per_high,
         i,
         star_buf);
-  unsigned* star_offsets = ints_exscan(degrees, nlows);
+  unsigned* star_offsets = uints_exscan(degrees, nlows);
   loop_free(degrees);
   unsigned sum_degrees = star_offsets[nlows];
   unsigned* star = loop_malloc(sizeof(unsigned) * sum_degrees);

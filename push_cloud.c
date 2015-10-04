@@ -64,7 +64,7 @@ void push_cloud(struct cloud* c, struct mesh* m)
 {
   assert(mesh_dim(m) == 2);
   unsigned npts = cloud_count(c);
-  unsigned* elem_of_pts = ints_copy(cloud_find_tag(c, "mesh_elem")->data, npts);
+  unsigned* elem_of_pts = uints_copy(cloud_find_tag(c, "mesh_elem")->data, npts);
   unsigned* last_dir_of_pts = loop_malloc(sizeof(unsigned) * npts);
   double const* coords_of_pts = cloud_find_tag(c, "coordinates")->data;
   unsigned const* verts_of_elems = mesh_ask_down(m, mesh_dim(m), 0);

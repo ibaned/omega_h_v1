@@ -19,7 +19,7 @@ void collapses_to_elements(
   unsigned* gen_vert_of_elems = loop_malloc(sizeof(unsigned) * nelems);
   unsigned* gen_direction_of_elems = loop_malloc(sizeof(unsigned) * nelems);
   unsigned* elem_is_same = loop_malloc(sizeof(unsigned) * nelems);
-  ints_zero(elem_will_gen, nelems);
+  uints_zero(elem_will_gen, nelems);
   for (unsigned i = 0; i < nelems; ++i) {
     unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
     unsigned col_vert = INVALID;
@@ -48,10 +48,10 @@ void collapses_to_elements(
     gen_vert_of_elems[i] = gen_vert;
     gen_direction_of_elems[i] = direction;
   }
-  *gen_offset_of_elems_out = ints_exscan(elem_will_gen, nelems);
+  *gen_offset_of_elems_out = uints_exscan(elem_will_gen, nelems);
   loop_free(elem_will_gen);
   *gen_vert_of_elems_out = gen_vert_of_elems;
   *gen_direction_of_elems_out = gen_direction_of_elems;
-  *offset_of_same_elems_out = ints_exscan(elem_is_same, nelems);
+  *offset_of_same_elems_out = uints_exscan(elem_is_same, nelems);
   loop_free(elem_is_same);
 }

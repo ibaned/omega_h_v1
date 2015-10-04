@@ -1,7 +1,7 @@
 #include "concat.h"
 #include <string.h>  // for memcpy
 #include "loop.h"  // for free, malloc
-#include "subset.h"  // for ints_subset
+#include "subset.h"
 #include "tables.h"  // for the_down_degrees
 
 static void* concat_general(
@@ -21,7 +21,7 @@ static void* concat_general(
   return out;
 }
 
-unsigned* concat_ints(
+unsigned* concat_uints(
     unsigned width,
     unsigned const* a,
     unsigned na,
@@ -53,9 +53,9 @@ void concat_verts_of_elems(
 {
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned nsame_elems = offset_of_same_elems[nelems];
-  unsigned* verts_of_same_elems = ints_subset(nelems, verts_per_elem,
+  unsigned* verts_of_same_elems = uints_subset(nelems, verts_per_elem,
       verts_of_elems, offset_of_same_elems);
-  unsigned* out = concat_ints(verts_per_elem,
+  unsigned* out = concat_uints(verts_per_elem,
       verts_of_same_elems, nsame_elems,
       verts_of_gen_elems, ngen_elems);
   loop_free(verts_of_same_elems);

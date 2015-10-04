@@ -1,7 +1,7 @@
 #include "subset.h"
 #include <string.h>  // for memcpy
-#include "loop.h"  // for free, malloc
-#include "ints.h"    // for ints_exscan, ints_unscan
+#include "loop.h"
+#include "ints.h"
 #include "mark.h"    // for mesh_mark_down
 #include "mesh.h"    // for mesh_count, mesh_set_ents, mesh_add_noda...
 #include "tables.h"  // for the_down_degrees
@@ -27,7 +27,7 @@ static void* general_subset(
   return out;
 }
 
-unsigned* ints_subset(
+unsigned* uints_subset(
     unsigned n,
     unsigned width,
     unsigned const* a,
@@ -54,13 +54,13 @@ struct mesh* subset_mesh(
   unsigned nelems_out = offsets[nelems];
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned* verts_of_elems_out = ints_subset(nelems, verts_per_elem,
+  unsigned* verts_of_elems_out = uints_subset(nelems, verts_per_elem,
       verts_of_elems, offsets);
   unsigned nverts = mesh_count(m, 0);
-  unsigned* marked_elems = ints_unscan(offsets, nelems);
+  unsigned* marked_elems = uints_unscan(offsets, nelems);
   unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, marked_elems);
   loop_free(marked_elems);
-  unsigned* vert_offsets = ints_exscan(marked_verts, nverts);
+  unsigned* vert_offsets = uints_exscan(marked_verts, nverts);
   loop_free(marked_verts);
   for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i) {
     unsigned tmp = vert_offsets[verts_of_elems_out[i]];
@@ -77,7 +77,7 @@ struct mesh* subset_mesh(
       case TAG_F64: data_out = doubles_subset(
                         nverts, t->ncomps, t->data, vert_offsets);
                     break;
-      case TAG_U32: data_out = ints_subset(
+      case TAG_U32: data_out = uints_subset(
                         nverts, t->ncomps, t->data, vert_offsets);
                     break;
     }
