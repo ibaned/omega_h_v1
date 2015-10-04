@@ -109,4 +109,14 @@ static inline void transp_3x3(double in[3][3], double out[3][3])
     out[i][j] = in[j][i];
 }
 
+static inline void mul_3x3(double a[3][3], double b[3][3], double c[3][3])
+{
+  for (unsigned i = 0; i < 3; ++i)
+  for (unsigned j = 0; j < 3; ++j) {
+    c[i][j] = 0;
+    for (unsigned k = 0; k < 3; ++k)
+      c[i][j] += a[i][k] * b[k][j];
+  }
+}
+
 #endif

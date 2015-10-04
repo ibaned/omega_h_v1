@@ -1,4 +1,5 @@
 #include "qr.h"
+#include "algebra.h"
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
@@ -21,23 +22,6 @@ static void print(double a[3][3], char const* name)
   }
 }
 
-static void transpose(double a[3][3], double b[3][3])
-{
-  for (unsigned i = 0; i < 3; ++i)
-  for (unsigned j = 0; j < 3; ++j)
-    b[i][j] = a[j][i];
-}
-
-static void mmm(double a[3][3], double b[3][3], double c[3][3])
-{
-  for (unsigned i = 0; i < 3; ++i)
-  for (unsigned j = 0; j < 3; ++j) {
-    c[i][j] = 0;
-    for (unsigned k = 0; k < 3; ++k)
-      c[i][j] += a[i][k] * b[k][j];
-  }
-}
-
 static void assert_close(double a[3][3], double b[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
@@ -48,10 +32,10 @@ static void assert_close(double a[3][3], double b[3][3])
 static void verify_q(double q[3][3])
 {
   double qt[3][3];
-  transpose(q,qt);
+  transp_3x3(q,qt);
   print(qt, "Q^T");
   double qqt[3][3];
-  mmm(q,qt,qqt);
+  mul_3x3(q,qt,qqt);
   print(qqt, "Q*Q^T");
   assert_close(qqt, ident);
 }
@@ -72,7 +56,7 @@ static void test_one_qr(double a[3][3])
   print(q, "Q");
   print(r, "R");
   double qr[3][3];
-  mmm(q,r,qr);
+  mul_3x3(q,r,qr);
   print(qr, "QR");
   assert_close(qr, a);
   verify_q(q);

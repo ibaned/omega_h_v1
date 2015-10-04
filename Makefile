@@ -20,7 +20,6 @@ test_quality.c \
 test_read_vtk.c \
 test_refine_by_size.c \
 test_refine_topology.c \
-test_roots.c \
 test_up_from_down.c \
 test_vtk.c \
 test_warp.c \
@@ -83,7 +82,6 @@ swap_topology.c \
 edge_ring.c \
 edge_swap.c \
 loop.c \
-find_roots.c \
 inertia.c \
 derive_faces.c \
 node_ele_io.c \
