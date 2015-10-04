@@ -9,6 +9,10 @@ struct comm {
 
 #define CALL(f) do { int err = (f); assert(err == MPI_SUCCESS); } while(0)
 
+static struct comm world = { MPI_COMM_WORLD };
+static struct comm self = { MPI_COMM_SELF };
+static struct comm* using = &world;
+
 void comm_init(void)
 {
   CALL(MPI_Init(NULL,NULL));
@@ -19,41 +23,70 @@ void comm_fini(void)
   CALL(MPI_Finalize());
 }
 
-static struct comm world = { MPI_COMM_WORLD };
-
 struct comm* comm_world(void)
 {
   return &world;
 }
-
-static struct comm self = { MPI_COMM_SELF };
 
 struct comm* comm_self(void)
 {
   return &self;
 }
 
-unsigned comm_rank(struct comm* c)
+struct comm* comm_using(void)
+{
+  return using;
+}
+
+void comm_use(struct comm* c)
+{
+  using = c;
+}
+
+struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
+{
+  struct comm* c2 = loop_host_malloc(sizeof(*c2));
+  CALL(MPI_Comm_split(c->c, (int) group, (int) rank, &c2->c));
+  return c2;
+}
+
+void comm_free(struct comm* c)
+{
+  assert(c != &world);
+  assert(c != &self);
+  CALL(MPI_Comm_free(&c->c));
+  loop_host_free(c);
+}
+
+unsigned comm_rank(void)
 {
   int rank;
-  CALL(MPI_Comm_rank(c->c, &rank));
+  CALL(MPI_Comm_rank(using->c, &rank));
   return (unsigned) rank;
 }
 
-unsigned comm_size(struct comm* c)
+unsigned comm_size(void)
 {
   int size;
-  CALL(MPI_Comm_size(c->c, &size));
+  CALL(MPI_Comm_size(using->c, &size));
   return (unsigned) size;
 }
 
-void comm_add_doubles(struct comm* c, double* p, unsigned n)
+void comm_add_doubles(double* p, unsigned n)
 {
-  CALL(MPI_Allreduce(p, MPI_IN_PLACE, (int) n, MPI_DOUBLE, MPI_SUM, c->c));
+  CALL(MPI_Allreduce(p, MPI_IN_PLACE, (int) n, MPI_DOUBLE, MPI_SUM, using->c));
 }
 
-unsigned long comm_add_ulong(struct comm* c, unsigned long x)
+unsigned long comm_add_ulong(unsigned long x)
 {
-  CALL(MPI_Allreduce(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_SUM, c->c));
+  CALL(MPI_Allreduce(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_SUM,
+        using->c));
+  return x;
+}
+
+unsigned long comm_max_ulong(unsigned long x)
+{
+  CALL(MPI_Allreduce(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_MAX,
+        using->c));
   return x;
 }

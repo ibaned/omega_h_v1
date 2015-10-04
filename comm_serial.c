@@ -18,27 +18,51 @@ struct comm* comm_self(void)
   return (struct comm*)1;
 }
 
-unsigned comm_rank(struct comm* c)
+struct comm* comm_using(void)
+{
+  return (struct comm*)1;
+}
+
+void comm_use(struct comm* c)
 {
   (void)c;
+}
+
+struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
+{
+  (void)c;
+  (void)group;
+  (void)rank;
+  return (struct comm*)1;
+}
+
+void comm_free(struct comm* c)
+{
+  (void)c;
+}
+
+unsigned comm_rank(void)
+{
   return 0;
 }
 
-unsigned comm_size(struct comm* c)
+unsigned comm_size(void)
 {
-  (void)c;
   return 1;
 }
 
-void comm_add_doubles(struct comm* c, double* p, unsigned n)
+void comm_add_doubles(double* p, unsigned n)
 {
-  (void) c;
-  (void) p;
-  (void) n;
+  (void)p;
+  (void)n;
 }
 
-unsigned long comm_add_ulong(struct comm* c, unsigned long x)
+unsigned long comm_add_ulong(unsigned long x)
 {
-  (void) c;
+  return x;
+}
+
+unsigned long comm_max_ulong(unsigned long x)
+{
   return x;
 }
