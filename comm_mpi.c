@@ -83,10 +83,3 @@ unsigned long comm_add_ulong(unsigned long x)
         using->c));
   return x;
 }
-
-unsigned long comm_max_ulong(unsigned long x)
-{
-  CALL(MPI_Allreduce(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_MAX,
-        using->c));
-  return x;
-}

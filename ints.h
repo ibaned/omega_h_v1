@@ -27,6 +27,4 @@ static inline unsigned add_unique(unsigned* a, unsigned n, unsigned e)
   return n + 1;
 }
 
-unsigned long ulongs_max(unsigned long* a, unsigned n);
-
 #endif

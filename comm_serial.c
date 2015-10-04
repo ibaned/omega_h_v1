@@ -61,8 +61,3 @@ unsigned long comm_add_ulong(unsigned long x)
 {
   return x;
 }
-
-unsigned long comm_max_ulong(unsigned long x)
-{
-  return x;
-}
