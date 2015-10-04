@@ -6,7 +6,7 @@
 
 int main()
 {
-  unsigned L = 100, W = 101, H = 0;
+  unsigned L = 99, W = 100, H = 101;
   printf("L %u W %u H %u\n",L,W,H);
   double c[3] = {
    ((double)L)/2.0,
