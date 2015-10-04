@@ -61,3 +61,9 @@ unsigned long comm_add_ulong(unsigned long x)
 {
   return x;
 }
+
+unsigned long comm_exscan_ulong(unsigned long x)
+{
+  (void)x;
+  return 0;
+}

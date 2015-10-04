@@ -83,3 +83,12 @@ unsigned long comm_add_ulong(unsigned long x)
         using->c));
   return x;
 }
+
+unsigned long comm_exscan_ulong(unsigned long x)
+{
+  CALL(MPI_Exscan(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_SUM,
+        using->c));
+  if (!comm_rank())
+    x = 0;
+  return x;
+}
