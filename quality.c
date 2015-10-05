@@ -1,6 +1,6 @@
 #include "quality.h"
 #include <math.h>     // for sqrt
-#include "loop.h"   // for free, malloc
+#include "loop.h"
 #include "algebra.h"  // for copy_vector, vector_squared_distance
 #include "doubles.h"  // for doubles_min
 #include "mesh.h"     // for mesh_dim, mesh_ask_down, mesh_count, mesh_find_...
