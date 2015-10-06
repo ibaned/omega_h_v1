@@ -43,6 +43,10 @@ void get_star(
     unsigned** star_out)
 {
   unsigned star_buf[MAX_UP * MAX_DOWN];
+#ifndef NDEBUG
+  for (unsigned i = 0; i < MAX_UP * MAX_DOWN; ++i)
+    star_buf[i] = INVALID;
+#endif
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned* degrees = loop_malloc(sizeof(unsigned) * nlows);
   uints_zero(degrees, nlows);

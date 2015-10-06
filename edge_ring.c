@@ -26,6 +26,10 @@ unsigned find_edge_ring(
   edge_v[0] = verts_of_edges[edge * 2 + 0];
   edge_v[1] = verts_of_edges[edge * 2 + 1];
   struct ev tmp_ring[MAX_EDGE_SWAP];
+#ifndef NDEBUG
+  for (unsigned i = 0; i < MAX_EDGE_SWAP; ++i)
+    tmp_ring[i].a = tmp_ring[i].b = INVALID;
+#endif
   assert(end_use >= first_use + 3);
   for (unsigned i = first_use; i < end_use; ++i) {
     unsigned tet = tets_of_edges[i];
