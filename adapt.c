@@ -11,7 +11,6 @@
 #include "refine_by_size.h"   // for refine_by_size
 #include "size.h"             // for mesh_domain_size
 #include "swap_slivers.h"     // for swap_slivers
-#include "vtk.h"              // for write_vtk_step
 
 static unsigned global_op_count = 0;
 static unsigned global_max_ops = 0;
@@ -42,7 +41,6 @@ static void incr_op_count(struct mesh* m, char const* what)
   ++global_op_count;
   printf("%s", what);
   adapt_summary(m);
-  write_vtk_step(m);
 }
 
 static void satisfy_size(struct mesh** p_m, double size_floor, double good_qual)
