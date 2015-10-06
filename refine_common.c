@@ -11,6 +11,7 @@
 #include "refine_qualities.h"    // for refine_qualities
 #include "refine_topology.h"     // for refine_topology
 #include "splits_to_elements.h"  // for project_splits_to_elements
+#include <assert.h>
 
 unsigned refine_common(
     struct mesh** p_m,
@@ -91,6 +92,7 @@ unsigned refine_common(
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
   }
   if (mesh_find_tag(m, 0, "class_dim")) {
+    assert(mesh_find_tag(m, 0, "class_id"));
     unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->data;
     unsigned const* class_id = mesh_find_tag(m, 0, "class_id")->data;
     unsigned* gen_class_dim;
