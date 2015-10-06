@@ -3,6 +3,8 @@
 
 #include <math.h>
 
+#define PI 3.14159265359
+
 static inline void copy_vector(
     double const* a,
     double* b,

@@ -13,7 +13,7 @@ static void new_coord_fun(double const* x, double* nx)
   subtract_vectors(x, cen, v, 3);
   double r = vector_norm(v, 3);
   double a = atan2(v[1], v[0]);
-  a += M_PI / 8;
+  a += PI / 8;
   v[0] = cos(a) * r;
   v[1] = sin(a) * r;
   v[2] = 0;
