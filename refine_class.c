@@ -2,28 +2,37 @@
 #include "tables.h"
 #include "loop.h"
 
-unsigned* refine_class(
+void refine_class(
     unsigned src_dim,
     unsigned nsrcs,
     unsigned const* verts_of_srcs,
     unsigned const* gen_offset_of_srcs,
-    unsigned const* class_dim_of_verts)
+    unsigned const* dims_in,
+    unsigned const* ids_in,
+    unsigned** p_dims_out,
+    unsigned** p_ids_out)
 {
   unsigned nsplits = gen_offset_of_srcs[nsrcs];
-  unsigned* out = loop_malloc(sizeof(unsigned) * nsplits);
+  unsigned* dims_out = loop_malloc(sizeof(unsigned) * nsplits);
+  unsigned* ids_out = loop_malloc(sizeof(unsigned) * nsplits);
   unsigned verts_per_src = the_down_degrees[src_dim][0];
   for (unsigned i = 0; i < nsrcs; ++i) {
     if (gen_offset_of_srcs[i] == gen_offset_of_srcs[i + 1])
       continue;
     unsigned const* verts_of_src = verts_of_srcs + i * verts_per_src;
-    unsigned class_dim = INVALID;
+    unsigned dim = INVALID;
+    unsigned id = INVALID;
     for (unsigned j = 0; j < verts_per_src; ++j) {
       unsigned vert = verts_of_src[j];
-      unsigned class_dim_of_vert = class_dim_of_verts[vert];
-      if (class_dim == INVALID || class_dim_of_vert > class_dim)
-        class_dim = class_dim_of_vert;
+      unsigned vert_dim = dims_in[vert];
+      if (j == 0 || vert_dim > dim) {
+        dim = vert_dim;
+        id = ids_in[vert];
+      }
     }
-    out[gen_offset_of_srcs[i]] = class_dim;
+    dims_out[gen_offset_of_srcs[i]] = dim;
+    ids_out[gen_offset_of_srcs[i]] = id;
   }
-  return out;
+  *p_dims_out = dims_out;
+  *p_ids_out = ids_out;
 }
