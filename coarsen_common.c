@@ -110,7 +110,7 @@ unsigned coarsen_common(
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
   for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
     struct const_tag* t = mesh_get_tag(m, 0, i);
-    void* vals_out;
+    void* vals_out = 0;
     switch (t->type) {
       case TAG_F64:
         vals_out = doubles_subset(nverts, t->ncomps, t->data,
