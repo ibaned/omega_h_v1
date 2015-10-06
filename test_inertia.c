@@ -1,8 +1,7 @@
+#include <stdio.h>
+
 #include "inertia.h"
 #include "qr.h"
-#include "algebra.h"
-#include <math.h>
-#include <stdio.h>
 
 int main()
 {

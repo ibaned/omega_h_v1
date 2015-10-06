@@ -1,9 +1,11 @@
 #include "size.h"
-#include "loop.h"   // for malloc
+
 #include "algebra.h"  // for subtract_vectors, copy_vector, cross_product
 #include "doubles.h"  // for doubles_sum
+#include "loop.h"   // for malloc
 #include "mesh.h"     // for mesh_dim, mesh_count, mesh_find_field, mes...
 #include "tables.h"   // for the_down_degrees
+#include "tag.h"
 
 double edge_length(double coords[2][3])
 {

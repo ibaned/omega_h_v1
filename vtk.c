@@ -1,12 +1,15 @@
 #include "vtk.h"
-#include <stdio.h>   // for fprintf, FILE, fclose, fopen, printf
-#include "mesh.h"    // for mesh_count, mesh_dim, mesh_find_label
-#include "cloud.h"
-#include "tables.h"  // for the_down_degrees
-#include "loop.h"    // for loop_host_malloc
-#include <string.h>  // for strlen
+
 #include <assert.h>  // for assert
+#include <stdio.h>   // for fprintf, FILE, fclose, fopen, printf
 #include <stdlib.h>  // for atoi
+#include <string.h>  // for strlen
+
+#include "cloud.h"
+#include "loop.h"    // for loop_host_malloc
+#include "mesh.h"    // for mesh_count, mesh_dim, mesh_find_label
+#include "tables.h"  // for the_down_degrees
+#include "tag.h"
 
 enum cell_type {
   VTK_VERTEX         = 1,

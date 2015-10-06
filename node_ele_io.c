@@ -1,8 +1,11 @@
 #include "node_ele_io.h"
-#include "mesh.h"
-#include "loop.h"
-#include <stdio.h>
+
 #include <assert.h>
+#include <stdio.h>
+
+#include "loop.h"
+#include "mesh.h"
+#include "tag.h"
 
 struct mesh* read_dot_node(char const* filename)
 {

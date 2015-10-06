@@ -1,11 +1,14 @@
 #include "form_cloud.h"
-#include "mesh.h"
-#include "cloud.h"
-#include "loop.h"
-#include "size.h"
-#include "doubles.h"
-#include <math.h>
+
 #include <assert.h>
+#include <math.h>
+
+#include "cloud.h"
+#include "doubles.h"
+#include "loop.h"
+#include "mesh.h"
+#include "size.h"
+#include "tag.h"
 
 static void form_elem_cloud_2d(
     unsigned elem,

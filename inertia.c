@@ -1,7 +1,9 @@
 #include "inertia.h"
+
+#include <math.h>
+
 #include "algebra.h"
 #include "qr.h"
-#include <assert.h>
 
 static void cross_matrix(double b[3], double B[3][3])
 {

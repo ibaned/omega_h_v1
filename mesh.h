@@ -3,7 +3,6 @@
 
 #include "tag.h"
 
-struct graph;
 struct mesh;
 
 struct const_up {

@@ -1,12 +1,14 @@
 #include "element_gradients.h"
-#include <string.h>    // for strcat, strcpy
-#include "loop.h"    // for malloc, free
-#include <string.h>    // for strlen
+
 #include <assert.h>    // for assert
+#include <string.h>    // for strcat, strcpy
+
 #include "algebra.h"   // for copy_vector
 #include "jacobian.h"  // for element_jacobian, jacobian_inverter, the...
+#include "loop.h"    // for malloc, free
 #include "mesh.h"      // for mesh_dim, mesh_find_nodal_field, mesh_ad...
 #include "tables.h"    // for the_down_degrees
+#include "tag.h"
 
 double* element_gradients(
     unsigned elem_dim,

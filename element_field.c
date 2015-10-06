@@ -1,7 +1,9 @@
 #include "element_field.h"
-#include "tables.h"
-#include "mesh.h"
+
 #include "loop.h"
+#include "mesh.h"
+#include "tables.h"
+#include "tag.h"
 
 double* interp_to_elems(
     unsigned elem_dim,

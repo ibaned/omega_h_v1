@@ -1,5 +1,5 @@
 #include "coarsen_common.h"
-#include "loop.h"                 // for free
+
 #include "check_collapse_class.h"   // for check_collapse_class
 #include "coarsen_qualities.h"      // for coarsen_qualities
 #include "coarsen_topology.h"       // for coarsen_topology
@@ -10,10 +10,12 @@
 #include "graph.h"                  // for const_graph
 #include "indset.h"                 // for find_indset
 #include "ints.h"
+#include "loop.h"                 // for free
 #include "mesh.h"                   // for mesh_ask_up, const_up, mesh_count
 #include "quality.h"                // for element_qualities
 #include "subset.h"
 #include "tables.h"                 // for the_down_degrees
+#include "tag.h"
 
 unsigned coarsen_common(
     struct mesh** p_m,

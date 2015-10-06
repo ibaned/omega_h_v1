@@ -1,12 +1,13 @@
-#include "vtk.h"
-#include "mesh.h"
-#include "mark.h"
-#include "subset.h"
-#include "loop.h"
-#include "ints.h"
-#include "recover_by_volume.h"
-#include <assert.h>
 #include <stdio.h>
+
+#include "ints.h"
+#include "loop.h"
+#include "mark.h"
+#include "mesh.h"
+#include "recover_by_volume.h"
+#include "subset.h"
+#include "tag.h"
+#include "vtk.h"
 
 static char const* help_str =
 "         ~~~    O__\n"

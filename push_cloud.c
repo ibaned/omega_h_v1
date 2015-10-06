@@ -1,11 +1,14 @@
 #include "push_cloud.h"
-#include "cloud.h"
-#include "mesh.h"
-#include "tables.h"
+
+#include <assert.h>
+
 #include "algebra.h"
+#include "cloud.h"
 #include "ints.h"
 #include "loop.h"
-#include <assert.h>
+#include "mesh.h"
+#include "tables.h"
+#include "tag.h"
 
 static void push_particle_2d(
     unsigned pt,

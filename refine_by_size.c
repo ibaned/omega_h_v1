@@ -1,8 +1,10 @@
 #include "refine_by_size.h"
+
 #include "loop.h"         // for free, malloc
 #include "measure_edges.h"  // for measure_edges
 #include "mesh.h"           // for mesh_find_field, mesh_ask_down, mes...
 #include "refine_common.h"  // for refine_common
+#include "tag.h"
 
 unsigned refine_by_size(struct mesh** p_m, double qual_floor)
 {

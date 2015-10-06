@@ -1,9 +1,12 @@
 #include "refine_common.h"
-#include "loop.h"              // for free, malloc
+
+#include <assert.h>
+
 #include "concat.h"              // for concat_doubles, concat_ints, concat_...
 #include "graph.h"               // for const_graph
 #include "indset.h"              // for find_indset
 #include "ints.h"
+#include "loop.h"              // for free, malloc
 #include "mesh.h"                // for mesh_ask_down, mesh_ask_up, mesh_count
 #include "quality.h"             // for mesh_qualities
 #include "refine_class.h"        // for refine_class
@@ -11,7 +14,7 @@
 #include "refine_qualities.h"    // for refine_qualities
 #include "refine_topology.h"     // for refine_topology
 #include "splits_to_elements.h"  // for project_splits_to_elements
-#include <assert.h>
+#include "tag.h"
 
 unsigned refine_common(
     struct mesh** p_m,

@@ -1,16 +1,19 @@
 #include "adapt.h"
+
 #include <stdio.h>            // for printf, fprintf, stderr
 #include <stdlib.h>           // for abort
-#include "loop.h"             // for loop_free
+
 #include "coarsen_by_size.h"  // for coarsen_by_size
 #include "coarsen_slivers.h"  // for coarsen_slivers
 #include "doubles.h"          // for doubles_max, doubles_min
+#include "loop.h"             // for loop_free
 #include "measure_edges.h"    // for measure_edges
 #include "mesh.h"             // for mesh_count, mesh_dim, mesh_find_field
 #include "quality.h"          // for mesh_min_quality
 #include "refine_by_size.h"   // for refine_by_size
 #include "size.h"             // for mesh_domain_size
 #include "swap_slivers.h"     // for swap_slivers
+#include "tag.h"
 
 static unsigned global_op_count = 0;
 static unsigned global_max_ops = 0;

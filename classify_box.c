@@ -1,7 +1,10 @@
 #include "classify_box.h"
+
 #include <math.h>    // for fabs
+
 #include "loop.h"  // for malloc
 #include "mesh.h"    // for mesh_add_nodal_label, mesh_count, mesh_find_noda...
+#include "tag.h"
 
 #define EPSILON 1e-10
 

@@ -1,6 +1,6 @@
 #include "mark.h"
+
 #include "loop.h"   // for malloc, free
-#include <assert.h>   // for assert
 #include "mesh.h"     // for mesh_count, mesh_dim, mesh_ask_up, const_up
 #include "quality.h"  // for mesh_qualities
 #include "tables.h"   // for the_down_degrees, INVALID

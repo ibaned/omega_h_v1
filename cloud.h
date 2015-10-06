@@ -3,6 +3,8 @@
 
 #include "tag.h"
 
+struct cloud;
+
 struct cloud* new_cloud(unsigned count);
 void free_cloud(struct cloud* c);
 

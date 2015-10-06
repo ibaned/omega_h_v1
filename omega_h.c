@@ -1,5 +1,7 @@
 #include "include/omega_h.h"
+
 #include "mesh.h"
+#include "tag.h"
 #include "vtk.h"
 
 void osh_free(osh_t m)

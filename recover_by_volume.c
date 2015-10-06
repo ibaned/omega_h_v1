@@ -1,9 +1,9 @@
 #include "recover_by_volume.h"
-#include <string.h>  // for strcat, strcpy
+
 #include "loop.h"  // for malloc, free
-#include <string.h>  // for strlen
 #include "mesh.h"    // for mesh_ask_up, mesh_dim, mesh_find_field
 #include "size.h"    // for mesh_element_sizes
+#include "tag.h"
 
 double* recover_by_volume(
     unsigned nverts,

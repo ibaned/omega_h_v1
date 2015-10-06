@@ -1,12 +1,14 @@
 #include <math.h>            // for fabs
 #include <stdio.h>           // for printf
-#include "loop.h"            // for free
+
 #include "algebra.h"         // for vector_norm
 #include "doubles.h"         // for doubles_min
 #include "eval_field.h"      // for mesh_eval_field
+#include "loop.h"            // for free
 #include "mesh.h"            // for mesh_dim, mesh_count, free_mesh, mesh_as...
 #include "quality.h"         // for element_qualities
 #include "refine_by_size.h"  // for refine_by_size
+#include "tag.h"
 #include "vtk.h"             // for write_vtk
 
 static void size_fun(double const* x, double* s)

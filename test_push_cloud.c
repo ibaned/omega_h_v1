@@ -1,9 +1,12 @@
-#include "mesh.h"
-#include "cloud.h"
-#include "push_cloud.h"
-#include "eval_field.h"
-#include "vtk.h"
+#include <math.h>
+
 #include "algebra.h"
+#include "cloud.h"
+#include "eval_field.h"
+#include "mesh.h"
+#include "push_cloud.h"
+#include "tag.h"
+#include "vtk.h"
 
 static double const* cen;
 

@@ -1,9 +1,11 @@
 #include "coarsen_by_size.h"
+
 #include "coarsen_common.h"
-#include "mesh.h"  // for mesh_ask_down, mesh_count
-#include "measure_edges.h"
 #include "collapse_codes.h"
 #include "loop.h"
+#include "measure_edges.h"
+#include "mesh.h"  // for mesh_ask_down, mesh_count
+#include "tag.h"
 
 unsigned coarsen_by_size(
     struct mesh** p_m,

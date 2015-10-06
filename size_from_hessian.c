@@ -1,8 +1,11 @@
 #include "size_from_hessian.h"
+
 #include <assert.h>   // for assert
-#include "loop.h"   // for malloc
+
 #include "algebra.h"  // for vector_norm
+#include "loop.h"   // for malloc
 #include "mesh.h"     // for mesh_add_nodal_field, mesh_count, mesh_find_nod...
+#include "tag.h"
 
 double* size_from_hessian(
     unsigned nverts,
