@@ -1,9 +1,9 @@
 #include "coarsen_slivers.h"
 
-#include "coarsen_common.h"  // for coarsen_common
-#include "loop.h"          // for free, malloc
-#include "mark.h"            // for mesh_mark_down, mesh_mark_slivers
-#include "mesh.h"            // for mesh_ask_down, mesh_count, mesh_dim
+#include "coarsen_common.h"
+#include "loop.h"
+#include "mark.h"
+#include "mesh.h"
 
 unsigned coarsen_slivers(
     struct mesh** p_m,
