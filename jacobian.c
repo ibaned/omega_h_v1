@@ -1,4 +1,5 @@
 #include "jacobian.h"
+
 #include "algebra.h"
 
 static inline double det_2x2(double m[2][2])

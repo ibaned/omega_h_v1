@@ -1,6 +1,8 @@
 #include "cloud.h"
-#include "loop.h"
+
 #include <string.h>
+
+#include "loop.h"
 
 struct cloud {
   unsigned count;

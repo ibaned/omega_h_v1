@@ -1,8 +1,10 @@
 #include "check_collapse_class.h"
-#include "collapse_codes.h"
-#include "tables.h"
-#include "ints.h"
+
 #include <assert.h>
+
+#include "collapse_codes.h"
+#include "ints.h"
+#include "tables.h"
 
 void check_collapse_class(
     unsigned elem_dim,

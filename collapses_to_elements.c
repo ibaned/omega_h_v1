@@ -1,6 +1,7 @@
 #include "collapses_to_elements.h"
-#include "loop.h"  // for malloc, free
+
 #include "ints.h"    // for ints_exscan, ints_zero
+#include "loop.h"  // for malloc, free
 #include "tables.h"  // for INVALID, the_down_degrees
 
 void collapses_to_elements(

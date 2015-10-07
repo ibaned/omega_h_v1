@@ -1,8 +1,9 @@
-#include "qr.h"
-#include "algebra.h"
-#include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include <stdio.h>
+
+#include "algebra.h"
+#include "qr.h"
 
 #define TOLERANCE 1e-10
 

@@ -1,8 +1,10 @@
 #include "star.h"
-#include "tables.h"
+
+#include <assert.h>
+
 #include "ints.h"
 #include "loop.h"
-#include <assert.h>
+#include "tables.h"
 
 /* This is the #2 most expensive function, takes up 30% of
    refinement time !

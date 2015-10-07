@@ -1,6 +1,7 @@
-#include "quality.h"
 #include <math.h>
 #include <stdio.h>
+
+#include "quality.h"
 
 int main()
 {

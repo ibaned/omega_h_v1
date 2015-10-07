@@ -1,11 +1,12 @@
-#include "mesh.h"
-#include "refine_by_size.h"
-#include "classify_box.h"
-#include "eval_field.h"
-#include "vtk.h"
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "classify_box.h"
+#include "eval_field.h"
+#include "mesh.h"
+#include "refine_by_size.h"
+#include "vtk.h"
 
 static double size = 0.75;
 

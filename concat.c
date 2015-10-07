@@ -1,5 +1,7 @@
 #include "concat.h"
+
 #include <string.h>  // for memcpy
+
 #include "loop.h"  // for free, malloc
 #include "subset.h"
 #include "tables.h"  // for the_down_degrees

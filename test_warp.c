@@ -1,6 +1,7 @@
 #include <math.h>               // for atan2, cos, sin, M_PI
 #include <stdio.h>              // for printf, fprintf, stderr
 #include <stdlib.h>             // for abort
+
 #include "adapt.h"              // for mesh_adapt
 #include "algebra.h"            // for subtract_vectors, vector_norm
 #include "classify_box.h"       // for mesh_classify_box

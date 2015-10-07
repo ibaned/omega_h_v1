@@ -1,7 +1,8 @@
+#include <stdio.h>
+
+#include "loop.h"
 #include "refine_topology.h"
 #include "tables.h"
-#include <stdio.h>
-#include "loop.h"
 
 int main()
 {

@@ -1,6 +1,7 @@
 #include "loop.h"
-#include <stdlib.h>
+
 #include <assert.h>
+#include <stdlib.h>
 
 void* loop_malloc(unsigned long n)
 {

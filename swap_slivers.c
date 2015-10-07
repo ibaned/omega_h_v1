@@ -1,8 +1,9 @@
 #include "swap_slivers.h"
-#include "swap_common.h"
-#include "mesh.h"
-#include "mark.h"
+
 #include "loop.h"
+#include "mark.h"
+#include "mesh.h"
+#include "swap_common.h"
 
 unsigned swap_slivers(
     struct mesh** p_m,

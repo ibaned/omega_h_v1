@@ -1,8 +1,10 @@
 #include "edge_swap.h"
+
+#include <assert.h>
+
 #include "algebra.h"
 #include "quality.h"
 #include "tables.h"
-#include <assert.h>
 
 unsigned const swap_mesh_sizes[MAX_EDGE_SWAP+1] =
 {0 //0

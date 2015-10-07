@@ -1,7 +1,5 @@
 #include "comm.h"
 
-struct comm;
-
 void comm_init(void)
 {
 }

@@ -1,8 +1,10 @@
 #include "swap_topology.h"
-#include "edge_swap.h"
-#include "edge_ring.h"
-#include "loop.h"
+
 #include <assert.h>
+
+#include "edge_ring.h"
+#include "edge_swap.h"
+#include "loop.h"
 
 unsigned* swap_topology(
     unsigned nedges,

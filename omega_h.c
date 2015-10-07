@@ -1,5 +1,4 @@
 #include "include/omega_h.h"
-
 #include "mesh.h"
 #include "tag.h"
 #include "vtk.h"

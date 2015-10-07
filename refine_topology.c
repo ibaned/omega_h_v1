@@ -1,7 +1,9 @@
 #include "refine_topology.h"
-#include "tables.h"
-#include "loop.h"
+
 #include <assert.h>
+
+#include "loop.h"
+#include "tables.h"
 
 /* two more dimensions are introduced in the implementation:
  *   the "base" dimension is one minus the product dimension,

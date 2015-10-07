@@ -1,4 +1,5 @@
 #include "collapses_to_verts.h"
+
 #include "loop.h"  // for malloc
 #include "tables.h"  // for INVALID
 

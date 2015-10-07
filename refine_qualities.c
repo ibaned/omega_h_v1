@@ -1,10 +1,12 @@
 #include "refine_qualities.h"
-#include "element_field.h"
-#include "algebra.h"
-#include "tables.h"
-#include "quality.h"
-#include "loop.h"
+
 #include <assert.h>
+
+#include "algebra.h"
+#include "element_field.h"
+#include "loop.h"
+#include "quality.h"
+#include "tables.h"
 
 double* refine_qualities(
     unsigned elem_dim,

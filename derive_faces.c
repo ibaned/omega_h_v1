@@ -1,6 +1,7 @@
 #include "derive_faces.h"
-#include "tables.h"
+
 #include "loop.h"
+#include "tables.h"
 
 unsigned* derive_faces(
     unsigned nfaces,

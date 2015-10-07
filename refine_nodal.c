@@ -1,7 +1,8 @@
 #include "refine_nodal.h"
+
 #include "element_field.h"
-#include "tables.h"
 #include "loop.h"
+#include "tables.h"
 
 double* refine_nodal(
     unsigned src_dim,

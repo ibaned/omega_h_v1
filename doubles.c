@@ -1,4 +1,5 @@
 #include "doubles.h"
+
 #include "loop.h"
 
 double doubles_max(double const* a, unsigned n)

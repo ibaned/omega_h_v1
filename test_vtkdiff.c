@@ -1,9 +1,10 @@
-#include "vtk.h"
-#include "mesh.h"
-#include "mesh_diff.h"
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "mesh.h"
+#include "mesh_diff.h"
+#include "vtk.h"
 
 int main(int argc, char** argv)
 {

@@ -1,6 +1,7 @@
 #include "refine_class.h"
-#include "tables.h"
+
 #include "loop.h"
+#include "tables.h"
 
 void refine_class(
     unsigned src_dim,

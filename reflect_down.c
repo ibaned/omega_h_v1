@@ -1,7 +1,9 @@
 #include "reflect_down.h"
+
 #include <assert.h>  // for assert
-#include "loop.h"    // for malloc
+
 #include "ints.h"    // for has
+#include "loop.h"    // for malloc
 #include "tables.h"  // for the_down_degrees, MAX_UP, INVALID, the_canonical...
 
 static unsigned copy(

@@ -1,6 +1,7 @@
 #include "coarsen_topology.h"
-#include "tables.h"
+
 #include "loop.h"
+#include "tables.h"
 
 void coarsen_topology(
     unsigned elem_dim,

@@ -1,7 +1,9 @@
 #include "qr.h"
-#include "algebra.h"
-#include <math.h>
+
 #include <assert.h>
+#include <math.h>
+
+#include "algebra.h"
 
 static double sign(double x)
 {

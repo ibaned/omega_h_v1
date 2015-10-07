@@ -1,7 +1,8 @@
 #include "up_from_down.h"
-#include "tables.h"
+
 #include "ints.h"
 #include "loop.h"
+#include "tables.h"
 
 void up_from_down(
     unsigned high_dim,

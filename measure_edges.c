@@ -1,7 +1,8 @@
 #include "measure_edges.h"
+
 #include "algebra.h"
-#include "size.h"
 #include "loop.h"
+#include "size.h"
 
 typedef double const (*gcc_sucks_t)[3];
 

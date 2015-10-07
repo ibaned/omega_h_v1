@@ -1,7 +1,9 @@
 #include "indset.h"
+
+#include <stdlib.h>
+
 #include "ints.h"
 #include "loop.h"
-#include <stdlib.h>
 
 /* the runtime of the independent set algorithm
  * as written below is O(iterations * vertices).

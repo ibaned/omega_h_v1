@@ -1,7 +1,8 @@
-#include "up_from_down.h"
-#include "tables.h"
-#include "loop.h"
 #include <stdio.h>
+
+#include "loop.h"
+#include "tables.h"
+#include "up_from_down.h"
 
 int main()
 {

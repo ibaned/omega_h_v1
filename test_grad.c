@@ -1,11 +1,11 @@
-#include "mesh.h"
-#include "eval_field.h"
-#include "element_gradients.h"
-#include "refine_by_size.h"
-#include "recover_by_volume.h"
 #include "algebra.h"
-#include "vtk.h"
+#include "element_gradients.h"
+#include "eval_field.h"
+#include "mesh.h"
+#include "recover_by_volume.h"
+#include "refine_by_size.h"
 #include "size_from_hessian.h"
+#include "vtk.h"
 
 static void dye_fun(double const* coords, double* v)
 {

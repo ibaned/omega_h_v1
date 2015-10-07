@@ -1,5 +1,6 @@
 #include <math.h>             // for fabs
 #include <stdio.h>            // for printf
+
 #include "algebra.h"          // for vector_norm
 #include "classify_box.h"     // for mesh_classify_box
 #include "coarsen_by_size.h"  // for coarsen_by_size

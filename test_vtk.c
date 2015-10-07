@@ -1,5 +1,5 @@
-#include "vtk.h"
 #include "mesh.h"
+#include "vtk.h"
 
 int main()
 {

@@ -1,9 +1,10 @@
 #include "coarsen_qualities.h"
-#include "collapse_codes.h"
-#include "tables.h"
-#include "quality.h"
+
 #include "algebra.h"
+#include "collapse_codes.h"
 #include "loop.h"
+#include "quality.h"
+#include "tables.h"
 
 double* coarsen_qualities(
     unsigned elem_dim,

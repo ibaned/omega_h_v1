@@ -1,4 +1,5 @@
 #include "graph.h"
+
 #include "loop.h"
 
 struct graph* new_graph(unsigned* offsets, unsigned* adj)

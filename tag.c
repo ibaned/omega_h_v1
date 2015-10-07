@@ -1,6 +1,8 @@
 #include "tag.h"
+
 #include <assert.h>
 #include <string.h>
+
 #include "loop.h"
 
 struct tag {

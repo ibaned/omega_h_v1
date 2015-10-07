@@ -1,8 +1,10 @@
 #include "splits_to_elements.h"
-#include "tables.h"
+
+#include <assert.h>
+
 #include "ints.h"
 #include "loop.h"
-#include <assert.h>
+#include "tables.h"
 
 void project_splits_to_elements(
     unsigned elem_dim,

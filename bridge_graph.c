@@ -1,8 +1,10 @@
 #include "bridge_graph.h"
-#include "ints.h"
-#include "tables.h"
+
 #include <assert.h>
+
+#include "ints.h"
 #include "loop.h"
+#include "tables.h"
 
 static void bridge_graph_general(
     unsigned nverts,
