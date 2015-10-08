@@ -66,7 +66,7 @@ static void local_weighted_coords(
     c[i] = 0;
   for (unsigned i = 0; i < n; ++i)
   for (unsigned j = 0; j < 3; ++j)
-    c[i * 3 + j] += coords[i * 3 + j] * masses[i];
+    c[j] += coords[i * 3 + j] * masses[i];
 }
 
 static void local_center_of_mass(

@@ -164,7 +164,7 @@ static void seek_prefix(FILE* f,
   while (fgets(line, (int) line_size, f))
     if (!strncmp(line, prefix, pl))
       return;
-  abort();
+  assert(0);
 }
 
 typedef char line_t[1024];
