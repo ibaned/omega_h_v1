@@ -65,8 +65,10 @@ static void local_weighted_coords(
   for (unsigned i = 0; i < 3; ++i)
     c[i] = 0;
   for (unsigned i = 0; i < n; ++i)
-  for (unsigned j = 0; j < 3; ++j)
-    c[j] += coords[i * 3 + j] * masses[i];
+  for (unsigned j = 0; j < 3; ++j) {
+    double m = masses ? masses[i] : 1;
+    c[j] += coords[i * 3 + j] * m;
+  }
 }
 
 static void local_center_of_mass(
@@ -91,7 +93,8 @@ static void local_inertia(
   zero_3x3(ic);
   for (unsigned i = 0; i < n; ++i) {
     double pic[3][3];
-    inertial_contribution(masses[i], coords + i * 3, c, pic);
+    double m = masses ? masses[i] : 1;
+    inertial_contribution(m, coords + i * 3, c, pic);
     add_3x3(ic, pic, ic);
   }
 }
@@ -143,8 +146,10 @@ static double local_weighted_in(
 {
   double s = 0;
   for (unsigned i = 0; i < n; ++i)
-    if (in[i])
-      s += masses[i];
+    if (in[i]) {
+      double m = masses ? masses[i] : 1;
+      s += m;
+    }
   return s;
 }
 
@@ -181,7 +186,10 @@ void local_inertial_mark(
     unsigned** in)
 {
   double lm;
-  lm = doubles_sum(masses, n);
+  if (masses)
+    lm = doubles_sum(masses, n);
+  else
+    lm = n;
   double c[3];
   local_center_of_mass(n, coords, masses, lm, c);
   double a[3];
