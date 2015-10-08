@@ -39,6 +39,15 @@ unsigned* uints_subset(
   return general_subset(sizeof(unsigned), n, width, a, offsets);
 }
 
+unsigned* ulongs_subset(
+    unsigned n,
+    unsigned width,
+    unsigned long const* a,
+    unsigned const* offsets)
+{
+  return general_subset(sizeof(unsigned long), n, width, a, offsets);
+}
+
 double* doubles_subset(
     unsigned n,
     unsigned width,
@@ -81,6 +90,9 @@ struct mesh* subset_mesh(
                         nverts, t->ncomps, t->data, vert_offsets);
                     break;
       case TAG_U32: data_out = uints_subset(
+                        nverts, t->ncomps, t->data, vert_offsets);
+                    break;
+      case TAG_U64: data_out = ulongs_subset(
                         nverts, t->ncomps, t->data, vert_offsets);
                     break;
     }

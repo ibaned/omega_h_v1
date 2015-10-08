@@ -37,6 +37,7 @@ static enum cell_type const simplex_types[4] = {
 
 static char const* const type_names[TAG_TYPES] = {
   [TAG_U32] = "UInt32",
+  [TAG_U64] = "UInt64",
   [TAG_F64] = "Float64"
 };
 
@@ -51,6 +52,15 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < tag->ncomps; ++j)
           fprintf(file, " %u", *p++);
+        fprintf(file, "\n");
+      }
+      break;
+    }
+    case TAG_U64: {
+      unsigned long const* p = tag->data;
+      for (unsigned i = 0; i < nents; ++i) {
+        for (unsigned j = 0; j < tag->ncomps; ++j)
+          fprintf(file, " %lu", *p++);
         fprintf(file, "\n");
       }
       break;
@@ -209,11 +219,19 @@ static unsigned read_array_ncomps(char* header)
   return read_int_attrib(header, "NumberOfComponents");
 }
 
-static unsigned* read_ints(FILE* f, unsigned n)
+static unsigned* read_uints(FILE* f, unsigned n)
 {
   unsigned* out = loop_host_malloc(sizeof(unsigned) * n);
   for (unsigned i = 0; i < n; ++i)
     fscanf(f, "%u", &out[i]);
+  return out;
+}
+
+static unsigned long* read_ulongs(FILE* f, unsigned n)
+{
+  unsigned long* out = loop_host_malloc(sizeof(unsigned long) * n);
+  for (unsigned i = 0; i < n; ++i)
+    fscanf(f, "%lu", &out[i]);
   return out;
 }
 
@@ -238,7 +256,7 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
   assert(nelems);
   line_t line;
   seek_prefix(f, line, sizeof(line), types_header);
-  unsigned* types = read_ints(f, nelems);
+  unsigned* types = read_uints(f, nelems);
   unsigned dim;
   for (dim = 0; dim < 4; ++dim)
     if (types[0] == simplex_types[dim])
@@ -261,7 +279,9 @@ static unsigned read_tag(FILE* f, struct tags* ts, unsigned n)
   unsigned ncomps = read_array_ncomps(line);
   void* data;
   switch (type) {
-    case TAG_U32: data = read_ints(f, n * ncomps);
+    case TAG_U32: data = read_uints(f, n * ncomps);
+                  break;
+    case TAG_U64: data = read_ulongs(f, n * ncomps);
                   break;
     case TAG_F64: data = read_doubles(f, n * ncomps);
                   break;
@@ -303,7 +323,7 @@ static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
   assert(!strcmp("connectivity", name));
   unsigned dim = mesh_dim(m);
   unsigned verts_per_elem = the_down_degrees[dim][0];
-  unsigned* data = read_ints(f, nelems * verts_per_elem);
+  unsigned* data = read_uints(f, nelems * verts_per_elem);
   mesh_set_ents(m, dim, nelems, data);
 }
 

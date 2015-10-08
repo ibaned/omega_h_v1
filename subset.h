@@ -7,6 +7,12 @@ unsigned* uints_subset(
     unsigned const* a,
     unsigned const* offsets);
 
+unsigned* ulongs_subset(
+    unsigned n,
+    unsigned width,
+    unsigned long const* a,
+    unsigned const* offsets);
+
 double* doubles_subset(
     unsigned n,
     unsigned width,

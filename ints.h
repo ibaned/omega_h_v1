@@ -27,4 +27,6 @@ static inline unsigned add_unique(unsigned* a, unsigned n, unsigned e)
   return n + 1;
 }
 
+unsigned long* ulongs_copy(unsigned long const* a, unsigned n);
+
 #endif

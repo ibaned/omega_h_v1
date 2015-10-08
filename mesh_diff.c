@@ -36,7 +36,15 @@ static unsigned doubles_diff(double const* a, double const* b, unsigned n,
   return 0;
 }
 
-static unsigned ints_diff(unsigned const* a, unsigned const* b, unsigned n)
+static unsigned uints_diff(unsigned const* a, unsigned const* b, unsigned n)
+{
+  for (unsigned i = 0; i < n; ++i)
+    if (a[i] != b[i])
+      return 1;
+  return 0;
+}
+
+static unsigned ulongs_diff(unsigned long const* a, unsigned long const* b, unsigned n)
 {
   for (unsigned i = 0; i < n; ++i)
     if (a[i] != b[i])
@@ -63,7 +71,13 @@ static unsigned tag_diff(struct const_tag* a, struct const_tag* b, unsigned n,
   }
   switch (a->type) {
     case TAG_U32:
-      if (ints_diff(a->data, b->data, n * a->ncomps)) {
+      if (uints_diff(a->data, b->data, n * a->ncomps)) {
+        printf("tag \"%s\" contents differ\n", a->name);
+        return 1;
+      }
+      break;
+    case TAG_U64:
+      if (ulongs_diff(a->data, b->data, n * a->ncomps)) {
         printf("tag \"%s\" contents differ\n", a->name);
         return 1;
       }
@@ -126,7 +140,7 @@ unsigned mesh_diff(struct mesh* a, struct mesh* b,
       unsigned const* eva = mesh_ask_down(a, d, 0);
       unsigned const* evb = mesh_ask_down(b, d, 0);
       unsigned vpe = the_down_degrees[d][0];
-      if (ints_diff(eva, evb, vpe * nents)) {
+      if (uints_diff(eva, evb, vpe * nents)) {
         printf("connectivity differs for dimension %u\n", d);
         return 1;
       }

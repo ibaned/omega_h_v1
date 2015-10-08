@@ -76,3 +76,11 @@ unsigned uints_sum(unsigned const* a, unsigned n)
     sum += a[i];
   return sum;
 }
+
+unsigned long* ulongs_copy(unsigned long const* a, unsigned n)
+{
+  unsigned long* b = loop_malloc(sizeof(unsigned long) * n);
+  for (unsigned i = 0; i < n; ++i)
+    b[i] = a[i];
+  return b;
+}

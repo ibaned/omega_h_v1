@@ -3,6 +3,7 @@
 
 enum tag_type {
   TAG_U32,
+  TAG_U64,
   TAG_F64,
 };
 

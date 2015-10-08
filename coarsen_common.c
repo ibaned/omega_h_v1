@@ -1,20 +1,20 @@
 #include "coarsen_common.h"
 
-#include "check_collapse_class.h"   // for check_collapse_class
-#include "coarsen_qualities.h"      // for coarsen_qualities
-#include "coarsen_topology.h"       // for coarsen_topology
-#include "collapse_codes.h"         // for ::DONT_COLLAPSE
-#include "collapses_to_elements.h"  // for collapses_to_elements
-#include "collapses_to_verts.h"     // for collapses_to_verts
-#include "concat.h"                 // for concat_verts_of_elems
-#include "graph.h"                  // for const_graph
-#include "indset.h"                 // for find_indset
+#include "check_collapse_class.h"
+#include "coarsen_qualities.h"
+#include "coarsen_topology.h"
+#include "collapse_codes.h"
+#include "collapses_to_elements.h"
+#include "collapses_to_verts.h"
+#include "concat.h"
+#include "graph.h"
+#include "indset.h"
 #include "ints.h"
-#include "loop.h"                 // for free
-#include "mesh.h"                   // for mesh_ask_up, const_up, mesh_count
-#include "quality.h"                // for element_qualities
+#include "loop.h"
+#include "mesh.h"
+#include "quality.h"
 #include "subset.h"
-#include "tables.h"                 // for the_down_degrees
+#include "tables.h"
 #include "tag.h"
 
 unsigned coarsen_common(
@@ -120,6 +120,10 @@ unsigned coarsen_common(
         break;
       case TAG_U32:
         vals_out = uints_subset(nverts, t->ncomps, t->data,
+            offset_of_same_verts);
+        break;
+      case TAG_U64:
+        vals_out = ulongs_subset(nverts, t->ncomps, t->data,
             offset_of_same_verts);
         break;
     }

@@ -1,18 +1,18 @@
 #include "swap_common.h"
 
-#include <assert.h>          // for assert
+#include <assert.h>
 
-#include "concat.h"          // for concat_verts_of_elems
-#include "doubles.h"         // for doubles_copy
-#include "graph.h"           // for const_graph
-#include "indset.h"          // for find_indset
+#include "concat.h"
+#include "doubles.h"
+#include "graph.h"
+#include "indset.h"
 #include "ints.h"
-#include "loop.h"          // for free
-#include "mark.h"            // for mesh_mark_up, unmark_boundary
-#include "mesh.h"            // for mesh_ask_up, mesh_count, mesh_ask_down
-#include "quality.h"         // for mesh_qualities
-#include "swap_qualities.h"  // for swap_qualities
-#include "swap_topology.h"   // for swap_topology
+#include "loop.h"
+#include "mark.h"
+#include "mesh.h"
+#include "quality.h"
+#include "swap_qualities.h"
+#include "swap_topology.h"
 #include "tag.h"
 
 unsigned swap_common(
@@ -95,6 +95,8 @@ unsigned swap_common(
       case TAG_F64: data = doubles_copy(t->data, nverts * t->ncomps);
                     break;
       case TAG_U32: data = uints_copy(t->data, nverts * t->ncomps);
+                    break;
+      case TAG_U64: data = ulongs_copy(t->data, nverts * t->ncomps);
                     break;
     };
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, data);
