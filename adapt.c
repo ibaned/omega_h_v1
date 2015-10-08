@@ -1,18 +1,18 @@
 #include "adapt.h"
 
-#include <stdio.h>            // for printf, fprintf, stderr
-#include <stdlib.h>           // for abort
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "coarsen_by_size.h"  // for coarsen_by_size
-#include "coarsen_slivers.h"  // for coarsen_slivers
-#include "doubles.h"          // for doubles_max, doubles_min
-#include "loop.h"             // for loop_free
-#include "measure_edges.h"    // for measure_edges
-#include "mesh.h"             // for mesh_count, mesh_dim, mesh_find_field
-#include "quality.h"          // for mesh_min_quality
-#include "refine_by_size.h"   // for refine_by_size
-#include "size.h"             // for mesh_domain_size
-#include "swap_slivers.h"     // for swap_slivers
+#include "coarsen_by_size.h"
+#include "coarsen_slivers.h"
+#include "doubles.h"
+#include "loop.h"
+#include "measure_edges.h"
+#include "mesh.h"
+#include "quality.h"
+#include "refine_by_size.h"
+#include "size.h"
+#include "swap_slivers.h"
 #include "tag.h"
 
 static unsigned global_op_count = 0;
