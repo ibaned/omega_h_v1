@@ -93,13 +93,11 @@ element_field.c \
 mesh_diff.c \
 push_cloud.c \
 qr.c \
-omega_h.c
+omega_h.c \
+comm.c
 
-ifeq "$(USE_MPI)" "yes"
-lib_sources += comm_mpi.c
-else
-lib_sources += comm_serial.c
-endif
+USE_MPI ?= 0
+objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
 
 lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
 
