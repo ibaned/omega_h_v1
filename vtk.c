@@ -1,14 +1,15 @@
 #include "vtk.h"
 
-#include <assert.h>  // for assert
-#include <stdio.h>   // for fprintf, FILE, fclose, fopen, printf
-#include <stdlib.h>  // for atoi
-#include <string.h>  // for strlen
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "cloud.h"
-#include "loop.h"    // for loop_host_malloc
-#include "mesh.h"    // for mesh_count, mesh_dim, mesh_find_label
-#include "tables.h"  // for the_down_degrees
+#include "files.h"
+#include "loop.h"
+#include "mesh.h"
+#include "tables.h"
 #include "tag.h"
 
 enum cell_type {
@@ -41,11 +42,17 @@ static char const* const type_names[TAG_TYPES] = {
   [TAG_F64] = "Float64"
 };
 
+static void describe_tag(FILE* file, char const* element,
+    struct const_tag* tag)
+{
+  fprintf(file, "<%s type=\"%s\" Name=\"%s\""
+      " NumberOfComponents=\"%u\" format=\"ascii\">\n",
+      element, type_names[tag->type], tag->name, tag->ncomps);
+}
+
 static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
 {
-  fprintf(file, "<DataArray type=\"%s\" Name=\"%s\""
-             " NumberOfComponents=\"%u\" format=\"ascii\">\n",
-             type_names[tag->type], tag->name, tag->ncomps);
+  describe_tag(file, "DataArray", tag);
   switch (tag->type) {
     case TAG_U32: {
       unsigned const* p = tag->data;
@@ -161,7 +168,7 @@ void write_vtk_step(struct mesh* m)
 static unsigned seek_prefix_next(FILE* f,
     char* line, unsigned line_size, char const* prefix)
 {
-  unsigned pl = (unsigned) strlen(prefix);
+  unsigned long pl = strlen(prefix);
   if (!fgets(line, (int) line_size, f))
     return 0;
   return !strncmp(line, prefix, pl);
@@ -170,7 +177,7 @@ static unsigned seek_prefix_next(FILE* f,
 static void seek_prefix(FILE* f,
     char* line, unsigned line_size, char const* prefix)
 {
-  unsigned pl = (unsigned) strlen(prefix);
+  unsigned long pl = strlen(prefix);
   while (fgets(line, (int) line_size, f))
     if (!strncmp(line, prefix, pl))
       return;
@@ -408,4 +415,42 @@ struct cloud* read_vtk_cloud(char const* filename)
   read_tags(f, "<PointData", cloud_tags(c), npts);
   fclose(f);
   return c;
+}
+
+static void write_pieces(FILE* file, char const* filename, unsigned npieces)
+{
+  line_t a;
+  split_filename(filename, a, sizeof(a), 0);
+  for (unsigned i = 0; i < npieces; ++i) {
+    line_t b;
+    parallel_filename(a, npieces, i, "vtu", b, sizeof(b));
+    fprintf(file, "<Piece Source=\"%s\"/>\n", b);
+  }
+}
+
+void write_pvtu(struct mesh* m, char const* filename,
+    unsigned npieces, unsigned nghost_levels)
+{
+  FILE* file = fopen(filename, "w");
+  fprintf(file, "<VTKFile type=\"PUnstructuredGrid\">\n");
+  fprintf(file, "<PUnstructuredGrid GhostLevel=\"%u\">\n", nghost_levels);
+  struct const_tag* coord_tag = mesh_find_tag(m, 0, "coordinates");
+  fprintf(file, "<PointData>\n");
+  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
+    struct const_tag* t = mesh_get_tag(m, 0, i);
+    if (t != coord_tag)
+      describe_tag(file, "PDataArray", t);
+  }
+  fprintf(file, "</PointData>\n");
+  fprintf(file, "<CellData>\n");
+  for (unsigned i = 0; i < mesh_count_tags(m, mesh_dim(m)); ++i)
+    describe_tag(file, "PDataArray", mesh_get_tag(m, mesh_dim(m), i));
+  fprintf(file, "</CellData>\n");
+  fprintf(file, "<Points>\n");
+  describe_tag(file, "PDataArray", coord_tag);
+  fprintf(file, "</Points>\n");
+  write_pieces(file, filename, npieces);
+  fprintf(file, "</PUnstructuredGrid>\n");
+  fprintf(file, "</VTKFile>\n");
+  fclose(file);
 }
