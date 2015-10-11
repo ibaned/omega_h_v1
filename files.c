@@ -32,11 +32,11 @@ void parallel_filename(char const* prefix, unsigned npieces,
   unsigned ndig = count_digits(npieces);
   unsigned long prelen = strlen(prefix);
   unsigned long suflen = strlen(suffix);
-  assert(prelen + ndig + suflen < buf_size);
+  assert(prelen + ndig + 1 + suflen < buf_size);
   memcpy(buf, prefix, prelen);
   buf += prelen;
   if (ndig) {
-    sprintf(buf, "%0*u", (int) ndig, piece);
+    sprintf(buf, "%0*u.", (int) ndig, piece);
     buf += ndig;
   }
   memcpy(buf, suffix, suflen);
