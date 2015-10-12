@@ -17,4 +17,7 @@ struct cloud* read_vtu_cloud(char const* filename);
 void write_pvtu(struct mesh* m, char const* filename,
     unsigned npieces, unsigned nghost_levels);
 
+struct mesh* read_parallel_vtu(char const* inpath);
+void write_parallel_vtu(struct mesh* m, char const* outpath);
+
 #endif

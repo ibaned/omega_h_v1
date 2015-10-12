@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "cloud.h"
+#include "comm.h"
 #include "files.h"
 #include "loop.h"
 #include "mesh.h"
@@ -425,7 +426,7 @@ static void write_pieces(FILE* file, char const* pathname, unsigned npieces)
   split_pathname(pathname, a, sizeof(a), &filename, 0);
   for (unsigned i = 0; i < npieces; ++i) {
     line_t b;
-    parallel_pathname(filename, npieces, i, "vtu", b, sizeof(b));
+    enum_pathname(filename, npieces, i, "vtu", b, sizeof(b));
     fprintf(file, "<Piece Source=\"%s\"/>\n", b);
   }
 }
@@ -463,4 +464,28 @@ void write_pvtu(struct mesh* m, char const* filename,
   fprintf(file, "</PUnstructuredGrid>\n");
   fprintf(file, "</VTKFile>\n");
   fclose(file);
+}
+
+struct mesh* read_parallel_vtu(char const* inpath)
+{
+  char* suffix;
+  line_t prefix;
+  split_pathname(inpath, prefix, sizeof(prefix), 0, &suffix);
+  line_t piecepath;
+  enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
+      piecepath, sizeof(piecepath));
+  return read_vtu(piecepath);
+}
+
+void write_parallel_vtu(struct mesh* m, char const* outpath)
+{
+  char* suffix;
+  line_t prefix;
+  split_pathname(outpath, prefix, sizeof(prefix), 0, &suffix);
+  line_t piecepath;
+  enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
+      piecepath, sizeof(piecepath));
+  write_vtu(m, piecepath);
+  if (!comm_rank() && !strcmp(suffix, "pvtu"))
+    write_pvtu(m, outpath, comm_size(), 0);
 }

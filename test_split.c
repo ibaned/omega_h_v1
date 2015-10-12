@@ -23,7 +23,7 @@ static void split(struct mesh* m, char const* outpath, unsigned npieces,
     char prefix[1024];
     split_pathname(outpath, prefix, sizeof(prefix), 0, 0);
     char vtupath[1024];
-    parallel_pathname(prefix, npieces, piece, "vtu", vtupath, sizeof(vtupath));
+    enum_pathname(prefix, npieces, piece, "vtu", vtupath, sizeof(vtupath));
     write_vtu(m, vtupath);
     free_mesh(m);
     return;

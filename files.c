@@ -35,7 +35,7 @@ void split_pathname(char const* pathname, char* buf,
   }
 }
 
-char* enum_pathname(char const* prefix, unsigned nitems,
+char* add_enum_suffix(char const* prefix, unsigned nitems,
     unsigned item, char* buf, unsigned long buf_size)
 {
   unsigned ndig = count_digits(nitems);
@@ -51,12 +51,12 @@ char* enum_pathname(char const* prefix, unsigned nitems,
   return buf;
 }
 
-void parallel_pathname(char const* prefix, unsigned npieces,
+void enum_pathname(char const* prefix, unsigned npieces,
     unsigned piece, char const* suffix, char* buf, unsigned buf_size)
 {
   unsigned long suflen = strlen(suffix);
   assert(suflen + 1 < buf_size);
-  buf = enum_pathname(prefix, npieces, piece, buf, buf_size - suflen - 1);
+  buf = add_enum_suffix(prefix, npieces, piece, buf, buf_size - suflen - 1);
   *buf = '.';
   ++buf;
   memcpy(buf, suffix, suflen);
