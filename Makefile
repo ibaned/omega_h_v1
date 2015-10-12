@@ -154,7 +154,7 @@ clean:
 #$* is the same as the % in the rule pattern,
 #"foo" in the example above.
 #the $@ will insert the "deps/foo.dep"
-deps/%.dep: %.c
+deps/%.dep: %.c loop.h
 	set -e; rm -f $@; \
 	$(CPP) -MM $(CPPFLAGS) $< > $@.in; \
 	sed 's,$*\.o,objs/$*.o $@,g' < $@.in > $@; \
