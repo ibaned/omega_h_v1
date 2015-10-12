@@ -138,7 +138,7 @@ bin/%.exe: objs/test_%.o $(lib)
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -rf deps/*.dep objs/*.o bin/*.exe lib/*.a
+	rm -rf deps/*.dep objs/*.o bin/*.exe lib/*.a loop.h
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
