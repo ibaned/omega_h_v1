@@ -146,7 +146,7 @@ clean:
 #such that the output is both an object file and a
 #dependency file.
 #it warrants further explanation:
-#  cc -MM foo.c
+#  cc -M foo.c
 #will produce a dependency line such as:
 #  foo.o : foo.c foo.h bar.h
 #the SED script changes this to:
@@ -156,7 +156,7 @@ clean:
 #the $@ will insert the "deps/foo.dep"
 deps/%.dep: %.c loop.h
 	set -e; rm -f $@; \
-	$(CPP) -MM $(CPPFLAGS) $< > $@.in; \
+	$(CPP) -M $(CPPFLAGS) $< > $@.in; \
 	sed 's,$*\.o,objs/$*.o $@,g' < $@.in > $@; \
 	rm -f $@.in
 
