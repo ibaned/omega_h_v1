@@ -3,6 +3,7 @@
 #include "comm.h"
 #include "loop.h"
 #include "mesh.h"
+#include "tag.h"
 
 void mesh_number_simply(struct mesh* m)
 {

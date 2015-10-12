@@ -4,13 +4,14 @@
 #include <string.h>
 
 #include "element_field.h"
+#include "files.h"
 #include "global.h"
 #include "inertia.h"
 #include "ints.h"
 #include "loop.h"
-#include "files.h"
 #include "mesh.h"
 #include "subset.h"
+#include "tag.h"
 #include "vtk.h"
 
 static void split(struct mesh* m, char const* outpath, unsigned npieces,
