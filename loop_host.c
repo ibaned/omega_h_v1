@@ -1,17 +1,7 @@
-#include "loop.h"
+#include "loop_host.h"
 
 #include <assert.h>
 #include <stdlib.h>
-
-void* loop_malloc(unsigned long n)
-{
-  return loop_host_malloc(n);
-}
-
-void loop_free(void* p)
-{
-  loop_host_free(p);
-}
 
 void* loop_host_malloc(unsigned long n)
 {

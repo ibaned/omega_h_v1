@@ -85,7 +85,7 @@ swap_qualities.c \
 swap_topology.c \
 edge_ring.c \
 edge_swap.c \
-loop.c \
+loop_host.c \
 inertia.c \
 derive_faces.c \
 node_ele_io.c \
@@ -103,6 +103,10 @@ global.c
 
 USE_MPI ?= 0
 objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
+
+LOOP_MODE ?= serial
+loop.h : loop_$(LOOP_MODE).h
+	cp $< $@
 
 lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
 

@@ -1,8 +1,5 @@
-#ifndef LOOP_H
-#define LOOP_H
-
-void* loop_malloc(unsigned long n);
-void loop_free(void* p);
+#ifndef LOOP_HOST_H
+#define LOOP_HOST_H
 
 void* loop_host_malloc(unsigned long n);
 void* loop_host_realloc(void* p, unsigned long n);
