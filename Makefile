@@ -105,8 +105,6 @@ USE_MPI ?= 0
 objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
 
 LOOP_MODE ?= serial
-loop.h : loop_$(LOOP_MODE).h
-	cp $< $@
 
 lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
 
@@ -118,6 +116,9 @@ depfiles := $(patsubst %.c,deps/%.dep,$(sources))
 #by default, the compilation target is to compile
 #all the executable programs
 all: $(lib) $(exes)
+
+loop.h : loop_$(LOOP_MODE).h
+	cp $< $@
 
 $(lib): $(lib_objects)
 	ar cru $@ $^
