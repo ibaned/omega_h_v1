@@ -1,6 +1,7 @@
 #include "global.h"
 
 #include "comm.h"
+#include "ints.h"
 #include "loop.h"
 #include "mesh.h"
 #include "tag.h"
@@ -22,4 +23,27 @@ unsigned long* globalize_offsets(unsigned* local, unsigned n)
   for (unsigned i = 0; i < n; ++i)
     global[i] = local[i] + goff;
   return global;
+}
+
+void global_to_parts(unsigned long* global, unsigned n,
+    unsigned long total, unsigned nparts,
+    unsigned** p_part, unsigned** p_local)
+{
+  unsigned long quot = total / nparts;
+  unsigned long rem = total % nparts;
+  unsigned* part = loop_malloc(sizeof(unsigned) * n);
+  unsigned* local = loop_malloc(sizeof(unsigned) * n);
+  for (unsigned i = 0; i < n; ++i) {
+    unsigned long g = global[i];
+    if (g < ((quot + 1) * rem)) {
+      part[i] = (unsigned) (g / (quot + 1));
+      local[i] = (unsigned) (g % (quot + 1));
+    } else {
+      g -= (quot + 1) * rem;
+      part[i] = (unsigned) (g / quot + rem);
+      local[i] = (unsigned) (g % quot);
+    }
+  }
+  *p_part = part;
+  *p_local = local;
 }

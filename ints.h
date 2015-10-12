@@ -28,5 +28,6 @@ static inline unsigned add_unique(unsigned* a, unsigned n, unsigned e)
 }
 
 unsigned long* ulongs_copy(unsigned long const* a, unsigned n);
+unsigned long ulongs_max(unsigned long const* a, unsigned n);
 
 #endif

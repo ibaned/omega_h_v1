@@ -84,3 +84,12 @@ unsigned long* ulongs_copy(unsigned long const* a, unsigned n)
     b[i] = a[i];
   return b;
 }
+
+unsigned long ulongs_max(unsigned long const* a, unsigned n)
+{
+  unsigned long max = 0;
+  for (unsigned i = 0; i < n; ++i)
+    if (a[i] > max)
+      max = a[i];
+  return max;
+}

@@ -97,6 +97,13 @@ unsigned long comm_exscan_ulong(unsigned long x)
   return x;
 }
 
+unsigned long comm_max_ulong(unsigned long x)
+{
+  CALL(MPI_Allreduce(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_MAX,
+        using->c));
+  return x;
+}
+
 #else
 
 void comm_init(void)
@@ -165,6 +172,11 @@ unsigned long comm_exscan_ulong(unsigned long x)
 {
   (void)x;
   return 0;
+}
+
+unsigned long comm_max_ulong(unsigned long x)
+{
+  return x;
 }
 
 #endif
