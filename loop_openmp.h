@@ -1,5 +1,5 @@
-#ifndef LOOP_SERIAL_H
-#define LOOP_SERIAL_H
+#ifndef LOOP_OPENMP_H
+#define LOOP_OPENMP_H
 
 #include "loop_host.h"
 
@@ -10,6 +10,7 @@
 static void fname(__VA_ARGS__, unsigned i)
 
 #define LOOP_EXEC(fname, n, ...) \
+_Pragma("omp parallel for") \
 for (unsigned i = 0; i < n; ++i) \
   fname(__VA_ARGS__, i);
 

@@ -31,7 +31,8 @@ test_qr.c \
 test_box.c \
 test_pvtu.c \
 test_split.c \
-test_global_part.c
+test_global_part.c \
+test_loop.c
 
 exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
 test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
@@ -117,6 +118,9 @@ depfiles := $(patsubst %.c,deps/%.dep,$(sources))
 #all the executable programs
 all: $(lib) $(exes)
 
+#loop.h is a copy of one of several existing files,
+#chosen at compile time based on the kind of
+#shared memory loop parallelism we want
 loop.h : loop_$(LOOP_MODE).h
 	cp $< $@
 
