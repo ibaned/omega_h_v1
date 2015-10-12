@@ -1,16 +1,16 @@
 #include "mesh.h"
 
-#include <assert.h>        // for assert
-#include <string.h>        // for memcpy, memset
+#include <assert.h>
+#include <string.h>
 
-#include "bridge_graph.h"  // for bridge_dual_graph, bridge_graph
-#include "derive_faces.h"  // for derive_faces
-#include "graph.h"         // for graph (ptr only), free_graph, const_graph
-#include "loop.h"          // for free, malloc, calloc
-#include "reflect_down.h"  // for get_dual, reflect_down
-#include "star.h"          // for get_star
-#include "tables.h"        // for the_box_conns, the_box_coords, the_box_n...
-#include "up_from_down.h"  // for up_from_down
+#include "bridge_graph.h"
+#include "derive_faces.h"
+#include "graph.h"
+#include "loop.h"
+#include "reflect_down.h"
+#include "star.h"
+#include "tables.h"
+#include "up_from_down.h"
 
 struct up {
   unsigned* offsets;

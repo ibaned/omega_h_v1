@@ -37,7 +37,9 @@ void parallel_filename(char const* prefix, unsigned npieces,
   buf += prelen;
   if (ndig) {
     sprintf(buf, "%0*u.", (int) ndig, piece);
-    buf += ndig;
+    buf += ndig + 1;
   }
   memcpy(buf, suffix, suflen);
+  buf += suflen;
+  *buf = '\0';
 }

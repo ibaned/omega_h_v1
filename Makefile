@@ -28,7 +28,8 @@ test_vtk_surfer.c \
 test_vtkdiff.c \
 test_push_cloud.c \
 test_qr.c \
-test_box.c
+test_box.c \
+test_pvtu.c
 
 exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
 test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
