@@ -13,8 +13,7 @@ int main(int argc, char** argv)
   unsigned n = mesh_count(m, mesh_dim(m));
   double const* coords = mesh_find_tag(m, mesh_dim(m), "coordinates")->data;
   double* masses = 0;
-  unsigned* in;
-  local_inertial_mark(n, coords, masses, 0.01, &in);
+  unsigned* in = local_inertia_mark(n, coords, masses);
   mesh_add_tag(m, mesh_dim(m), TAG_U32, "part", 1, in);
   write_vtu(m, argv[2]);
   free_mesh(m);

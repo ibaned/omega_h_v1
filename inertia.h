@@ -1,7 +1,7 @@
 #ifndef INERTIA_H
 #define INERTIA_H
 
-void inertial_contribution(
+void inertia_contribution(
     double m,
     double const* x,
     double const* c,
@@ -9,11 +9,9 @@ void inertial_contribution(
 
 void least_inertial_axis(double IC[3][3], double* a);
 
-void local_inertial_mark(
+unsigned* local_inertia_mark(
     unsigned n,
     double const* coords,
-    double const* masses,
-    double tol,
-    unsigned** in);
+    double const* masses);
 
 #endif

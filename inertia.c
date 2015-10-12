@@ -29,7 +29,7 @@ static void cross_matrix(double b[3], double B[3][3])
   B[2][0] = -b[1]; B[2][1] =  b[0]; B[2][2] =    0;
 }
 
-void inertial_contribution(
+void inertia_contribution(
     double m,
     double const* x,
     double const* c,
@@ -94,7 +94,7 @@ static void local_inertia(
   for (unsigned i = 0; i < n; ++i) {
     double pic[3][3];
     double m = masses ? masses[i] : 1;
-    inertial_contribution(m, coords + i * 3, c, pic);
+    inertia_contribution(m, coords + i * 3, c, pic);
     add_3x3(ic, pic, ic);
   }
 }
@@ -157,8 +157,7 @@ static double local_mean_radius(
     unsigned n,
     double const* radii,
     double const* masses,
-    double local_mass,
-    double tol)
+    double local_mass)
 {
   double r = 0;
   double dr = doubles_max(radii, n) / 2;
@@ -167,23 +166,19 @@ static double local_mean_radius(
     unsigned* in = mark_local_in(n, radii, r);
     double wi = local_weighted_in(n, in, masses);
     loop_free(in);
-    if ((fabs(wi - hm) / hm) < tol)
-      return r;
     if (wi > hm)
       r += dr;
     else
       r -= dr;
     dr /= 2;
   }
-  assert(0);
+  return r;
 }
 
-void local_inertial_mark(
+unsigned* local_inertia_mark(
     unsigned n,
     double const* coords,
-    double const* masses,
-    double tol,
-    unsigned** in)
+    double const* masses)
 {
   double lm;
   if (masses)
@@ -195,7 +190,8 @@ void local_inertial_mark(
   double a[3];
   local_axis(n, coords, masses, c, a);
   double* radii = local_radii(n, coords, c, a);
-  double r = local_mean_radius(n, radii, masses, lm, tol);
-  *in = mark_local_in(n, radii, r);
+  double r = local_mean_radius(n, radii, masses, lm);
+  unsigned* in = mark_local_in(n, radii, r);
   loop_free(radii);
+  return in;
 }
