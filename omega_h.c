@@ -10,12 +10,12 @@ void osh_free(osh_t m)
 
 osh_t osh_read_vtk(char const* filename)
 {
-  return (osh_t) read_vtk(filename);
+  return (osh_t) read_vtu(filename);
 }
 
 void osh_write_vtk(osh_t m, char const* filename)
 {
-  write_vtk((struct mesh*)m, filename);
+  write_vtu((struct mesh*)m, filename);
 }
 
 unsigned osh_dim(osh_t m)

@@ -36,7 +36,7 @@ int main()
     loop_free(quals);
     printf("min quality %f\n", minqual);
     sprintf(fname, "out_%u.vtu", it);
-    write_vtk(m, fname);
+    write_vtu(m, fname);
     mesh_free_tag(m, 0, "adapt_size");
     mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
   }

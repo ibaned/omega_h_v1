@@ -49,6 +49,6 @@ int main(int argc, char** argv)
   while (refine_by_size(&m, 0.0));
   mesh_free_tag(m, 0, "adapt_size");
   mesh_classify_box(m);
-  write_vtk(m, file);
+  write_vtu(m, file);
   free_mesh(m);
 }

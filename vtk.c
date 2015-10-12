@@ -95,7 +95,7 @@ static char const* types_header =
  * (the VTK format supports it)
  */
 
-void write_vtk(struct mesh* m, char const* filename)
+void write_vtu(struct mesh* m, char const* filename)
 {
   unsigned elem_dim = mesh_dim(m);
   unsigned nverts = mesh_count(m, 0);
@@ -161,7 +161,7 @@ void write_vtk_step(struct mesh* m)
 {
   char fname[64];
   sprintf(fname, "%s_%04u.vtu", the_step_prefix, the_step);
-  write_vtk(m, fname);
+  write_vtu(m, fname);
   ++the_step;
 }
 
@@ -355,7 +355,7 @@ static void read_vtk_fields(FILE* f, struct mesh* m)
   read_tags(f, "<CellData", mesh_tags(m, dim), mesh_count(m, dim));
 }
 
-struct mesh* read_vtk(char const* filename)
+struct mesh* read_vtu(char const* filename)
 {
   FILE* f = fopen(filename, "r");
   assert(f);
@@ -365,7 +365,7 @@ struct mesh* read_vtk(char const* filename)
   return m;
 }
 
-void write_vtk_cloud(struct cloud* c, char const* filename)
+void write_vtu_cloud(struct cloud* c, char const* filename)
 {
   unsigned npts = cloud_count(c);
   FILE* file = fopen(filename, "w");
@@ -403,7 +403,7 @@ void write_vtk_cloud(struct cloud* c, char const* filename)
   fclose(file);
 }
 
-struct cloud* read_vtk_cloud(char const* filename)
+struct cloud* read_vtu_cloud(char const* filename)
 {
   FILE* f = fopen(filename, "r");
   assert(f);

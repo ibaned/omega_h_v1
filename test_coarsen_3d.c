@@ -33,12 +33,12 @@ int main()
   mesh_eval_field(m, 0, "adapt_size", 1, fine_fun);
   while (refine_by_size(&m, 0)) {
     sprintf(fname, "ref_%u.vtu", i++);
-    write_vtk(m, fname);
+    write_vtu(m, fname);
     mesh_free_tag(m, 0, "adapt_size");
     mesh_eval_field(m, 0, "adapt_size", 1, fine_fun);
   }
   mesh_classify_box(m);
-  write_vtk(m, "init.vtu");
+  write_vtu(m, "init.vtu");
   double init_minq = mesh_min_quality(m);
   printf("init minq %f\n", init_minq);
   double cor_qual_floor = 0.3;
@@ -48,7 +48,7 @@ int main()
   i = 0;
   while (coarsen_by_size(&m, cor_qual_floor, 0.5)) {
     sprintf(fname, "cor_%u.vtu", i++);
-    write_vtk(m, fname);
+    write_vtu(m, fname);
   }
   double cor_minq = mesh_min_quality(m);
   printf("cor minq %f\n", cor_minq);

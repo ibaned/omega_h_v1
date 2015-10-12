@@ -25,15 +25,15 @@ static void new_coord_fun(double const* x, double* nx)
 
 int main()
 {
-  struct mesh* m = read_vtk("xgc.vtu");
+  struct mesh* m = read_vtu("xgc.vtu");
   /* assume first vertex is center vertex */
   cen = mesh_find_tag(m, 0, "coordinates")->data;
-  struct cloud* c = read_vtk_cloud("cloud.vtu");
+  struct cloud* c = read_vtu_cloud("cloud.vtu");
   cloud_eval_field(c, "new_coords", 3, new_coord_fun);
   cloud_free_tag(c, "coordinates");
   cloud_rename_tag(c, "new_coords", "coordinates");
   push_cloud(c, m);
-  write_vtk_cloud(c, "pushed_cloud.vtu");
+  write_vtu_cloud(c, "pushed_cloud.vtu");
   free_cloud(c);
   free_mesh(m);
 }

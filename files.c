@@ -35,19 +35,28 @@ void split_pathname(char const* pathname, char* buf,
   }
 }
 
+char* enum_pathname(char const* prefix, unsigned nitems,
+    unsigned item, char* buf, unsigned long buf_size)
+{
+  unsigned ndig = count_digits(nitems);
+  unsigned long prelen = strlen(prefix);
+  assert(prelen + 1 + ndig < buf_size);
+  memcpy(buf, prefix, prelen);
+  buf += prelen;
+  if (nitems > 1) {
+    sprintf(buf, "_%0*u", (int) ndig, item);
+    buf += 1 + ndig;
+  }
+  *buf = '\0';
+  return buf;
+}
+
 void parallel_pathname(char const* prefix, unsigned npieces,
     unsigned piece, char const* suffix, char* buf, unsigned buf_size)
 {
-  unsigned ndig = count_digits(npieces);
-  unsigned long prelen = strlen(prefix);
   unsigned long suflen = strlen(suffix);
-  assert(prelen + 1 + ndig + 1 + suflen < buf_size);
-  memcpy(buf, prefix, prelen);
-  buf += prelen;
-  if (npieces > 1) {
-    sprintf(buf, "_%0*u", (int) ndig, piece);
-    buf += 1 + ndig;
-  }
+  assert(suflen + 1 < buf_size);
+  buf = enum_pathname(prefix, npieces, piece, buf, buf_size - suflen - 1);
   *buf = '.';
   ++buf;
   memcpy(buf, suffix, suflen);

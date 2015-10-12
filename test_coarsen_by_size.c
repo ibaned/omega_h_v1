@@ -1,14 +1,14 @@
-#include <math.h>             // for fabs
-#include <stdio.h>            // for printf
+#include <math.h>
+#include <stdio.h>
 
-#include "algebra.h"          // for vector_norm
-#include "classify_box.h"     // for mesh_classify_box
-#include "coarsen_by_size.h"  // for coarsen_by_size
-#include "eval_field.h"       // for mesh_eval_field
-#include "mesh.h"             // for mesh_free_nodal_field, free_mesh, mesh_...
-#include "quality.h"          // for mesh_min_quality
-#include "refine_by_size.h"   // for refine_by_size
-#include "vtk.h"              // for write_vtk
+#include "algebra.h"
+#include "classify_box.h"
+#include "coarsen_by_size.h"
+#include "eval_field.h"
+#include "mesh.h"
+#include "quality.h"
+#include "refine_by_size.h"
+#include "vtk.h"
 
 static void fine_fun(double const* x, double* s)
 {
@@ -33,12 +33,12 @@ int main()
   mesh_eval_field(m, 0, "adapt_size", 1, fine_fun);
   while (refine_by_size(&m, 0)) {
     sprintf(fname, "ref_%u.vtu", it++);
-    write_vtk(m, fname);
+    write_vtu(m, fname);
     mesh_free_tag(m, 0, "adapt_size");
     mesh_eval_field(m, 0, "adapt_size", 1, fine_fun);
   }
   mesh_classify_box(m);
-  write_vtk(m, "class.vtu");
+  write_vtu(m, "class.vtu");
   double minq = mesh_min_quality(m);
   printf("minq %f\n", minq);
   it = 0;
@@ -47,7 +47,7 @@ int main()
   while (coarsen_by_size(&m, minq, 0.5)) {
     printf("%u elements\n", mesh_count(m, mesh_dim(m)));
     sprintf(fname, "cor_%u.vtu", it++);
-    write_vtk(m, fname);
+    write_vtu(m, fname);
   }
   free_mesh(m);
 }

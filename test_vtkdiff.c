@@ -65,8 +65,8 @@ int main(int argc, char** argv)
     printf("    -Floor <$val> (Overrides the default floor tolerance of 0.0.)\n");
     return -1;
   }
-  struct mesh* a = read_vtk(filea);
-  struct mesh* b = read_vtk(fileb);
+  struct mesh* a = read_vtu(filea);
+  struct mesh* b = read_vtu(fileb);
   unsigned differ = mesh_diff(a, b, tol, floor);
   free_mesh(a);
   free_mesh(b);
