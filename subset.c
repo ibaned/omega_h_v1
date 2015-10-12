@@ -98,5 +98,6 @@ struct mesh* subset_mesh(
     }
     mesh_add_tag(out, 0, t->type, t->name, t->ncomps, data_out);
   }
+  loop_free(vert_offsets);
   return out;
 }
