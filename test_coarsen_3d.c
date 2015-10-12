@@ -1,14 +1,14 @@
-#include <math.h>             // for fabs
-#include <stdio.h>            // for printf
+#include <math.h>
+#include <stdio.h>
 
-#include "algebra.h"          // for vector_norm
-#include "classify_box.h"     // for mesh_classify_box
-#include "coarsen_by_size.h"  // for coarsen_by_size
-#include "eval_field.h"       // for mesh_eval_field
-#include "mesh.h"             // for mesh_free_nodal_field, free_mesh, new_b...
-#include "quality.h"          // for mesh_min_quality
-#include "refine_by_size.h"   // for refine_by_size
-#include "vtk.h"              // for write_vtk
+#include "algebra.h"
+#include "classify_box.h"
+#include "coarsen_by_size.h"
+#include "eval_field.h"
+#include "mesh.h"
+#include "quality.h"
+#include "refine_by_size.h"
+#include "vtk.h"
 
 static void fine_fun(double const* x, double* s)
 {

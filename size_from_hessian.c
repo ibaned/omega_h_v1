@@ -1,10 +1,10 @@
 #include "size_from_hessian.h"
 
-#include <assert.h>   // for assert
+#include <assert.h>
 
-#include "algebra.h"  // for vector_norm
-#include "loop.h"   // for malloc
-#include "mesh.h"     // for mesh_add_nodal_field, mesh_count, mesh_find_nod...
+#include "algebra.h"
+#include "loop.h"
+#include "mesh.h"
 #include "tag.h"
 
 double* size_from_hessian(

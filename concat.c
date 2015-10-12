@@ -1,10 +1,10 @@
 #include "concat.h"
 
-#include <string.h>  // for memcpy
+#include <string.h>
 
-#include "loop.h"  // for free, malloc
+#include "loop.h"
 #include "subset.h"
-#include "tables.h"  // for the_down_degrees
+#include "tables.h"
 
 static void* concat_general(
     unsigned typesize,

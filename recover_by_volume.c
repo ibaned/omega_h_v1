@@ -1,8 +1,8 @@
 #include "recover_by_volume.h"
 
-#include "loop.h"  // for malloc, free
-#include "mesh.h"    // for mesh_ask_up, mesh_dim, mesh_find_field
-#include "size.h"    // for mesh_element_sizes
+#include "loop.h"
+#include "mesh.h"
+#include "size.h"
 #include "tag.h"
 
 double* recover_by_volume(

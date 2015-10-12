@@ -1,9 +1,9 @@
 #include "swap_qualities.h"
 
-#include "algebra.h"    // for copy_vector
-#include "edge_ring.h"  // for find_edge_ring
-#include "edge_swap.h"  // for swap_choice, MAX_EDGE_SWAP, choose_edge_swap
-#include "loop.h"     // for malloc
+#include "algebra.h"
+#include "edge_ring.h"
+#include "edge_swap.h"
+#include "loop.h"
 
 void swap_qualities(
     unsigned nedges,

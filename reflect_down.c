@@ -1,10 +1,10 @@
 #include "reflect_down.h"
 
-#include <assert.h>  // for assert
+#include <assert.h>
 
-#include "ints.h"    // for has
-#include "loop.h"    // for malloc
-#include "tables.h"  // for the_down_degrees, MAX_UP, INVALID, the_canonical...
+#include "ints.h"
+#include "loop.h"
+#include "tables.h"
 
 static unsigned copy(
     unsigned const* a,

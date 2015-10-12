@@ -4,7 +4,7 @@
 #include "collapse_codes.h"
 #include "loop.h"
 #include "measure_edges.h"
-#include "mesh.h"  // for mesh_ask_down, mesh_count
+#include "mesh.h"
 #include "tag.h"
 
 unsigned coarsen_by_size(

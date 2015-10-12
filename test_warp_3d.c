@@ -1,15 +1,15 @@
-#include <math.h>            // for atan2, cos, sin, M_PI
-#include <stdio.h>           // for printf, fprintf, stderr
-#include <stdlib.h>          // for abort
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "adapt.h"           // for mesh_adapt
-#include "algebra.h"         // for subtract_vectors, vector_norm
-#include "classify_box.h"    // for mesh_classify_box
-#include "eval_field.h"      // for mesh_eval_field
-#include "mesh.h"            // for free_mesh, mesh_free_field, new_bo...
-#include "refine_by_size.h"  // for refine_by_size
-#include "vtk.h"             // for write_vtk_step, start_vtk_steps
-#include "warp_to_limit.h"   // for mesh_warp_to_limit
+#include "adapt.h"
+#include "algebra.h"
+#include "classify_box.h"
+#include "eval_field.h"
+#include "mesh.h"
+#include "refine_by_size.h"
+#include "vtk.h"
+#include "warp_to_limit.h"
 
 struct mesh;
 

@@ -1,9 +1,9 @@
 #include "mark.h"
 
-#include "loop.h"   // for malloc, free
-#include "mesh.h"     // for mesh_count, mesh_dim, mesh_ask_up, const_up
-#include "quality.h"  // for mesh_qualities
-#include "tables.h"   // for the_down_degrees, INVALID
+#include "loop.h"
+#include "mesh.h"
+#include "quality.h"
+#include "tables.h"
 
 unsigned* mark_down(
     unsigned nlows,

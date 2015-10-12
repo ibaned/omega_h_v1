@@ -1,13 +1,13 @@
 #include "quality.h"
 
-#include <math.h>     // for sqrt
+#include <math.h>
 
-#include "algebra.h"  // for copy_vector, vector_squared_distance
-#include "doubles.h"  // for doubles_min
+#include "algebra.h"
+#include "doubles.h"
 #include "loop.h"
-#include "mesh.h"     // for mesh_dim, mesh_ask_down, mesh_count, mesh_find_...
-#include "size.h"     // for triangle_area, tet_volume, triangle_z_area
-#include "tables.h"   // for the_canonical_orders, MAX_DOWN, the_down_degrees
+#include "mesh.h"
+#include "size.h"
+#include "tables.h"
 #include "tag.h"
 
 /* scale-invariant stiffness matrix conditioning quality measures
