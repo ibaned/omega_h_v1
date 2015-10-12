@@ -14,31 +14,42 @@ static unsigned count_digits(unsigned x)
   return l;
 }
 
-void split_filename(char const* filename, char* buf,
-    unsigned buf_size, char** suffix)
+void split_pathname(char const* pathname, char* buf,
+    unsigned buf_size, char** filename, char** suffix)
 {
-  assert(strlen(filename) < buf_size);
-  strcpy(buf, filename);
+  assert(strlen(pathname) < buf_size);
+  strcpy(buf, pathname);
   char* dot = strrchr(buf, '.');
   assert(dot);
   *dot = '\0';
   if (suffix)
     *suffix = dot + 1;
+  char* slash = strrchr(buf, '/');
+  if (slash) {
+    *slash = '\0';
+    if (filename)
+      *filename = slash + 1;
+  } else {
+    if (filename)
+      *filename = buf;
+  }
 }
 
-void parallel_filename(char const* prefix, unsigned npieces,
+void parallel_pathname(char const* prefix, unsigned npieces,
     unsigned piece, char const* suffix, char* buf, unsigned buf_size)
 {
   unsigned ndig = count_digits(npieces);
   unsigned long prelen = strlen(prefix);
   unsigned long suflen = strlen(suffix);
-  assert(prelen + ndig + 1 + suflen < buf_size);
+  assert(prelen + 1 + ndig + 1 + suflen < buf_size);
   memcpy(buf, prefix, prelen);
   buf += prelen;
-  if (ndig) {
-    sprintf(buf, "%0*u.", (int) ndig, piece);
-    buf += ndig + 1;
+  if (npieces > 1) {
+    sprintf(buf, "_%0*u", (int) ndig, piece);
+    buf += 1 + ndig;
   }
+  *buf = '.';
+  ++buf;
   memcpy(buf, suffix, suflen);
   buf += suflen;
   *buf = '\0';

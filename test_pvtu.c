@@ -7,6 +7,6 @@ int main(int argc, char** argv)
 {
   assert(argc == 3);
   struct mesh* m = read_vtk(argv[1]);
-  write_pvtu(m, argv[2], 1, 0);
+  write_pvtu(m, argv[2], 100, 0);
   free_mesh(m);
 }

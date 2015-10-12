@@ -417,13 +417,14 @@ struct cloud* read_vtk_cloud(char const* filename)
   return c;
 }
 
-static void write_pieces(FILE* file, char const* filename, unsigned npieces)
+static void write_pieces(FILE* file, char const* pathname, unsigned npieces)
 {
   line_t a;
-  split_filename(filename, a, sizeof(a), 0);
+  char* filename;
+  split_pathname(pathname, a, sizeof(a), &filename, 0);
   for (unsigned i = 0; i < npieces; ++i) {
     line_t b;
-    parallel_filename(a, npieces, i, "vtu", b, sizeof(b));
+    parallel_pathname(filename, npieces, i, "vtu", b, sizeof(b));
     fprintf(file, "<Piece Source=\"%s\"/>\n", b);
   }
 }
