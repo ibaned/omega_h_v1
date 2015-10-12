@@ -97,7 +97,8 @@ push_cloud.c \
 qr.c \
 omega_h.c \
 comm.c \
-files.c
+files.c \
+global.c
 
 USE_MPI ?= 0
 objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
