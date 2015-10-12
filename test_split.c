@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "element_field.h"
+#include "global.h"
 #include "inertia.h"
 #include "ints.h"
 #include "loop.h"
@@ -56,5 +57,7 @@ int main(int argc, char** argv)
   char const* inpath = argv[1];
   char const* outpath = argv[2];
   unsigned depth = (unsigned) atoi(argv[3]);
-  split(read_vtu(inpath), outpath, 1, 0, depth);
+  struct mesh* m = read_vtu(inpath);
+  mesh_number_simply(m);
+  split(m, outpath, 1, 0, depth);
 }
