@@ -30,7 +30,8 @@ test_push_cloud.c \
 test_qr.c \
 test_box.c \
 test_pvtu.c \
-test_split.c
+test_split.c \
+test_global_part.c
 
 exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
 test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
