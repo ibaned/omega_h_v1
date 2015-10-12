@@ -24,14 +24,14 @@ void split_pathname(char const* pathname, char* buf,
   *dot = '\0';
   if (suffix)
     *suffix = dot + 1;
+  if (!filename)
+    return;
   char* slash = strrchr(buf, '/');
   if (slash) {
     *slash = '\0';
-    if (filename)
-      *filename = slash + 1;
+    *filename = slash + 1;
   } else {
-    if (filename)
-      *filename = buf;
+    *filename = buf;
   }
 }
 

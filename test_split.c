@@ -20,14 +20,8 @@ static void split(struct mesh* m, char const* outpath, unsigned npieces,
   if (depth == 0) {
     if (piece == 0)
       write_pvtu(m, outpath, npieces, 0);
-    char pvtupath[1024];
-    char* filename;
-    split_pathname(outpath, pvtupath, sizeof(pvtupath), &filename, 0);
     char prefix[1024];
-    if (filename == pvtupath)
-      strcpy(prefix, pvtupath);
-    else
-      sprintf(prefix, "%s/%s", pvtupath, filename);
+    split_pathname(outpath, prefix, sizeof(prefix), 0, 0);
     char vtupath[1024];
     parallel_pathname(prefix, npieces, piece, "vtu", vtupath, sizeof(vtupath));
     write_vtu(m, vtupath);
