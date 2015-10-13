@@ -26,16 +26,16 @@ static struct tag* new_tag(char const* name, enum tag_type type,
 
 static void free_tag(struct tag* t)
 {
-  LOOP_HOST_FREE(t->name);
-  LOOP_FREE(t->data);
-  LOOP_HOST_FREE(t);
+  loop_host_free(t->name);
+  loop_free(t->data);
+  loop_host_free(t);
 }
 
 void free_tags(struct tags* ts)
 {
   for (unsigned i = 0; i < ts->n; ++i)
     free_tag(ts->at[i]);
-  LOOP_HOST_FREE(ts->at);
+  loop_host_free(ts->at);
 }
 
 struct const_tag* add_tag(struct tags* ts, enum tag_type type, char const* name,

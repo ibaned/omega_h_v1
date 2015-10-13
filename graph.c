@@ -14,7 +14,7 @@ void free_graph(struct graph* g)
 {
   if (!g)
     return;
-  LOOP_FREE(g->offsets);
-  LOOP_FREE(g->adj);
-  LOOP_HOST_FREE(g);
+  loop_free(g->offsets);
+  loop_free(g->adj);
+  loop_host_free(g);
 }

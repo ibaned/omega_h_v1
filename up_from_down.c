@@ -36,7 +36,7 @@ void up_from_down(
     if (directions_out)
       directions[o + j] = direction;
   }
-  LOOP_FREE(degrees);
+  loop_free(degrees);
   *offsets_out = offsets;
   *highs_of_lows_out = highs_of_lows;
   if (directions_out)

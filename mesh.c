@@ -42,10 +42,10 @@ static void free_up(struct up* u)
 {
   if (!u)
     return;
-  LOOP_FREE(u->offsets);
-  LOOP_FREE(u->adj);
-  LOOP_FREE(u->directions);
-  LOOP_HOST_FREE(u);
+  loop_free(u->offsets);
+  loop_free(u->adj);
+  loop_free(u->directions);
+  loop_host_free(u);
 }
 
 struct mesh* new_mesh(unsigned elem_dim)
@@ -95,14 +95,14 @@ void free_mesh(struct mesh* m)
 {
   for (unsigned high_dim = 1; high_dim <= m->elem_dim; ++high_dim)
     for (unsigned low_dim = 0; low_dim < high_dim; ++low_dim) {
-      LOOP_FREE(m->down[high_dim][low_dim]);
+      loop_free(m->down[high_dim][low_dim]);
       free_up(m->up[low_dim][high_dim]);
       free_graph(m->star[low_dim][high_dim]);
     }
-  LOOP_FREE(m->dual);
+  loop_free(m->dual);
   for (unsigned d = 0; d < 4; ++d)
     free_tags(&m->tags[d]);
-  LOOP_HOST_FREE(m);
+  loop_host_free(m);
 }
 
 struct const_tag* mesh_find_tag(struct mesh* m, unsigned dim,
@@ -152,8 +152,8 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
           &nfaces, &elems_of_faces, &elem_face_of_faces);
       unsigned* verts_of_faces = derive_faces(nfaces, verts_of_elems,
           elems_of_faces, elem_face_of_faces);
-      LOOP_FREE(elems_of_faces);
-      LOOP_FREE(elem_face_of_faces);
+      loop_free(elems_of_faces);
+      loop_free(elem_face_of_faces);
       mesh_set_ents(m, 2, nfaces, verts_of_faces);
     }
   }

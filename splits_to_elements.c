@@ -38,5 +38,5 @@ void project_splits_to_elements(
   *gen_offset_of_elems_out = uints_exscan(elem_will_split, nelems);
   *gen_direction_of_elems_out = gen_direction_of_elems;
   *gen_vert_of_elems_out = gen_vert_of_elems;
-  LOOP_FREE(elem_will_split);
+  loop_free(elem_will_split);
 }

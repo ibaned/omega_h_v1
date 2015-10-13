@@ -92,7 +92,7 @@ static void mark_dual_layers(
   for (unsigned i = 0; i < nlayers; ++i) {
     unsigned* in = *marked;
     unsigned* out = mark_dual(elem_dim, nelems, dual, in);
-    LOOP_FREE(in);
+    loop_free(in);
     *marked = out;
   }
 }
@@ -146,7 +146,7 @@ unsigned* mesh_mark_slivers(struct mesh* m, double good_qual, unsigned nlayers)
   unsigned nelems = mesh_count(m, mesh_dim(m));
   double* elem_quals = mesh_qualities(m);
   unsigned* slivers = mark_slivers(nelems, elem_quals, good_qual);
-  LOOP_FREE(elem_quals);
+  loop_free(elem_quals);
   mesh_mark_dual_layers(m, &slivers, nlayers);
   return slivers;
 }

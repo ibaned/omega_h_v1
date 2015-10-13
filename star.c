@@ -61,7 +61,7 @@ void get_star(
         i,
         star_buf);
   unsigned* star_offsets = uints_exscan(degrees, nlows);
-  LOOP_FREE(degrees);
+  loop_free(degrees);
   unsigned sum_degrees = star_offsets[nlows];
   unsigned* star = LOOP_MALLOC(unsigned, sum_degrees);
   for (unsigned i = 0; i < nlows; ++i) {

@@ -28,7 +28,7 @@ static unsigned doubles_diff(double const* a, double const* b, unsigned n,
     diffs[i] = fabs(a[i] - b[i]) / fm;
   }
   double maxdiff = doubles_max(diffs, n);
-  LOOP_FREE(diffs);
+  loop_free(diffs);
   if (maxdiff > tol) {
     printf("max relative difference %e\n", maxdiff);
     return 1;

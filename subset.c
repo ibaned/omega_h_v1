@@ -60,9 +60,9 @@ struct mesh* subset_mesh(
   unsigned nverts = mesh_count(m, 0);
   unsigned* marked_elems = uints_unscan(offsets, nelems);
   unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, marked_elems);
-  LOOP_FREE(marked_elems);
+  loop_free(marked_elems);
   unsigned* vert_offsets = uints_exscan(marked_verts, nverts);
-  LOOP_FREE(marked_verts);
+  loop_free(marked_verts);
   for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i) {
     unsigned tmp = vert_offsets[verts_of_elems_out[i]];
     verts_of_elems_out[i] = tmp;
@@ -87,6 +87,6 @@ struct mesh* subset_mesh(
     }
     mesh_add_tag(out, 0, t->type, t->name, t->ncomps, data_out);
   }
-  LOOP_FREE(vert_offsets);
+  loop_free(vert_offsets);
   return out;
 }

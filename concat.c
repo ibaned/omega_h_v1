@@ -60,7 +60,7 @@ void concat_verts_of_elems(
   unsigned* out = concat_uints(verts_per_elem,
       verts_of_same_elems, nsame_elems,
       verts_of_gen_elems, ngen_elems);
-  LOOP_FREE(verts_of_same_elems);
+  loop_free(verts_of_same_elems);
   *nelems_out = nsame_elems + ngen_elems;
   *verts_of_elems_out = out;
 }

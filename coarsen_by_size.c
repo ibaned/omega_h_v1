@@ -25,9 +25,9 @@ unsigned coarsen_by_size(
     else
       col_codes[i] = DONT_COLLAPSE;
   }
-  LOOP_FREE(edge_sizes);
+  loop_free(edge_sizes);
   unsigned ret = coarsen_common(&m, col_codes, quality_floor, 0);
-  LOOP_FREE(col_codes);
+  loop_free(col_codes);
   *p_m = m;
   return ret;
 }

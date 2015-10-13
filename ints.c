@@ -57,9 +57,9 @@ unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
 {
   unsigned* unscanned = uints_unscan(a, n);
   unsigned* negated = uints_negate(unscanned, n);
-  LOOP_FREE(unscanned);
+  loop_free(unscanned);
   unsigned* out = uints_exscan(negated, n);
-  LOOP_FREE(negated);
+  loop_free(negated);
   return out;
 }
 

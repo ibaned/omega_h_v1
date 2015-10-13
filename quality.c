@@ -134,7 +134,7 @@ double min_element_quality(
 {
   double* quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);
   double mq = doubles_min(quals, nelems);
-  LOOP_FREE(quals);
+  loop_free(quals);
   return mq;
 }
 

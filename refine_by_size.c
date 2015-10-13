@@ -17,8 +17,8 @@ unsigned refine_by_size(struct mesh** p_m, double qual_floor)
   unsigned* candidates = LOOP_MALLOC(unsigned, nedges);
   for (unsigned i = 0; i < nedges; ++i)
     candidates[i] = edge_sizes[i] > 1.0;
-  LOOP_FREE(edge_sizes);
+  loop_free(edge_sizes);
   unsigned ret = refine_common(p_m, 1, candidates, qual_floor, 0);
-  LOOP_FREE(candidates);
+  loop_free(candidates);
   return ret;
 }

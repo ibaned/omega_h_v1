@@ -59,7 +59,7 @@ void comm_free(struct comm* c)
   assert(c != &world);
   assert(c != &self);
   CALL(MPI_Comm_free(&c->c));
-  LOOP_HOST_FREE(c);
+  loop_host_free(c);
 }
 
 unsigned comm_rank(void)

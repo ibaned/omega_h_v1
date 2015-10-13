@@ -29,7 +29,7 @@ int main()
       printf(" %u(%u)", adj[j], directions[j]);
     printf("\n");
   }
-  LOOP_FREE(offsets);
-  LOOP_FREE(adj);
-  LOOP_FREE(directions);
+  loop_free(offsets);
+  loop_free(adj);
+  loop_free(directions);
 }

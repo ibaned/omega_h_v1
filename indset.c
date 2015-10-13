@@ -67,7 +67,7 @@ unsigned* find_indset(
     unsigned* old_state = uints_copy(state, nverts);
     for (unsigned i = 0; i < nverts; ++i)
       at_vert(offsets, adj, goodness, old_state, state, i);
-    LOOP_FREE(old_state);
+    loop_free(old_state);
     if (uints_max(state, nverts) < UNKNOWN)
       return state;
   }

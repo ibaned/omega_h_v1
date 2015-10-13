@@ -65,6 +65,6 @@ struct const_tag* mesh_element_gradients(
   strcat(grad_name, t->name);
   struct const_tag* out = mesh_add_tag(
       m, mesh_dim(m), TAG_F64, grad_name, t->ncomps * 3, data);
-  LOOP_FREE(grad_name);
+  loop_free(grad_name);
   return out;
 }

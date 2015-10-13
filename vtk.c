@@ -276,7 +276,7 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
   assert(dim < 4);
   for (unsigned i = 1; i < nelems; ++i)
     assert(types[i] == simplex_types[dim]);
-  LOOP_HOST_FREE(types);
+  loop_host_free(types);
   return dim;
 }
 

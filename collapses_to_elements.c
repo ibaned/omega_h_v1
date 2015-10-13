@@ -50,9 +50,9 @@ void collapses_to_elements(
     gen_direction_of_elems[i] = direction;
   }
   *gen_offset_of_elems_out = uints_exscan(elem_will_gen, nelems);
-  LOOP_FREE(elem_will_gen);
+  loop_free(elem_will_gen);
   *gen_vert_of_elems_out = gen_vert_of_elems;
   *gen_direction_of_elems_out = gen_direction_of_elems;
   *offset_of_same_elems_out = uints_exscan(elem_is_same, nelems);
-  LOOP_FREE(elem_is_same);
+  loop_free(elem_is_same);
 }

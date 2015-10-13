@@ -35,5 +35,5 @@ int main()
       printf(" %u", verts_of_prods[i * verts_per_prod + j]);
     printf("\n");
   }
-  LOOP_FREE(verts_of_prods);
+  loop_free(verts_of_prods);
 }

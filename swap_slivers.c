@@ -14,8 +14,8 @@ unsigned swap_slivers(
   unsigned elem_dim = mesh_dim(m);
   unsigned* slivers = mesh_mark_slivers(m, good_qual, nlayers);
   unsigned* candidates = mesh_mark_down(m, elem_dim, 1, slivers);
-  LOOP_FREE(slivers);
+  loop_free(slivers);
   unsigned ret = swap_common(p_m, candidates);
-  LOOP_FREE(candidates);
+  loop_free(candidates);
   return ret;
 }

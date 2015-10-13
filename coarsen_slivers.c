@@ -14,7 +14,7 @@ unsigned coarsen_slivers(
   unsigned elem_dim = mesh_dim(m);
   unsigned* slivers = mesh_mark_slivers(m, quality_floor, nlayers);
   unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, slivers);
-  LOOP_FREE(slivers);
+  loop_free(slivers);
   unsigned nedges = mesh_count(m, 1);
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   unsigned* col_codes = LOOP_MALLOC(unsigned, nedges);
@@ -27,9 +27,9 @@ unsigned coarsen_slivers(
         col_codes[i] |= (1<<j);
     }
   }
-  LOOP_FREE(marked_verts);
+  loop_free(marked_verts);
   unsigned ret = coarsen_common(&m, col_codes, 0, 1);
-  LOOP_FREE(col_codes);
+  loop_free(col_codes);
   *p_m = m;
   return ret;
 }

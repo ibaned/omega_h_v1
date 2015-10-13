@@ -53,10 +53,10 @@ unsigned coarsen_common(
       verts_of_elems, verts_of_edges, elems_of_verts_offsets,
       elems_of_verts, elems_of_verts_directions, coords, quality_floor,
       elem_quals, require_better);
-  LOOP_FREE(elem_quals);
+  loop_free(elem_quals);
   if (uints_max(col_codes, nedges) == DONT_COLLAPSE) {
     /* early return #2: all small edges failed their classif/quality checks */
-    LOOP_FREE(quals_of_edges);
+    loop_free(quals_of_edges);
     return 0;
   }
   /* from this point forward, some edges will definitely collapse */
@@ -69,13 +69,13 @@ unsigned coarsen_common(
   collapses_to_verts(nverts, verts_of_edges, edges_of_verts_offsets,
       edges_of_verts, edges_of_verts_directions, col_codes, quals_of_edges,
       &candidates, &gen_vert_of_verts, &qual_of_verts);
-  LOOP_FREE(quals_of_edges);
+  loop_free(quals_of_edges);
   unsigned* indset = find_indset(nverts, verts_of_verts_offsets, verts_of_verts,
       candidates, qual_of_verts);
-  LOOP_FREE(candidates);
-  LOOP_FREE(qual_of_verts);
+  loop_free(candidates);
+  loop_free(qual_of_verts);
   unsigned* gen_offset_of_verts = uints_exscan(indset, nverts);
-  LOOP_FREE(indset);
+  loop_free(indset);
   unsigned* gen_offset_of_elems;
   unsigned* gen_vert_of_elems;
   unsigned* gen_direction_of_elems;
@@ -83,26 +83,26 @@ unsigned coarsen_common(
   collapses_to_elements(elem_dim, nelems, verts_of_elems, gen_offset_of_verts,
       gen_vert_of_verts, &gen_offset_of_elems, &gen_vert_of_elems,
       &gen_direction_of_elems, &offset_of_same_elems);
-  LOOP_FREE(gen_vert_of_verts);
+  loop_free(gen_vert_of_verts);
   unsigned* offset_of_same_verts = uints_negate_offsets(
       gen_offset_of_verts, nverts);
   unsigned nverts_out = offset_of_same_verts[nverts];
-  LOOP_FREE(gen_offset_of_verts);
+  loop_free(gen_offset_of_verts);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
   coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,
       gen_vert_of_elems, gen_direction_of_elems, &ngen_elems,
       &verts_of_gen_elems);
-  LOOP_FREE(gen_offset_of_elems);
-  LOOP_FREE(gen_vert_of_elems);
-  LOOP_FREE(gen_direction_of_elems);
+  loop_free(gen_offset_of_elems);
+  loop_free(gen_vert_of_elems);
+  loop_free(gen_direction_of_elems);
   unsigned nelems_out;
   unsigned* verts_of_elems_out;
   concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,
       offset_of_same_elems, verts_of_gen_elems,
       &nelems_out, &verts_of_elems_out);
-  LOOP_FREE(offset_of_same_elems);
-  LOOP_FREE(verts_of_gen_elems);
+  loop_free(offset_of_same_elems);
+  loop_free(verts_of_gen_elems);
   /* remap element vertices to account for vertex removal */
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i)
@@ -129,7 +129,7 @@ unsigned coarsen_common(
     }
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
   }
-  LOOP_FREE(offset_of_same_verts);
+  loop_free(offset_of_same_verts);
   free_mesh(m);
   *p_m = m_out;
   return 1;

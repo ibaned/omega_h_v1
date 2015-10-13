@@ -164,7 +164,7 @@ static double local_mean_radius(
   for (unsigned i = 0; i < 52; ++i) {
     unsigned* in = mark_local_in(n, radii, r);
     double wi = local_weighted_in(n, in, masses);
-    LOOP_FREE(in);
+    loop_free(in);
     if (wi > hm)
       r += dr;
     else
@@ -191,6 +191,6 @@ unsigned* local_inertia_mark(
   double* radii = local_radii(n, coords, c, a);
   double r = local_mean_radius(n, radii, masses, lm);
   unsigned* in = mark_local_in(n, radii, r);
-  LOOP_FREE(radii);
+  loop_free(radii);
   return in;
 }
