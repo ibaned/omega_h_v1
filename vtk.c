@@ -38,9 +38,9 @@ static enum cell_type const simplex_types[4] = {
 };
 
 static char const* const type_names[TAG_TYPES] = {
-  [TAG_U32] = "UInt32",
-  [TAG_U64] = "UInt64",
-  [TAG_F64] = "Float64"
+  "UInt32",
+  "UInt64",
+  "Float64"
 };
 
 static void describe_tag(FILE* file, struct const_tag* tag)
@@ -57,7 +57,7 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
   fprintf(file, ">\n");
   switch (tag->type) {
     case TAG_U32: {
-      unsigned const* p = tag->data;
+      unsigned const* p = (unsigned const*) tag->data;
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < tag->ncomps; ++j)
           fprintf(file, " %u", *p++);
@@ -66,7 +66,7 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
       break;
     }
     case TAG_U64: {
-      unsigned long const* p = tag->data;
+      unsigned long const* p = (unsigned long const*) tag->data;
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < tag->ncomps; ++j)
           fprintf(file, " %lu", *p++);
@@ -75,7 +75,7 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
       break;
     }
     case TAG_F64: {
-      double const* p = tag->data;
+      double const* p = (double const*) tag->data;
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < tag->ncomps; ++j)
           fprintf(file, " %e", *p++);
@@ -212,8 +212,11 @@ static enum tag_type read_array_type(char const* header)
   read_attrib(header, "type", val);
   for (unsigned type = 0; type < TAG_TYPES; ++type)
     if (!strcmp(type_names[type], val))
-      return type;
+      return (enum tag_type) type;
   assert(0);
+#ifdef __CUDACC__
+  return TAG_U32;
+#endif
 }
 
 static unsigned read_int_attrib(char const* header, char const* attrib)
