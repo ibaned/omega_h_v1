@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "loop_cuda.h"
 
 #define CUDACALL(f) \
@@ -20,5 +23,5 @@ void* loop_cuda_malloc(unsigned long n)
 
 void loop_cuda_free(void* p)
 {
-  CUDACAL(cudaFree(p));
+  CUDACALL(cudaFree(p));
 }
