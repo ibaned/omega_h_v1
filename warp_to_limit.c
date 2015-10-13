@@ -64,8 +64,8 @@ unsigned mesh_warp_to_limit(struct mesh* m, double qual_floor)
       mesh_count(m, mesh_dim(m)),
       mesh_count(m, 0),
       mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_tag(m, 0, "coordinates")->data,
-      mesh_find_tag(m, 0, "warp")->data,
+      mesh_find_tag(m, 0, "coordinates")->d.f64,
+      mesh_find_tag(m, 0, "warp")->d.f64,
       qual_floor,
       &coords, &warps);
   mesh_free_tag(m, 0, "coordinates");

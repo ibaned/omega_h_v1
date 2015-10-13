@@ -26,7 +26,7 @@ unsigned swap_common(
   if (!uints_max(candidates, nedges))
     return 0;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->data;
+  unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->d.u32;
   unmark_boundary(elem_dim, 1, nedges, verts_of_edges, class_dim, candidates);
   if (!uints_max(candidates, nedges))
     return 0;
@@ -37,7 +37,7 @@ unsigned swap_common(
   unsigned const* elems_of_edges_directions =
     mesh_ask_up(m, 1, elem_dim)->directions;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  double const* coords = mesh_find_tag(m, 0, "coordinates")->data;
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   double* elem_quals = mesh_qualities(m);
   double* edge_quals;
   unsigned* edge_codes;
@@ -92,11 +92,11 @@ unsigned swap_common(
     struct const_tag* t = mesh_get_tag(m, 0, i);
     void* data = 0;
     switch (t->type) {
-      case TAG_F64: data = doubles_copy(t->data, nverts * t->ncomps);
+      case TAG_F64: data = doubles_copy(t->d.f64, nverts * t->ncomps);
                     break;
-      case TAG_U32: data = uints_copy(t->data, nverts * t->ncomps);
+      case TAG_U32: data = uints_copy(t->d.u32, nverts * t->ncomps);
                     break;
-      case TAG_U64: data = ulongs_copy(t->data, nverts * t->ncomps);
+      case TAG_U64: data = ulongs_copy(t->d.u64, nverts * t->ncomps);
                     break;
     };
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, data);

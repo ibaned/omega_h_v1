@@ -143,7 +143,7 @@ double* mesh_qualities(struct mesh* m)
   return element_qualities(mesh_dim(m),
       mesh_count(m, mesh_dim(m)),
       mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_tag(m, 0, "coordinates")->data);
+      mesh_find_tag(m, 0, "coordinates")->d.f64);
 }
 
 double mesh_min_quality(struct mesh* m)
@@ -151,5 +151,5 @@ double mesh_min_quality(struct mesh* m)
   return min_element_quality(mesh_dim(m),
       mesh_count(m, mesh_dim(m)),
       mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_tag(m, 0, "coordinates")->data);
+      mesh_find_tag(m, 0, "coordinates")->d.f64);
 }

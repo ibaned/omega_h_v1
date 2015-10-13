@@ -36,7 +36,7 @@ unsigned refine_common(
     mesh_ask_up(m, src_dim, elem_dim)->adj;
   unsigned const* elems_of_srcs_directions =
     mesh_ask_up(m, src_dim, elem_dim)->directions;
-  double const* coords = mesh_find_tag(m, 0, "coordinates")->data;
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   double* elem_quals = 0;
   if (require_better)
     elem_quals = mesh_qualities(m);
@@ -88,16 +88,16 @@ unsigned refine_common(
     if (t->type != TAG_F64)
       continue;
     double* gen_vals = refine_nodal(src_dim, nsrcs, verts_of_srcs,
-        gen_offset_of_srcs, t->ncomps, t->data);
-    double* vals_out = concat_doubles(t->ncomps, t->data, nverts,
+        gen_offset_of_srcs, t->ncomps, t->d.f64);
+    double* vals_out = concat_doubles(t->ncomps, t->d.f64, nverts,
         gen_vals, nsplit_srcs);
     loop_free(gen_vals);
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
   }
   if (mesh_find_tag(m, 0, "class_dim")) {
     assert(mesh_find_tag(m, 0, "class_id"));
-    unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->data;
-    unsigned const* class_id = mesh_find_tag(m, 0, "class_id")->data;
+    unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->d.u32;
+    unsigned const* class_id = mesh_find_tag(m, 0, "class_id")->d.u32;
     unsigned* gen_class_dim;
     unsigned* gen_class_id;
     refine_class(src_dim, nsrcs, verts_of_srcs,

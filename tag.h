@@ -13,7 +13,12 @@ struct const_tag {
   char const* const name;
   unsigned const ncomps;
   enum tag_type const type;
-  void const* const data;
+  union {
+    void const* raw;
+    unsigned const* u32;
+    unsigned long const* u64;
+    double const* f64;
+  } d;
 };
 
 struct tags {

@@ -40,13 +40,13 @@ struct const_tag* mesh_recover_by_volume(
 {
   mesh_element_sizes(m);
   double const* elem_sizes = mesh_find_tag(
-      m, mesh_dim(m), "elem_size")->data;
+      m, mesh_dim(m), "elem_size")->d.f64;
   struct const_tag* t = mesh_find_tag(m, mesh_dim(m), name);
   double* data = recover_by_volume(mesh_count(m, 0),
       mesh_ask_up(m, 0, mesh_dim(m))->offsets,
       mesh_ask_up(m, 0, mesh_dim(m))->adj,
       elem_sizes,
-      t->ncomps, t->data);
+      t->ncomps, t->d.f64);
   mesh_free_tag(m, mesh_dim(m), "elem_size");
   struct const_tag* out = mesh_add_tag(m, 0, TAG_F64, name, t->ncomps, data);
   return out;

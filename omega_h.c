@@ -56,7 +56,7 @@ unsigned const* osh_up_dirs(osh_t m, unsigned low_dim, unsigned high_dim)
 
 double const* osh_coords(osh_t m)
 {
-  return mesh_find_tag((struct mesh*)m, 0, "coordinates")->data;
+  return mesh_find_tag((struct mesh*)m, 0, "coordinates")->d.f64;
 }
 
 void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
@@ -69,5 +69,5 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
 
 unsigned const* osh_ask_label(osh_t m, char const* name)
 {
-  return mesh_find_tag((struct mesh*)m, 0, name)->data;
+  return mesh_find_tag((struct mesh*)m, 0, name)->d.u32;
 }

@@ -28,11 +28,11 @@ unsigned coarsen_common(
   if (uints_max(col_codes, nedges) == DONT_COLLAPSE)
     return 0;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  double const* coords = mesh_find_tag(m, 0, "coordinates")->data;
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   unsigned nverts = mesh_count(m, 0);
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
-  unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->data;
+  unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->d.u32;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned const* verts_of_verts_offsets = mesh_ask_star(m, 0, elem_dim)->offsets;
   unsigned const* verts_of_verts = mesh_ask_star(m, 0, elem_dim)->adj;
@@ -115,15 +115,15 @@ unsigned coarsen_common(
     void* vals_out = 0;
     switch (t->type) {
       case TAG_F64:
-        vals_out = doubles_subset(nverts, t->ncomps, t->data,
+        vals_out = doubles_subset(nverts, t->ncomps, t->d.f64,
             offset_of_same_verts);
         break;
       case TAG_U32:
-        vals_out = uints_subset(nverts, t->ncomps, t->data,
+        vals_out = uints_subset(nverts, t->ncomps, t->d.u32,
             offset_of_same_verts);
         break;
       case TAG_U64:
-        vals_out = ulongs_subset(nverts, t->ncomps, t->data,
+        vals_out = ulongs_subset(nverts, t->ncomps, t->d.u64,
             offset_of_same_verts);
         break;
     }

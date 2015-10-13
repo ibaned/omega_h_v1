@@ -101,10 +101,10 @@ double const* mesh_element_sizes(struct mesh* m)
   if (!mesh_find_tag(m, mesh_dim(m), "elem_size")) {
     double* data = element_sizes(mesh_dim(m), mesh_count(m, mesh_dim(m)),
         mesh_ask_down(m, mesh_dim(m), 0),
-        mesh_find_tag(m, 0, "coordinates")->data);
+        mesh_find_tag(m, 0, "coordinates")->d.f64);
     mesh_add_tag(m, mesh_dim(m), TAG_F64, "elem_size", 1, data);
   }
-  return mesh_find_tag(m, mesh_dim(m), "elem_size")->data;
+  return mesh_find_tag(m, mesh_dim(m), "elem_size")->d.f64;
 }
 
 double mesh_domain_size(struct mesh* m)

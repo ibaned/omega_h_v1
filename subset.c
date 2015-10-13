@@ -76,13 +76,13 @@ struct mesh* subset_mesh(
     void* data_out = 0;
     switch (t->type) {
       case TAG_F64: data_out = doubles_subset(
-                        nverts, t->ncomps, t->data, vert_offsets);
+                        nverts, t->ncomps, t->d.f64, vert_offsets);
                     break;
       case TAG_U32: data_out = uints_subset(
-                        nverts, t->ncomps, t->data, vert_offsets);
+                        nverts, t->ncomps, t->d.u32, vert_offsets);
                     break;
       case TAG_U64: data_out = ulongs_subset(
-                        nverts, t->ncomps, t->data, vert_offsets);
+                        nverts, t->ncomps, t->d.u64, vert_offsets);
                     break;
     }
     mesh_add_tag(out, 0, t->type, t->name, t->ncomps, data_out);

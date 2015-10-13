@@ -54,7 +54,7 @@ struct cloud* form_cloud(struct mesh* m)
 {
   unsigned dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, dim);
-  double const* elem_density = mesh_find_tag(m, dim, "cloud_density")->data;
+  double const* elem_density = mesh_find_tag(m, dim, "cloud_density")->d.f64;
   double const* elem_size = mesh_element_sizes(m);
   double* pts_of_elems = LOOP_MALLOC(double, nelems);
   for (unsigned i = 0; i < nelems; ++i)
@@ -70,7 +70,7 @@ struct cloud* form_cloud(struct mesh* m)
   unsigned* pt_elem = LOOP_MALLOC(unsigned, npts);
   double* pt_coords = LOOP_MALLOC(double, npts * 3);
   unsigned const* verts_of_elems = mesh_ask_down(m, dim, 0);
-  double const* vert_coords = mesh_find_tag(m, 0, "coordinates")->data;
+  double const* vert_coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   assert(dim == 2);
   for (unsigned i = 0; i < nelems; ++i)
     form_elem_cloud_2d(i, uint_offset, verts_of_elems, vert_coords,

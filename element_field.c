@@ -29,6 +29,6 @@ void mesh_interp_to_elems(struct mesh* m, char const* name)
   struct const_tag* t = mesh_find_tag(m, 0, name);
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   double* data = interp_to_elems(elem_dim, nelems, verts_of_elems,
-      t->ncomps, t->data);
+      t->ncomps, t->d.f64);
   mesh_add_tag(m, elem_dim, TAG_F64, t->name, t->ncomps, data);
 }

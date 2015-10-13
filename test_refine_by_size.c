@@ -31,7 +31,7 @@ int main()
     printf("%u elements, %u vertices\n", mesh_count(m, mesh_dim(m)), mesh_count(m, 0));
     double* quals = element_qualities(mesh_dim(m), mesh_count(m, mesh_dim(m)),
         mesh_ask_down(m, mesh_dim(m), 0),
-        mesh_find_tag(m, 0, "coordinates")->data);
+        mesh_find_tag(m, 0, "coordinates")->d.f64);
     double minqual = doubles_min(quals, mesh_count(m, mesh_dim(m)));
     loop_free(quals);
     printf("min quality %f\n", minqual);

@@ -57,7 +57,7 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
   fprintf(file, ">\n");
   switch (tag->type) {
     case TAG_U32: {
-      unsigned const* p = (unsigned const*) tag->data;
+      unsigned const* p = tag->d.u32;
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < tag->ncomps; ++j)
           fprintf(file, " %u", *p++);
@@ -66,7 +66,7 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
       break;
     }
     case TAG_U64: {
-      unsigned long const* p = (unsigned long const*) tag->data;
+      unsigned long const* p = tag->d.u64;
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < tag->ncomps; ++j)
           fprintf(file, " %lu", *p++);
@@ -75,7 +75,7 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
       break;
     }
     case TAG_F64: {
-      double const* p = (double const*) tag->data;
+      double const* p = tag->d.f64;
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < tag->ncomps; ++j)
           fprintf(file, " %e", *p++);

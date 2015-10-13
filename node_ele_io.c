@@ -46,7 +46,7 @@ struct mesh* read_dot_node(char const* filename)
 void write_dot_node(struct mesh* m, char const* filename)
 {
   double const* coords =
-    mesh_find_tag(m, 0, "coordinates")->data;
+    mesh_find_tag(m, 0, "coordinates")->d.f64;
   struct const_tag* attribf =
     mesh_find_tag(m, 0, "attributes");
   struct const_tag* bdryl =
@@ -57,13 +57,13 @@ void write_dot_node(struct mesh* m, char const* filename)
   double const* attrib = 0;
   if (attribf) {
     nattrib = attribf->ncomps;
-    attrib = attribf->data;
+    attrib = attribf->d.f64;
   }
   unsigned nbdrys = 0;
   unsigned const* bdry = 0;
   if (bdryl) {
     nbdrys = 1;
-    bdry = bdryl->data;
+    bdry = bdryl->d.u32;
   }
   FILE* f = fopen(filename, "w");
   fprintf(f, "%u %u %u %u\n", nnodes, dim, nattrib, nbdrys);
@@ -120,7 +120,7 @@ void write_dot_ele(struct mesh* m, char const* filename)
   double const* attrib = 0;
   if (attribf) {
     nattrib = attribf->ncomps;
-    attrib = attribf->data;
+    attrib = attribf->d.f64;
   }
   FILE* f = fopen(filename, "w");
   fprintf(f, "%u %u %u\n", nelems, verts_per_elem, nattrib);

@@ -67,11 +67,11 @@ void push_cloud(struct cloud* c, struct mesh* m)
 {
   assert(mesh_dim(m) == 2);
   unsigned npts = cloud_count(c);
-  unsigned* elem_of_pts = uints_copy(cloud_find_tag(c, "mesh_elem")->data, npts);
+  unsigned* elem_of_pts = uints_copy(cloud_find_tag(c, "mesh_elem")->d.u32, npts);
   unsigned* last_dir_of_pts = LOOP_MALLOC(unsigned, npts);
-  double const* coords_of_pts = cloud_find_tag(c, "coordinates")->data;
+  double const* coords_of_pts = cloud_find_tag(c, "coordinates")->d.f64;
   unsigned const* verts_of_elems = mesh_ask_down(m, mesh_dim(m), 0);
-  double const* coords_of_verts = mesh_find_tag(m, 0, "coordinates")->data;
+  double const* coords_of_verts = mesh_find_tag(m, 0, "coordinates")->d.f64;
   unsigned const* dual = mesh_ask_dual(m);
   for (unsigned i = 0; i < npts; ++i)
     push_particle_2d(i, elem_of_pts, last_dir_of_pts, coords_of_pts,

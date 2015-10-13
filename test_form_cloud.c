@@ -22,7 +22,7 @@ int main()
 {
   struct mesh* m = read_vtu("xgc.vtu");
   /* assume first vertex is center vertex */
-  cen = mesh_find_tag(m, 0, "coordinates")->data;
+  cen = mesh_find_tag(m, 0, "coordinates")->d.f64;
   mesh_interp_to_elems(m, "coordinates");
   mesh_eval_field(m, 2, "cloud_density", 1, density_fun);
   struct cloud* c = form_cloud(m);

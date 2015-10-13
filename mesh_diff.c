@@ -71,19 +71,19 @@ static unsigned tag_diff(struct const_tag* a, struct const_tag* b, unsigned n,
   }
   switch (a->type) {
     case TAG_U32:
-      if (uints_diff(a->data, b->data, n * a->ncomps)) {
+      if (uints_diff(a->d.u32, b->d.u32, n * a->ncomps)) {
         printf("tag \"%s\" contents differ\n", a->name);
         return 1;
       }
       break;
     case TAG_U64:
-      if (ulongs_diff(a->data, b->data, n * a->ncomps)) {
+      if (ulongs_diff(a->d.u64, b->d.u64, n * a->ncomps)) {
         printf("tag \"%s\" contents differ\n", a->name);
         return 1;
       }
       break;
     case TAG_F64:
-      if (doubles_diff(a->data, b->data, n * a->ncomps, tol, floor)) {
+      if (doubles_diff(a->d.f64, b->d.f64, n * a->ncomps, tol, floor)) {
         printf("tag \"%s\" contents differ\n", a->name);
         return 1;
       }

@@ -44,7 +44,7 @@ void mesh_classify_box(struct mesh* m)
   unsigned* dims;
   unsigned* ids;
   classify_box(mesh_count(m, 0),
-    mesh_find_tag(m, 0, "coordinates")->data,
+    mesh_find_tag(m, 0, "coordinates")->d.f64,
     &dims, &ids);
   mesh_add_tag(m, 0, TAG_U32, "class_dim", 1, dims);
   mesh_add_tag(m, 0, TAG_U32, "class_id", 1, ids);

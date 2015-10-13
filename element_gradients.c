@@ -57,8 +57,8 @@ struct const_tag* mesh_element_gradients(
   struct const_tag* t = mesh_find_tag(m, 0, name);
   double* data = element_gradients(mesh_dim(m), mesh_count(m, mesh_dim(m)),
       mesh_ask_down(m, mesh_dim(m), 0),
-      mesh_find_tag(m, 0, "coordinates")->data,
-      t->ncomps, t->data);
+      mesh_find_tag(m, 0, "coordinates")->d.f64,
+      t->ncomps, t->d.f64);
   static char const* prefix = "grad_";
   char* grad_name = LOOP_HOST_MALLOC(char, strlen(t->name) + strlen(prefix) + 1);
   strcpy(grad_name, prefix);
