@@ -14,11 +14,11 @@ unsigned refine_by_size(struct mesh** p_m, double qual_floor)
   unsigned nedges = mesh_count(m, 1);
   double const* sizes = mesh_find_tag(m, 0, "adapt_size")->data;
   double* edge_sizes = measure_edges(nedges, verts_of_edges, coords, sizes);
-  unsigned* candidates = loop_malloc(sizeof(unsigned) * nedges);
+  unsigned* candidates = LOOP_MALLOC(unsigned, nedges);
   for (unsigned i = 0; i < nedges; ++i)
     candidates[i] = edge_sizes[i] > 1.0;
-  loop_free(edge_sizes);
+  LOOP_FREE(edge_sizes);
   unsigned ret = refine_common(p_m, 1, candidates, qual_floor, 0);
-  loop_free(candidates);
+  LOOP_FREE(candidates);
   return ret;
 }

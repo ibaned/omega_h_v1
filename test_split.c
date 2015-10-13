@@ -35,13 +35,13 @@ static void split(struct mesh* m, char const* outpath, unsigned npieces,
   unsigned* in = local_inertia_mark(n, coords, masses);
   mesh_free_tag(m, mesh_dim(m), "coordinates");
   unsigned* offsets_in = uints_exscan(in, n);
-  loop_free(in);
+  LOOP_FREE(in);
   struct mesh* m_in = subset_mesh(m, mesh_dim(m), offsets_in);
   split(m_in, outpath, npieces * 2, piece * 2 + 0, depth - 1);
   unsigned* offsets_out = uints_negate_offsets(offsets_in, n);
-  loop_free(offsets_in);
+  LOOP_FREE(offsets_in);
   struct mesh* m_out = subset_mesh(m, mesh_dim(m), offsets_out);
-  loop_free(offsets_out);
+  LOOP_FREE(offsets_out);
   split(m_out, outpath, npieces * 2, piece * 2 + 1, depth - 1);
   free_mesh(m);
 }

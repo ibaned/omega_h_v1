@@ -10,7 +10,7 @@ void uints_zero(unsigned* a, unsigned n)
 
 unsigned* uints_copy(unsigned const* a, unsigned n)
 {
-  unsigned* b = loop_malloc(sizeof(unsigned) * n);
+  unsigned* b = LOOP_MALLOC(unsigned, n);
   for (unsigned i = 0; i < n; ++i)
     b[i] = a[i];
   return b;
@@ -27,7 +27,7 @@ unsigned uints_max(unsigned const* a, unsigned n)
 
 unsigned* uints_exscan(unsigned const* a, unsigned n)
 {
-  unsigned* o = loop_malloc(sizeof(unsigned) * (n + 1));
+  unsigned* o = LOOP_MALLOC(unsigned, (n + 1));
   unsigned sum = 0;
   o[0] = 0;
   for (unsigned i = 0; i < n; ++i) {
@@ -39,7 +39,7 @@ unsigned* uints_exscan(unsigned const* a, unsigned n)
 
 unsigned* uints_unscan(unsigned const* a, unsigned n)
 {
-  unsigned* o = loop_malloc(sizeof(unsigned) * n);
+  unsigned* o = LOOP_MALLOC(unsigned, n);
   for (unsigned i = 0; i < n; ++i)
     o[i] = a[i + 1] - a[i];
   return o;
@@ -47,7 +47,7 @@ unsigned* uints_unscan(unsigned const* a, unsigned n)
 
 unsigned* uints_negate(unsigned const* a, unsigned n)
 {
-  unsigned* o = loop_malloc(sizeof(unsigned) * n);
+  unsigned* o = LOOP_MALLOC(unsigned, n);
   for (unsigned i = 0; i < n; ++i)
     o[i] = !a[i];
   return o;
@@ -57,9 +57,9 @@ unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
 {
   unsigned* unscanned = uints_unscan(a, n);
   unsigned* negated = uints_negate(unscanned, n);
-  loop_free(unscanned);
+  LOOP_FREE(unscanned);
   unsigned* out = uints_exscan(negated, n);
-  loop_free(negated);
+  LOOP_FREE(negated);
   return out;
 }
 
@@ -79,7 +79,7 @@ unsigned uints_sum(unsigned const* a, unsigned n)
 
 unsigned long* ulongs_copy(unsigned long const* a, unsigned n)
 {
-  unsigned long* b = loop_malloc(sizeof(unsigned long) * n);
+  unsigned long* b = LOOP_MALLOC(unsigned long, n);
   for (unsigned i = 0; i < n; ++i)
     b[i] = a[i];
   return b;

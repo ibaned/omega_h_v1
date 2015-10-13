@@ -3,8 +3,8 @@
 
 #include "loop_host.h"
 
-#define loop_malloc loop_host_malloc
-#define loop_free loop_host_free
+#define LOOP_MALLOC(T, n) LOOP_HOST_MALLOC(T, n)
+#define LOOP_FREE(p) LOOP_HOST_FREE(p)
 
 #define LOOP_KERNEL(fname, ...) \
 static void fname(__VA_ARGS__, unsigned i) \

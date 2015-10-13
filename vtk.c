@@ -230,7 +230,7 @@ static unsigned read_array_ncomps(char* header)
 
 static unsigned* read_uints(FILE* f, unsigned n)
 {
-  unsigned* out = loop_host_malloc(sizeof(unsigned) * n);
+  unsigned* out = LOOP_HOST_MALLOC(unsigned, n);
   for (unsigned i = 0; i < n; ++i)
     fscanf(f, "%u", &out[i]);
   return out;
@@ -238,7 +238,7 @@ static unsigned* read_uints(FILE* f, unsigned n)
 
 static unsigned long* read_ulongs(FILE* f, unsigned n)
 {
-  unsigned long* out = loop_host_malloc(sizeof(unsigned long) * n);
+  unsigned long* out = LOOP_HOST_MALLOC(unsigned long, n);
   for (unsigned i = 0; i < n; ++i)
     fscanf(f, "%lu", &out[i]);
   return out;
@@ -246,7 +246,7 @@ static unsigned long* read_ulongs(FILE* f, unsigned n)
 
 static double* read_doubles(FILE* f, unsigned n)
 {
-  double* out = loop_host_malloc(sizeof(double) * n);
+  double* out = LOOP_HOST_MALLOC(double, n);
   for (unsigned i = 0; i < n; ++i)
     fscanf(f, "%lf", &out[i]);
   return out;
@@ -273,7 +273,7 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
   assert(dim < 4);
   for (unsigned i = 1; i < nelems; ++i)
     assert(types[i] == simplex_types[dim]);
-  loop_host_free(types);
+  LOOP_HOST_FREE(types);
   return dim;
 }
 

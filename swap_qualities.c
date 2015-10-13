@@ -19,9 +19,9 @@ void swap_qualities(
     unsigned** p_codes,
     unsigned** p_gen_elems_per_edge)
 {
-  double* out_quals = loop_malloc(sizeof(double) * nedges);
-  unsigned* out_codes = loop_malloc(sizeof(unsigned) * nedges);
-  unsigned* gen_elems_per_edge = loop_malloc(sizeof(unsigned) * nedges);
+  double* out_quals = LOOP_MALLOC(double, nedges);
+  unsigned* out_codes = LOOP_MALLOC(unsigned, nedges);
+  unsigned* gen_elems_per_edge = LOOP_MALLOC(unsigned, nedges);
   for (unsigned i = 0; i < nedges; ++i) {
     if (!candidates[i])
       continue;

@@ -18,7 +18,7 @@ unsigned* swap_topology(
     unsigned const* verts_of_tets)
 {
   unsigned ngen_elems = gen_offset_of_edges[nedges];
-  unsigned* out = loop_malloc(sizeof(unsigned) * ngen_elems * 4);
+  unsigned* out = LOOP_MALLOC(unsigned, ngen_elems * 4);
   for (unsigned i = 0; i < nedges; ++i) {
     if (!candidates[i])
       continue;

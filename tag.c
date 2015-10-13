@@ -15,8 +15,8 @@ struct tag {
 static struct tag* new_tag(char const* name, enum tag_type type,
     unsigned ncomps, void* data)
 {
-  struct tag* t = loop_host_malloc(sizeof(*t));
-  t->name = loop_host_malloc(strlen(name) + 1);
+  struct tag* t = LOOP_HOST_MALLOC(struct tag, 1);
+  t->name = LOOP_HOST_MALLOC(char, strlen(name) + 1);
   strcpy(t->name, name);
   t->ncomps = ncomps;
   t->type = type;
@@ -26,16 +26,16 @@ static struct tag* new_tag(char const* name, enum tag_type type,
 
 static void free_tag(struct tag* t)
 {
-  loop_host_free(t->name);
-  loop_free(t->data);
-  loop_host_free(t);
+  LOOP_HOST_FREE(t->name);
+  LOOP_FREE(t->data);
+  LOOP_HOST_FREE(t);
 }
 
 void free_tags(struct tags* ts)
 {
   for (unsigned i = 0; i < ts->n; ++i)
     free_tag(ts->at[i]);
-  loop_host_free(ts->at);
+  LOOP_HOST_FREE(ts->at);
 }
 
 struct const_tag* add_tag(struct tags* ts, enum tag_type type, char const* name,
@@ -44,7 +44,7 @@ struct const_tag* add_tag(struct tags* ts, enum tag_type type, char const* name,
   assert(!find_tag(ts, name));
   struct tag* t = new_tag(name, type, ncomps, data);
   ts->n++;
-  ts->at = loop_host_realloc(ts->at, sizeof(struct tag*) * ts->n);
+  ts->at = LOOP_HOST_REALLOC(struct tag*, ts->at, ts->n);
   ts->at[ts->n - 1] = t;
   return (struct const_tag*) t;
 }
@@ -99,6 +99,6 @@ void rename_tag(struct tags* ts, char const* oldname, char const* newname)
   unsigned i = find_i(ts, oldname);
   assert(i < ts->n);
   loop_host_free(ts->at[i]->name);
-  ts->at[i]->name = loop_host_malloc(strlen(newname) + 1);
+  ts->at[i]->name = LOOP_HOST_MALLOC(char, strlen(newname) + 1);
   strcpy(ts->at[i]->name, newname);
 }

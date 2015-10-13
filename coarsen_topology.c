@@ -20,8 +20,8 @@ void coarsen_topology(
     the_canonical_orders[elem_dim][base_dim][0];
   unsigned const* elem_bases_opp_verts =
     the_opposite_orders[elem_dim][0];
-  unsigned* verts_of_gen_elems = loop_malloc(
-      sizeof(unsigned) * ngen_elems * verts_per_elem);
+  unsigned* verts_of_gen_elems = LOOP_MALLOC(unsigned,
+      ngen_elems * verts_per_elem);
   for (unsigned i = 0; i < nelems; ++i) {
     if (gen_offset_of_elems[i] == gen_offset_of_elems[i + 1])
       continue;

@@ -36,7 +36,7 @@ unsigned warp_to_limit(
     double** p_warps)
 {
   unsigned hit_limit = 0;
-  double* coords_out = loop_malloc(sizeof(double) * 3 * nverts);
+  double* coords_out = LOOP_MALLOC(double, 3 * nverts);
   double factor = 1;
   double* warps_out = 0;
   doubles_axpy(factor, warps, coords, coords_out, 3 * nverts);
@@ -48,7 +48,7 @@ unsigned warp_to_limit(
   }
   *p_coords = coords_out;
   if (p_warps) {
-    warps_out = loop_malloc(sizeof(double) * 3 * nverts);
+    warps_out = LOOP_MALLOC(double, 3 * nverts);
     doubles_axpy(-factor, warps, warps, warps_out, 3 * nverts);
     *p_warps = warps_out;
   }

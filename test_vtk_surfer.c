@@ -43,10 +43,10 @@ int main(int argc, char** argv)
   unsigned ns = mesh_count(m, d - 1);
   unsigned* pb = mesh_mark_part_boundary(m);
   unsigned* off = uints_exscan(pb, ns);
-  loop_free(pb);
+  LOOP_FREE(pb);
   struct mesh* sm = subset_mesh(m, d - 1, off);
   free_mesh(m);
-  loop_free(off);
+  LOOP_FREE(off);
   write_vtu(sm, argv[2]);
   free_mesh(sm);
 }

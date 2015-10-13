@@ -30,7 +30,7 @@ double* refine_qualities(
   assert(opp_dim == 0);
   unsigned verts_per_src = the_down_degrees[src_dim][0];
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  double* out = loop_malloc(sizeof(double) * nsrcs);
+  double* out = LOOP_MALLOC(double, nsrcs);
   unsigned const* const* elem_verts_of_srcs =
     the_canonical_orders[elem_dim][src_dim][0];
   unsigned const* const* elem_verts_of_bases =

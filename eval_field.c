@@ -11,7 +11,7 @@ double* eval_field(
     unsigned ncomps,
     void (*fun)(double const* x, double* out))
 {
-  double* out = loop_malloc(sizeof(double) * ncomps * nents);
+  double* out = LOOP_MALLOC(double, ncomps * nents);
   for (unsigned i = 0; i < nents; ++i) {
     double const* ent_coords = coords + i * 3;
     double* ent_out = out + i * ncomps;

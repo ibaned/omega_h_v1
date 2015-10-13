@@ -7,7 +7,7 @@ unsigned* uints_subset(
     unsigned const* a,
     unsigned const* offsets);
 
-unsigned* ulongs_subset(
+unsigned long* ulongs_subset(
     unsigned n,
     unsigned width,
     unsigned long const* a,

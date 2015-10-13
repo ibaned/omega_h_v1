@@ -16,7 +16,7 @@ static unsigned doubles_diff(double const* a, double const* b, unsigned n,
 {
   assert(0 <= tol);
   assert(0 <= floor);
-  double* diffs = loop_malloc(sizeof(double) * n);
+  double* diffs = LOOP_MALLOC(double, n);
   for (unsigned i = 0; i < n; ++i) {
     double fa = fabs(a[i]);
     double fb = fabs(b[i]);
@@ -28,7 +28,7 @@ static unsigned doubles_diff(double const* a, double const* b, unsigned n,
     diffs[i] = fabs(a[i] - b[i]) / fm;
   }
   double maxdiff = doubles_max(diffs, n);
-  loop_free(diffs);
+  LOOP_FREE(diffs);
   if (maxdiff > tol) {
     printf("max relative difference %e\n", maxdiff);
     return 1;

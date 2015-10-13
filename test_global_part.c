@@ -11,6 +11,6 @@ int main()
   global_to_parts(global, 7, 7, 4, &part, &local);
   for (unsigned i = 0; i < 7; ++i)
     printf("part %u local %u\n", part[i], local[i]);
-  loop_free(part);
-  loop_free(local);
+  LOOP_FREE(part);
+  LOOP_FREE(local);
 }

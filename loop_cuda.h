@@ -4,10 +4,14 @@
 #include "loop_host.h"
 
 void* loop_cuda_malloc(unsigned long n);
+#define LOOP_CUDA_MALLOC(T, n) \
+  ((T*)loop_cuda_malloc(sizeof(T) * (n)))
 void loop_cuda_free(void* p);
+#define LOOP_CUDA_FREE(p) \
+  loop_cuda_free((void*)(p))
 
-#define loop_malloc loop_cuda_malloc
-#define loop_free loop_cuda_free
+#define LOOP_MALLOC(T, n) LOOP_CUDA_MALLOC(T, n)
+#define LOOP_FREE(p) LOOP_CUDA_FREE(p)
 
 #define LOOP_KERNEL(fname, ...) \
 static __global__ void fname(__VA_ARGS__) \

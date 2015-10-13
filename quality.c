@@ -111,7 +111,7 @@ double* element_qualities(
     unsigned const* verts_of_elems,
     double const* coords)
 {
-  double* out = loop_malloc(sizeof(double) * nelems);
+  double* out = LOOP_MALLOC(double, nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   quality_function qf = the_equal_order_quality_functions[elem_dim];
   for (unsigned i = 0; i < nelems; ++i) {
@@ -134,7 +134,7 @@ double min_element_quality(
 {
   double* quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);
   double mq = doubles_min(quals, nelems);
-  loop_free(quals);
+  LOOP_FREE(quals);
   return mq;
 }
 

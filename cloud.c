@@ -12,7 +12,7 @@ struct cloud {
 
 struct cloud* new_cloud(unsigned count)
 {
-  struct cloud* c = loop_host_malloc(sizeof(*c));
+  struct cloud* c = LOOP_HOST_MALLOC(struct cloud, 1);
   memset(c, 0, sizeof(*c));
   c->count = count;
   return c;
@@ -21,7 +21,7 @@ struct cloud* new_cloud(unsigned count)
 void free_cloud(struct cloud* c)
 {
   free_tags(&c->tags);
-  loop_host_free(c);
+  LOOP_HOST_FREE(c);
 }
 
 unsigned cloud_count(struct cloud* c)

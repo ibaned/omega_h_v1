@@ -12,7 +12,7 @@ double* interp_to_elems(
     unsigned ncomps,
     double const* in)
 {
-  double* out = loop_malloc(sizeof(double) * nelems * ncomps);
+  double* out = LOOP_MALLOC(double, nelems * ncomps);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   for (unsigned i = 0; i < nelems; ++i) {
     unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;

@@ -31,7 +31,7 @@ struct mesh {
 
 static struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
 {
-  struct up* u = loop_malloc(sizeof(*u));
+  struct up* u = LOOP_HOST_MALLOC(struct up, 1);
   u->offsets = offsets;
   u->adj = adj;
   u->directions = directions;
@@ -42,15 +42,15 @@ static void free_up(struct up* u)
 {
   if (!u)
     return;
-  loop_free(u->offsets);
-  loop_free(u->adj);
-  loop_free(u->directions);
-  loop_free(u);
+  LOOP_FREE(u->offsets);
+  LOOP_FREE(u->adj);
+  LOOP_FREE(u->directions);
+  LOOP_HOST_FREE(u);
 }
 
 struct mesh* new_mesh(unsigned elem_dim)
 {
-  struct mesh* m = loop_host_malloc(sizeof(*m));
+  struct mesh* m = LOOP_HOST_MALLOC(struct mesh, 1);
   memset(m, 0, sizeof(*m));
   m->elem_dim = elem_dim;
   return m;
@@ -64,10 +64,10 @@ struct mesh* new_box_mesh(unsigned elem_dim)
   mesh_set_ents(m, 0, nverts, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned nbytes = sizeof(unsigned) * verts_per_elem * nelems;
-  unsigned* verts_of_elems = loop_malloc(nbytes);
+  unsigned* verts_of_elems = LOOP_MALLOC(unsigned, verts_per_elem * nelems);
   memcpy(verts_of_elems, the_box_conns[elem_dim], nbytes);
+  double* coords = LOOP_MALLOC(double, 3 * nverts);
   nbytes = sizeof(double) * 3 * nverts;
-  double* coords = loop_malloc(nbytes);
   memcpy(coords, the_box_coords[elem_dim], nbytes);
   mesh_set_ents(m, elem_dim, nelems, verts_of_elems);
   mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, coords);
@@ -95,14 +95,14 @@ void free_mesh(struct mesh* m)
 {
   for (unsigned high_dim = 1; high_dim <= m->elem_dim; ++high_dim)
     for (unsigned low_dim = 0; low_dim < high_dim; ++low_dim) {
-      loop_free(m->down[high_dim][low_dim]);
+      LOOP_FREE(m->down[high_dim][low_dim]);
       free_up(m->up[low_dim][high_dim]);
       free_graph(m->star[low_dim][high_dim]);
     }
-  loop_free(m->dual);
+  LOOP_FREE(m->dual);
   for (unsigned d = 0; d < 4; ++d)
     free_tags(&m->tags[d]);
-  loop_free(m);
+  LOOP_HOST_FREE(m);
 }
 
 struct const_tag* mesh_find_tag(struct mesh* m, unsigned dim,
@@ -152,8 +152,8 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
           &nfaces, &elems_of_faces, &elem_face_of_faces);
       unsigned* verts_of_faces = derive_faces(nfaces, verts_of_elems,
           elems_of_faces, elem_face_of_faces);
-      loop_free(elems_of_faces);
-      loop_free(elem_face_of_faces);
+      LOOP_FREE(elems_of_faces);
+      LOOP_FREE(elem_face_of_faces);
       mesh_set_ents(m, 2, nfaces, verts_of_faces);
     }
   }

@@ -9,26 +9,15 @@
 #include "tables.h"
 #include "tag.h"
 
-static void* general_subset(
-    unsigned typesize,
-    unsigned n,
-    unsigned width,
-    void const* a,
-    unsigned const* offsets)
-{
-  unsigned nsub = offsets[n];
-  void* out = loop_malloc(typesize * nsub * width);
-  unsigned stride = typesize * width;
-  char const* ip = a;
-  char* op = out;
-  for (unsigned i = 0; i < n; ++i) {
-    if (offsets[i] != offsets[i + 1])
-      memcpy(op + offsets[i] * stride,
-             ip + i * stride,
-             stride);
-  }
+#define GENERAL_SUBSET(T) \
+  unsigned nsub = offsets[n]; \
+  T* out = LOOP_MALLOC(T, nsub * width); \
+  for (unsigned i = 0; i < n; ++i) { \
+    if (offsets[i] != offsets[i + 1]) \
+      for (unsigned j = 0; j < width; ++j) \
+        out[offsets[i] * width + j] = a[i * width + j]; \
+  } \
   return out;
-}
 
 unsigned* uints_subset(
     unsigned n,
@@ -36,16 +25,16 @@ unsigned* uints_subset(
     unsigned const* a,
     unsigned const* offsets)
 {
-  return general_subset(sizeof(unsigned), n, width, a, offsets);
+  GENERAL_SUBSET(unsigned)
 }
 
-unsigned* ulongs_subset(
+unsigned long* ulongs_subset(
     unsigned n,
     unsigned width,
     unsigned long const* a,
     unsigned const* offsets)
 {
-  return general_subset(sizeof(unsigned long), n, width, a, offsets);
+  GENERAL_SUBSET(unsigned long)
 }
 
 double* doubles_subset(
@@ -54,7 +43,7 @@ double* doubles_subset(
     double const* a,
     unsigned const* offsets)
 {
-  return general_subset(sizeof(double), n, width, a, offsets);
+  GENERAL_SUBSET(double)
 }
 
 struct mesh* subset_mesh(
@@ -71,9 +60,9 @@ struct mesh* subset_mesh(
   unsigned nverts = mesh_count(m, 0);
   unsigned* marked_elems = uints_unscan(offsets, nelems);
   unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, marked_elems);
-  loop_free(marked_elems);
+  LOOP_FREE(marked_elems);
   unsigned* vert_offsets = uints_exscan(marked_verts, nverts);
-  loop_free(marked_verts);
+  LOOP_FREE(marked_verts);
   for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i) {
     unsigned tmp = vert_offsets[verts_of_elems_out[i]];
     verts_of_elems_out[i] = tmp;
@@ -98,6 +87,6 @@ struct mesh* subset_mesh(
     }
     mesh_add_tag(out, 0, t->type, t->name, t->ncomps, data_out);
   }
-  loop_free(vert_offsets);
+  LOOP_FREE(vert_offsets);
   return out;
 }

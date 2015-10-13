@@ -33,7 +33,7 @@ int main()
         mesh_ask_down(m, mesh_dim(m), 0),
         mesh_find_tag(m, 0, "coordinates")->data);
     double minqual = doubles_min(quals, mesh_count(m, mesh_dim(m)));
-    loop_free(quals);
+    LOOP_FREE(quals);
     printf("min quality %f\n", minqual);
     sprintf(fname, "out_%u.vtu", it);
     write_vtu(m, fname);

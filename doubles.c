@@ -29,7 +29,7 @@ void doubles_axpy(double a, double const* x, double const* y,
 
 double* doubles_copy(double const* a, unsigned n)
 {
-  double* b = loop_malloc(sizeof(double) * n);
+  double* b = LOOP_MALLOC(double, n);
   for (unsigned i = 0; i < n; ++i)
     b[i] = a[i];
   return b;
@@ -48,7 +48,7 @@ double doubles_sum(double const* a, unsigned n)
 
 double* doubles_exscan(double const* a, unsigned n)
 {
-  double* o = loop_malloc(sizeof(double) * (n + 1));
+  double* o = LOOP_MALLOC(double, (n + 1));
   double sum = 0;
   o[0] = 0;
   for (unsigned i = 0; i < n; ++i) {

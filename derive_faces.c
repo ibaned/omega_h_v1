@@ -9,7 +9,7 @@ unsigned* derive_faces(
     unsigned const* elems_of_faces,
     unsigned const* elem_face_of_faces)
 {
-  unsigned* verts_of_faces = loop_malloc(sizeof(unsigned) * nfaces * 3);
+  unsigned* verts_of_faces = LOOP_MALLOC(unsigned, nfaces * 3);
   unsigned const* const* elem_verts_of_faces =
     the_canonical_orders[3][2][0];
   for (unsigned i = 0; i < nfaces; ++i) {

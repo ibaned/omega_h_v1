@@ -18,16 +18,16 @@ unsigned coarsen_by_size(
   double const* coords = mesh_find_tag(m, 0, "coordinates")->data;
   double const* sizes = mesh_find_tag(m, 0, "adapt_size")->data;
   double* edge_sizes = measure_edges(nedges, verts_of_edges, coords, sizes);
-  unsigned* col_codes = loop_malloc(sizeof(unsigned) * nedges);
+  unsigned* col_codes = LOOP_MALLOC(unsigned, nedges);
   for (unsigned i = 0; i < nedges; ++i) {
     if (edge_sizes[i] < size_ratio_floor)
       col_codes[i] = COLLAPSE_BOTH;
     else
       col_codes[i] = DONT_COLLAPSE;
   }
-  loop_free(edge_sizes);
+  LOOP_FREE(edge_sizes);
   unsigned ret = coarsen_common(&m, col_codes, quality_floor, 0);
-  loop_free(col_codes);
+  LOOP_FREE(col_codes);
   *p_m = m;
   return ret;
 }

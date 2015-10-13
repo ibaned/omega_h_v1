@@ -49,7 +49,7 @@ void comm_use(struct comm* c)
 
 struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
 {
-  struct comm* c2 = loop_host_malloc(sizeof(*c2));
+  struct comm* c2 = LOOP_HOST_MALLOC(struct comm, 1);
   CALL(MPI_Comm_split(c->c, (int) group, (int) rank, &c2->c));
   return c2;
 }
@@ -59,7 +59,7 @@ void comm_free(struct comm* c)
   assert(c != &world);
   assert(c != &self);
   CALL(MPI_Comm_free(&c->c));
-  loop_host_free(c);
+  LOOP_HOST_FREE(c);
 }
 
 unsigned comm_rank(void)

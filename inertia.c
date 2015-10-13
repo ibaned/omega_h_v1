@@ -116,7 +116,7 @@ static double* local_radii(
     double const* c,
     double const* a)
 {
-  double* out = loop_malloc(sizeof(double) * n);
+  double* out = LOOP_MALLOC(double, n);
   for (unsigned i = 0; i < n; ++i) {
     double x[3];
     subtract_vectors(coords + i * 3, c, x, 3);
@@ -131,7 +131,7 @@ static unsigned* mark_local_in(
     double const* radii,
     double r)
 {
-  unsigned* in = loop_malloc(sizeof(unsigned) * n);
+  unsigned* in = LOOP_MALLOC(unsigned, n);
   for (unsigned i = 0; i < n; ++i) {
     in[i] = (radii[i] >= r);
   }
@@ -164,7 +164,7 @@ static double local_mean_radius(
   for (unsigned i = 0; i < 52; ++i) {
     unsigned* in = mark_local_in(n, radii, r);
     double wi = local_weighted_in(n, in, masses);
-    loop_free(in);
+    LOOP_FREE(in);
     if (wi > hm)
       r += dr;
     else
@@ -191,6 +191,6 @@ unsigned* local_inertia_mark(
   double* radii = local_radii(n, coords, c, a);
   double r = local_mean_radius(n, radii, masses, lm);
   unsigned* in = mark_local_in(n, radii, r);
-  loop_free(radii);
+  LOOP_FREE(radii);
   return in;
 }

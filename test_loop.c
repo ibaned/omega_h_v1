@@ -7,7 +7,7 @@ LOOP_KERNEL(fill, double* a)
 int main()
 {
   unsigned n = 1024*1024;
-  double* a = loop_malloc(sizeof(double) * n);
+  double* a = LOOP_MALLOC(double, n);
   LOOP_EXEC(fill, n, a);
-  loop_free(a);
+  LOOP_FREE(a);
 }

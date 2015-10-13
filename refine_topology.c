@@ -50,8 +50,8 @@ void refine_topology(
   unsigned verts_per_prod = the_down_degrees[prod_dim][0];
   unsigned verts_per_base = verts_per_prod - 1;
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned* verts_of_prods = loop_malloc(
-      sizeof(unsigned) * nsplit_elems * opps_per_src * verts_per_prod);
+  unsigned* verts_of_prods = LOOP_MALLOC(unsigned,
+      nsplit_elems * opps_per_src * verts_per_prod);
   unsigned const* const* elem_opps_of_srcs =
     the_canonical_orders[elem_dim][src_dim][opp_dim];
   unsigned const* const* elem_verts_of_bases =

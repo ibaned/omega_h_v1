@@ -18,7 +18,7 @@ double* size_from_hessian(
   assert(nhess_comps % 9 == 0);
   assert(max_h > min_h);
   assert(min_h > 0);
-  double* out = loop_malloc(sizeof(double) * nverts);
+  double* out = LOOP_MALLOC(double, nverts);
   unsigned nsol_comps = nhess_comps / 9;
   for (unsigned i = 0; i < nverts; ++i) {
     double const* hess = hessians + i * nhess_comps;

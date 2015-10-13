@@ -15,9 +15,9 @@ void collapses_to_verts(
     unsigned** gen_vert_of_verts_out,
     double** col_qual_of_verts_out)
 {
-  unsigned* candidates = loop_malloc(sizeof(unsigned) * nverts);
-  unsigned* gen_vert_of_verts = loop_malloc(sizeof(unsigned) * nverts);
-  double* col_qual_of_verts = loop_malloc(sizeof(double) * nverts);
+  unsigned* candidates = LOOP_MALLOC(unsigned, nverts);
+  unsigned* gen_vert_of_verts = LOOP_MALLOC(unsigned, nverts);
+  double* col_qual_of_verts = LOOP_MALLOC(double, nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_use = edges_of_verts_offsets[i];
     unsigned end_use = edges_of_verts_offsets[i + 1];

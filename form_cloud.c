@@ -56,26 +56,26 @@ struct cloud* form_cloud(struct mesh* m)
   unsigned nelems = mesh_count(m, dim);
   double const* elem_density = mesh_find_tag(m, dim, "cloud_density")->data;
   double const* elem_size = mesh_element_sizes(m);
-  double* pts_of_elems = loop_malloc(sizeof(double) * nelems);
+  double* pts_of_elems = LOOP_MALLOC(double, nelems);
   for (unsigned i = 0; i < nelems; ++i)
     pts_of_elems[i] = elem_size[i] * elem_density[i];
   double* real_offset = doubles_exscan(pts_of_elems, nelems);
-  loop_free(pts_of_elems);
-  unsigned* uint_offset = loop_malloc(sizeof(unsigned) * (nelems + 1));
+  LOOP_FREE(pts_of_elems);
+  unsigned* uint_offset = LOOP_MALLOC(unsigned, (nelems + 1));
   for (unsigned i = 0; i <= nelems; ++i)
     uint_offset[i] = (unsigned) (floor(real_offset[i]));
-  loop_free(real_offset);
+  LOOP_FREE(real_offset);
   unsigned npts = uint_offset[nelems];
   struct cloud* c = new_cloud(npts);
-  unsigned* pt_elem = loop_malloc(sizeof(unsigned) * npts);
-  double* pt_coords = loop_malloc(sizeof(double) * npts * 3);
+  unsigned* pt_elem = LOOP_MALLOC(unsigned, npts);
+  double* pt_coords = LOOP_MALLOC(double, npts * 3);
   unsigned const* verts_of_elems = mesh_ask_down(m, dim, 0);
   double const* vert_coords = mesh_find_tag(m, 0, "coordinates")->data;
   assert(dim == 2);
   for (unsigned i = 0; i < nelems; ++i)
     form_elem_cloud_2d(i, uint_offset, verts_of_elems, vert_coords,
         pt_coords, pt_elem);
-  loop_free(uint_offset);
+  LOOP_FREE(uint_offset);
   cloud_add_tag(c, TAG_F64, "coordinates", 3, pt_coords);
   cloud_add_tag(c, TAG_U32, "mesh_elem", 1, pt_elem);
   return c;

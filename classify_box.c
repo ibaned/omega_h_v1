@@ -14,8 +14,8 @@ static void classify_box(
     unsigned** p_dims,
     unsigned** p_ids)
 {
-  unsigned* dims = loop_malloc(sizeof(unsigned) * nverts);
-  unsigned* ids = loop_malloc(sizeof(unsigned) * nverts);
+  unsigned* dims = LOOP_MALLOC(unsigned, nverts);
+  unsigned* ids = LOOP_MALLOC(unsigned, nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     double const* x = coords + i * 3;
     unsigned dim = 3;

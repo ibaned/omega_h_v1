@@ -13,7 +13,7 @@ double* recover_by_volume(
     unsigned ncomps,
     double const* comps_of_elems)
 {
-  double* comps_of_verts = loop_malloc(sizeof(double) * ncomps * nverts);
+  double* comps_of_verts = LOOP_MALLOC(double, ncomps * nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_use = elems_of_verts_offsets[i];
     unsigned end_use = elems_of_verts_offsets[i + 1];

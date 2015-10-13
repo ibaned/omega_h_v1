@@ -21,7 +21,7 @@ double* element_gradients(
   assert(elem_dim > 0);
   assert(ncomps > 0);
   unsigned ncomps_out = ncomps * 3;
-  double* out = loop_malloc(sizeof(double) * ncomps_out * nelems);
+  double* out = LOOP_MALLOC(double, ncomps_out * nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   assert(verts_per_elem == elem_dim + 1);
   assert(verts_per_elem > 1);
@@ -60,11 +60,11 @@ struct const_tag* mesh_element_gradients(
       mesh_find_tag(m, 0, "coordinates")->data,
       t->ncomps, t->data);
   static char const* prefix = "grad_";
-  char* grad_name = loop_malloc(strlen(t->name) + strlen(prefix) + 1);
+  char* grad_name = LOOP_HOST_MALLOC(char, strlen(t->name) + strlen(prefix) + 1);
   strcpy(grad_name, prefix);
   strcat(grad_name, t->name);
   struct const_tag* out = mesh_add_tag(
       m, mesh_dim(m), TAG_F64, grad_name, t->ncomps * 3, data);
-  loop_free(grad_name);
+  LOOP_FREE(grad_name);
   return out;
 }

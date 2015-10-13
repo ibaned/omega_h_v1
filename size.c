@@ -56,7 +56,7 @@ double* identity_size_field(
     unsigned const* vert_of_verts,
     double const* coords)
 {
-  double* out = loop_malloc(sizeof(double) * nverts);
+  double* out = LOOP_MALLOC(double, nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_use = vert_of_verts_offsets[i];
     unsigned end_use = vert_of_verts_offsets[i + 1];
@@ -81,7 +81,7 @@ double* element_sizes(
     unsigned const* verts_of_elems,
     double const* coords)
 {
-  double* out = loop_malloc(sizeof(double) * nelems);
+  double* out = LOOP_MALLOC(double, nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   element_measure em = the_element_measures[elem_dim];
   for (unsigned i = 0; i < nelems; ++i) {
