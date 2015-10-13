@@ -1,7 +1,6 @@
 #include "loop.h"
 
 LOOP_KERNEL(fill, double* a)
-{
   a[i] = 0;
 }
 

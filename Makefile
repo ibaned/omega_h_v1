@@ -107,6 +107,10 @@ objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
 
 LOOP_MODE ?= serial
 
+ifeq "$(LOOP_MODE)" "cuda"
+lib_sources += loop_cuda.c
+endif
+
 lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
 
 lib := lib/libomega_h.a

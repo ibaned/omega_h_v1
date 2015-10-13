@@ -7,7 +7,8 @@
 #define loop_free loop_host_free
 
 #define LOOP_KERNEL(fname, ...) \
-static void fname(__VA_ARGS__, unsigned i)
+static void fname(__VA_ARGS__, unsigned i) \
+{
 
 #define LOOP_EXEC(fname, n, ...) \
 _Pragma("omp parallel for") \
