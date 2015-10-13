@@ -6,7 +6,7 @@
 #include "subset.h"
 #include "tables.h"
 
-static void* concat_general(
+static void* generic_concat(
     unsigned typesize,
     unsigned width,
     void const* a,
@@ -30,7 +30,7 @@ unsigned* concat_uints(
     unsigned const* b,
     unsigned nb)
 {
-  return concat_general(sizeof(unsigned), width, a, na, b, nb);
+  return (unsigned*) generic_concat(sizeof(unsigned), width, a, na, b, nb);
 }
 
 double* concat_doubles(
@@ -40,7 +40,7 @@ double* concat_doubles(
     double const* b,
     unsigned nb)
 {
-  return concat_general(sizeof(double), width, a, na, b, nb);
+  return (double*) generic_concat(sizeof(double), width, a, na, b, nb);
 }
 
 void concat_verts_of_elems(

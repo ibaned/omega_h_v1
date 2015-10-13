@@ -9,7 +9,7 @@
 #include "tables.h"
 #include "tag.h"
 
-#define GENERAL_SUBSET(T) \
+#define GENERIC_SUBSET(T) \
   unsigned nsub = offsets[n]; \
   T* out = LOOP_MALLOC(T, nsub * width); \
   for (unsigned i = 0; i < n; ++i) { \
@@ -25,7 +25,7 @@ unsigned* uints_subset(
     unsigned const* a,
     unsigned const* offsets)
 {
-  GENERAL_SUBSET(unsigned)
+  GENERIC_SUBSET(unsigned)
 }
 
 unsigned long* ulongs_subset(
@@ -34,7 +34,7 @@ unsigned long* ulongs_subset(
     unsigned long const* a,
     unsigned const* offsets)
 {
-  GENERAL_SUBSET(unsigned long)
+  GENERIC_SUBSET(unsigned long)
 }
 
 double* doubles_subset(
@@ -43,7 +43,7 @@ double* doubles_subset(
     double const* a,
     unsigned const* offsets)
 {
-  GENERAL_SUBSET(double)
+  GENERIC_SUBSET(double)
 }
 
 struct mesh* subset_mesh(
