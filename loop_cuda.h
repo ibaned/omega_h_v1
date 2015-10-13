@@ -18,9 +18,9 @@ static __global__ void fname(__VA_ARGS__) \
 
 #define LOOP_BLOCK_SIZE 256
 
-static inline int loop_ceildiv(int a, int b)
+static inline unsigned loop_ceildiv(unsigned a, unsigned b)
 {
-  int c = a / b;
+  unsigned c = a / b;
   if (a % b)
     ++c;
   return c;
