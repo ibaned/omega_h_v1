@@ -43,11 +43,29 @@ static char const* const type_names[TAG_TYPES] = {
   "Float64"
 };
 
-static void describe_tag(FILE* file, struct const_tag* tag)
+enum format {
+  ASCII,
+  BINARY
+};
+
+#define FORMATS 2
+
+static char const* const format_names[FORMATS] = {
+  "ascii",
+  "binary"
+};
+
+static void describe_array(FILE* file, enum tag_type t,
+    char const* name, unsigned ncomps, enum format fmt)
 {
   fprintf(file, "type=\"%s\" Name=\"%s\""
-      " NumberOfComponents=\"%u\" format=\"ascii\"",
-      type_names[tag->type], tag->name, tag->ncomps);
+      " NumberOfComponents=\"%u\" format=\"%s\"",
+      type_names[t], name, ncomps, format_names[fmt]);
+}
+
+static void describe_tag(FILE* file, struct const_tag* tag)
+{
+  describe_array(file, tag->type, tag->name, tag->ncomps, ASCII);
 }
 
 static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
