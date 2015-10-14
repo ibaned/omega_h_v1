@@ -56,6 +56,20 @@ static char const* const format_names[FORMATS] = {
   "binary"
 };
 
+static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
+    unsigned ncomps, void const* data)
+{
+  unsigned tsize = tag_size[t];
+  unsigned size = tsize * ncomps * nents;
+  char* s = base64_encode(&size, sizeof(size));
+  fputs(s, file);
+  loop_host_free(s);
+  s = base64_encode(data, size);
+  fputs(s, file);
+  loop_host_free(s);
+  fputc('\n', file);
+}
+
 static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
     unsigned ncomps, void const* data)
 {
@@ -103,13 +117,28 @@ static void describe_tag(FILE* file, struct const_tag* tag)
   describe_array(file, tag->type, tag->name, tag->ncomps, ASCII);
 }
 
-static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
+static void write_array(FILE* file, enum tag_type t,
+    char const* name, unsigned nents, unsigned ncomps,
+    void const* data, enum format fmt)
 {
   fprintf(file, "<DataArray ");
-  describe_tag(file, tag);
+  describe_array(file, t, name, ncomps, fmt);
   fprintf(file, ">\n");
-  write_ascii_array(file, tag->type, nents, tag->ncomps, tag->d.raw);
+  switch (fmt) {
+    case ASCII:
+      write_ascii_array(file, t, nents, ncomps, data);
+      break;
+    case BINARY:
+      write_binary_array(file, t, nents, ncomps, data);
+      break;
+  }
   fprintf(file, "</DataArray>\n");
+}
+
+static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
+{
+  write_array(file, tag->type, tag->name, nents, tag->ncomps, tag->d.raw,
+      ASCII);
 }
 
 static char const* types_header =
