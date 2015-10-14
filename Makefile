@@ -32,7 +32,8 @@ test_box.c \
 test_pvtu.c \
 test_split.c \
 test_global_part.c \
-test_loop.c
+test_loop.c \
+test_base64.c
 
 exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
 test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
@@ -100,7 +101,8 @@ qr.c \
 omega_h.c \
 comm.c \
 files.c \
-global.c
+global.c \
+base64.c
 
 USE_MPI ?= 0
 objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
