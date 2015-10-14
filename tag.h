@@ -14,6 +14,7 @@ struct const_tag {
   unsigned const ncomps;
   enum tag_type const type;
   union {
+    void const* raw;
     unsigned const* u32;
     unsigned long const* u64;
     double const* f64;

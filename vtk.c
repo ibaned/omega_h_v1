@@ -68,40 +68,46 @@ static void describe_tag(FILE* file, struct const_tag* tag)
   describe_array(file, tag->type, tag->name, tag->ncomps, ASCII);
 }
 
-static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
+static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
+    unsigned ncomps, void const* data)
 {
-  fprintf(file, "<DataArray ");
-  describe_tag(file, tag);
-  fprintf(file, ">\n");
-  switch (tag->type) {
+  switch (t) {
     case TAG_U32: {
-      unsigned const* p = tag->d.u32;
+      unsigned const* p = (unsigned const*) data;
       for (unsigned i = 0; i < nents; ++i) {
-        for (unsigned j = 0; j < tag->ncomps; ++j)
+        for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %u", *p++);
         fprintf(file, "\n");
       }
       break;
     }
     case TAG_U64: {
-      unsigned long const* p = tag->d.u64;
+      unsigned long const* p = (unsigned long const*) data;
       for (unsigned i = 0; i < nents; ++i) {
-        for (unsigned j = 0; j < tag->ncomps; ++j)
+        for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %lu", *p++);
         fprintf(file, "\n");
       }
       break;
     }
     case TAG_F64: {
-      double const* p = tag->d.f64;
+      double const* p = (double const*) data;
       for (unsigned i = 0; i < nents; ++i) {
-        for (unsigned j = 0; j < tag->ncomps; ++j)
+        for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %e", *p++);
         fprintf(file, "\n");
       }
       break;
     }
   }
+}
+
+static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
+{
+  fprintf(file, "<DataArray ");
+  describe_tag(file, tag);
+  fprintf(file, ">\n");
+  write_ascii_array(file, tag->type, nents, tag->ncomps, tag->d.raw);
   fprintf(file, "</DataArray>\n");
 }
 
