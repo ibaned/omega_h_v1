@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "base64.h"
 #include "cloud.h"
 #include "comm.h"
 #include "files.h"
