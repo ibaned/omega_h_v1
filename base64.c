@@ -1,7 +1,6 @@
 #include "base64.h"
 
 #include <assert.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "loop.h"
@@ -124,6 +123,24 @@ void* base64_decode(char const* text, unsigned long* size)
       break;
     --(*size);
   }
+  return out;
+}
+
+char* base64_fread(FILE* f, unsigned long* nchars)
+{
+  *nchars = 0;
+  while (1) {
+    int c = fgetc(f);
+    if (c < 0 || c > 127)
+      break;
+    unsigned char val = char_to_value[c];
+    if (val > 63)
+      break;
+    ++(*nchars);
+  }
+  char* out = LOOP_HOST_MALLOC(char, *nchars);
+  fseek(f, -((long) *nchars), SEEK_CUR);
+  fread(out, 1, *nchars, f);
   return out;
 }
 
