@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "loop.h"
 
@@ -89,31 +90,40 @@ static void decode_4(char const* in, unsigned char* out)
 
 char* base64_encode(void const* data, unsigned long size)
 {
+  printf("size = %lu\n", size);
   unsigned long quot = size / 3;
   unsigned long rem = size % 3;
+  printf("rem = %lu\n", rem);
   unsigned long nunits = rem ? (quot + 1) : quot;
-  unsigned long nchars = nunits * 4;
+  unsigned long nchars = nunits * 4 + 1;
   char* out = LOOP_HOST_MALLOC(char, nchars);
   unsigned char const* in = (unsigned char const*) data;
   for (unsigned long i = 0; i < quot; ++i)
     encode_3(in + i * 3, out + i * 4);
   switch (rem) {
     case 0: break;
-    case 1: encode_1(in + quot * 3, out + quot * 4);
-    case 2: encode_2(in + quot * 3, out + quot * 4);
+    case 1: encode_1(in + quot * 3, out + quot * 4); break;
+    case 2: encode_2(in + quot * 3, out + quot * 4); break;
   }
+  out[nchars - 1] = '\0';
   return out;
 }
 
-void* base64_decode(char const* text, unsigned long nchars)
+void* base64_decode(char const* text, unsigned long* size)
 {
+  unsigned long nchars = strlen(text);
   assert(nchars % 4 == 0);
   unsigned long nunits = nchars / 4;
-  unsigned long size = nunits * 3;
-  unsigned char* out = LOOP_HOST_MALLOC(unsigned char, size);
+  *size = nunits * 3;
+  unsigned char* out = LOOP_HOST_MALLOC(unsigned char, *size);
   char const* in = (char const*) text;
   for (unsigned long i = 0; i < nunits; ++i)
     decode_4(in + i * 4, out + i * 3);
+  for (unsigned i = 0; i < 2; ++i) {
+    if (in[nchars - i - 1] != '=')
+      break;
+    --(*size);
+  }
   return out;
 }
 
