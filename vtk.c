@@ -55,19 +55,6 @@ static char const* const format_names[FORMATS] = {
   "binary"
 };
 
-static void describe_array(FILE* file, enum tag_type t,
-    char const* name, unsigned ncomps, enum format fmt)
-{
-  fprintf(file, "type=\"%s\" Name=\"%s\""
-      " NumberOfComponents=\"%u\" format=\"%s\"",
-      type_names[t], name, ncomps, format_names[fmt]);
-}
-
-static void describe_tag(FILE* file, struct const_tag* tag)
-{
-  describe_array(file, tag->type, tag->name, tag->ncomps, ASCII);
-}
-
 static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
     unsigned ncomps, void const* data)
 {
@@ -102,6 +89,19 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
   }
 }
 
+static void describe_array(FILE* file, enum tag_type t,
+    char const* name, unsigned ncomps, enum format fmt)
+{
+  fprintf(file, "type=\"%s\" Name=\"%s\""
+      " NumberOfComponents=\"%u\" format=\"%s\"",
+      type_names[t], name, ncomps, format_names[fmt]);
+}
+
+static void describe_tag(FILE* file, struct const_tag* tag)
+{
+  describe_array(file, tag->type, tag->name, tag->ncomps, ASCII);
+}
+
 static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
 {
   fprintf(file, "<DataArray ");
@@ -113,13 +113,6 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
 
 static char const* types_header =
 "<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">";
-
-/* this function can be a time hog,
- * no fault of our own really, just printf and friends
- * are fairly slow.
- * if you're so inclined, add binary functionality
- * (the VTK format supports it)
- */
 
 void write_vtu(struct mesh* m, char const* filename)
 {
