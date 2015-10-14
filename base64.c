@@ -1,5 +1,6 @@
 #include "base64.h"
 
+#include <assert.h>
 #include <stdio.h>
 
 #include "loop.h"
@@ -74,11 +75,13 @@ static void encode_1(unsigned char const* in, char* out)
   out[3] = '=';
 }
 
-static void decode_4(char* in, unsigned char* out)
+static void decode_4(char const* in, unsigned char* out)
 {
   unsigned char val[4];
-  for (unsigned i = 0; i < 4; ++i)
-    val[i] = char_to_value[in[i]];
+  for (unsigned i = 0; i < 4; ++i) {
+    val[i] = char_to_value[(unsigned) in[i]];
+    assert(val[i] < 64);
+  }
   out[0] = ((val[0] << 2) & 0xFC) | ((val[1] >> 4) & 0x03);
   out[1] = ((val[1] << 4) & 0xF0) | ((val[2] >> 2) & 0x0F);
   out[2] = ((val[2] << 6) & 0xC0) | ((val[3] >> 0) & 0x3F);
@@ -102,13 +105,25 @@ char* base64_encode(void const* data, unsigned long size)
   return out;
 }
 
+void* base64_decode(char const* text, unsigned long nchars)
+{
+  assert(nchars % 4 == 0);
+  unsigned long nunits = nchars / 4;
+  unsigned long size = nunits * 3;
+  unsigned char* out = LOOP_HOST_MALLOC(unsigned char, size);
+  char const* in = (char const*) text;
+  for (unsigned long i = 0; i < nunits; ++i)
+    decode_4(in + i * 4, out + i * 3);
+  return out;
+}
+
 void print_base64_reverse(void)
 {
   unsigned char* a = LOOP_HOST_MALLOC(unsigned char, 256);
   for (unsigned i = 0; i < 256; ++i)
     a[i] = 255;
   for (unsigned i = 0; i < 64; ++i)
-    a[value_to_char[i]] = i;
+    a[(unsigned) value_to_char[i]] = (unsigned char) i;
   a['='] = 0;
   for (unsigned i = 0; i < 256; ++i) {
     printf("%3u,", (unsigned) a[i]);
