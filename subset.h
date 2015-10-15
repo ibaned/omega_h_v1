@@ -1,6 +1,12 @@
 #ifndef SUBSET_H
 #define SUBSET_H
 
+unsigned char* uchars_subset(
+    unsigned n,
+    unsigned width,
+    unsigned char const* a,
+    unsigned const* offsets);
+
 unsigned* uints_subset(
     unsigned n,
     unsigned width,

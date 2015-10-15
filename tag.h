@@ -16,6 +16,7 @@ struct const_tag {
   enum tag_type const type;
   union {
     void const* raw;
+    unsigned char const* u8;
     unsigned const* u32;
     unsigned long const* u64;
     double const* f64;

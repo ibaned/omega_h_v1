@@ -9,7 +9,13 @@
 #include "tables.h"
 #include "tag.h"
 
-#define GENERIC_SUBSET(T) \
+#define GENERIC_SUBSET(T,name) \
+T* name##_subset( \
+    unsigned n, \
+    unsigned width, \
+    T const* a, \
+    unsigned const* offsets) \
+{ \
   unsigned nsub = offsets[n]; \
   T* out = LOOP_MALLOC(T, nsub * width); \
   for (unsigned i = 0; i < n; ++i) { \
@@ -17,34 +23,13 @@
       for (unsigned j = 0; j < width; ++j) \
         out[offsets[i] * width + j] = a[i * width + j]; \
   } \
-  return out;
-
-unsigned* uints_subset(
-    unsigned n,
-    unsigned width,
-    unsigned const* a,
-    unsigned const* offsets)
-{
-  GENERIC_SUBSET(unsigned)
+  return out; \
 }
 
-unsigned long* ulongs_subset(
-    unsigned n,
-    unsigned width,
-    unsigned long const* a,
-    unsigned const* offsets)
-{
-  GENERIC_SUBSET(unsigned long)
-}
-
-double* doubles_subset(
-    unsigned n,
-    unsigned width,
-    double const* a,
-    unsigned const* offsets)
-{
-  GENERIC_SUBSET(double)
-}
+GENERIC_SUBSET(unsigned char, uchars)
+GENERIC_SUBSET(unsigned, uints)
+GENERIC_SUBSET(unsigned long, ulongs)
+GENERIC_SUBSET(double, doubles)
 
 struct mesh* subset_mesh(
     struct mesh* m,
@@ -75,14 +60,17 @@ struct mesh* subset_mesh(
     struct const_tag* t = mesh_get_tag(m, 0, i);
     void* data_out = 0;
     switch (t->type) {
-      case TAG_F64: data_out = doubles_subset(
-                        nverts, t->ncomps, t->d.f64, vert_offsets);
+      case TAG_U8:  data_out = uchars_subset(
+                        nverts, t->ncomps, t->d.u8, vert_offsets);
                     break;
       case TAG_U32: data_out = uints_subset(
                         nverts, t->ncomps, t->d.u32, vert_offsets);
                     break;
       case TAG_U64: data_out = ulongs_subset(
                         nverts, t->ncomps, t->d.u64, vert_offsets);
+                    break;
+      case TAG_F64: data_out = doubles_subset(
+                        nverts, t->ncomps, t->d.f64, vert_offsets);
                     break;
     }
     mesh_add_tag(out, 0, t->type, t->name, t->ncomps, data_out);
