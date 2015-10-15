@@ -328,7 +328,14 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
 {
   assert(nelems);
   line_t line;
-  seek_prefix(f, line, sizeof(line), types_header);
+  seek_prefix(f, line, sizeof(line), "<Cells");
+  while (1) {
+    seek_prefix(f, line, sizeof(line), "<DataArray");
+    line_t name;
+    read_array_name(line, name);
+    if (!strcmp(name, "types"))
+      break;
+  }
   unsigned* types = read_uints(f, nelems);
   unsigned dim;
   for (dim = 0; dim < 4; ++dim)
