@@ -13,6 +13,7 @@ struct tag {
 };
 
 unsigned const tag_size[TAG_TYPES] = {
+  sizeof(unsigned char),
   sizeof(unsigned),
   sizeof(unsigned long),
   sizeof(double)
