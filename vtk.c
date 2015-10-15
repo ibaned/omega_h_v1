@@ -169,24 +169,20 @@ void write_vtu(struct mesh* m, char const* filename)
   write_tag(file, nverts, coord_tag);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
-  fprintf(file, "<DataArray type=\"UInt32\" Name=\"connectivity\" format=\"ascii\">\n");
   unsigned down_degree = the_down_degrees[elem_dim][0];
-  for (unsigned i = 0; i < nelems; ++i) {
-    unsigned const* p = verts_of_elems + i * down_degree;
-    for (unsigned j = 0; j < down_degree; ++j)
-      fprintf(file, " %u", p[j]);
-    fprintf(file, "\n");
-  }
-  fprintf(file, "</DataArray>\n");
-  fprintf(file, "<DataArray type=\"UInt32\" Name=\"offsets\" format=\"ascii\">\n");
+  write_array(file, TAG_U32, "connectivity", nelems, down_degree, verts_of_elems,
+      ASCII);
+  unsigned* off = LOOP_HOST_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i)
-    fprintf(file, "%u\n", (i + 1) * down_degree);
-  fprintf(file, "</DataArray>\n");
-  fprintf(file, "%s\n", types_header);
-  unsigned type = simplex_types[elem_dim];
+    off[i] = (i + 1) * down_degree;
+  write_array(file, TAG_U32, "offsets", nelems, 1, off, ASCII);
+  loop_host_free(off);
+  unsigned char* types = LOOP_HOST_MALLOC(unsigned char, nelems);
+  unsigned char type = (unsigned char) simplex_types[elem_dim];
   for (unsigned i = 0; i < nelems; ++i)
-    fprintf(file, "%u\n", type);
-  fprintf(file, "</DataArray>\n");
+    types[i] = type;
+  write_array(file, TAG_U8, "types", nelems, 1, types, ASCII);
+  loop_host_free(types);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
   for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
