@@ -89,10 +89,8 @@ static void decode_4(char const* in, unsigned char* out)
 
 char* base64_encode(void const* data, unsigned long size)
 {
-  printf("size = %lu\n", size);
   unsigned long quot = size / 3;
   unsigned long rem = size % 3;
-  printf("rem = %lu\n", rem);
   unsigned long nunits = rem ? (quot + 1) : quot;
   unsigned long nchars = nunits * 4 + 1;
   char* out = LOOP_HOST_MALLOC(char, nchars);
