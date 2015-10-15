@@ -31,6 +31,35 @@ GENERIC_SUBSET(unsigned, uints)
 GENERIC_SUBSET(unsigned long, ulongs)
 GENERIC_SUBSET(double, doubles)
 
+void vert_tags_subset(struct mesh* in, struct mesh* out,
+    unsigned const* offsets)
+{
+  unsigned nverts = mesh_count(in, 0);
+  for (unsigned i = 0; i < mesh_count_tags(in, 0); ++i) {
+    struct const_tag* t = mesh_get_tag(in, 0, i);
+    void* vals_out = 0;
+    switch (t->type) {
+      case TAG_U8:
+        vals_out = uchars_subset(nverts, t->ncomps, t->d.u8,
+            offsets);
+        break;
+      case TAG_U32:
+        vals_out = uints_subset(nverts, t->ncomps, t->d.u32,
+            offsets);
+        break;
+      case TAG_U64:
+        vals_out = ulongs_subset(nverts, t->ncomps, t->d.u64,
+            offsets);
+        break;
+      case TAG_F64:
+        vals_out = doubles_subset(nverts, t->ncomps, t->d.f64,
+            offsets);
+        break;
+    }
+    mesh_add_tag(out, 0, t->type, t->name, t->ncomps, vals_out);
+  }
+}
+
 struct mesh* subset_mesh(
     struct mesh* m,
     unsigned elem_dim,
@@ -56,25 +85,7 @@ struct mesh* subset_mesh(
   struct mesh* out = new_mesh(elem_dim);
   mesh_set_ents(out, 0, nverts_out, 0);
   mesh_set_ents(out, elem_dim, nelems_out, verts_of_elems_out);
-  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
-    struct const_tag* t = mesh_get_tag(m, 0, i);
-    void* data_out = 0;
-    switch (t->type) {
-      case TAG_U8:  data_out = uchars_subset(
-                        nverts, t->ncomps, t->d.u8, vert_offsets);
-                    break;
-      case TAG_U32: data_out = uints_subset(
-                        nverts, t->ncomps, t->d.u32, vert_offsets);
-                    break;
-      case TAG_U64: data_out = ulongs_subset(
-                        nverts, t->ncomps, t->d.u64, vert_offsets);
-                    break;
-      case TAG_F64: data_out = doubles_subset(
-                        nverts, t->ncomps, t->d.f64, vert_offsets);
-                    break;
-    }
-    mesh_add_tag(out, 0, t->type, t->name, t->ncomps, data_out);
-  }
+  vert_tags_subset(m, out, vert_offsets);
   loop_free(vert_offsets);
   return out;
 }
