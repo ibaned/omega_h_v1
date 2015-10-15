@@ -74,6 +74,15 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
     unsigned ncomps, void const* data)
 {
   switch (t) {
+    case TAG_U8: {
+      unsigned char const* p = (unsigned char const*) data;
+      for (unsigned i = 0; i < nents; ++i) {
+        for (unsigned j = 0; j < ncomps; ++j)
+          fprintf(file, " %hhu", *p++);
+        fprintf(file, "\n");
+      }
+      break;
+    }
     case TAG_U32: {
       unsigned const* p = (unsigned const*) data;
       for (unsigned i = 0; i < nents; ++i) {
@@ -278,6 +287,14 @@ static unsigned read_array_ncomps(char* header)
   return read_int_attrib(header, "NumberOfComponents");
 }
 
+static unsigned char* read_uchars(FILE* f, unsigned n)
+{
+  unsigned char* out = LOOP_HOST_MALLOC(unsigned char, n);
+  for (unsigned i = 0; i < n; ++i)
+    fscanf(f, "%hhu", &out[i]);
+  return out;
+}
+
 static unsigned* read_uints(FILE* f, unsigned n)
 {
   unsigned* out = LOOP_HOST_MALLOC(unsigned, n);
@@ -338,6 +355,8 @@ static unsigned read_tag(FILE* f, struct tags* ts, unsigned n)
   unsigned ncomps = read_array_ncomps(line);
   void* data;
   switch (type) {
+    case TAG_U8:  data = read_uchars(f, n * ncomps);
+                  break;
     case TAG_U32: data = read_uints(f, n * ncomps);
                   break;
     case TAG_U64: data = read_ulongs(f, n * ncomps);
