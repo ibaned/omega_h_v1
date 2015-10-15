@@ -39,6 +39,7 @@ static enum cell_type const simplex_types[4] = {
 };
 
 static char const* const type_names[TAG_TYPES] = {
+  "UInt8",
   "UInt32",
   "UInt64",
   "Float64"
