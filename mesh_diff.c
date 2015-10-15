@@ -36,6 +36,14 @@ static unsigned doubles_diff(double const* a, double const* b, unsigned n,
   return 0;
 }
 
+static unsigned uchars_diff(unsigned char const* a, unsigned char const* b, unsigned n)
+{
+  for (unsigned i = 0; i < n; ++i)
+    if (a[i] != b[i])
+      return 1;
+  return 0;
+}
+
 static unsigned uints_diff(unsigned const* a, unsigned const* b, unsigned n)
 {
   for (unsigned i = 0; i < n; ++i)
@@ -70,6 +78,12 @@ static unsigned tag_diff(struct const_tag* a, struct const_tag* b, unsigned n,
     return 1;
   }
   switch (a->type) {
+    case TAG_U8:
+      if (uchars_diff(a->d.u8, b->d.u8, n * a->ncomps)) {
+        printf("tag \"%s\" contents differ\n", a->name);
+        return 1;
+      }
+      break;
     case TAG_U32:
       if (uints_diff(a->d.u32, b->d.u32, n * a->ncomps)) {
         printf("tag \"%s\" contents differ\n", a->name);

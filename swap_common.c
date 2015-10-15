@@ -92,11 +92,13 @@ unsigned swap_common(
     struct const_tag* t = mesh_get_tag(m, 0, i);
     void* data = 0;
     switch (t->type) {
-      case TAG_F64: data = doubles_copy(t->d.f64, nverts * t->ncomps);
+      case TAG_U8:  data = uchars_copy(t->d.u8, nverts * t->ncomps);
                     break;
       case TAG_U32: data = uints_copy(t->d.u32, nverts * t->ncomps);
                     break;
       case TAG_U64: data = ulongs_copy(t->d.u64, nverts * t->ncomps);
+                    break;
+      case TAG_F64: data = doubles_copy(t->d.f64, nverts * t->ncomps);
                     break;
     };
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, data);

@@ -93,3 +93,11 @@ unsigned long ulongs_max(unsigned long const* a, unsigned n)
       max = a[i];
   return max;
 }
+
+unsigned char* uchars_copy(unsigned char const* a, unsigned n)
+{
+  unsigned char* b = LOOP_MALLOC(unsigned char, n);
+  for (unsigned i = 0; i < n; ++i)
+    b[i] = a[i];
+  return b;
+}
