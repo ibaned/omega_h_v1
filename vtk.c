@@ -48,18 +48,11 @@ static char const* type_name(enum tag_type t)
   }
 }
 
-enum format {
-  ASCII,
-  BINARY
-};
-
-#define FORMATS 2
-
-static char const* format_name(enum format fmt)
+static char const* format_name(enum vtk_format fmt)
 {
   switch (fmt) {
-    case ASCII: return "ascii";
-    case BINARY: return "binary";
+    case VTK_ASCII: return "ascii";
+    case VTK_BINARY: return "binary";
   }
 }
 
@@ -96,16 +89,16 @@ static enum tag_type read_array_type(char const* header)
 #endif
 }
 
-static enum format read_array_format(char const* header)
+static enum vtk_format read_array_format(char const* header)
 {
   line_t val;
   read_attrib(header, "format", val);
-  for (unsigned fmt = 0; fmt < FORMATS; ++fmt)
+  for (unsigned fmt = 0; fmt < VTK_FORMATS; ++fmt)
     if (!strcmp(format_name(fmt), val))
-      return (enum format) fmt;
+      return (enum vtk_format) fmt;
   assert(0);
 #ifdef __CUDACC__
-  return ASCII;
+  return VTK_ASCII;
 #endif
 }
 
@@ -228,7 +221,7 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
 }
 
 static void describe_array(FILE* file, enum tag_type t,
-    char const* name, unsigned ncomps, enum format fmt)
+    char const* name, unsigned ncomps, enum vtk_format fmt)
 {
   fprintf(file, "type=\"%s\" Name=\"%s\""
       " NumberOfComponents=\"%u\" format=\"%s\"",
@@ -237,21 +230,21 @@ static void describe_array(FILE* file, enum tag_type t,
 
 static void describe_tag(FILE* file, struct const_tag* tag)
 {
-  describe_array(file, tag->type, tag->name, tag->ncomps, ASCII);
+  describe_array(file, tag->type, tag->name, tag->ncomps, VTK_ASCII);
 }
 
 static void write_array(FILE* file, enum tag_type t,
     char const* name, unsigned nents, unsigned ncomps,
-    void const* data, enum format fmt)
+    void const* data, enum vtk_format fmt)
 {
   fprintf(file, "<DataArray ");
   describe_array(file, t, name, ncomps, fmt);
   fprintf(file, ">\n");
   switch (fmt) {
-    case ASCII:
+    case VTK_ASCII:
       write_ascii_array(file, t, nents, ncomps, data);
       break;
-    case BINARY:
+    case VTK_BINARY:
       write_binary_array(file, t, nents, ncomps, data);
       break;
   }
@@ -284,12 +277,12 @@ static void read_array(FILE* f, char const* line, enum tag_type* type,
   *type = read_array_type(line);
   read_array_name(line, name);
   *ncomps = read_array_ncomps(line);
-  enum format fmt = read_array_format(line);
+  enum vtk_format fmt = read_array_format(line);
   switch (fmt) {
-    case ASCII:
+    case VTK_ASCII:
       *data = read_ascii_array(f, *type, nents, *ncomps);
       break;
-    case BINARY:
+    case VTK_BINARY:
       *data = read_binary_array(f, *type, nents, *ncomps);
       break;
   }
@@ -314,7 +307,7 @@ static unsigned read_tag(FILE* f, struct tags* ts, unsigned n)
 static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
 {
   write_array(file, tag->type, tag->name, nents, tag->ncomps, tag->d.raw,
-      ASCII);
+      VTK_ASCII);
 }
 
 void write_vtu(struct mesh* m, char const* filename)
@@ -334,17 +327,17 @@ void write_vtu(struct mesh* m, char const* filename)
   fprintf(file, "<Cells>\n");
   unsigned down_degree = the_down_degrees[elem_dim][0];
   write_array(file, TAG_U32, "connectivity", nelems * down_degree, 1, verts_of_elems,
-      ASCII);
+      VTK_ASCII);
   unsigned* off = LOOP_HOST_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i)
     off[i] = (i + 1) * down_degree;
-  write_array(file, TAG_U32, "offsets", nelems, 1, off, ASCII);
+  write_array(file, TAG_U32, "offsets", nelems, 1, off, VTK_ASCII);
   loop_host_free(off);
   unsigned char* types = LOOP_HOST_MALLOC(unsigned char, nelems);
   unsigned char type = (unsigned char) simplex_types[elem_dim];
   for (unsigned i = 0; i < nelems; ++i)
     types[i] = type;
-  write_array(file, TAG_U8, "types", nelems, 1, types, ASCII);
+  write_array(file, TAG_U8, "types", nelems, 1, types, VTK_ASCII);
   loop_host_free(types);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
@@ -508,12 +501,12 @@ void write_vtu_cloud(struct cloud* c, char const* filename)
   unsigned* conn = LOOP_HOST_MALLOC(unsigned, npts);
   for (unsigned i = 0; i < npts; ++i)
     conn[i] = i;
-  write_array(file, TAG_U32, "connectivity", npts, 1, conn, ASCII);
+  write_array(file, TAG_U32, "connectivity", npts, 1, conn, VTK_ASCII);
   loop_host_free(conn);
   unsigned off[1] = {0};
-  write_array(file, TAG_U32, "offsets", 1, 1, off, ASCII);
+  write_array(file, TAG_U32, "offsets", 1, 1, off, VTK_ASCII);
   unsigned char type[1] = {VTK_POLY_VERTEX};
-  write_array(file, TAG_U8, "types", 1, 1, type, ASCII);
+  write_array(file, TAG_U8, "types", 1, 1, type, VTK_ASCII);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
   for (unsigned i = 0; i < cloud_count_tags(c); ++i) {

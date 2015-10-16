@@ -4,6 +4,13 @@
 struct mesh;
 struct cloud;
 
+enum vtk_format {
+  VTK_ASCII,
+  VTK_BINARY
+};
+
+#define VTK_FORMATS 2
+
 void write_vtu(struct mesh* m, char const* filename);
 
 void start_vtk_steps(char const* prefix);
