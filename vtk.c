@@ -532,7 +532,7 @@ void write_vtu_cloud_opts(struct cloud* c, char const* filename,
 
 void write_vtu_cloud(struct cloud* c, char const* filename)
 {
-  write_vtu_cloud_opts(c, filename, VTK_ASCII);
+  write_vtu_cloud_opts(c, filename, VTK_BINARY);
 }
 
 struct cloud* read_vtu_cloud(char const* filename)
