@@ -134,15 +134,12 @@ static void* read_binary_array(FILE* file, enum tag_type t, unsigned nents,
   unsigned long enc_nchars;
   char* enc = base64_fread(file, &enc_nchars);
   char const* p = enc;
-  unsigned long dec_nbytes;
-  void* dec = base64_decode(&p, &dec_nbytes);
+  void* dec = base64_decode(&p, sizeof(unsigned));
   unsigned* psize = (unsigned*) dec;
-  assert(*psize == nents * ncomps);
-  loop_host_free(psize);
-  dec = base64_decode(&p, &dec_nbytes);
   unsigned tsize = tag_size(t);
-  assert(dec_nbytes == nents * ncomps * tsize);
-  return dec;
+  assert(*psize == nents * ncomps * tsize);
+  loop_host_free(psize);
+  return base64_decode(&p, nents * ncomps * tsize);
 }
 
 static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,

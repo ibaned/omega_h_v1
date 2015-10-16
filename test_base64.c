@@ -10,12 +10,10 @@ int main()
   char const* in = "any carnal pleasur";
   char* out = base64_encode(in, strlen(in));
   printf("%s\n", out);
-  unsigned long size;
   char const* tmp = out;
-  void* outin = base64_decode(&tmp, &size);
-  assert(size == strlen(in));
+  void* outin = base64_decode(&tmp, strlen(in));
   loop_host_free(out);
-  fwrite(outin, 1, size, stdout);
+  fwrite(outin, 1, strlen(in), stdout);
   printf("\n");
   loop_host_free(outin);
 }

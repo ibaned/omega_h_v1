@@ -106,22 +106,14 @@ char* base64_encode(void const* data, unsigned long size)
   return out;
 }
 
-void* base64_decode(char const** text, unsigned long* size)
+void* base64_decode(char const** text, unsigned long size)
 {
-  unsigned long nchars = strlen(*text);
-  assert(nchars % 4 == 0);
-  unsigned long nunits = nchars / 4;
-  *size = nunits * 3;
-  unsigned char* out = LOOP_HOST_MALLOC(unsigned char, *size);
-  char const* in = *text;
-  for (unsigned long i = 0; i < nunits; ++i)
-    decode_4(in + i * 4, out + i * 3);
-  for (unsigned i = 0; i < 2; ++i) {
-    if (in[nchars - i - 1] != '=')
-      break;
-    --(*size);
+  unsigned long nunits = (size % 3) ? (size / 3 + 1) : (size / 3);
+  unsigned char* out = LOOP_HOST_MALLOC(unsigned char, nunits * 3);
+  for (unsigned long i = 0; i < nunits; ++i) {
+    decode_4(*text, out + i * 3);
+    *text += 4;
   }
-  *text = in + nunits * 4;
   return out;
 }
 
