@@ -11,7 +11,8 @@ int main()
   char* out = base64_encode(in, strlen(in));
   printf("%s\n", out);
   unsigned long size;
-  void* outin = base64_decode(out, &size);
+  char const* tmp = out;
+  void* outin = base64_decode(&tmp, &size);
   assert(size == strlen(in));
   loop_host_free(out);
   fwrite(outin, 1, size, stdout);
