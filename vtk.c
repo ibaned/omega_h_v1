@@ -491,7 +491,8 @@ struct mesh* read_vtu(char const* filename)
   return m;
 }
 
-void write_vtu_cloud(struct cloud* c, char const* filename)
+void write_vtu_cloud_opts(struct cloud* c, char const* filename,
+    enum vtk_format fmt)
 {
   unsigned npts = cloud_count(c);
   FILE* file = fopen(filename, "w");
@@ -500,24 +501,25 @@ void write_vtu_cloud(struct cloud* c, char const* filename)
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"1\">\n", npts);
   fprintf(file, "<Points>\n");
   struct const_tag* coord_tag = cloud_find_tag(c, "coordinates");
-  write_tag(file, npts, coord_tag, VTK_ASCII);
+  write_tag(file, npts, coord_tag, fmt);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
   unsigned* conn = LOOP_HOST_MALLOC(unsigned, npts);
   for (unsigned i = 0; i < npts; ++i)
     conn[i] = i;
-  write_array(file, TAG_U32, "connectivity", npts, 1, conn, VTK_ASCII);
+  write_array(file, TAG_U32, "connectivity", npts, 1, conn, fmt);
   loop_host_free(conn);
-  unsigned off[1] = {0};
-  write_array(file, TAG_U32, "offsets", 1, 1, off, VTK_ASCII);
+  unsigned off[1];
+  off[0] = npts;
+  write_array(file, TAG_U32, "offsets", 1, 1, off, fmt);
   unsigned char type[1] = {VTK_POLY_VERTEX};
-  write_array(file, TAG_U8, "types", 1, 1, type, VTK_ASCII);
+  write_array(file, TAG_U8, "types", 1, 1, type, fmt);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
   for (unsigned i = 0; i < cloud_count_tags(c); ++i) {
     struct const_tag* tag = cloud_get_tag(c, i);
     if (tag != coord_tag)
-      write_tag(file, npts, tag, VTK_ASCII);
+      write_tag(file, npts, tag, fmt);
   }
   fprintf(file, "</PointData>\n");
   fprintf(file, "<CellData>\n");
@@ -526,6 +528,11 @@ void write_vtu_cloud(struct cloud* c, char const* filename)
   fprintf(file, "</UnstructuredGrid>\n");
   fprintf(file, "</VTKFile>\n");
   fclose(file);
+}
+
+void write_vtu_cloud(struct cloud* c, char const* filename)
+{
+  write_vtu_cloud_opts(c, filename, VTK_ASCII);
 }
 
 struct cloud* read_vtu_cloud(char const* filename)

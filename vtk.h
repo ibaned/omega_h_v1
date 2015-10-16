@@ -19,6 +19,8 @@ void write_vtk_step(struct mesh* m);
 
 struct mesh* read_vtu(char const* filename);
 
+void write_vtu_cloud_opts(struct cloud* c, char const* filename,
+    enum vtk_format fmt);
 void write_vtu_cloud(struct cloud* c, char const* filename);
 struct cloud* read_vtu_cloud(char const* filename);
 
