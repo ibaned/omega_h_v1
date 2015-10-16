@@ -452,16 +452,15 @@ void write_vtu_cloud(struct cloud* c, char const* filename)
   write_tag(file, npts, coord_tag);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
-  fprintf(file, "<DataArray type=\"UInt32\" Name=\"connectivity\" format=\"ascii\">\n");
+  unsigned* conn = LOOP_HOST_MALLOC(unsigned, npts);
   for (unsigned i = 0; i < npts; ++i)
-    fprintf(file, "%u\n", i);
-  fprintf(file, "</DataArray>\n");
-  fprintf(file, "<DataArray type=\"UInt32\" Name=\"offsets\" format=\"ascii\">\n");
-  fprintf(file, "%u\n", npts);
-  fprintf(file, "</DataArray>\n");
-  fprintf(file, "<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n");
-  fprintf(file, "%u\n", VTK_POLY_VERTEX);
-  fprintf(file, "</DataArray>\n");
+    conn[i] = i;
+  write_array(file, TAG_U32, "connectivity", npts, 1, conn, ASCII);
+  loop_host_free(conn);
+  unsigned off[1] = {0};
+  write_array(file, TAG_U32, "offsets", 1, 1, off, ASCII);
+  unsigned char type[1] = {VTK_POLY_VERTEX};
+  write_array(file, TAG_U8, "types", 1, 1, type, ASCII);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
   for (unsigned i = 0; i < cloud_count_tags(c); ++i) {
