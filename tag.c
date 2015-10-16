@@ -20,6 +20,9 @@ unsigned tag_size(enum tag_type t)
     case TAG_U64: return sizeof(unsigned long);
     case TAG_F64: return sizeof(double);
   }
+#ifdef __CUDACC__
+  return 0;
+#endif
 }
 
 static struct tag* new_tag(char const* name, enum tag_type type,

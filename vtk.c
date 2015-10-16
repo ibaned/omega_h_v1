@@ -46,6 +46,9 @@ static char const* type_name(enum tag_type t)
     case TAG_U64: return "UInt64";
     case TAG_F64: return "Float64";
   }
+#ifdef __CUDACC__
+  return "";
+#endif
 }
 
 static char const* format_name(enum vtk_format fmt)
@@ -54,6 +57,9 @@ static char const* format_name(enum vtk_format fmt)
     case VTK_ASCII: return "ascii";
     case VTK_BINARY: return "binary";
   }
+#ifdef __CUDACC__
+  return "";
+#endif
 }
 
 typedef char line_t[1024];
@@ -81,7 +87,7 @@ static enum tag_type read_array_type(char const* header)
   line_t val;
   read_attrib(header, "type", val);
   for (unsigned type = 0; type < TAG_TYPES; ++type)
-    if (!strcmp(type_name(type), val))
+    if (!strcmp(type_name((enum tag_type) type), val))
       return (enum tag_type) type;
   assert(0);
 #ifdef __CUDACC__
@@ -94,7 +100,7 @@ static enum vtk_format read_array_format(char const* header)
   line_t val;
   read_attrib(header, "format", val);
   for (unsigned fmt = 0; fmt < VTK_FORMATS; ++fmt)
-    if (!strcmp(format_name(fmt), val))
+    if (!strcmp(format_name((enum vtk_format) fmt), val))
       return (enum vtk_format) fmt;
   assert(0);
 #ifdef __CUDACC__
@@ -217,6 +223,9 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
       return out;
     }
   }
+#ifdef __CUDACC__
+  return 0;
+#endif
 }
 
 static void describe_array(FILE* file, enum tag_type t,
