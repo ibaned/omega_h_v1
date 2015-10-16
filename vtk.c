@@ -359,7 +359,7 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
 
 void write_vtu(struct mesh* m, char const* filename)
 {
-  write_vtu_opts(m, filename, VTK_ASCII);
+  write_vtu_opts(m, filename, VTK_BINARY);
 }
 
 static char const* the_step_prefix = 0;
