@@ -38,6 +38,6 @@ unsigned count_tags(struct tags* ts);
 struct const_tag* get_tag(struct tags* ts, unsigned i);
 void rename_tag(struct tags* ts, char const* oldname, char const* newname);
 
-extern unsigned const tag_size[TAG_TYPES];
+unsigned tag_size(enum tag_type t);
 
 #endif

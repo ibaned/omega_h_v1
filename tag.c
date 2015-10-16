@@ -12,12 +12,15 @@ struct tag {
   void* data;
 };
 
-unsigned const tag_size[TAG_TYPES] = {
-  sizeof(unsigned char),
-  sizeof(unsigned),
-  sizeof(unsigned long),
-  sizeof(double)
-};
+unsigned tag_size(enum tag_type t)
+{
+  switch (t) {
+    case TAG_U8:  return sizeof(unsigned char);
+    case TAG_U32: return sizeof(unsigned);
+    case TAG_U64: return sizeof(unsigned long);
+    case TAG_F64: return sizeof(double);
+  }
+}
 
 static struct tag* new_tag(char const* name, enum tag_type type,
     unsigned ncomps, void* data)

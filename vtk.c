@@ -38,12 +38,15 @@ static enum cell_type const simplex_types[4] = {
   VTK_TETRA
 };
 
-static char const* const type_names[TAG_TYPES] = {
-  "UInt8",
-  "UInt32",
-  "UInt64",
-  "Float64"
-};
+static char const* type_name(enum tag_type t)
+{
+  switch (t) {
+    case TAG_U8:  return "UInt8";
+    case TAG_U32: return "UInt32";
+    case TAG_U64: return "UInt64";
+    case TAG_F64: return "Float64";
+  }
+}
 
 enum format {
   ASCII,
@@ -60,7 +63,7 @@ static char const* const format_names[FORMATS] = {
 static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
     unsigned ncomps, void const* data)
 {
-  unsigned tsize = tag_size[t];
+  unsigned tsize = tag_size(t);
   unsigned size = tsize * ncomps * nents;
   char* s = base64_encode(&size, sizeof(size));
   fputs(s, file);
@@ -119,7 +122,7 @@ static void describe_array(FILE* file, enum tag_type t,
 {
   fprintf(file, "type=\"%s\" Name=\"%s\""
       " NumberOfComponents=\"%u\" format=\"%s\"",
-      type_names[t], name, ncomps, format_names[fmt]);
+      type_name(t), name, ncomps, format_names[fmt]);
 }
 
 static void describe_tag(FILE* file, struct const_tag* tag)
@@ -264,7 +267,7 @@ static enum tag_type read_array_type(char const* header)
   line_t val;
   read_attrib(header, "type", val);
   for (unsigned type = 0; type < TAG_TYPES; ++type)
-    if (!strcmp(type_names[type], val))
+    if (!strcmp(type_name(type), val))
       return (enum tag_type) type;
   assert(0);
 #ifdef __CUDACC__
