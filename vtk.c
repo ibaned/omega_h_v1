@@ -139,7 +139,9 @@ static void* read_binary_array(FILE* file, enum tag_type t, unsigned nents,
   unsigned tsize = tag_size(t);
   assert(*psize == nents * ncomps * tsize);
   loop_host_free(psize);
-  return base64_decode(&p, nents * ncomps * tsize);
+  dec = base64_decode(&p, nents * ncomps * tsize);
+  loop_host_free(enc);
+  return dec;
 }
 
 static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
