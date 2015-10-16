@@ -117,6 +117,49 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
   }
 }
 
+static unsigned char* read_ascii_uchars(FILE* f, unsigned n)
+{
+  unsigned char* out = LOOP_HOST_MALLOC(unsigned char, n);
+  for (unsigned i = 0; i < n; ++i)
+    fscanf(f, "%hhu", &out[i]);
+  return out;
+}
+
+static unsigned* read_ascii_uints(FILE* f, unsigned n)
+{
+  unsigned* out = LOOP_HOST_MALLOC(unsigned, n);
+  for (unsigned i = 0; i < n; ++i)
+    fscanf(f, "%u", &out[i]);
+  return out;
+}
+
+static unsigned long* read_ascii_ulongs(FILE* f, unsigned n)
+{
+  unsigned long* out = LOOP_HOST_MALLOC(unsigned long, n);
+  for (unsigned i = 0; i < n; ++i)
+    fscanf(f, "%lu", &out[i]);
+  return out;
+}
+
+static double* read_ascii_doubles(FILE* f, unsigned n)
+{
+  double* out = LOOP_HOST_MALLOC(double, n);
+  for (unsigned i = 0; i < n; ++i)
+    fscanf(f, "%lf", &out[i]);
+  return out;
+}
+
+static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
+    unsigned ncomps)
+{
+  switch (type) {
+    case TAG_U8:  return read_ascii_uchars(file, nents * ncomps);
+    case TAG_U32: return read_ascii_uints(file, nents * ncomps);
+    case TAG_U64: return read_ascii_ulongs(file, nents * ncomps);
+    case TAG_F64: return read_ascii_doubles(file, nents * ncomps);
+  }
+}
+
 static void describe_array(FILE* file, enum tag_type t,
     char const* name, unsigned ncomps, enum format fmt)
 {
@@ -284,38 +327,6 @@ static unsigned read_array_ncomps(char* header)
   return read_int_attrib(header, "NumberOfComponents");
 }
 
-static unsigned char* read_uchars(FILE* f, unsigned n)
-{
-  unsigned char* out = LOOP_HOST_MALLOC(unsigned char, n);
-  for (unsigned i = 0; i < n; ++i)
-    fscanf(f, "%hhu", &out[i]);
-  return out;
-}
-
-static unsigned* read_uints(FILE* f, unsigned n)
-{
-  unsigned* out = LOOP_HOST_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    fscanf(f, "%u", &out[i]);
-  return out;
-}
-
-static unsigned long* read_ulongs(FILE* f, unsigned n)
-{
-  unsigned long* out = LOOP_HOST_MALLOC(unsigned long, n);
-  for (unsigned i = 0; i < n; ++i)
-    fscanf(f, "%lu", &out[i]);
-  return out;
-}
-
-static double* read_doubles(FILE* f, unsigned n)
-{
-  double* out = LOOP_HOST_MALLOC(double, n);
-  for (unsigned i = 0; i < n; ++i)
-    fscanf(f, "%lf", &out[i]);
-  return out;
-}
-
 static void read_size(FILE* f, unsigned* nverts, unsigned* nelems)
 {
   line_t line;
@@ -336,7 +347,7 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
     if (!strcmp(name, "types"))
       break;
   }
-  unsigned* types = read_uints(f, nelems);
+  unsigned* types = read_ascii_uints(f, nelems);
   unsigned dim;
   for (dim = 0; dim < 4; ++dim)
     if (types[0] == simplex_types[dim])
@@ -357,17 +368,7 @@ static unsigned read_tag(FILE* f, struct tags* ts, unsigned n)
   line_t name;
   read_array_name(line, name);
   unsigned ncomps = read_array_ncomps(line);
-  void* data;
-  switch (type) {
-    case TAG_U8:  data = read_uchars(f, n * ncomps);
-                  break;
-    case TAG_U32: data = read_uints(f, n * ncomps);
-                  break;
-    case TAG_U64: data = read_ulongs(f, n * ncomps);
-                  break;
-    case TAG_F64: data = read_doubles(f, n * ncomps);
-                  break;
-  }
+  void* data = read_ascii_array(f, type, n, ncomps);
   add_tag(ts, type, name, ncomps, data);
   seek_prefix(f, line, sizeof(line), "</DataArray");
   return 1;
@@ -405,7 +406,7 @@ static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
   assert(!strcmp("connectivity", name));
   unsigned dim = mesh_dim(m);
   unsigned verts_per_elem = the_down_degrees[dim][0];
-  unsigned* data = read_uints(f, nelems * verts_per_elem);
+  unsigned* data = read_ascii_uints(f, nelems * verts_per_elem);
   mesh_set_ents(m, dim, nelems, data);
 }
 
