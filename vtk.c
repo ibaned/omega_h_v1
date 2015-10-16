@@ -55,10 +55,71 @@ enum format {
 
 #define FORMATS 2
 
-static char const* const format_names[FORMATS] = {
-  "ascii",
-  "binary"
-};
+static char const* format_name(enum format fmt)
+{
+  switch (fmt) {
+    case ASCII: return "ascii";
+    case BINARY: return "binary";
+  }
+}
+
+typedef char line_t[1024];
+
+static void read_attrib(char const* elem, char const* name,
+    char* val)
+{
+  char const* pname = strstr(elem, name);
+  assert(pname);
+  line_t assign;
+  strcpy(assign, pname);
+  assert(assign[strlen(name) + 1] == '\"');
+  char const* pval = strtok(assign + strlen(name) + 2, "\"");
+  assert(pval && strlen(pval));
+  strcpy(val, pval);
+}
+
+static void read_array_name(char const* header, char* name)
+{
+  read_attrib(header, "Name", name);
+}
+
+static enum tag_type read_array_type(char const* header)
+{
+  line_t val;
+  read_attrib(header, "type", val);
+  for (unsigned type = 0; type < TAG_TYPES; ++type)
+    if (!strcmp(type_name(type), val))
+      return (enum tag_type) type;
+  assert(0);
+#ifdef __CUDACC__
+  return TAG_U32;
+#endif
+}
+
+static enum format read_array_format(char const* header)
+{
+  line_t val;
+  read_attrib(header, "format", val);
+  for (unsigned fmt = 0; fmt < FORMATS; ++fmt)
+    if (!strcmp(format_name(fmt), val))
+      return (enum format) fmt;
+  assert(0);
+#ifdef __CUDACC__
+  return ASCII;
+#endif
+}
+
+static unsigned read_int_attrib(char const* header, char const* attrib)
+{
+  line_t val;
+  read_attrib(header, attrib, val);
+  return (unsigned) atoi(val);
+}
+
+static unsigned read_array_ncomps(char const* header)
+{
+  return read_int_attrib(header, "NumberOfComponents");
+}
 
 static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
     unsigned ncomps, void const* data)
@@ -72,6 +133,23 @@ static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
   fputs(s, file);
   loop_host_free(s);
   fputc('\n', file);
+}
+
+static void* read_binary_array(FILE* file, enum tag_type t, unsigned nents,
+    unsigned ncomps)
+{
+  unsigned long enc_nchars;
+  char* enc = base64_fread(file, &enc_nchars);
+  char const* p = enc;
+  unsigned long dec_nbytes;
+  void* dec = base64_decode(&p, &dec_nbytes);
+  unsigned* psize = (unsigned*) dec;
+  assert(*psize == nents * ncomps);
+  loop_host_free(psize);
+  dec = base64_decode(&p, &dec_nbytes);
+  unsigned tsize = tag_size(t);
+  assert(dec_nbytes == nents * ncomps * tsize);
+  return dec;
 }
 
 static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
@@ -154,7 +232,7 @@ static void describe_array(FILE* file, enum tag_type t,
 {
   fprintf(file, "type=\"%s\" Name=\"%s\""
       " NumberOfComponents=\"%u\" format=\"%s\"",
-      type_name(t), name, ncomps, format_names[fmt]);
+      type_name(t), name, ncomps, format_name(fmt));
 }
 
 static void describe_tag(FILE* file, struct const_tag* tag)
@@ -178,6 +256,59 @@ static void write_array(FILE* file, enum tag_type t,
       break;
   }
   fprintf(file, "</DataArray>\n");
+}
+
+static unsigned seek_prefix_next(FILE* f,
+    char* line, unsigned line_size, char const* prefix)
+{
+  unsigned long pl = strlen(prefix);
+  if (!fgets(line, (int) line_size, f))
+    return 0;
+  return !strncmp(line, prefix, pl);
+}
+
+static void seek_prefix(FILE* f,
+    char* line, unsigned line_size, char const* prefix)
+{
+  unsigned long pl = strlen(prefix);
+  while (fgets(line, (int) line_size, f))
+    if (!strncmp(line, prefix, pl))
+      return;
+  assert(0);
+}
+
+static void read_array(FILE* f, char const* line, enum tag_type* type,
+    char* name, unsigned nents, unsigned* ncomps,
+    void** data)
+{
+  *type = read_array_type(line);
+  read_array_name(line, name);
+  *ncomps = read_array_ncomps(line);
+  enum format fmt = read_array_format(line);
+  switch (fmt) {
+    case ASCII:
+      *data = read_ascii_array(f, *type, nents, *ncomps);
+      break;
+    case BINARY:
+      *data = read_binary_array(f, *type, nents, *ncomps);
+      break;
+  }
+  line_t tmpline;
+  seek_prefix(f, tmpline, sizeof(line), "</DataArray");
+}
+
+static unsigned read_tag(FILE* f, struct tags* ts, unsigned n)
+{
+  line_t line;
+  if (!seek_prefix_next(f, line, sizeof(line), "<DataArray"))
+    return 0;
+  enum tag_type type;
+  line_t name;
+  unsigned ncomps;
+  void* data;
+  read_array(f, line, &type, name, n, &ncomps, &data);
+  add_tag(ts, type, name, ncomps, data);
+  return 1;
 }
 
 static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
@@ -252,70 +383,6 @@ void write_vtk_step(struct mesh* m)
   ++the_step;
 }
 
-static unsigned seek_prefix_next(FILE* f,
-    char* line, unsigned line_size, char const* prefix)
-{
-  unsigned long pl = strlen(prefix);
-  if (!fgets(line, (int) line_size, f))
-    return 0;
-  return !strncmp(line, prefix, pl);
-}
-
-static void seek_prefix(FILE* f,
-    char* line, unsigned line_size, char const* prefix)
-{
-  unsigned long pl = strlen(prefix);
-  while (fgets(line, (int) line_size, f))
-    if (!strncmp(line, prefix, pl))
-      return;
-  assert(0);
-}
-
-typedef char line_t[1024];
-
-static void read_attrib(char const* elem, char const* name,
-    char* val)
-{
-  char const* pname = strstr(elem, name);
-  assert(pname);
-  line_t assign;
-  strcpy(assign, pname);
-  assert(assign[strlen(name) + 1] == '\"');
-  char const* pval = strtok(assign + strlen(name) + 2, "\"");
-  assert(pval && strlen(pval));
-  strcpy(val, pval);
-}
-
-static void read_array_name(char const* header, char* name)
-{
-  read_attrib(header, "Name", name);
-}
-
-static enum tag_type read_array_type(char const* header)
-{
-  line_t val;
-  read_attrib(header, "type", val);
-  for (unsigned type = 0; type < TAG_TYPES; ++type)
-    if (!strcmp(type_name(type), val))
-      return (enum tag_type) type;
-  assert(0);
-#ifdef __CUDACC__
-  return TAG_U32;
-#endif
-}
-
-static unsigned read_int_attrib(char const* header, char const* attrib)
-{
-  line_t val;
-  read_attrib(header, attrib, val);
-  return (unsigned) atoi(val);
-}
-
-static unsigned read_array_ncomps(char* header)
-{
-  return read_int_attrib(header, "NumberOfComponents");
-}
-
 static void read_size(FILE* f, unsigned* nverts, unsigned* nelems)
 {
   line_t line;
@@ -329,14 +396,21 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
   assert(nelems);
   line_t line;
   seek_prefix(f, line, sizeof(line), "<Cells");
+  line_t name;
   while (1) {
     seek_prefix(f, line, sizeof(line), "<DataArray");
-    line_t name;
     read_array_name(line, name);
     if (!strcmp(name, "types"))
       break;
   }
-  unsigned* types = (unsigned*) read_ascii_array(f, TAG_U32, nelems, 1);
+  enum tag_type type;
+  unsigned ncomps;
+  void* data;
+  read_array(f, line, &type, name, nelems, &ncomps, &data);
+  assert(type == TAG_U32);
+  assert(!strcmp(name, "types"));
+  assert(ncomps == 1);
+  unsigned* types = (unsigned*) data;
   unsigned dim;
   for (dim = 0; dim < 4; ++dim)
     if (types[0] == simplex_types[dim])
@@ -346,21 +420,6 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
     assert(types[i] == simplex_types[dim]);
   loop_host_free(types);
   return dim;
-}
-
-static unsigned read_tag(FILE* f, struct tags* ts, unsigned n)
-{
-  line_t line;
-  if (!seek_prefix_next(f, line, sizeof(line), "<DataArray"))
-    return 0;
-  enum tag_type type = read_array_type(line);
-  line_t name;
-  read_array_name(line, name);
-  unsigned ncomps = read_array_ncomps(line);
-  void* data = read_ascii_array(f, type, n, ncomps);
-  add_tag(ts, type, name, ncomps, data);
-  seek_prefix(f, line, sizeof(line), "</DataArray");
-  return 1;
 }
 
 static unsigned read_tags(FILE* f, char const* prefix, struct tags* ts,
@@ -390,14 +449,17 @@ static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
   line_t line;
   seek_prefix(f, line, sizeof(line), "<Cells");
   seek_prefix(f, line, sizeof(line), "<DataArray");
+  enum tag_type type;
   line_t name;
-  read_array_name(line, name);
+  unsigned ncomps;
+  void* data;
+  read_array(f, line, &type, name, nelems, &ncomps, &data); 
+  assert(type == TAG_U32);
   assert(!strcmp("connectivity", name));
   unsigned dim = mesh_dim(m);
   unsigned verts_per_elem = the_down_degrees[dim][0];
-  unsigned* data = (unsigned*) read_ascii_array(f, TAG_U32,
-      nelems, verts_per_elem);
-  mesh_set_ents(m, dim, nelems, data);
+  assert(ncomps == verts_per_elem);
+  mesh_set_ents(m, dim, nelems, (unsigned*) data);
 }
 
 static struct mesh* read_vtk_mesh(FILE* f)
