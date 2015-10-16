@@ -11,6 +11,7 @@ enum vtk_format {
 
 #define VTK_FORMATS 2
 
+void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt);
 void write_vtu(struct mesh* m, char const* filename);
 
 void start_vtk_steps(char const* prefix);

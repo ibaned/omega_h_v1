@@ -304,13 +304,14 @@ static unsigned read_tag(FILE* f, struct tags* ts, unsigned n)
   return 1;
 }
 
-static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
+static void write_tag(FILE* file, unsigned nents, struct const_tag* tag,
+    enum vtk_format fmt)
 {
   write_array(file, tag->type, tag->name, nents, tag->ncomps, tag->d.raw,
-      VTK_ASCII);
+      fmt);
 }
 
-void write_vtu(struct mesh* m, char const* filename)
+void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
 {
   unsigned elem_dim = mesh_dim(m);
   unsigned nverts = mesh_count(m, 0);
@@ -322,41 +323,46 @@ void write_vtu(struct mesh* m, char const* filename)
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\">\n", nverts, nelems);
   fprintf(file, "<Points>\n");
   struct const_tag* coord_tag = mesh_find_tag(m, 0, "coordinates");
-  write_tag(file, nverts, coord_tag);
+  write_tag(file, nverts, coord_tag, fmt);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
   unsigned down_degree = the_down_degrees[elem_dim][0];
   write_array(file, TAG_U32, "connectivity", nelems * down_degree, 1, verts_of_elems,
-      VTK_ASCII);
+      fmt);
   unsigned* off = LOOP_HOST_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i)
     off[i] = (i + 1) * down_degree;
-  write_array(file, TAG_U32, "offsets", nelems, 1, off, VTK_ASCII);
+  write_array(file, TAG_U32, "offsets", nelems, 1, off, fmt);
   loop_host_free(off);
   unsigned char* types = LOOP_HOST_MALLOC(unsigned char, nelems);
   unsigned char type = (unsigned char) simplex_types[elem_dim];
   for (unsigned i = 0; i < nelems; ++i)
     types[i] = type;
-  write_array(file, TAG_U8, "types", nelems, 1, types, VTK_ASCII);
+  write_array(file, TAG_U8, "types", nelems, 1, types, fmt);
   loop_host_free(types);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
   for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
     struct const_tag* tag = mesh_get_tag(m, 0, i);
     if (tag != coord_tag)
-      write_tag(file, nverts, tag);
+      write_tag(file, nverts, tag, fmt);
   }
   fprintf(file, "</PointData>\n");
   fprintf(file, "<CellData>\n");
   for (unsigned i = 0; i < mesh_count_tags(m, mesh_dim(m)); ++i) {
     struct const_tag* tag = mesh_get_tag(m, mesh_dim(m), i);
-    write_tag(file, nelems, tag);
+    write_tag(file, nelems, tag, fmt);
   }
   fprintf(file, "</CellData>\n");
   fprintf(file, "</Piece>\n");
   fprintf(file, "</UnstructuredGrid>\n");
   fprintf(file, "</VTKFile>\n");
   fclose(file);
+}
+
+void write_vtu(struct mesh* m, char const* filename)
+{
+  write_vtu_opts(m, filename, VTK_ASCII);
 }
 
 static char const* the_step_prefix = 0;
@@ -495,7 +501,7 @@ void write_vtu_cloud(struct cloud* c, char const* filename)
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"1\">\n", npts);
   fprintf(file, "<Points>\n");
   struct const_tag* coord_tag = cloud_find_tag(c, "coordinates");
-  write_tag(file, npts, coord_tag);
+  write_tag(file, npts, coord_tag, VTK_ASCII);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
   unsigned* conn = LOOP_HOST_MALLOC(unsigned, npts);
@@ -512,7 +518,7 @@ void write_vtu_cloud(struct cloud* c, char const* filename)
   for (unsigned i = 0; i < cloud_count_tags(c); ++i) {
     struct const_tag* tag = cloud_get_tag(c, i);
     if (tag != coord_tag)
-      write_tag(file, npts, tag);
+      write_tag(file, npts, tag, VTK_ASCII);
   }
   fprintf(file, "</PointData>\n");
   fprintf(file, "<CellData>\n");
