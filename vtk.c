@@ -170,7 +170,7 @@ void write_vtu(struct mesh* m, char const* filename)
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
   unsigned down_degree = the_down_degrees[elem_dim][0];
-  write_array(file, TAG_U32, "connectivity", nelems, down_degree, verts_of_elems,
+  write_array(file, TAG_U32, "connectivity", nelems * down_degree, 1, verts_of_elems,
       ASCII);
   unsigned* off = LOOP_HOST_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i)
