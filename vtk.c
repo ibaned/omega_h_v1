@@ -154,9 +154,6 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag)
       ASCII);
 }
 
-static char const* types_header =
-"<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">";
-
 void write_vtu(struct mesh* m, char const* filename)
 {
   unsigned elem_dim = mesh_dim(m);
@@ -462,7 +459,7 @@ void write_vtu_cloud(struct cloud* c, char const* filename)
   fprintf(file, "<DataArray type=\"UInt32\" Name=\"offsets\" format=\"ascii\">\n");
   fprintf(file, "%u\n", npts);
   fprintf(file, "</DataArray>\n");
-  fprintf(file, "%s\n", types_header);
+  fprintf(file, "<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n");
   fprintf(file, "%u\n", VTK_POLY_VERTEX);
   fprintf(file, "</DataArray>\n");
   fprintf(file, "</Cells>\n");
