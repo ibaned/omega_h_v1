@@ -294,7 +294,7 @@ static void read_array(FILE* f, char const* line, enum tag_type* type,
       break;
   }
   line_t tmpline;
-  seek_prefix(f, tmpline, sizeof(line), "</DataArray");
+  seek_prefix(f, tmpline, sizeof(tmpline), "</DataArray");
 }
 
 static unsigned read_tag(FILE* f, struct tags* ts, unsigned n)
@@ -407,10 +407,10 @@ static unsigned read_dimension(FILE* f, unsigned nelems)
   unsigned ncomps;
   void* data;
   read_array(f, line, &type, name, nelems, &ncomps, &data);
-  assert(type == TAG_U32);
+  assert(type == TAG_U8);
   assert(!strcmp(name, "types"));
   assert(ncomps == 1);
-  unsigned* types = (unsigned*) data;
+  unsigned char* types = (unsigned char*) data;
   unsigned dim;
   for (dim = 0; dim < 4; ++dim)
     if (types[0] == simplex_types[dim])
@@ -449,16 +449,16 @@ static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
   line_t line;
   seek_prefix(f, line, sizeof(line), "<Cells");
   seek_prefix(f, line, sizeof(line), "<DataArray");
+  unsigned dim = mesh_dim(m);
+  unsigned verts_per_elem = the_down_degrees[dim][0];
   enum tag_type type;
   line_t name;
   unsigned ncomps;
   void* data;
-  read_array(f, line, &type, name, nelems, &ncomps, &data); 
+  read_array(f, line, &type, name, nelems * verts_per_elem, &ncomps, &data); 
   assert(type == TAG_U32);
   assert(!strcmp("connectivity", name));
-  unsigned dim = mesh_dim(m);
-  unsigned verts_per_elem = the_down_degrees[dim][0];
-  assert(ncomps == verts_per_elem);
+  assert(ncomps == 1);
   mesh_set_ents(m, dim, nelems, (unsigned*) data);
 }
 
