@@ -1,6 +1,7 @@
 #include "files.h"
 
 #include <assert.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -62,4 +63,13 @@ void enum_pathname(char const* prefix, unsigned npieces,
   memcpy(buf, suffix, suflen);
   buf += suflen;
   *buf = '\0';
+}
+
+void safe_scanf(FILE* f, int nitems, char const* format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  int r = vfscanf(f, format, ap);
+  va_end(ap);
+  assert(r == nitems);
 }
