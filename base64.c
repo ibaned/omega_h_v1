@@ -79,9 +79,7 @@ static void decode_4(char const* in, unsigned char* out)
 {
   unsigned char val[4];
   for (unsigned i = 0; i < 4; ++i) {
-    unsigned c = in[i];
-    assert(0 <= c && c <= 255); /* this is here for Coverity */
-    val[i] = char_to_value[c];
+    val[i] = char_to_value[(unsigned) in[i]];
     assert(val[i] < 64);
   }
   out[0] = ((val[0] << 2) & 0xFC) | ((val[1] >> 4) & 0x03);
