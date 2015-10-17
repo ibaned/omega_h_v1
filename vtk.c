@@ -202,25 +202,25 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
     case TAG_U8: {
       unsigned char* out = LOOP_HOST_MALLOC(unsigned char, n);
       for (unsigned i = 0; i < n; ++i)
-        fscanf(file, "%hhu", &out[i]);
+        safe_scanf(file, 1, "%hhu", &out[i]);
       return out;
     }
     case TAG_U32: {
       unsigned* out = LOOP_HOST_MALLOC(unsigned, n);
       for (unsigned i = 0; i < n; ++i)
-        fscanf(file, "%u", &out[i]);
+        safe_scanf(file, 1, "%u", &out[i]);
       return out;
     }
     case TAG_U64: {
       unsigned long* out = LOOP_HOST_MALLOC(unsigned long, n);
       for (unsigned i = 0; i < n; ++i)
-        fscanf(file, "%lu", &out[i]);
+        safe_scanf(file, 1, "%lu", &out[i]);
       return out;
     }
     case TAG_F64: {
       double* out = LOOP_HOST_MALLOC(double, n);
       for (unsigned i = 0; i < n; ++i)
-        fscanf(file, "%lf", &out[i]);
+        safe_scanf(file, 1, "%lf", &out[i]);
       return out;
     }
   }
