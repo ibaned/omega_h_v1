@@ -28,17 +28,6 @@ static unsigned const mesh_counts[MAX_EDGE_SWAP+1] =
 ,42 //7
 };
 
-static unsigned const unique_triangle_counts[MAX_EDGE_SWAP+1] =
-{0  //0
-,0  //1
-,0  //2
-,1  //3
-,4  //4
-,10 //5
-,20 //6
-,35 //7
-};
-
 #define MAX_UNIQUE_TRIS 35
 
 static unsigned const triangles_3[1][3] = {{0,1,2}};
@@ -234,7 +223,6 @@ struct swap_choice choose_edge_swap(
 {
   unsigned tris_per_mesh = swap_mesh_sizes[ring_size];
   unsigned nmeshes = mesh_counts[ring_size];
-  unsigned ntris = unique_triangle_counts[ring_size];
   unsigned const* mesh = meshes[ring_size];
   tri_t const* tris = triangles[ring_size];
   unsigned char cached[MAX_UNIQUE_TRIS] = {0};
