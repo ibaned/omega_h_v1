@@ -237,10 +237,8 @@ struct swap_choice choose_edge_swap(
   unsigned ntris = unique_triangle_counts[ring_size];
   unsigned const* mesh = meshes[ring_size];
   tri_t const* tris = triangles[ring_size];
-  unsigned char cached[MAX_UNIQUE_TRIS];
-  double cache[MAX_UNIQUE_TRIS];
-  for (unsigned i = 0; i < ntris; ++i)
-    cached[i] = 0;
+  unsigned char cached[MAX_UNIQUE_TRIS] = {0};
+  double cache[MAX_UNIQUE_TRIS] = {0};
   struct swap_choice out;
   out.code = INVALID;
   out.padding__ = 0;
