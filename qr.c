@@ -80,7 +80,7 @@ void qr_decomp(double a[3][3], double q[3][3], double r[3][3])
 {
   copy(a, r);
   fill_identity(q);
-  double v[3];
+  double v[3] = {0};
   for (unsigned k = 0; k < 3; ++k)
     if (get_reflector(r, v, k, 0)) {
       reflect_columns(v, r, k, 0);
