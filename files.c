@@ -73,3 +73,9 @@ void safe_scanf(FILE* f, int nitems, char const* format, ...)
   va_end(ap);
   assert(r == nitems);
 }
+
+void safe_read(void* p, unsigned long size, unsigned long nitems, FILE* f)
+{
+  unsigned long r = fread(p, size, nitems, f);
+  assert(r == nitems);
+}

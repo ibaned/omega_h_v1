@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include "files.h"
 #include "loop.h"
 
 static char const* const value_to_char =
@@ -131,7 +132,7 @@ char* base64_fread(FILE* f, unsigned long* nchars)
   }
   char* out = LOOP_HOST_MALLOC(char, *nchars);
   fseek(f, -((long) *nchars) - 1, SEEK_CUR);
-  fread(out, 1, *nchars, f);
+  safe_read(out, 1, *nchars, f);
   return out;
 }
 
