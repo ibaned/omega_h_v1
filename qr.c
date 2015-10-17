@@ -92,7 +92,7 @@ static void hessenberg(double a[3][3], double q[3][3], double h[3][3])
 {
   copy(a, h);
   fill_identity(q);
-  double v[3];
+  double v[3] = {0};
   if (get_reflector(h, v, 0, 1)) {
     reflect_columns(v, h, 0, 1);
     reflect_rows(v, h, 0, 1);
