@@ -76,8 +76,8 @@ static void set_size_field(struct mesh* m)
   mesh_free_tag(m, 0, "grad_dye");
   mesh_recover_by_volume(m, "grad_grad_dye");
   mesh_free_tag(m, mesh_dim(m), "grad_grad_dye");
-  double weight = 0.075 / 100.0;
-  mesh_size_from_hessian(m, "grad_grad_dye", &weight, 0.025, 0.1);
+  double weight[1] = {0.075 / 100.0};
+  mesh_size_from_hessian(m, "grad_grad_dye", weight, 0.025, 0.1);
   mesh_free_tag(m, 0, "grad_grad_dye");
 }
 
