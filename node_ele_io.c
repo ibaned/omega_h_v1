@@ -12,6 +12,8 @@ struct mesh* read_dot_node(char const* filename)
   FILE* f = fopen(filename, "r");
   unsigned nnodes, dim, nattrib, nbdrys;
   fscanf(f, "%u %u %u %u", &nnodes, &dim, &nattrib, &nbdrys);
+  assert(nnodes < 100 * 1000 * 1000);
+  assert(nattrib < 100);
   struct mesh* m = new_mesh(dim);
   double* coords = LOOP_HOST_MALLOC(double, nnodes * 3);
   assert(nbdrys == 0 || nbdrys == 1);
@@ -85,7 +87,10 @@ void read_dot_ele(struct mesh* m, char const* filename)
   unsigned nelems, verts_per_elem, nattrib;
   FILE* f = fopen(filename, "r");
   fscanf(f, "%u %u %u", &nelems, &verts_per_elem, &nattrib);
+  assert(nelems < 100 * 1000 * 1000);
+  assert(nattrib < 100);
   assert(verts_per_elem >= 2);
+  assert(verts_per_elem <= 4);
   unsigned elem_dim = verts_per_elem - 1;
   assert(elem_dim <= mesh_dim(m));
   unsigned* verts_of_elems = LOOP_HOST_MALLOC(unsigned,

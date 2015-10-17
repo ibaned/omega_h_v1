@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +29,7 @@ int main(int argc, char** argv)
         return -1;
       }
       dim = (unsigned) atoi(argv[i]);
+      assert(dim <= 3);
     } else if (!strcmp(argv[i], "--size")) {
       ++i;
       if (i == argc) {

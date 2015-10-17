@@ -70,6 +70,7 @@ static void read_attrib(char const* elem, char const* name,
   char const* pname = strstr(elem, name);
   assert(pname);
   line_t assign;
+  assert(strlen(pname) < sizeof(assign));
   strcpy(assign, pname);
   assert(assign[strlen(name) + 1] == '\"');
   char const* pval = strtok(assign + strlen(name) + 2, "\"");
