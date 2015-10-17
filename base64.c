@@ -131,7 +131,7 @@ char* base64_fread(FILE* f, unsigned long* nchars)
     ++(*nchars);
   }
   char* out = LOOP_HOST_MALLOC(char, *nchars);
-  fseek(f, -((long) *nchars) - 1, SEEK_CUR);
+  safe_seek(f, -((long) *nchars) - 1, SEEK_CUR);
   safe_read(out, 1, *nchars, f);
   return out;
 }

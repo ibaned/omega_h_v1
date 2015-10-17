@@ -79,3 +79,9 @@ void safe_read(void* p, unsigned long size, unsigned long nitems, FILE* f)
   unsigned long r = fread(p, size, nitems, f);
   assert(r == nitems);
 }
+
+void safe_seek(FILE* f, long offset, int whence)
+{
+  int ret = fseek(f, offset, whence);
+  assert(ret == 0);
+}

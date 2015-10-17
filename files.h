@@ -11,5 +11,6 @@ void enum_pathname(char const* prefix, unsigned npieces,
     unsigned piece, char const* suffix, char* buf, unsigned buf_size);
 void safe_scanf(FILE* f, int nitems, char const* format, ...);
 void safe_read(void* p, unsigned long size, unsigned long nitems, FILE* f);
+void safe_seek(FILE* f, long offset, int whence);
 
 #endif
