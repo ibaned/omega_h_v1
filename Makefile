@@ -35,9 +35,6 @@ test_global_part.c \
 test_loop.c \
 test_base64.c
 
-exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
-test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
-
 #these are source containing "library" functions,
 #basically any source without a main() function
 lib_sources := \
@@ -104,31 +101,42 @@ files.c \
 global.c \
 base64.c
 
+#handle optional features:
 USE_MPI ?= 0
+#comm.c is compiled with -DUSE_MPI
 objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
 
 LOOP_MODE ?= serial
-
 ifeq "$(LOOP_MODE)" "cuda"
 lib_sources += loop_cuda.c
 endif
 
+#generated file names are derived from source
+#file names by simple patterns:
+exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
+test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
 lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
-
-lib := lib/libomega_h.a
-
 sources := $(lib_sources) $(test_sources)
 depfiles := $(patsubst %.c,deps/%.dep,$(sources))
 
-#by default, the compilation target is to compile
-#all the executable programs
+lib := lib/libomega_h.a
+
+#the default compilation target is to compile
+#the library and all executables
 all: $(lib) $(exes)
 
-#loop.h is a copy of one of several existing files,
-#chosen at compile time based on the kind of
-#shared memory loop parallelism we want
-loop.h : loop_$(LOOP_MODE).h
-	cp $< $@
+#cleanup removes dependency files, object files,
+#and executables
+clean:
+	rm -rf deps/*.dep objs/ bin/*.exe lib/*.a loop.h
+
+#"all" and "clean" are targets, not files or directories
+.PHONY: all clean
+
+#our rule for compiling a source file to an
+#object, specifies that the object goes in objs/
+objs/%.o: %.c objs
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 $(lib): $(lib_objects)
 	ar cru $@ $^
@@ -141,44 +149,44 @@ $(lib): $(lib_objects)
 bin/%.exe: objs/test_%.o $(lib)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-#cleanup removes dependency files, object files,
-#and executables
-clean:
-	rm -rf deps/*.dep objs/ bin/*.exe lib/*.a loop.h
+#loop.h is a copy of one of several existing files,
+#chosen at compile time based on the kind of
+#shared memory loop parallelism we want
+loop.h : loop_$(LOOP_MODE).h
+	cp $< $@
 
-#copied this mess from the GNU make documentation
-#it generates dependency files from source files,
+#make the objs/ directory if it doesn't exist
+objs:
+	mkdir objs
+
+#Copied this mess from the GNU make documentation.
+#It generates dependency files from source files,
 #and uses SED to change the rules
 #such that the output is both an object file and a
 #dependency file.
-#it warrants further explanation:
-#  cc -M foo.c
+#It warrants further explanation:
+#  cc -MM foo.c
 #will produce a dependency line such as:
 #  foo.o : foo.c foo.h bar.h
-#the SED script changes this to:
+#The SED script changes this to:
 #  objs/foo.o deps/foo.dep : foo.c foo.h bar.h
 #$* is the same as the % in the rule pattern,
 #"foo" in the example above.
 #the $@ will insert the "deps/foo.dep"
+
+#loop.h is thrown in as a dependency because it
+#may not exist when the depfiles are being generated,
+#causing an error when cc -MM doesn't find it,
+#and the knowedge that the depfile depends on it
+#in the depfile itself !
 deps/%.dep: %.c loop.h
 	set -e; rm -f $@; \
 	$(CPP) -M $(CPPFLAGS) $< > $@.in; \
 	sed 's,$*\.o,objs/$*.o $@,g' < $@.in > $@; \
 	rm -f $@.in
 
-#our rule for compiling a source file to an
-#object, specifies that the object goes in objs/
-objs/%.o: %.c objs
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
-
-objs:
-	mkdir objs
-
 #include the auto-generated dependency files for
 #all source files.
 #this is the funny recursion that keeps
 #header file dependencies worked out at all times.
 include $(depfiles)
-
-#"all" and "clean" are targets but not files or directories
-.PHONY: all clean
