@@ -1,11 +1,9 @@
-#config.mk is meant to contain the
-#variables that commonly change,
-#like CC and CFLAGS
-#users edit config.mk but should never need
-#to edit the Makefile
-#this also separates the build configuration
+#The user configuration is placed in config.mk
+#Users edit config.mk but should never need
+#to edit the Makefile.
+#This also separates the build configuration
 #in the eye of the version control system,
-#which can be told to ignore config.mk
+#which does not keep track of config.mk
 include config.mk
 
 test_sources := \
@@ -35,8 +33,6 @@ test_global_part.c \
 test_loop.c \
 test_base64.c
 
-#these are source containing "library" functions,
-#basically any source without a main() function
 lib_sources := \
 star.c \
 tables.c \
