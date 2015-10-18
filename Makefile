@@ -124,7 +124,7 @@ all: $(lib) $(exes)
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -rf deps/*.dep objs/ bin/ lib/*.a loop.h
+	rm -rf deps/*.dep objs/ bin/ lib/ loop.h
 
 #"all" and "clean" are targets, not files or directories
 .PHONY: all clean
@@ -134,8 +134,8 @@ clean:
 objs/%.o: %.c objs
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-$(lib): $(lib_objects)
-	ar cru $@ $^
+$(lib): $(lib_objects) lib
+	ar cru $@ $(lib_objects)
 	ranlib $@
 
 #general rule for an executable: link its object
@@ -156,6 +156,8 @@ objs:
 	mkdir objs
 bin:
 	mkdir bin
+lib:
+	mkdir lib
 
 #Copied this mess from the GNU make documentation.
 #It generates dependency files from source files,
