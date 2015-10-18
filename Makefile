@@ -124,7 +124,7 @@ all: $(lib) $(exes)
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -rf deps/*.dep objs/ bin/*.exe lib/*.a loop.h
+	rm -rf deps/*.dep objs/ bin/ lib/*.a loop.h
 
 #"all" and "clean" are targets, not files or directories
 .PHONY: all clean
@@ -142,8 +142,8 @@ $(lib): $(lib_objects)
 #file with all the $(common_objects)
 # $@ is the thing being built and $^ is all
 #the things it depends on (the objects)
-bin/%.exe: objs/test_%.o $(lib)
-	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+bin/%.exe: objs/test_%.o $(lib) bin
+	$(CC) $(LDFLAGS) -o $@ objs/test_$*.o $(lib) $(LDLIBS)
 
 #loop.h is a copy of one of several existing files,
 #chosen at compile time based on the kind of
@@ -151,9 +151,11 @@ bin/%.exe: objs/test_%.o $(lib)
 loop.h : loop_$(LOOP_MODE).h
 	cp $< $@
 
-#make the objs/ directory if it doesn't exist
+#make output directories if they don't yet exist
 objs:
 	mkdir objs
+bin:
+	mkdir bin
 
 #Copied this mess from the GNU make documentation.
 #It generates dependency files from source files,
