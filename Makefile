@@ -124,17 +124,17 @@ all: $(lib) $(exes)
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -rf deps/*.dep objs/*.o bin/*.exe lib/*.a loop.h
+	rm -rf deps/ objs/ bin/ lib/ loop.h
 
 #"all" and "clean" are targets, not files or directories
 .PHONY: all clean
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
-objs/%.o: %.c
+objs/%.o: %.c | objs
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-$(lib): $(lib_objects)
+$(lib): $(lib_objects) | lib
 	ar cru $@ $(lib_objects)
 	ranlib $@
 
@@ -142,7 +142,7 @@ $(lib): $(lib_objects)
 #file with all the $(common_objects)
 # $@ is the thing being built and $^ is all
 #the things it depends on (the objects)
-bin/%.exe: objs/test_%.o $(lib)
+bin/%.exe: objs/test_%.o $(lib) | bin
 	$(CC) $(LDFLAGS) -o $@ objs/test_$*.o $(lib) $(LDLIBS)
 
 #loop.h is a copy of one of several existing files,
@@ -150,6 +150,23 @@ bin/%.exe: objs/test_%.o $(lib)
 #shared memory loop parallelism we want
 loop.h : loop_$(LOOP_MODE).h
 	cp $< $@
+
+#make output directories if they don't yet exist.
+#rules that generate files in these directories
+#will depend on the directory as an "order-only"
+#target by putting it after a pipe like this:
+#  objs/%.o : %.c | objs
+#this is needed because updating a file in a
+#directory makes that directory "newer" than the
+#file, which would cause an infinite loop in make.
+objs:
+	mkdir objs
+bin:
+	mkdir bin
+lib:
+	mkdir lib
+deps:
+	mkdir deps
 
 #Copied this mess from the GNU make documentation.
 #It generates dependency files from source files,
@@ -171,7 +188,7 @@ loop.h : loop_$(LOOP_MODE).h
 #causing an error when cc -MM doesn't find it,
 #and the knowedge that the depfile depends on it
 #in the depfile itself !
-deps/%.dep: %.c loop.h
+deps/%.dep: %.c loop.h | deps
 	set -e; rm -f $@; \
 	$(CPP) -M $(CPPFLAGS) $< > $@.in; \
 	sed 's,$*\.o,objs/$*.o $@,g' < $@.in > $@; \
