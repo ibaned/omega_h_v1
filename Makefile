@@ -144,7 +144,7 @@ bin/%.exe: objs/test_%.o $(lib)
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -rf deps/*.dep objs/*.o bin/*.exe lib/*.a loop.h
+	rm -rf deps/*.dep objs/ bin/*.exe lib/*.a loop.h
 
 #copied this mess from the GNU make documentation
 #it generates dependency files from source files,
@@ -168,8 +168,11 @@ deps/%.dep: %.c loop.h
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
-objs/%.o: %.c
+objs/%.o: %.c objs
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+objs:
+	mkdir objs
 
 #include the auto-generated dependency files for
 #all source files.
