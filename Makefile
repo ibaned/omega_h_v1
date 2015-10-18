@@ -182,7 +182,7 @@ deps:
 #$* is the same as the % in the rule pattern,
 #"foo" in the example above.
 #the $@ will insert the "deps/foo.dep"
-
+#
 #loop.h is thrown in as a dependency because it
 #may not exist when the depfiles are being generated,
 #causing an error when cc -MM doesn't find it,
