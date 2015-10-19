@@ -1,5 +1,7 @@
 #include "ints.h"
 
+#include <stdlib.h>
+
 #include "loop.h"
 
 void uints_zero(unsigned* a, unsigned n)
@@ -75,6 +77,42 @@ unsigned uints_sum(unsigned const* a, unsigned n)
   for (unsigned i = 0; i < n; ++i)
     sum += a[i];
   return sum;
+}
+
+static int uints_less(void const* a, void const* b)
+{
+  unsigned const* pa = (unsigned const*) a;
+  unsigned const* pb = (unsigned const*) b;
+  if (pa < pb)
+    return -1;
+  if (pa > pb)
+    return 1;
+  return 0;
+}
+
+unsigned* uints_sort(unsigned const* a, unsigned n)
+{
+  unsigned* out = uints_copy(a, n);
+  qsort(out, n, sizeof(unsigned), uints_less);
+  return out;
+}
+
+void uints_unique(unsigned const* a, unsigned n,
+    unsigned* nunique, unsigned** unique)
+{
+  unsigned* sorted = uints_sort(a, n);
+  unsigned* jump = LOOP_MALLOC(unsigned, n);
+  for (unsigned i = 0; i < n; ++i)
+    jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
+  unsigned* scan = uints_exscan(jump, n);
+  *nunique = scan[n];
+  *unique = LOOP_MALLOC(unsigned, *nunique);
+  for (unsigned i = 0; i < n; ++i)
+    if (jump[i])
+      (*unique)[scan[i]] = sorted[i];
+  loop_free(sorted);
+  loop_free(jump);
+  loop_free(scan);
 }
 
 unsigned long* ulongs_copy(unsigned long const* a, unsigned n)

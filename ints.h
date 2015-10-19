@@ -10,6 +10,9 @@ unsigned* uints_negate(unsigned const* a, unsigned n);
 unsigned* uints_negate_offsets(unsigned const* a, unsigned n);
 void uints_fill(unsigned* a, unsigned n, unsigned v);
 unsigned uints_sum(unsigned const* a, unsigned n);
+unsigned* uints_sort(unsigned const* a, unsigned n);
+void uints_unique(unsigned const* a, unsigned n,
+    unsigned* nunique, unsigned** unique);
 
 static inline unsigned has(unsigned const* a, unsigned n, unsigned e)
 {
