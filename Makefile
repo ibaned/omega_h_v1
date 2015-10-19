@@ -29,7 +29,6 @@ test_qr.c \
 test_box.c \
 test_pvtu.c \
 test_split.c \
-test_global_part.c \
 test_loop.c \
 test_base64.c
 
