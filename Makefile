@@ -30,7 +30,8 @@ test_box.c \
 test_pvtu.c \
 test_split.c \
 test_loop.c \
-test_base64.c
+test_base64.c \
+test_unique.c
 
 lib_sources := \
 star.c \

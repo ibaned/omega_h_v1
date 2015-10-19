@@ -83,9 +83,9 @@ static int uints_less(void const* a, void const* b)
 {
   unsigned const* pa = (unsigned const*) a;
   unsigned const* pb = (unsigned const*) b;
-  if (pa < pb)
+  if (*pa < *pb)
     return -1;
-  if (pa > pb)
+  if (*pa > *pb)
     return 1;
   return 0;
 }
