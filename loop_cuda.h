@@ -8,6 +8,12 @@ void* loop_cuda_malloc(unsigned long n);
   ((T*)loop_cuda_malloc(sizeof(T) * (n)))
 void loop_cuda_free(void* p);
 
+void* loop_cuda_to_host(void const* p, unsigned long n);
+void* loop_cuda_to_device(void const* p, unsigned long n);
+
+#define loop_to_host loop_cuda_to_host
+#define loop_to_device loop_cuda_to_device
+
 #define LOOP_MALLOC(T, n) LOOP_CUDA_MALLOC(T, n)
 #define loop_free loop_cuda_free
 
@@ -30,4 +36,3 @@ static inline unsigned loop_ceildiv(unsigned a, unsigned b)
 fname<<< loop_ceildiv((n), LOOP_BLOCK_SIZE), LOOP_BLOCK_SIZE >>>(__VA_ARGS__);
 
 #endif
-

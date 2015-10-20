@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 void* loop_host_malloc(unsigned long n)
 {
@@ -28,4 +29,11 @@ void* loop_host_realloc(void* p, unsigned long n)
 void loop_host_free(void* p)
 {
   free(p);
+}
+
+void* loop_host_copy(void const* p, unsigned long n)
+{
+  void* out = loop_host_malloc(n);
+  memcpy(out, p, n);
+  return out;
 }

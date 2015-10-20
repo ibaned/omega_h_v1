@@ -6,6 +6,9 @@
 #define LOOP_MALLOC(T, n) LOOP_HOST_MALLOC(T, n)
 #define loop_free loop_host_free
 
+#define loop_to_host loop_host_copy
+#define loop_to_device loop_host_copy
+
 #define LOOP_KERNEL(fname, ...) \
 static void fname(__VA_ARGS__, unsigned i) \
 {
