@@ -2,10 +2,10 @@
 
 #include <assert.h>
 
+#include "loop.h"
+
 #if USE_MPI
 #include <mpi.h>
-
-#include "loop.h"
 
 struct comm {
   MPI_Comm c;
@@ -71,6 +71,38 @@ struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
   CALL(MPI_Dist_graph_create(c->c, n, sources, degrees, destinations,
         weights, MPI_INFO_NULL, 0, &c2->c));
   return c2;
+}
+
+void comm_graph_adjacent(struct comm* c, unsigned* nin, unsigned** in,
+    unsigned** incounts, unsigned* nout, unsigned** out, unsigned** outcounts)
+{
+  int indegree, outdegree, weighted;
+  CALL(MPI_Dist_graph_neighbors_count(c->c, &indegree, &outdegree, &weighted));
+  assert(weighted != 0);
+  *nin = (unsigned) indegree;
+  *nout = (unsigned) outdegree;
+  int* sources = LOOP_HOST_MALLOC(int, *nin);
+  int* sourceweights = LOOP_HOST_MALLOC(int, *nin);
+  int* destinations = LOOP_HOST_MALLOC(int, *nout);
+  int* destweights = LOOP_HOST_MALLOC(int, *nout);
+  CALL(MPI_Dist_graph_neighbors(c->c, indegree, sources, sourceweights,
+        outdegree, destinations, destweights));
+  *in = LOOP_HOST_MALLOC(unsigned, *nin);
+  *incounts = LOOP_HOST_MALLOC(unsigned, *nin);
+  for (unsigned i = 0; i < *nin; ++i) {
+    (*in)[i] = (unsigned) sources[i];
+    (*incounts)[i] = (unsigned) sourceweights[i];
+  }
+  loop_host_free(sources);
+  loop_host_free(sourceweights);
+  *out = LOOP_HOST_MALLOC(unsigned, *nout);
+  *outcounts = LOOP_HOST_MALLOC(unsigned, *nout);
+  for (unsigned i = 0; i < *nout; ++i) {
+    (*out)[i] = (unsigned) destinations[i];
+    (*outcounts)[i] = (unsigned) destweights[i];
+  }
+  loop_host_free(destinations);
+  loop_host_free(destweights);
 }
 
 void comm_free(struct comm* c)
@@ -161,6 +193,9 @@ struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
   return (struct comm*)1;
 }
 
+static unsigned graph_ndests = 0;
+static unsigned graph_counts = 0;
+
 struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
     unsigned const* counts)
 {
@@ -169,7 +204,28 @@ struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
   assert(ndests <= 1);
   if (ndests == 1)
     assert(dests[0] == 0);
-  return (struct comm*)1;
+  graph_ndests = ndests;
+  graph_counts = counts[0];
+  return (struct comm*)2;
+}
+
+void comm_graph_adjacent(struct comm* c, unsigned* nin, unsigned** in,
+    unsigned** incounts, unsigned* nout, unsigned** out, unsigned** outcounts)
+{
+  assert(c == (struct comm*)2);
+  if (graph_ndests == 0) {
+    *nin = *nout = 0;
+    *in = *incounts = *out = *outcounts = 0;
+  } else {
+    assert(graph_ndests == 1);
+    *nin = *nout = 1;
+    *in = LOOP_HOST_MALLOC(unsigned, 1);
+    *incounts = LOOP_HOST_MALLOC(unsigned, 1);
+    *out = LOOP_HOST_MALLOC(unsigned, 1);
+    *outcounts = LOOP_HOST_MALLOC(unsigned, 1);
+    (*in)[0] = (*out)[0] = 0;
+    (*incounts)[0] = (*outcounts)[0] = graph_counts;
+  }
 }
 
 void comm_free(struct comm* c)

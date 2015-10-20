@@ -15,6 +15,8 @@ void comm_use(struct comm* c);
 struct comm* comm_split(struct comm* c, unsigned group, unsigned rank);
 struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
     unsigned const* counts);
+void comm_graph_adjacent(struct comm* c, unsigned* nin, unsigned** in,
+    unsigned** inweights, unsigned* nout, unsigned** out, unsigned** outweights);
 void comm_free(struct comm* c);
 
 unsigned comm_rank(void);
