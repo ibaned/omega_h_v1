@@ -73,7 +73,7 @@ struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
   return c2;
 }
 
-void comm_graph_adjacent(struct comm* c, unsigned* nin, unsigned** in,
+void comm_adjacent(struct comm* c, unsigned* nin, unsigned** in,
     unsigned** incounts, unsigned* nout, unsigned** out, unsigned** outcounts)
 {
   int indegree, outdegree, weighted;
@@ -209,7 +209,7 @@ struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
   return (struct comm*)2;
 }
 
-void comm_graph_adjacent(struct comm* c, unsigned* nin, unsigned** in,
+void comm_adjacent(struct comm* c, unsigned* nin, unsigned** in,
     unsigned** incounts, unsigned* nout, unsigned** out, unsigned** outcounts)
 {
   assert(c == (struct comm*)2);
