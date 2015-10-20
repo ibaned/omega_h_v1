@@ -1,8 +1,8 @@
 #include "comm.h"
 
-#if USE_MPI
-
 #include <assert.h>
+
+#if USE_MPI
 #include <mpi.h>
 
 #include "loop.h"
@@ -51,6 +51,25 @@ struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
 {
   struct comm* c2 = LOOP_HOST_MALLOC(struct comm, 1);
   CALL(MPI_Comm_split(c->c, (int) group, (int) rank, &c2->c));
+  return c2;
+}
+
+struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
+    unsigned const* counts)
+{
+  struct comm* c2 = LOOP_HOST_MALLOC(struct comm, 1);
+  int n = (int) ndests;
+  int sources[1];
+  MPI_Comm_rank(c->c, sources);
+  int degrees[1] = {n};
+  int* destinations = LOOP_HOST_MALLOC(int, ndests);
+  for (unsigned i = 0; i < ndests; ++i)
+    destinations[i] = (int) dests[i];
+  int* weights = LOOP_HOST_MALLOC(int, ndests);
+  for (unsigned i = 0; i < ndests; ++i)
+    weights[i] = (int) counts[i];
+  CALL(MPI_Dist_graph_create(c->c, n, sources, degrees, destinations,
+        weights, MPI_INFO_NULL, 0, &c2->c));
   return c2;
 }
 
@@ -137,8 +156,19 @@ void comm_use(struct comm* c)
 struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
 {
   (void)c;
-  (void)group;
-  (void)rank;
+  assert(group == 0);
+  assert(rank == 0);
+  return (struct comm*)1;
+}
+
+struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
+    unsigned const* counts)
+{
+  (void)c;
+  (void)counts;
+  assert(ndests <= 1);
+  if (ndests == 1)
+    assert(dests[0] == 0);
   return (struct comm*)1;
 }
 
