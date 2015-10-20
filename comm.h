@@ -18,6 +18,9 @@ struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
     unsigned const* counts);
 void comm_adjacent(struct comm* c, unsigned* nin, unsigned** in,
     unsigned** inweights, unsigned* nout, unsigned** out, unsigned** outweights);
+void comm_exch_uints(struct comm* c,
+    unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    unsigned* in, unsigned const* incounts, unsigned const* inoffsets);
 
 void comm_free(struct comm* c);
 

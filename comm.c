@@ -105,6 +105,37 @@ void comm_adjacent(struct comm* c, unsigned* nin, unsigned** in,
   loop_host_free(destweights);
 }
 
+static void comm_exch_any(struct comm* c,
+    void const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    void* in, unsigned const* incounts, unsigned const* inoffsets,
+    MPI_Datatype type)
+{
+  int indegree, outdegree, weighted;
+  CALL(MPI_Dist_graph_neighbors_count(c->c, &indegree, &outdegree, &weighted));
+  int* sendcounts = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
+  int* sdispls = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
+  for (int i = 0; i < outdegree; ++i) {
+    sendcounts[i] = (int) outcounts[i];
+    sdispls[i] = (int) outoffsets[i];
+  }
+  int* recvcounts = LOOP_HOST_MALLOC(int, (unsigned) indegree);
+  int* rdispls = LOOP_HOST_MALLOC(int, (unsigned) indegree);
+  for (int i = 0; i < indegree; ++i) {
+    recvcounts[i] = (int) incounts[i];
+    rdispls[i] = (int) inoffsets[i];
+  }
+  CALL(MPI_Neighbor_alltoallv(out, sendcounts, sdispls, type,
+        in, recvcounts, rdispls, type, c->c));
+}
+
+void comm_exch_uints(struct comm* c,
+    unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    unsigned* in, unsigned const* incounts, unsigned const* inoffsets)
+{
+  comm_exch_any(c, out, outcounts, outoffsets, in, incounts, inoffsets,
+      MPI_UNSIGNED);
+}
+
 void comm_free(struct comm* c)
 {
   assert(c != &world);
