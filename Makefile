@@ -31,7 +31,7 @@ test_pvtu.c \
 test_split.c \
 test_loop.c \
 test_base64.c \
-test_unique.c \
+test_categorize.c \
 test_vtk_ascii.c
 
 lib_sources := \
