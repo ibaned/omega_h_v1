@@ -81,8 +81,10 @@ void categorize_by_part(unsigned const* parts, unsigned n,
     unsigned current_part = 0;
     unsigned* queue_offsets = uints_exscan(queued, n);
     unsigned nqueued = queue_offsets[n];
-    if (nqueued == 0)
+    if (nqueued == 0) {
+      loop_free(queue_offsets);
       break; /* stop when all entries categorized */
+    }
     /* process the part of the first uncategorized entry */
     for (unsigned i = 0; i < n; ++i)
       if ((queue_offsets[i + 1] - queue_offsets[i] == 1) &&
@@ -95,8 +97,9 @@ void categorize_by_part(unsigned const* parts, unsigned n,
         cats[i] = cat;
         in_part[i] = 1;
         queued[i] = 0;
+      } else {
+        in_part[i] = 0;
       }
-      in_part[i] = 0;
     }
     unsigned* part_offsets = uints_exscan(in_part, n);
     for (unsigned i = 0; i < n; ++i)
@@ -105,6 +108,7 @@ void categorize_by_part(unsigned const* parts, unsigned n,
     loop_free(in_part);
     loop_free(part_offsets);
   }
+  loop_free(queued);
   *p_cats = cats;
   *p_cat_offsets = cat_offsets;
 }
