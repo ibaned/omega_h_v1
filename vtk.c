@@ -186,7 +186,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
       double const* p = (double const*) data;
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
-          fprintf(file, " %e", *p++);
+          fprintf(file, " %.15e", *p++);
         fprintf(file, "\n");
       }
       break;
