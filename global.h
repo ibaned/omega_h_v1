@@ -9,6 +9,8 @@ void global_to_linpart(unsigned long* global, unsigned n,
     unsigned long total, unsigned nparts,
     unsigned** p_part, unsigned** p_local);
 void categorize_by_part(unsigned const* parts, unsigned n,
-    unsigned** p_cats, unsigned** p_cat_offsets);
+    unsigned** p_cats, unsigned** p_cat_indices,
+    unsigned* p_ncats,
+    unsigned** p_cat_parts, unsigned** p_cat_counts);
 
 #endif
