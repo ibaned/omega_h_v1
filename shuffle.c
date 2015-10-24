@@ -55,5 +55,6 @@ void free_shuffle(struct shuffle* s)
   loop_free(s->recv_counts);
   loop_free(s->ent_peers);
   loop_free(s->ent_indices);
+  comm_free(s->c);
   loop_host_free(s);
 }

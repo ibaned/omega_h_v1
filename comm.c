@@ -70,6 +70,8 @@ struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
     weights[i] = (int) counts[i];
   CALL(MPI_Dist_graph_create(c->c, n, sources, degrees, destinations,
         weights, MPI_INFO_NULL, 0, &c2->c));
+  loop_host_free(destinations);
+  loop_host_free(weights);
   return c2;
 }
 
