@@ -96,7 +96,8 @@ omega_h.c \
 comm.c \
 files.c \
 global.c \
-base64.c
+base64.c \
+invert_map.c
 
 #handle optional features:
 USE_MPI ?= 0
