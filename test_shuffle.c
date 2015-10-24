@@ -10,14 +10,14 @@ int main()
   assert(comm_size() == 2);
   struct shuffle* s;
   if (comm_rank() == 0) {
-    unsigned n = 1;
-    unsigned const parts[1] = {1};
-    unsigned const indices[1] = {0};
+    unsigned n = 3;
+    unsigned const parts[3] = {1,1,1};
+    unsigned const indices[3] = {0,1,2};
     s = new_shuffle(n, parts, indices);
   } else {
-    unsigned n = 1;
-    unsigned const parts[1] = {0};
-    unsigned const indices[1] = {0};
+    unsigned n = 2;
+    unsigned const parts[2] = {0,0};
+    unsigned const indices[2] = {0,1};
     s = new_shuffle(n, parts, indices);
   }
   print_shuffle(s);
