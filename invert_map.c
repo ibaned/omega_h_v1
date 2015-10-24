@@ -19,9 +19,9 @@ void invert_map(
   uints_zero(counts, nout);
   for (unsigned i = 0; i < nin; ++i) {
     unsigned d = in[i];
-    unsigned o = offsets[i];
+    unsigned o = offsets[d];
     unsigned j = counts[d]++;
-    out[o + j] = d;
+    out[o + j] = i;
   }
   loop_free(counts);
   *p_out = out;
