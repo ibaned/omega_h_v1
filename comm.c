@@ -89,18 +89,18 @@ void comm_adjacent(struct comm* c,
   CALL(MPI_Dist_graph_neighbors(c->c, indegree, sources, sourceweights,
         outdegree, destinations, destweights));
   *in = LOOP_HOST_MALLOC(unsigned, *nin);
-  *incounts = LOOP_HOST_MALLOC(unsigned, *nin);
+  *inweights = LOOP_HOST_MALLOC(unsigned, *nin);
   for (unsigned i = 0; i < *nin; ++i) {
     (*in)[i] = (unsigned) sources[i];
-    (*incounts)[i] = (unsigned) sourceweights[i];
+    (*inweights)[i] = (unsigned) sourceweights[i];
   }
   loop_host_free(sources);
   loop_host_free(sourceweights);
   *out = LOOP_HOST_MALLOC(unsigned, *nout);
-  *outcounts = LOOP_HOST_MALLOC(unsigned, *nout);
+  *outweights = LOOP_HOST_MALLOC(unsigned, *nout);
   for (unsigned i = 0; i < *nout; ++i) {
     (*out)[i] = (unsigned) destinations[i];
-    (*outcounts)[i] = (unsigned) destweights[i];
+    (*outweights)[i] = (unsigned) destweights[i];
   }
   loop_host_free(destinations);
   loop_host_free(destweights);
