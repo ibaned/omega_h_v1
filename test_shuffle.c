@@ -1,26 +1,41 @@
 #include "shuffle.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "comm.h"
+#include "loop.h"
 
 int main()
 {
   comm_init();
   assert(comm_size() == 2);
-  struct shuffle* s;
   if (comm_rank() == 0) {
     unsigned n = 3;
     unsigned const parts[3] = {1,1,0};
-    unsigned const indices[3] = {0,1,2};
-    s = new_shuffle(n, parts, indices);
+    struct shuffle* s = new_shuffle(n, parts);
+    print_shuffle(s);
+    unsigned const sent[3] = {1,2,3};
+    unsigned* recvd = shuffle_uints(s, sent);
+    printf("recvd:\n");
+    unsigned nr = shuffle_nrecv_ents(s);
+    for (unsigned i = 0; i < nr; ++i)
+      printf("%u\n", recvd[i]);
+    loop_free(recvd);
+    free_shuffle(s);
   } else {
     unsigned n = 2;
     unsigned const parts[2] = {0,0};
-    unsigned const indices[2] = {0,1};
-    s = new_shuffle(n, parts, indices);
+    struct shuffle* s = new_shuffle(n, parts);
+    print_shuffle(s);
+    unsigned const sent[2] = {4,5};
+    unsigned* recvd = shuffle_uints(s, sent);
+    printf("recvd:\n");
+    unsigned nr = shuffle_nrecv_ents(s);
+    for (unsigned i = 0; i < nr; ++i)
+      printf("%u\n", recvd[i]);
+    loop_free(recvd);
+    free_shuffle(s);
   }
-  print_shuffle(s);
-  free_shuffle(s);
   comm_fini();
 }

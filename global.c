@@ -127,3 +127,23 @@ void categorize_by_part(unsigned const* parts, unsigned n,
   *p_cat_counts = uints_copy(cat_counts, ncats);
   loop_free(cat_counts);
 }
+
+#define GENERIC_SORT_BY_CATEGORY(T, a, n, cats, indices, cat_offsets) \
+  T* out = LOOP_MALLOC(T, n); \
+  for (unsigned i = 0; i < n; ++i) { \
+    unsigned cat = cats[i]; \
+    unsigned idx = indices[i]; \
+    unsigned o = cat_offsets[cat]; \
+    out[o + idx] = a[i]; \
+  } \
+  return out;
+
+unsigned* sort_uints_by_category(
+    unsigned const* a,
+    unsigned n,
+    unsigned const* cats,
+    unsigned const* indices,
+    unsigned const* cat_offsets)
+{
+  GENERIC_SORT_BY_CATEGORY(unsigned, a, n, cats, indices, cat_offsets);
+}
