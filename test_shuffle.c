@@ -11,7 +11,7 @@ int main()
   struct shuffle* s;
   if (comm_rank() == 0) {
     unsigned n = 3;
-    unsigned const parts[3] = {1,1,1};
+    unsigned const parts[3] = {1,1,0};
     unsigned const indices[3] = {0,1,2};
     s = new_shuffle(n, parts, indices);
   } else {

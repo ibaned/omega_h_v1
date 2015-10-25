@@ -68,7 +68,7 @@ struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
   int* weights = LOOP_HOST_MALLOC(int, ndests);
   for (unsigned i = 0; i < ndests; ++i)
     weights[i] = (int) counts[i];
-  CALL(MPI_Dist_graph_create(c->c, n, sources, degrees, destinations,
+  CALL(MPI_Dist_graph_create(c->c, 1, sources, degrees, destinations,
         weights, MPI_INFO_NULL, 0, &c2->c));
   loop_host_free(destinations);
   loop_host_free(weights);
