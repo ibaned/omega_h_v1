@@ -14,6 +14,7 @@ void categorize_by_part(unsigned const* parts, unsigned n,
     unsigned** p_cat_parts, unsigned** p_cat_counts);
 unsigned* sort_uints_by_category(
     unsigned const* a,
+    unsigned width,
     unsigned n,
     unsigned const* cats,
     unsigned const* indices,

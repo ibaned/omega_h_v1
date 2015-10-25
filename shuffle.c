@@ -72,13 +72,13 @@ void free_shuffle(struct shuffle* s)
   loop_host_free(s);
 }
 
-unsigned* shuffle_uints(struct shuffle* s, unsigned const* a)
+unsigned* shuffle_uints(struct shuffle* s, unsigned const* a, unsigned width)
 {
   unsigned* sendbuf = sort_uints_by_category(
-      a, s->nsend_ents, s->send_of_ents, s->send_idx_of_ents,
+      a, width, s->nsend_ents, s->send_of_ents, s->send_idx_of_ents,
       s->offset_of_sends);
   unsigned* recvbuf = LOOP_MALLOC(unsigned, s->nrecv_ents);
-  comm_exch_uints(s->c, sendbuf, s->send_counts, s->offset_of_sends,
+  comm_exch_uints(s->c, width, sendbuf, s->send_counts, s->offset_of_sends,
       recvbuf, s->recv_counts, s->offset_of_recvs);
   loop_free(sendbuf);
   return recvbuf;

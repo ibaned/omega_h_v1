@@ -128,22 +128,24 @@ void categorize_by_part(unsigned const* parts, unsigned n,
   loop_free(cat_counts);
 }
 
-#define GENERIC_SORT_BY_CATEGORY(T, a, n, cats, indices, cat_offsets) \
+#define GENERIC_SORT_BY_CATEGORY(T, a, width, n, cats, indices, cat_offsets) \
   T* out = LOOP_MALLOC(T, n); \
   for (unsigned i = 0; i < n; ++i) { \
     unsigned cat = cats[i]; \
     unsigned idx = indices[i]; \
     unsigned o = cat_offsets[cat]; \
-    out[o + idx] = a[i]; \
+    for (unsigned j = 0; j < width; ++j) \
+      out[(o + idx) * width + j] = a[i * width + j]; \
   } \
   return out;
 
 unsigned* sort_uints_by_category(
     unsigned const* a,
+    unsigned width,
     unsigned n,
     unsigned const* cats,
     unsigned const* indices,
     unsigned const* cat_offsets)
 {
-  GENERIC_SORT_BY_CATEGORY(unsigned, a, n, cats, indices, cat_offsets);
+  GENERIC_SORT_BY_CATEGORY(unsigned, a, width, n, cats, indices, cat_offsets);
 }

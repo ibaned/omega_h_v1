@@ -109,6 +109,7 @@ void comm_adjacent(struct comm* c,
 }
 
 static void comm_exch_any(struct comm* c,
+    unsigned width,
     void const* out, unsigned const* outcounts, unsigned const* outoffsets,
     void* in, unsigned const* incounts, unsigned const* inoffsets,
     MPI_Datatype type)
@@ -118,14 +119,14 @@ static void comm_exch_any(struct comm* c,
   int* sendcounts = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
   int* sdispls = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
   for (int i = 0; i < outdegree; ++i) {
-    sendcounts[i] = (int) outcounts[i];
-    sdispls[i] = (int) outoffsets[i];
+    sendcounts[i] = (int) (outcounts[i] * width);
+    sdispls[i] = (int) (outoffsets[i] * width);
   }
   int* recvcounts = LOOP_HOST_MALLOC(int, (unsigned) indegree);
   int* rdispls = LOOP_HOST_MALLOC(int, (unsigned) indegree);
   for (int i = 0; i < indegree; ++i) {
-    recvcounts[i] = (int) incounts[i];
-    rdispls[i] = (int) inoffsets[i];
+    recvcounts[i] = (int) (incounts[i] * width);
+    rdispls[i] = (int) (inoffsets[i] * width);
   }
   CALL(MPI_Neighbor_alltoallv(out, sendcounts, sdispls, type,
         in, recvcounts, rdispls, type, c->c));
@@ -136,10 +137,11 @@ static void comm_exch_any(struct comm* c,
 }
 
 void comm_exch_uints(struct comm* c,
+    unsigned width,
     unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
     unsigned* in, unsigned const* incounts, unsigned const* inoffsets)
 {
-  comm_exch_any(c, out, outcounts, outoffsets, in, incounts, inoffsets,
+  comm_exch_any(c, width, out, outcounts, outoffsets, in, incounts, inoffsets,
       MPI_UNSIGNED);
 }
 

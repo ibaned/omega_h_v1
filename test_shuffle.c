@@ -16,7 +16,7 @@ int main()
     struct shuffle* s = new_shuffle(n, parts);
     print_shuffle(s);
     unsigned const sent[3] = {1,2,3};
-    unsigned* recvd = shuffle_uints(s, sent);
+    unsigned* recvd = shuffle_uints(s, sent, 1);
     printf("recvd:\n");
     unsigned nr = shuffle_recv_size(s);
     for (unsigned i = 0; i < nr; ++i)
@@ -29,7 +29,7 @@ int main()
     struct shuffle* s = new_shuffle(n, parts);
     print_shuffle(s);
     unsigned const sent[2] = {4,5};
-    unsigned* recvd = shuffle_uints(s, sent);
+    unsigned* recvd = shuffle_uints(s, sent, 1);
     printf("recvd:\n");
     unsigned nr = shuffle_recv_size(s);
     for (unsigned i = 0; i < nr; ++i)
