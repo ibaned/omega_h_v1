@@ -84,7 +84,7 @@ unsigned* shuffle_uints(struct shuffle* s, unsigned const* a)
   return recvbuf;
 }
 
-unsigned shuffle_nrecv_ents(struct shuffle* s)
+unsigned shuffle_recv_size(struct shuffle* s)
 {
   return s->nrecv_ents;
 }

@@ -18,7 +18,7 @@ int main()
     unsigned const sent[3] = {1,2,3};
     unsigned* recvd = shuffle_uints(s, sent);
     printf("recvd:\n");
-    unsigned nr = shuffle_nrecv_ents(s);
+    unsigned nr = shuffle_recv_size(s);
     for (unsigned i = 0; i < nr; ++i)
       printf("%u\n", recvd[i]);
     loop_free(recvd);
@@ -31,7 +31,7 @@ int main()
     unsigned const sent[2] = {4,5};
     unsigned* recvd = shuffle_uints(s, sent);
     printf("recvd:\n");
-    unsigned nr = shuffle_nrecv_ents(s);
+    unsigned nr = shuffle_recv_size(s);
     for (unsigned i = 0; i < nr; ++i)
       printf("%u\n", recvd[i]);
     loop_free(recvd);
