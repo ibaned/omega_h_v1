@@ -129,6 +129,10 @@ static void comm_exch_any(struct comm* c,
   }
   CALL(MPI_Neighbor_alltoallv(out, sendcounts, sdispls, type,
         in, recvcounts, rdispls, type, c->c));
+  loop_host_free(sendcounts);
+  loop_host_free(sdispls);
+  loop_host_free(recvcounts);
+  loop_host_free(rdispls);
 }
 
 void comm_exch_uints(struct comm* c,
