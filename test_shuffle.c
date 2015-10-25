@@ -12,7 +12,7 @@ int main()
   assert(comm_size() == 2);
   if (comm_rank() == 0) {
     unsigned n = 3;
-    unsigned const parts[3] = {1,1,0};
+    unsigned const parts[3] = {1,0,1};
     struct shuffle* s = new_shuffle(n, parts);
     print_shuffle(s);
     unsigned const sent[3] = {1,2,3};

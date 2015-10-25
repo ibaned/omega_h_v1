@@ -80,6 +80,7 @@ unsigned* shuffle_uints(struct shuffle* s, unsigned const* a)
   unsigned* recvbuf = LOOP_MALLOC(unsigned, s->nrecv_ents);
   comm_exch_uints(s->c, sendbuf, s->send_counts, s->offset_of_sends,
       recvbuf, s->recv_counts, s->offset_of_recvs);
+  loop_free(sendbuf);
   return recvbuf;
 }
 
