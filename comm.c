@@ -254,7 +254,8 @@ void comm_recvs(struct comm* c,
     *nin = 1;
     *in = LOOP_HOST_MALLOC(unsigned, 1);
     *incounts = LOOP_HOST_MALLOC(unsigned, 1);
-    (*in)[0] = (*out)[0] = 0;
+    (*in)[0] = 0;
+    (*incounts)[0] = graph_counts;
   }
 }
 
