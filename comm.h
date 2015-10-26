@@ -22,6 +22,7 @@ void comm_exch_uints(struct comm* c,
     unsigned width,
     unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
     unsigned* in, unsigned const* incounts, unsigned const* inoffsets);
+void comm_sync_uint(struct comm* c, unsigned out, unsigned* in);
 
 void comm_free(struct comm* c);
 

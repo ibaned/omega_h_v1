@@ -48,6 +48,15 @@ void global_to_linpart(unsigned long* global, unsigned n,
   *p_local = local;
 }
 
+unsigned linpart_size(unsigned long total, unsigned nparts, unsigned part)
+{
+  unsigned long quot = total / nparts;
+  unsigned long rem = total % nparts;
+  if (part < rem)
+    return (unsigned) (quot + 1);
+  return (unsigned) quot;
+}
+
 /* given an array that indicates which part an
    entry belongs to (the unique set of parts is
    an arbitrary but usually small set of numbers),

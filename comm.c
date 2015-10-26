@@ -138,6 +138,16 @@ void comm_exch_uints(struct comm* c,
       MPI_UNSIGNED);
 }
 
+static void comm_sync_any(struct comm* c, void const* out, void* in, MPI_Datatype type)
+{
+  CALL(MPI_Neighbor_allgather(out, 1, type, in, 1, type, c->c));
+}
+
+void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
+{
+  comm_sync_any(c, &out, in, MPI_UNSIGNED);
+}
+
 void comm_free(struct comm* c)
 {
   assert(c != &world);
@@ -218,50 +228,79 @@ void comm_use(struct comm* c)
   (void)c;
 }
 
+struct split_comm {
+  int dummy__;
+};
+
 struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
 {
   (void)c;
   assert(group == 0);
   assert(rank == 0);
-  return (struct comm*)1;
+  return LOOP_HOST_MALLOC(struct split_comm, 1);
 }
 
-static unsigned graph_ndests = 0;
-static unsigned graph_counts = 0;
+struct graph_comm {
+  unsigned ndests;
+  unsigned count;
+};
 
 struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
     unsigned const* counts)
 {
   (void)c;
   (void)counts;
+  struct graph_comm* gc = LOOP_HOST_MALLOC(struct graph_comm, 1);
   assert(ndests <= 1);
   if (ndests == 1)
     assert(dests[0] == 0);
-  graph_ndests = ndests;
-  graph_counts = counts[0];
-  return (struct comm*)2;
+  gc->ndests = ndests;
+  gc->count = counts[0];
+  return gc;
 }
 
 void comm_recvs(struct comm* c,
     unsigned* nin, unsigned** in, unsigned** incounts)
 {
-  assert(c == (struct comm*)2);
-  if (graph_ndests == 0) {
+  struct graph_comm* gc = (struct graph_comm*) c;
+  if (gc->ndests == 0) {
     *nin = 0;
     *in = *incounts = 0;
   } else {
-    assert(graph_ndests == 1);
+    assert(gc->ndests == 1);
     *nin = 1;
     *in = LOOP_HOST_MALLOC(unsigned, 1);
     *incounts = LOOP_HOST_MALLOC(unsigned, 1);
     (*in)[0] = 0;
-    (*incounts)[0] = graph_counts;
+    (*incounts)[0] = gc->count;
   }
+}
+
+void comm_exch_uints(struct comm* c,
+    unsigned width,
+    unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    unsigned* in, unsigned const* incounts, unsigned const* inoffsets)
+{
+  struct graph_comm* gc = (struct graph_comm*) c;
+  if (gc->ndests == 1) {
+    assert(outcounts[0] == incounts[0]);
+    for (unsigned i = 0; i < outcounts[0] * width; ++i)
+      in[i] = out[i];
+  }
+  else
+    assert(gc->ndests == 0);
+}
+
+void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
+{
+  struct graph_comm* gc = (struct graph_comm*) c;
+  if (gc->ndests)
+    in[0] = out;
 }
 
 void comm_free(struct comm* c)
 {
-  (void)c;
+  loop_host_free(c);
 }
 
 unsigned comm_rank(void)
