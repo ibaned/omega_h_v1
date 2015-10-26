@@ -75,19 +75,18 @@ struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
   return c2;
 }
 
-void comm_adjacent(struct comm* c,
-    unsigned* nin, unsigned** in, unsigned** inweights,
-    unsigned* nout, unsigned** out, unsigned** outweights)
+void comm_recvs(struct comm* c,
+    unsigned* nin, unsigned** in, unsigned** inweights)
 {
   int indegree, outdegree, weighted;
   CALL(MPI_Dist_graph_neighbors_count(c->c, &indegree, &outdegree, &weighted));
   assert(weighted != 0);
   *nin = (unsigned) indegree;
-  *nout = (unsigned) outdegree;
+  unsigned nout = (unsigned) outdegree;
   int* sources = LOOP_HOST_MALLOC(int, *nin);
   int* sourceweights = LOOP_HOST_MALLOC(int, *nin);
-  int* destinations = LOOP_HOST_MALLOC(int, *nout);
-  int* destweights = LOOP_HOST_MALLOC(int, *nout);
+  int* destinations = LOOP_HOST_MALLOC(int, nout);
+  int* destweights = LOOP_HOST_MALLOC(int, nout);
   CALL(MPI_Dist_graph_neighbors(c->c, indegree, sources, sourceweights,
         outdegree, destinations, destweights));
   *in = LOOP_HOST_MALLOC(unsigned, *nin);
@@ -98,12 +97,6 @@ void comm_adjacent(struct comm* c,
   }
   loop_host_free(sources);
   loop_host_free(sourceweights);
-  *out = LOOP_HOST_MALLOC(unsigned, *nout);
-  *outweights = LOOP_HOST_MALLOC(unsigned, *nout);
-  for (unsigned i = 0; i < *nout; ++i) {
-    (*out)[i] = (unsigned) destinations[i];
-    (*outweights)[i] = (unsigned) destweights[i];
-  }
   loop_host_free(destinations);
   loop_host_free(destweights);
 }
@@ -249,23 +242,19 @@ struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
   return (struct comm*)2;
 }
 
-void comm_adjacent(struct comm* c,
-    unsigned* nin, unsigned** in, unsigned** incounts,
-    unsigned* nout, unsigned** out, unsigned** outcounts)
+void comm_recvs(struct comm* c,
+    unsigned* nin, unsigned** in, unsigned** incounts)
 {
   assert(c == (struct comm*)2);
   if (graph_ndests == 0) {
-    *nin = *nout = 0;
-    *in = *incounts = *out = *outcounts = 0;
+    *nin = 0;
+    *in = *incounts = 0;
   } else {
     assert(graph_ndests == 1);
-    *nin = *nout = 1;
+    *nin = 1;
     *in = LOOP_HOST_MALLOC(unsigned, 1);
     *incounts = LOOP_HOST_MALLOC(unsigned, 1);
-    *out = LOOP_HOST_MALLOC(unsigned, 1);
-    *outcounts = LOOP_HOST_MALLOC(unsigned, 1);
     (*in)[0] = (*out)[0] = 0;
-    (*incounts)[0] = (*outcounts)[0] = graph_counts;
   }
 }
 
