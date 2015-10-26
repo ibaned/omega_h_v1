@@ -5,41 +5,32 @@
 #ifdef __CUDACC__
 #include <thrust/reduce.h>
 #include <thrust/device_ptr.h>
-#include "mycuda.cuh"
 #include <thrust/functional.h>
 #include <thrust/transform.h>
 #include <thrust/reduce.h>
 #endif
 
-
-
 #ifdef __CUDACC__
 void uints_zero(unsigned* a, unsigned n)
 {
-	thrust::device_ptr< unsigned int> p (a);
-	thrust::fill( p , p+n , (unsigned) 0);
-
+  thrust::device_ptr<unsigned int> p (a);
+  thrust::fill(p, p+n, (unsigned) 0);
 }
 
-
-
-unsigned* units_copy(unsigned const * a , unsigned n)
+unsigned* units_copy(unsigned const * a, unsigned n)
 {
-  unsigned *b = LOOP_MALLOC(unsigned , n );
-  CUDACALL( cudaMemcpy(b , a , n*sizeof(unsigned) , cudaMemcpyDeviceToDevice));
-
+  unsigned *b = LOOP_MALLOC(unsigned, n);
+  CUDACALL(cudaMemcpy(b, a, n*sizeof(unsigned), cudaMemcpyDeviceToDevice));
   return b;
 }
 
-unsigned uints_max( unsigned  const* a, unsigned n)
+unsigned uints_max(unsigned const* a, unsigned n)
 {
   unsigned max = 0;
-  thrust::device_ptr< unsigned int const> p (a);
-  max = thrust::reduce( p, p +n , INT_MIN , thrust::maximum<unsigned>());
+  thrust::device_ptr<unsigned const> p(a);
+  max = thrust::reduce(p, p + n, INT_MIN, thrust::maximum<unsigned>());
   return max;
 }
-
-
 
 unsigned* uints_exscan(unsigned const* a, unsigned n)
 {
@@ -52,32 +43,25 @@ unsigned* uints_exscan(unsigned const* a, unsigned n)
   }
   return o;
 }
-// I hate const
+
 unsigned* uints_unscan(unsigned const* a, unsigned n)
 {
   unsigned* o = LOOP_MALLOC(unsigned, n);
-  thrust::device_ptr<unsigned> p2 (o);
-  thrust::device_ptr<unsigned const> p1 (a);
-
+  thrust::device_ptr<unsigned> p2(o);
+  thrust::device_ptr<unsigned const> p1(a);
   thrust::minus<unsigned int> op;
-
-  thrust::transform( p1, p1+n ,p1+1,  p2 , op );
-
-
+  thrust::transform(p1, p1 + n, p1 + 1, p2, op);
   return o;
 }
-
 
 unsigned* uints_negate(unsigned const* a, unsigned n)
 {
   unsigned* o = LOOP_MALLOC(unsigned, n);
-  thrust::device_ptr<unsigned> p2 (o);
-  thrust::device_ptr<unsigned const> p1 (a);
-
-  thrust::transform( p1, p1 +n , p2 , thrust::negate<unsigned>());
+  thrust::device_ptr<unsigned> p2(o);
+  thrust::device_ptr<unsigned const> p1(a);
+  thrust::transform(p1, p1 + n, p2, thrust::negate<unsigned>());
   return o;
 }
-
 
 unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
 {
@@ -91,43 +75,37 @@ unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
 
 void uints_fill(unsigned* a, unsigned n, unsigned v)
 {
-	thrust::device_ptr< unsigned int> p (a);
-	thrust::fill( p , p+n , v);
+  thrust::device_ptr< unsigned int> p (a);
+  thrust::fill(p, p + n, v);
 }
 
 unsigned uints_sum(unsigned const* a, unsigned n)
 {
-	  unsigned sum = 0;
-	  thrust::device_ptr< unsigned int const> p (a);
-
-	  sum = thrust::reduce( p, p +n , (unsigned)0 , thrust::plus<unsigned>());
-	  return sum;
+  unsigned sum = 0;
+  thrust::device_ptr< unsigned int const> p (a);
+  sum = thrust::reduce(p, p + n, (unsigned)0, thrust::plus<unsigned>());
+  return sum;
 }
-
 
 unsigned long* ulongs_copy(unsigned long const * a , unsigned n)
 {
-  unsigned long *b = LOOP_MALLOC(unsigned long , n );
-  CUDACALL( cudaMemcpy(b, a, n*sizeof(unsigned long), cudaMemcpyDeviceToDevice));
+  unsigned long *b = LOOP_MALLOC(unsigned long, n);
+  CUDACALL(cudaMemcpy(b, a, n * sizeof(unsigned long), cudaMemcpyDeviceToDevice));
   return b;
 }
 
-
-
-
 unsigned long ulongs_max(unsigned long const* a, unsigned n)
 {
-	  unsigned long max = 0;
-	  thrust::device_ptr< unsigned long const> p (a);
-	  max = thrust::reduce( p, p +n , LONG_MIN , thrust::maximum<unsigned long>());
-	  return max;
+  unsigned long max = 0;
+  thrust::device_ptr< unsigned long const> p(a);
+  max = thrust::reduce(p, p + n, LONG_MIN, thrust::maximum<unsigned long>());
+  return max;
 }
-
 
 unsigned char* uchars_copy(unsigned char const* a, unsigned n)
 {
-	unsigned char *b = LOOP_MALLOC( unsigned char, n);
-	CUDACALL( cudaMemcpy(b,a,n*sizeof(unsigned char) , cudaMemcpyDeviceToDevice));
+  unsigned char *b = LOOP_MALLOC(unsigned char, n);
+  CUDACALL(cudaMemcpy(b, a, n * sizeof(unsigned char), cudaMemcpyDeviceToDevice));
 }
 
 #else
@@ -267,4 +245,5 @@ unsigned char* uchars_copy(unsigned char const* a, unsigned n)
     b[i] = a[i];
   return b;
 }
+
 #endif
