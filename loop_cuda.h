@@ -35,4 +35,15 @@ static inline unsigned loop_ceildiv(unsigned a, unsigned b)
 #define LOOP_EXEC(fname, n, ...) \
 fname<<< loop_ceildiv((n), LOOP_BLOCK_SIZE), LOOP_BLOCK_SIZE >>>(__VA_ARGS__);
 
+#define CUDACALL(f) \
+do { \
+  cudaError_t err = f; \
+  if (err != cudaSuccess) { \
+    const char* errs = cudaGetErrorString(err); \
+    fprintf(stderr, "call %s failed at %s:%d : %s\n", \
+                    #f, __FILE__, __LINE__, errs); \
+    abort(); \
+  } \
+} while (0)
+
 #endif
