@@ -104,8 +104,9 @@ unsigned long ulongs_max(unsigned long const* a, unsigned n)
 
 unsigned char* uchars_copy(unsigned char const* a, unsigned n)
 {
-  unsigned char *b = LOOP_MALLOC(unsigned char, n);
+  unsigned char* b = LOOP_MALLOC(unsigned char, n);
   CUDACALL(cudaMemcpy(b, a, n * sizeof(unsigned char), cudaMemcpyDeviceToDevice));
+  return b;
 }
 
 #else
@@ -114,14 +115,6 @@ void uints_zero(unsigned* a, unsigned n)
 {
   for (unsigned i = 0; i < n; ++i)
     a[i] = 0;
-}
-
-unsigned* uints_copy(unsigned const* a, unsigned n)
-{
-  unsigned* b = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    b[i] = a[i];
-  return b;
 }
 
 unsigned uints_max(unsigned const* a, unsigned n)
@@ -247,3 +240,11 @@ unsigned char* uchars_copy(unsigned char const* a, unsigned n)
 }
 
 #endif
+
+unsigned* uints_copy(unsigned const* a, unsigned n)
+{
+  unsigned* b = LOOP_MALLOC(unsigned, n);
+  for (unsigned i = 0; i < n; ++i)
+    b[i] = a[i];
+  return b;
+}
