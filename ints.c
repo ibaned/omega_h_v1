@@ -8,6 +8,8 @@
 #include <thrust/functional.h>
 #include <thrust/transform.h>
 #include <thrust/reduce.h>
+#else
+#include <stdlib.h>
 #endif
 
 #ifdef __CUDACC__
