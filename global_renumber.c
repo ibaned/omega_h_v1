@@ -13,7 +13,7 @@ unsigned long* global_renumber(
   unsigned nparts = comm_size();
   unsigned* lin_parts;
   unsigned* lin_idxs;
-  global_to_linpart(global_in, n, total, nparts, lin_parts, lin_idxs);
+  global_to_linpart(global_in, n, total, nparts, &lin_parts, &lin_idxs);
   unsigned* sent_sends;
   unsigned* sent_idxs;
   unsigned nsends;
@@ -66,5 +66,13 @@ unsigned long* global_renumber(
     }
     own_recv_of_recvd[i] =  owner_recv;
   }
+  unsigned* orig_idxs = LOOP_MALLOC(unsigned, n);
+  for (unsigned i = 0; i < n; ++i)
+    orig_idxs[i] = i;
+  unsigned* orig_idxs_sent = sort_uints_by_category(
+      orig_idxs, 1, n, sent_sends, sent_idxs, send_offsets);
+  unsigned* orig_idxs_recvd = LOOP_MALLOC(unsigned, nrecvd);
+  comm_exch_uints(gc, 1, orig_idxs_sent, send_counts, send_offsets,
+      orig_idxs_recvd, recv_counts, recv_offsets);
   comm_free(gc);
 }
