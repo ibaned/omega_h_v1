@@ -237,7 +237,7 @@ struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
   (void)c;
   assert(group == 0);
   assert(rank == 0);
-  return LOOP_HOST_MALLOC(struct split_comm, 1);
+  return (struct comm*) LOOP_HOST_MALLOC(struct split_comm, 1);
 }
 
 struct graph_comm {
@@ -256,7 +256,7 @@ struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
     assert(dests[0] == 0);
   gc->ndests = ndests;
   gc->count = counts[0];
-  return gc;
+  return (struct comm*) gc;
 }
 
 void comm_recvs(struct comm* c,
@@ -281,6 +281,8 @@ void comm_exch_uints(struct comm* c,
     unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
     unsigned* in, unsigned const* incounts, unsigned const* inoffsets)
 {
+  (void) outoffsets;
+  (void) inoffsets;
   struct graph_comm* gc = (struct graph_comm*) c;
   if (gc->ndests == 1) {
     assert(outcounts[0] == incounts[0]);
