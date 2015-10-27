@@ -24,7 +24,9 @@ void owners_from_global(
   unsigned* send_counts;
   categorize_by_part(lin_parts, n, &sent_sends, &sent_idxs,
       &nsends, &send_parts, &send_counts);
+  loop_free(lin_parts);
   struct comm* gc = comm_graph(comm_using(), nsends, send_parts, send_counts);
+  loop_free(send_parts);
   unsigned nrecvs;
   unsigned* recv_parts;
   unsigned* recv_counts;
@@ -34,6 +36,7 @@ void owners_from_global(
   unsigned nrecvd = recv_offsets[nrecvs];
   unsigned* lin_idxs_sent = sort_uints_by_category(
       lin_idxs, 1, n, sent_sends, sent_idxs, send_offsets);
+  loop_free(lin_idxs);
   unsigned* lin_idxs_recvd = LOOP_MALLOC(unsigned, nrecvd);
   comm_exch_uints(gc, 1, lin_idxs_sent, send_counts, send_offsets,
       lin_idxs_recvd, recv_counts, recv_offsets);
@@ -89,15 +92,20 @@ void owners_from_global(
     }
   }
   struct comm* gci = comm_graph(comm_using(), nrecvs, recv_parts, recv_counts);
+  loop_free(recv_parts);
   unsigned* own_part_of_sent = LOOP_MALLOC(unsigned, n);
   comm_exch_uints(gci, 1, own_part_of_recvd, recv_counts, recv_offsets,
       own_part_of_sent, send_counts, send_offsets);
   unsigned* own_idx_of_sent = LOOP_MALLOC(unsigned, n);
   comm_exch_uints(gci, 1, own_idx_of_recvd, recv_counts, recv_offsets,
       own_idx_of_sent, send_counts, send_offsets);
+  loop_free(recv_counts);
+  loop_free(send_counts);
   comm_free(gci);
   *p_own_parts = unsort_uints_by_category(
       own_part_of_sent, 1, n, sent_sends, sent_idxs, send_offsets);
   *p_own_idxs = unsort_uints_by_category(
       own_idx_of_sent, 1, n, sent_sends, sent_idxs, send_offsets);
+  loop_free(sent_sends);
+  loop_free(sent_idxs);
 }
