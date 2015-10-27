@@ -13,12 +13,12 @@ int main()
   unsigned n;
   assert(comm_size() == 2);
   if (comm_rank() == 0) {
-    n = 1;
-    unsigned long global[1] = {0};
+    n = 2;
+    unsigned long global[2] = {0,1};
     owners_from_global(n, global, &own_parts, &own_idxs);
   } else {
-    n = 1;
-    unsigned long global[1] = {1};
+    n = 2;
+    unsigned long global[2] = {1,2};
     owners_from_global(n, global, &own_parts, &own_idxs);
   }
   for (unsigned i = 0; i < n; ++i)
