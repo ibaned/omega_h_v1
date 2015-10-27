@@ -3,6 +3,19 @@
 #include "ints.h"
 #include "loop.h"
 
+
+__global__ Worker_Kernal( unsigned * in ,
+		unsigned * offsets , unsigned * counts,
+		unsigned *out )
+{
+	int i = (blockIdx.x * blockDim.x + threadIdx.x);
+	out[ offsets[in[i]] + counts[in[i]]++  ] = i; //I mean....
+}
+
+
+
+
+
 void invert_map(
     unsigned nin,
     unsigned const* in,
@@ -13,7 +26,7 @@ void invert_map(
   unsigned* counts = LOOP_MALLOC(unsigned, nout);
   uints_zero(counts, nout);
   for (unsigned i = 0; i < nin; ++i)
-    counts[in[i]]++;
+    counts[in[i]]++; //Broken Operation.
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   uints_zero(counts, nout);
