@@ -26,8 +26,8 @@ void owners_from_global(
       &nsends, &send_parts, &send_counts);
   struct comm* gc = comm_graph(comm_using(), nsends, send_parts, send_counts);
   unsigned nrecvs;
-  unsigned** recv_parts;
-  unsigned** recv_counts;
+  unsigned* recv_parts;
+  unsigned* recv_counts;
   comm_recvs(gc, &nrecvs, &recv_parts, &recv_counts);
   unsigned* send_offsets = uints_exscan(send_counts, nsends);
   unsigned* recv_offsets = uints_exscan(recv_counts, nrecvs);
@@ -73,13 +73,13 @@ void owners_from_global(
       if (recv_nents[recv_of_recvd[recvd]] <
           recv_nents[own_recv]) {
         own_recv = recv_of_recvd[recvd];
-        own_idx = orig_idxs_recvd[recvd]
+        own_idx = orig_idxs_recvd[recvd];
       } else if ((recv_nents[recv_of_recvd[recvd]] ==
                   recv_nents[own_recv]) &&
                  (recv_parts[recv_of_recvd[recvd]] <
                   recv_parts[own_recv])) {
         own_recv = recv_of_recvd[recvd];
-        own_idx = orig_idxs_recvd[recvd]
+        own_idx = orig_idxs_recvd[recvd];
       }
     }
     for (unsigned j = first; j < end; ++j) {

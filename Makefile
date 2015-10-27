@@ -31,6 +31,7 @@ test_pvtu.c \
 test_split.c \
 test_loop.c \
 test_base64.c \
+test_global.c \
 test_vtk_ascii.c
 
 lib_sources := \
@@ -96,7 +97,8 @@ comm.c \
 files.c \
 global.c \
 base64.c \
-invert_map.c
+invert_map.c \
+owners_from_global.c
 
 #handle optional features:
 USE_MPI ?= 0
