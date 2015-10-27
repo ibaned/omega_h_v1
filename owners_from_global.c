@@ -40,6 +40,7 @@ void owners_from_global(
   unsigned* lin_idxs_recvd = LOOP_MALLOC(unsigned, nrecvd);
   comm_exch_uints(gc, 1, lin_idxs_sent, send_counts, send_offsets,
       lin_idxs_recvd, recv_counts, recv_offsets);
+  loop_free(lin_idxs_sent);
   unsigned* recv_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
   for (unsigned i = 0; i < nrecvs; ++i) {
     unsigned first = recv_offsets[i];
@@ -52,14 +53,17 @@ void owners_from_global(
   unsigned* recvd_of_lin_offsets;
   invert_map(nrecvd, lin_idxs_recvd, linsize,
       &recvd_of_lins, &recvd_of_lin_offsets);
+  loop_free(lin_idxs_recvd);
   unsigned* orig_idxs = LOOP_MALLOC(unsigned, n);
   for (unsigned i = 0; i < n; ++i)
     orig_idxs[i] = i;
   unsigned* orig_idxs_sent = sort_uints_by_category(
       orig_idxs, 1, n, sent_sends, sent_idxs, send_offsets);
+  loop_free(orig_idxs);
   unsigned* orig_idxs_recvd = LOOP_MALLOC(unsigned, nrecvd);
   comm_exch_uints(gc, 1, orig_idxs_sent, send_counts, send_offsets,
       orig_idxs_recvd, recv_counts, recv_offsets);
+  loop_free(orig_idxs_sent);
   unsigned* own_part_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
   unsigned* own_idx_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
   unsigned* recv_nents = LOOP_MALLOC(unsigned, nrecvs);
@@ -91,6 +95,11 @@ void owners_from_global(
       own_idx_of_recvd[recvd] = own_idx;
     }
   }
+  loop_free(recv_of_recvd);
+  loop_free(recvd_of_lins);
+  loop_free(recvd_of_lin_offsets);
+  loop_free(orig_idxs_recvd);
+  loop_free(recv_nents);
   struct comm* gci = comm_graph(comm_using(), nrecvs, recv_parts, recv_counts);
   loop_free(recv_parts);
   unsigned* own_part_of_sent = LOOP_MALLOC(unsigned, n);
@@ -101,6 +110,9 @@ void owners_from_global(
       own_idx_of_sent, send_counts, send_offsets);
   loop_free(recv_counts);
   loop_free(send_counts);
+  loop_free(recv_offsets);
+  loop_free(own_part_of_recvd);
+  loop_free(own_idx_of_recvd);
   comm_free(gci);
   *p_own_parts = unsort_uints_by_category(
       own_part_of_sent, 1, n, sent_sends, sent_idxs, send_offsets);
@@ -108,4 +120,7 @@ void owners_from_global(
       own_idx_of_sent, 1, n, sent_sends, sent_idxs, send_offsets);
   loop_free(sent_sends);
   loop_free(sent_idxs);
+  loop_free(send_offsets);
+  loop_free(own_part_of_sent);
+  loop_free(own_idx_of_sent);
 }
