@@ -18,7 +18,7 @@ int main()
     owners_from_global(n, global, &own_parts, &own_idxs);
   } else {
     n = 1;
-    unsigned long global[1] = {0};
+    unsigned long global[1] = {1};
     owners_from_global(n, global, &own_parts, &own_idxs);
   }
   for (unsigned i = 0; i < n; ++i)
