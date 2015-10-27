@@ -12,7 +12,7 @@ void owners_from_global(
     unsigned** p_own_parts,
     unsigned** p_own_idxs)
 {
-  unsigned long total = comm_add_ulong(ulongs_max(global_in, n));
+  unsigned long total = comm_max_ulong(ulongs_max(global_in, n)) + 1;
   unsigned nparts = comm_size();
   unsigned* lin_parts;
   unsigned* lin_idxs;
