@@ -4,7 +4,7 @@
 #include "loop.h"
 
 
-__global__ Worker_Kernal( unsigned * in ,
+__global__ void Worker_Kernal( unsigned * in ,
 		unsigned * offsets , unsigned * counts,
 		unsigned *out )
 {
