@@ -172,19 +172,19 @@ unsigned comm_size(void)
 
 void comm_add_doubles(double* p, unsigned n)
 {
-  CALL(MPI_Allreduce(p, MPI_IN_PLACE, (int) n, MPI_DOUBLE, MPI_SUM, using->c));
+  CALL(MPI_Allreduce(MPI_IN_PLACE, p, (int) n, MPI_DOUBLE, MPI_SUM, using->c));
 }
 
 unsigned long comm_add_ulong(unsigned long x)
 {
-  CALL(MPI_Allreduce(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_SUM,
+  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED_LONG, MPI_SUM,
         using->c));
   return x;
 }
 
 unsigned long comm_exscan_ulong(unsigned long x)
 {
-  CALL(MPI_Exscan(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_SUM,
+  CALL(MPI_Exscan(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED_LONG, MPI_SUM,
         using->c));
   if (!comm_rank())
     x = 0;
@@ -193,7 +193,7 @@ unsigned long comm_exscan_ulong(unsigned long x)
 
 unsigned long comm_max_ulong(unsigned long x)
 {
-  CALL(MPI_Allreduce(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_MAX,
+  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED_LONG, MPI_MAX,
         using->c));
   return x;
 }
