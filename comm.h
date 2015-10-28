@@ -14,8 +14,11 @@ void comm_use(struct comm* c);
 
 struct comm* comm_split(struct comm* c, unsigned group, unsigned rank);
 
-struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
-    unsigned const* counts);
+struct comm* comm_graph(struct comm* c,
+    unsigned nout, unsigned const* out, unsigned const* outweights);
+struct comm* comm_graph_exact(struct comm* c,
+    unsigned nin, unsigned const* in, unsigned const* inweights,
+    unsigned nout, unsigned const* out, unsigned const* outweights);
 void comm_recvs(struct comm* c,
     unsigned* nin, unsigned** in, unsigned** inweights);
 void comm_exch_uints(struct comm* c,
