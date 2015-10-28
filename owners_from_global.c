@@ -26,7 +26,6 @@ void owners_from_global(
       &nsends, &send_parts, &send_counts);
   loop_free(lin_parts);
   struct comm* gc = comm_graph(comm_using(), nsends, send_parts, send_counts);
-  loop_free(send_parts);
   unsigned nrecvs;
   unsigned* recv_parts;
   unsigned* recv_counts;
@@ -100,7 +99,10 @@ void owners_from_global(
   loop_free(recvd_of_lin_offsets);
   loop_free(orig_idxs_recvd);
   loop_free(recv_nents);
-  struct comm* gci = comm_graph(comm_using(), nrecvs, recv_parts, recv_counts);
+  struct comm* gci = comm_graph_exact(comm_using(),
+      nsends, send_parts, send_counts,
+      nrecvs, recv_parts, recv_counts);
+  loop_free(send_parts);
   loop_free(recv_parts);
   unsigned* own_part_of_sent = LOOP_MALLOC(unsigned, n);
   comm_exch_uints(gci, 1, own_part_of_recvd, recv_counts, recv_offsets,
