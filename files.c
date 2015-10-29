@@ -85,3 +85,13 @@ void safe_seek(FILE* f, long offset, int whence)
   int ret = fseek(f, offset, whence);
   assert(ret == 0);
 }
+
+void seek_prefix(FILE* f,
+    char* line, unsigned line_size, char const* prefix)
+{
+  unsigned long pl = strlen(prefix);
+  while (fgets(line, (int) line_size, f))
+    if (!strncmp(line, prefix, pl))
+      return;
+  assert(0);
+}
