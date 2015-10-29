@@ -30,7 +30,7 @@ struct mesh* read_msh(char const* filename)
   double* node_coords = LOOP_HOST_MALLOC(double, nnodes * 3);
   for (unsigned i = 0; i < nnodes; ++i) {
     unsigned node_id;
-    safe_scanf(f, 3, "%u %lf %lf %lf",
+    safe_scanf(f, 4, "%u %lf %lf %lf",
         &node_id,
         node_coords + i * 3 + 0,
         node_coords + i * 3 + 1,
