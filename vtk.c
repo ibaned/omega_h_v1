@@ -62,8 +62,6 @@ static char const* format_name(enum vtk_format fmt)
 #endif
 }
 
-typedef char line_t[1024];
-
 static void read_attrib(char const* elem, char const* name,
     char* val)
 {
@@ -267,16 +265,6 @@ static unsigned seek_prefix_next(FILE* f,
   if (!fgets(line, (int) line_size, f))
     return 0;
   return !strncmp(line, prefix, pl);
-}
-
-static void seek_prefix(FILE* f,
-    char* line, unsigned line_size, char const* prefix)
-{
-  unsigned long pl = strlen(prefix);
-  while (fgets(line, (int) line_size, f))
-    if (!strncmp(line, prefix, pl))
-      return;
-  assert(0);
 }
 
 static void read_array(FILE* f, char const* line, enum tag_type* type,
