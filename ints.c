@@ -8,6 +8,8 @@
 #include <thrust/functional.h>
 #include <thrust/transform.h>
 #include <thrust/reduce.h>
+#include <thrust/sort.h>
+
 #else
 #include <stdlib.h>
 #endif
@@ -19,7 +21,16 @@ void uints_zero(unsigned* a, unsigned n)
   thrust::fill(p, p+n, (unsigned) 0);
 }
 
-unsigned* units_copy(unsigned const * a, unsigned n)
+
+unsigned* uints_copy(unsigned  * a , unsigned n)
+{
+  unsigned *b = LOOP_MALLOC(unsigned , n );
+  CUDACALL( cudaMemcpy(b , a , n*sizeof(unsigned) , cudaMemcpyDeviceToDevice));
+
+  return b;
+}
+
+unsigned* uints_copy(unsigned const * a , unsigned n)
 {
   unsigned *b = LOOP_MALLOC(unsigned, n);
   CUDACALL(cudaMemcpy(b, a, n*sizeof(unsigned), cudaMemcpyDeviceToDevice));
@@ -89,6 +100,17 @@ unsigned uints_sum(unsigned const* a, unsigned n)
   return sum;
 }
 
+
+static int uints_less(void const* a, void const* b)
+{
+  unsigned const* pa = (unsigned const*) a;
+  unsigned const* pb = (unsigned const*) b;
+  if (*pa < *pb)
+    return -1;
+  if (*pa > *pb)
+    return 1;
+  return 0;
+}
 
 unsigned* uints_sort(unsigned const* a, unsigned n)
 {
@@ -166,6 +188,22 @@ void uints_zero(unsigned* a, unsigned n)
 {
   for (unsigned i = 0; i < n; ++i)
     a[i] = 0;
+}
+
+unsigned* uints_copy(unsigned const* a, unsigned n)
+{
+  unsigned* b = LOOP_MALLOC(unsigned, n);
+  for (unsigned i = 0; i < n; ++i)
+    b[i] = a[i];
+  return b;
+}
+
+unsigned* uints_copy(unsigned * a, unsigned n)
+{
+  unsigned* b = LOOP_MALLOC(unsigned, n);
+  for (unsigned i = 0; i < n; ++i)
+    b[i] = a[i];
+  return b;
 }
 
 unsigned uints_max(unsigned const* a, unsigned n)
@@ -247,38 +285,19 @@ unsigned* uints_sort(unsigned const* a, unsigned n)
   return out;
 }
 
-
-LOOP_KERNEL( check , unsigned *jump, unsigned *sorted , unsigned n)
-  if( i < n)
-  {
-	  jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
-  }
-}
-
-
-LOOP_KERNEL( worker, unsigned **unique , unsigned *scan ,unsigned *sorted , unsigned * jump)
-	if( jump[i] )
-	{
-		(*unique)[scan[i]] = sorted[i]; //Are there race conditons? I do not know.
-	}
-}
-
-
 void uints_unique(unsigned const* a, unsigned n,
     unsigned* nunique, unsigned** unique)
 {
   unsigned* sorted = uints_sort(a, n);
   unsigned* jump = LOOP_MALLOC(unsigned, n);
-  LOOP_EXEC(check , n, jump , sorted, n);
-  //for (unsigned i = 0; i < n; ++i)
-  //  jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
+  for (unsigned i = 0; i < n; ++i)
+    jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
   unsigned* scan = uints_exscan(jump, n);
   *nunique = scan[n];
   *unique = LOOP_MALLOC(unsigned, *nunique);
-  LOOP_EXEC( worker ,n, unique , scan, sorted, jump);
-  //for (unsigned i = 0; i < n; ++i)
-  //  if (jump[i])
-  //     (*unique)[scan[i]] = sorted[i];
+  for (unsigned i = 0; i < n; ++i)
+    if (jump[i])
+      (*unique)[scan[i]] = sorted[i];
   loop_free(sorted);
   loop_free(jump);
   loop_free(scan);
@@ -309,12 +328,6 @@ unsigned char* uchars_copy(unsigned char const* a, unsigned n)
   return b;
 }
 
-#endif
 
-unsigned* uints_copy(unsigned const* a, unsigned n)
-{
-  unsigned* b = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    b[i] = a[i];
-  return b;
-}
+
+#endif

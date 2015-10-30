@@ -3,7 +3,10 @@
 
 #include "loop_cuda.h"
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 06912c4f5db3a5d28a87735d94a83187a07c9294
 void* loop_cuda_malloc(unsigned long n)
 {
   void* p;
