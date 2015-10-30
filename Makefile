@@ -203,4 +203,6 @@ deps/%.dep: %.c loop.h | deps
 #all source files.
 #this is the funny recursion that keeps
 #header file dependencies worked out at all times.
-include $(depfiles)
+#the minus sign silences warnings when the
+#depfiles don't exist yet.
+-include $(depfiles)
