@@ -198,19 +198,38 @@ unsigned* uints_sort(unsigned const* a, unsigned n)
   return out;
 }
 
+
+LOOP_KERNEL( check , unsigned *jump, unsigned *sorted , unsigned n)
+  if( i < n)
+  {
+	  jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
+  }
+}
+
+
+LOOP_KERNEL( worker, unsigned **unique , unsigned *scan ,unsigned *sorted , unsigned * jump)
+	if( jump[i] )
+	{
+		(*unique)[scan[i]] = sorted[i]; //Are there race conditons? I do not know.
+	}
+}
+
+
 void uints_unique(unsigned const* a, unsigned n,
     unsigned* nunique, unsigned** unique)
 {
   unsigned* sorted = uints_sort(a, n);
   unsigned* jump = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
+  LOOP_EXEC(check , n, jump , sorted, n);
+  //for (unsigned i = 0; i < n; ++i)
+  //  jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
   unsigned* scan = uints_exscan(jump, n);
   *nunique = scan[n];
   *unique = LOOP_MALLOC(unsigned, *nunique);
-  for (unsigned i = 0; i < n; ++i)
-    if (jump[i])
-      (*unique)[scan[i]] = sorted[i];
+  LOOP_EXEC( worker ,n, unique , scan, sorted, jump);
+  //for (unsigned i = 0; i < n; ++i)
+  //  if (jump[i])
+  //     (*unique)[scan[i]] = sorted[i];
   loop_free(sorted);
   loop_free(jump);
   loop_free(scan);
