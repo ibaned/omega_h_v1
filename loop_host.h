@@ -9,6 +9,8 @@ void* loop_host_realloc(void* p, unsigned long n);
   ((T*)loop_host_realloc(p, sizeof(T) * (n)))
 void loop_host_free(void* p);
 
+unsigned host_atomic_increment( unsigned *p);
+
 void* loop_host_copy(void const* p, unsigned long n);
 
 #endif

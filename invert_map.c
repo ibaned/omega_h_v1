@@ -10,18 +10,8 @@ LOOP_KERNEL( Work , unsigned const* in ,
 		unsigned *out )
   unsigned d = in[i];
   unsigned o = offsets[d];
-  unsigned j = counts[d];
+  unsigned j = atomic_increment(&(counts[d]));
   out[o + j] = i;
-
-#ifdef __CUDACC__
-  atomicAdd( counts+d , 1);
-#elif defined(_OPENMP)
-  #pragma omp atomic
-    counts[d]++;
-#else
-  counts[d]++;
-#endif
-
 }
 
 
