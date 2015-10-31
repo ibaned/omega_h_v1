@@ -9,10 +9,10 @@
 #define loop_to_host loop_host_copy
 #define loop_to_device loop_host_copy
 
-unsigned loop_openmp_atomic_increment(unsigned* p)
+static inline unsigned loop_openmp_atomic_increment(unsigned* p)
 {
   unsigned a = *p;
-  _Pragma("omp atomic atomic update")
+#pragma omp atomic update
     *p = *p +1;
   return a;
 }
