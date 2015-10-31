@@ -3,7 +3,7 @@
 #include "ints.h"
 #include "loop.h"
 
-LOOP_KERNEL(Work, unsigned const* in,
+LOOP_KERNEL(fill, unsigned const* in,
 		unsigned* offsets, unsigned* counts,
 		unsigned* out)
   unsigned d = in[i];
@@ -26,7 +26,7 @@ void invert_map(
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   uints_zero(counts, nout);
-  LOOP_EXEC(Work, nin, in, offsets, counts, out);
+  LOOP_EXEC(fill, nin, in, offsets, counts, out);
   loop_free(counts);
   *p_out = out;
   *p_offsets = offsets;
