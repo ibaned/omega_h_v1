@@ -54,25 +54,56 @@ struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
   return c2;
 }
 
-struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
-    unsigned const* counts)
+struct comm* comm_graph(struct comm* c,
+    unsigned nout, unsigned const* out, unsigned const* outweights)
 {
   struct comm* c2 = LOOP_HOST_MALLOC(struct comm, 1);
-  int n = (int) ndests;
+  int n = (int) nout;
   int sources[1];
   MPI_Comm_rank(c->c, sources);
   int degrees[1] = {n};
-  int* destinations = LOOP_HOST_MALLOC(int, ndests);
-  for (unsigned i = 0; i < ndests; ++i)
-    destinations[i] = (int) dests[i];
-  int* weights = LOOP_HOST_MALLOC(int, ndests);
-  for (unsigned i = 0; i < ndests; ++i)
-    weights[i] = (int) counts[i];
+  int* destinations = LOOP_HOST_MALLOC(int, nout);
+  int* weights = LOOP_HOST_MALLOC(int, nout);
+  for (unsigned i = 0; i < nout; ++i) {
+    destinations[i] = (int) out[i];
+    weights[i] = (int) outweights[i];
+  }
   CALL(MPI_Dist_graph_create(c->c, 1, sources, degrees, destinations,
         weights, MPI_INFO_NULL, 0, &c2->c));
   loop_host_free(destinations);
   loop_host_free(weights);
   return c2;
+}
+
+struct comm* comm_graph_exact(struct comm* c,
+    unsigned nin, unsigned const* in, unsigned const* inweights,
+    unsigned nout, unsigned const* out, unsigned const* outweights)
+{
+  struct comm* c2 = LOOP_HOST_MALLOC(struct comm, 1);
+  int indegree = (int) nin;
+  int* sources = LOOP_HOST_MALLOC(int, nin);
+  int* sourceweights = LOOP_HOST_MALLOC(int, nin);
+  for (unsigned i = 0; i < nin; ++i) {
+    sources[i] = (int) in[i];
+    sourceweights[i] = (int) inweights[i];
+  }
+  int outdegree = (int) nout;
+  int* destinations = LOOP_HOST_MALLOC(int, nout);
+  int* destweights = LOOP_HOST_MALLOC(int, nout);
+  for (unsigned i = 0; i < nout; ++i) {
+    destinations[i] = (int) out[i];
+    destweights[i] = (int) outweights[i];
+  }
+  CALL(MPI_Dist_graph_create_adjacent(c->c,
+        indegree, sources, sourceweights,
+        outdegree, destinations, destweights,
+        MPI_INFO_NULL, 0, &c2->c));
+  loop_host_free(sources);
+  loop_host_free(sourceweights);
+  loop_host_free(destinations);
+  loop_host_free(destweights);
+  return c2;
+
 }
 
 void comm_recvs(struct comm* c,
@@ -172,19 +203,19 @@ unsigned comm_size(void)
 
 void comm_add_doubles(double* p, unsigned n)
 {
-  CALL(MPI_Allreduce(p, MPI_IN_PLACE, (int) n, MPI_DOUBLE, MPI_SUM, using->c));
+  CALL(MPI_Allreduce(MPI_IN_PLACE, p, (int) n, MPI_DOUBLE, MPI_SUM, using->c));
 }
 
 unsigned long comm_add_ulong(unsigned long x)
 {
-  CALL(MPI_Allreduce(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_SUM,
+  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED_LONG, MPI_SUM,
         using->c));
   return x;
 }
 
 unsigned long comm_exscan_ulong(unsigned long x)
 {
-  CALL(MPI_Exscan(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_SUM,
+  CALL(MPI_Exscan(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED_LONG, MPI_SUM,
         using->c));
   if (!comm_rank())
     x = 0;
@@ -193,7 +224,7 @@ unsigned long comm_exscan_ulong(unsigned long x)
 
 unsigned long comm_max_ulong(unsigned long x)
 {
-  CALL(MPI_Allreduce(&x, MPI_IN_PLACE, 1, MPI_UNSIGNED_LONG, MPI_MAX,
+  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED_LONG, MPI_MAX,
         using->c));
   return x;
 }
@@ -241,21 +272,38 @@ struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
 }
 
 struct graph_comm {
-  unsigned ndests;
-  unsigned count;
+  unsigned nout;
+  unsigned outweight;
 };
 
-struct comm* comm_graph(struct comm* c, unsigned ndests, unsigned const* dests,
-    unsigned const* counts)
+struct comm* comm_graph(struct comm* c,
+    unsigned nout, unsigned const* out, unsigned const* outweights)
 {
   (void)c;
-  (void)counts;
   struct graph_comm* gc = LOOP_HOST_MALLOC(struct graph_comm, 1);
-  assert(ndests <= 1);
-  if (ndests == 1)
-    assert(dests[0] == 0);
-  gc->ndests = ndests;
-  gc->count = counts[0];
+  assert(nout <= 1);
+  if (nout == 1)
+    assert(out[0] == 0);
+  gc->nout = nout;
+  gc->outweight = outweights[0];
+  return (struct comm*) gc;
+}
+
+struct comm* comm_graph_exact(struct comm* c,
+    unsigned nin, unsigned const* in, unsigned const* inweights,
+    unsigned nout, unsigned const* out, unsigned const* outweights)
+{
+  (void)c;
+  struct graph_comm* gc = LOOP_HOST_MALLOC(struct graph_comm, 1);
+  assert(nout <= 1);
+  assert(nin == nout);
+  if (nout == 1) {
+    assert(out[0] == 0);
+    assert(in[0] == 0);
+    assert(inweights[0] == outweights[0]);
+  }
+  gc->nout = nout;
+  gc->outweight = outweights[0];
   return (struct comm*) gc;
 }
 
@@ -263,16 +311,18 @@ void comm_recvs(struct comm* c,
     unsigned* nin, unsigned** in, unsigned** incounts)
 {
   struct graph_comm* gc = (struct graph_comm*) c;
-  if (gc->ndests == 0) {
+  if (gc->nout == 0) {
     *nin = 0;
     *in = *incounts = 0;
   } else {
-    assert(gc->ndests == 1);
+    assert(gc->nout == 1);
     *nin = 1;
     *in = LOOP_HOST_MALLOC(unsigned, 1);
     *incounts = LOOP_HOST_MALLOC(unsigned, 1);
     (*in)[0] = 0;
-    (*incounts)[0] = gc->count;
+    /* assuming that the call to comm_graph was made
+       with outweights = outcounts = incounts */
+    (*incounts)[0] = gc->outweight;
   }
 }
 
@@ -284,19 +334,19 @@ void comm_exch_uints(struct comm* c,
   (void) outoffsets;
   (void) inoffsets;
   struct graph_comm* gc = (struct graph_comm*) c;
-  if (gc->ndests == 1) {
+  if (gc->nout == 1) {
     assert(outcounts[0] == incounts[0]);
     for (unsigned i = 0; i < outcounts[0] * width; ++i)
       in[i] = out[i];
   }
   else
-    assert(gc->ndests == 0);
+    assert(gc->nout == 0);
 }
 
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
 {
   struct graph_comm* gc = (struct graph_comm*) c;
-  if (gc->ndests)
+  if (gc->nout)
     in[0] = out;
 }
 

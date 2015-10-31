@@ -31,7 +31,9 @@ test_pvtu.c \
 test_split.c \
 test_loop.c \
 test_base64.c \
-test_vtk_ascii.c
+test_global.c \
+test_vtk_ascii.c \
+test_read_msh.c
 
 lib_sources := \
 star.c \
@@ -96,7 +98,9 @@ comm.c \
 files.c \
 global.c \
 base64.c \
-invert_map.c
+invert_map.c \
+owners_from_global.c \
+gmsh_io.c
 
 #handle optional features:
 USE_MPI ?= 0
@@ -199,4 +203,6 @@ deps/%.dep: %.c loop.h | deps
 #all source files.
 #this is the funny recursion that keeps
 #header file dependencies worked out at all times.
-include $(depfiles)
+#the minus sign silences warnings when the
+#depfiles don't exist yet.
+-include $(depfiles)
