@@ -198,14 +198,6 @@ unsigned* uints_copy(unsigned const* a, unsigned n)
   return b;
 }
 
-unsigned* uints_copy(unsigned * a, unsigned n)
-{
-  unsigned* b = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    b[i] = a[i];
-  return b;
-}
-
 unsigned uints_max(unsigned const* a, unsigned n)
 {
   unsigned max = 0;
