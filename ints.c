@@ -19,7 +19,7 @@ void uints_zero(unsigned* a, unsigned n)
   thrust::fill(p, p+n, (unsigned) 0);
 }
 
-unsigned* units_copy(unsigned const * a, unsigned n)
+unsigned* uints_copy(unsigned const* a, unsigned n)
 {
   unsigned *b = LOOP_MALLOC(unsigned, n);
   CUDACALL(cudaMemcpy(b, a, n*sizeof(unsigned), cudaMemcpyDeviceToDevice));
