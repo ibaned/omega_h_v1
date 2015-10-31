@@ -9,6 +9,16 @@
 #define loop_to_host loop_host_copy
 #define loop_to_device loop_host_copy
 
+static inline unsigned loop_openmp_atomic_increment(unsigned* p)
+{
+  unsigned a = *p;
+#pragma omp atomic update
+    *p = *p +1;
+  return a;
+}
+
+#define loop_atomic_increment loop_openmp_atomic_increment
+
 #define LOOP_KERNEL(fname, ...) \
 static void fname(__VA_ARGS__, unsigned i) \
 {

@@ -28,3 +28,10 @@ void* loop_cuda_to_device(void const* p, unsigned long n)
   CUDACALL(cudaMemcpy(out, p, n, cudaMemcpyHostToDevice));
   return out;
 }
+
+__device__ unsigned cuda_atomic_increment(unsigned* p)
+{
+	unsigned a = *p;
+	atomicAdd(p, 1);
+	return a;
+}
