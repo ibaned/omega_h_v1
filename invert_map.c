@@ -10,7 +10,7 @@ LOOP_KERNEL( Work , unsigned const* in ,
 		unsigned *out )
   unsigned d = in[i];
   unsigned o = offsets[d];
-  unsigned j = atomic_increment(&(counts[d]));
+  unsigned j = loop_atomic_increment(&(counts[d]));
   out[o + j] = i;
 }
 
