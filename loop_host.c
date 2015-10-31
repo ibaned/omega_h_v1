@@ -13,7 +13,8 @@ void* loop_host_malloc(unsigned long n)
   return p;
 }
 
-unsigned host_atomic_increment( unsigned * p ){
+unsigned loop_host_atomic_increment( unsigned * p )
+{
 	unsigned a = *p;
 	*p = *p +1;
 	return a;
