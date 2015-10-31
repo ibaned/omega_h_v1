@@ -11,12 +11,12 @@ void loop_cuda_free(void* p);
 void* loop_cuda_to_host(void const* p, unsigned long n);
 void* loop_cuda_to_device(void const* p, unsigned long n);
 
-__device__  unsigned cuda_atomic_increment( unsigned * p );
+__device__  unsigned loop_cuda_atomic_increment( unsigned * p );
 
 #define loop_to_host loop_cuda_to_host
 #define loop_to_device loop_cuda_to_device
 
-#define atomic_increment cuda_atomic_increment
+#define loop_atomic_increment loop_cuda_atomic_increment
 
 #define LOOP_MALLOC(T, n) LOOP_CUDA_MALLOC(T, n)
 #define loop_free loop_cuda_free
