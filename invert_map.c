@@ -4,13 +4,22 @@
 #include "loop.h"
 
 LOOP_KERNEL(fill, unsigned const* in,
-		unsigned* offsets, unsigned* counts,
-		unsigned* out)
+	unsigned* offsets,
+	unsigned* counts,
+	unsigned* out)
   unsigned d = in[i];
   unsigned o = offsets[d];
   unsigned j = loop_atomic_increment(&(counts[d]));
   out[o + j] = i;
 }
+
+LOOP_KERNEL(count ,
+	unsigned const* in ,
+	unsigned * counts)
+  loop_atomic_increment(&(counts[in[i]]));
+}
+
+
 
 void invert_map(
     unsigned nin,
@@ -21,8 +30,7 @@ void invert_map(
 {
   unsigned* counts = LOOP_MALLOC(unsigned, nout);
   uints_zero(counts, nout);
-  for (unsigned i = 0; i < nin; ++i)
-    counts[in[i]]++; /* TODO: loop kernel for this */
+  LOOP_EXEC(count, nin, in, counts);
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   uints_zero(counts, nout);
