@@ -132,46 +132,41 @@ void comm_recvs(struct comm* c,
   loop_host_free(destweights);
 }
 
-static void* comm_exch_any(struct comm* c,
+static void comm_exch_any(struct comm* c,
     unsigned width,
     void const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    unsigned const* incounts, unsigned const* inoffsets,
-    MPI_Datatype type, unsigned long type_size)
+    void* in, unsigned const* incounts, unsigned const* inoffsets,
+    MPI_Datatype type)
 {
   int indegree, outdegree, weighted;
   CALL(MPI_Dist_graph_neighbors_count(c->c, &indegree, &outdegree, &weighted));
-  unsigned nsends = (unsigned) outdegree;
-  unsigned nrecvs = (unsigned) indegree;
-  int* sendcounts = LOOP_HOST_MALLOC(int, nsends);
-  int* sdispls = LOOP_HOST_MALLOC(int, nsends);
-  for (unsigned i = 0; i < nsends; ++i) {
+  int* sendcounts = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
+  int* sdispls = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
+  for (int i = 0; i < outdegree; ++i) {
     sendcounts[i] = (int) (outcounts[i] * width);
     sdispls[i] = (int) (outoffsets[i] * width);
   }
-  int* recvcounts = LOOP_HOST_MALLOC(int, nrecvs);
-  int* rdispls = LOOP_HOST_MALLOC(int, nrecvs);
-  for (unsigned i = 0; i < nrecvs; ++i) {
+  int* recvcounts = LOOP_HOST_MALLOC(int, (unsigned) indegree);
+  int* rdispls = LOOP_HOST_MALLOC(int, (unsigned) indegree);
+  for (int i = 0; i < indegree; ++i) {
     recvcounts[i] = (int) (incounts[i] * width);
     rdispls[i] = (int) (inoffsets[i] * width);
   }
-  unsigned nrecvd = inoffsets[nrecvs];
-  void* in = (void*) LOOP_HOST_MALLOC(char, nrecvd * type_size);
   CALL(MPI_Neighbor_alltoallv(out, sendcounts, sdispls, type,
         in, recvcounts, rdispls, type, c->c));
   loop_host_free(sendcounts);
   loop_host_free(sdispls);
   loop_host_free(recvcounts);
   loop_host_free(rdispls);
-  return in;
 }
 
-unsigned* comm_exch_uints(struct comm* c,
+void comm_exch_uints(struct comm* c,
     unsigned width,
     unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    unsigned const* incounts, unsigned const* inoffsets)
+    unsigned* in, unsigned const* incounts, unsigned const* inoffsets)
 {
-  return (unsigned*) comm_exch_any(c, width, out, outcounts, outoffsets,
-    incounts, inoffsets, MPI_UNSIGNED, sizeof(unsigned));
+  comm_exch_any(c, width, out, outcounts, outoffsets, in, incounts, inoffsets,
+      MPI_UNSIGNED);
 }
 
 static void comm_sync_any(struct comm* c, void const* out, void* in, MPI_Datatype type)
@@ -331,24 +326,21 @@ void comm_recvs(struct comm* c,
   }
 }
 
-unsigned* comm_exch_uints(struct comm* c,
+void comm_exch_uints(struct comm* c,
     unsigned width,
     unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    unsigned const* incounts, unsigned const* inoffsets)
+    unsigned* in, unsigned const* incounts, unsigned const* inoffsets)
 {
   (void) outoffsets;
   (void) inoffsets;
   struct graph_comm* gc = (struct graph_comm*) c;
-  unsigned* in = 0;
   if (gc->nout == 1) {
     assert(outcounts[0] == incounts[0]);
-    in = LOOP_HOST_MALLOC(unsigned, outcounts[0]);
     for (unsigned i = 0; i < outcounts[0] * width; ++i)
       in[i] = out[i];
   }
   else
     assert(gc->nout == 0);
-  return in;
 }
 
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)

@@ -36,8 +36,9 @@ void owners_from_global(
   unsigned* lin_idxs_sent = sort_uints_by_category(
       lin_idxs, 1, n, sent_sends, sent_idxs, send_offsets);
   loop_free(lin_idxs);
-  unsigned* lin_idxs_recvd = comm_exch_uints(gc, 1, lin_idxs_sent,
-      send_counts, send_offsets, recv_counts, recv_offsets);
+  unsigned* lin_idxs_recvd = LOOP_MALLOC(unsigned, nrecvd);
+  comm_exch_uints(gc, 1, lin_idxs_sent, send_counts, send_offsets,
+      lin_idxs_recvd, recv_counts, recv_offsets);
   loop_free(lin_idxs_sent);
   unsigned* recv_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
   for (unsigned i = 0; i < nrecvs; ++i) {
@@ -58,8 +59,9 @@ void owners_from_global(
   unsigned* orig_idxs_sent = sort_uints_by_category(
       orig_idxs, 1, n, sent_sends, sent_idxs, send_offsets);
   loop_free(orig_idxs);
-  unsigned* orig_idxs_recvd = comm_exch_uints(gc, 1, orig_idxs_sent,
-      send_counts, send_offsets, recv_counts, recv_offsets);
+  unsigned* orig_idxs_recvd = LOOP_MALLOC(unsigned, nrecvd);
+  comm_exch_uints(gc, 1, orig_idxs_sent, send_counts, send_offsets,
+      orig_idxs_recvd, recv_counts, recv_offsets);
   loop_free(orig_idxs_sent);
   unsigned* own_part_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
   unsigned* own_idx_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
@@ -102,10 +104,12 @@ void owners_from_global(
       nrecvs, recv_parts, recv_counts);
   loop_free(send_parts);
   loop_free(recv_parts);
-  unsigned* own_part_of_sent = comm_exch_uints(gci, 1, own_part_of_recvd,
-      recv_counts, recv_offsets, send_counts, send_offsets);
-  unsigned* own_idx_of_sent = comm_exch_uints(gci, 1, own_idx_of_recvd,
-      recv_counts, recv_offsets, send_counts, send_offsets);
+  unsigned* own_part_of_sent = LOOP_MALLOC(unsigned, n);
+  comm_exch_uints(gci, 1, own_part_of_recvd, recv_counts, recv_offsets,
+      own_part_of_sent, send_counts, send_offsets);
+  unsigned* own_idx_of_sent = LOOP_MALLOC(unsigned, n);
+  comm_exch_uints(gci, 1, own_idx_of_recvd, recv_counts, recv_offsets,
+      own_idx_of_sent, send_counts, send_offsets);
   loop_free(recv_counts);
   loop_free(send_counts);
   loop_free(recv_offsets);
