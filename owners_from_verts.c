@@ -36,6 +36,7 @@ void owners_from_verts(
       vert_own_idxs[j - 1] = own_idx_of_verts[verts_of_elem[j]];
     }
   }
+  /* communication setup */
   unsigned* elem_sends;
   unsigned* elem_send_idxs;
   unsigned nsends;
@@ -45,10 +46,28 @@ void owners_from_verts(
       &elem_sends, &elem_send_idxs,
       &nsends, &send_parts, &send_counts);
   unsigned* send_offsets = uints_exscan(send_counts, nsends);
+  struct comm* c = comm_graph(comm_using(), nsends, send_parts, send_counts);
+  unsigned nrecvs;
+  unsigned* recv_parts;
+  unsigned* recv_counts;
+  comm_recvs(c, &nrecvs, &recv_parts, &recv_counts);
+  unsigned* recv_offsets = uints_exscan(recv_counts, nrecvs);
   unsigned* orig_idxs = LOOP_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i)
     orig_idxs[i] = i;
+  /* send original indices */
   unsigned* sent_orig_idxs = sort_uints_by_category(
       orig_idxs, 1, nelems, elem_sends, elem_send_idxs, send_offsets);
-  struct comm* c = comm_graph(comm_using(), nsends, send_parts, send_counts);
+  unsigned* recvd_orig_idxs = comm_exch_uints(c, 1,
+      sent_orig_idxs, send_counts, send_offsets, recv_counts, recv_offsets);
+  /* send own_vert_part_of_elems */
+  unsigned* sent_ovpe = sort_uints_by_category(
+      own_vert_part_of_elems, 1, nelems, elem_sends, elem_send_idxs, send_offsets);
+  unsigned* recvd_ovpe = comm_exch_uints(c, 1,
+      sent_ovpe, send_counts, send_offsets, recv_counts, recv_offsets);
+  /* send own_vert_idx_of_elems */
+  unsigned* sent_ovie = sort_uints_by_category(
+      own_vert_idx_of_elems, 1, nelems, elem_sends, elem_send_idxs, send_offsets);
+  unsigned* recvd_ovie = comm_exch_uints(c, 1,
+      sent_ovie, send_counts, send_offsets, recv_counts, recv_offsets);
 }
