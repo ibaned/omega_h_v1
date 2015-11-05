@@ -9,10 +9,6 @@ void global_to_linpart(unsigned long* global, unsigned n,
     unsigned long total, unsigned nparts,
     unsigned** p_part, unsigned** p_local);
 unsigned linpart_size(unsigned long total, unsigned nparts, unsigned part);
-void categorize_by_part(unsigned const* parts, unsigned n,
-    unsigned** p_cats, unsigned** p_cat_indices,
-    unsigned* p_ncats,
-    unsigned** p_cat_parts, unsigned** p_cat_counts);
 unsigned* sort_uints_by_category(
     unsigned const* a,
     unsigned width,
