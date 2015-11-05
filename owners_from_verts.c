@@ -37,11 +37,9 @@ void owners_from_verts(
       vert_own_idxs[j - 1] = own_idx_of_verts[verts_of_elem[j]];
     }
   }
-  /* communication setup */
   struct exchanger* ex = new_exchanger(nelems, own_vert_part_of_elems);
   unsigned* orig_idxs = LOOP_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i)
     orig_idxs[i] = i;
-  /* send original indices */
   unsigned* recvd_orig_idxs = exchange_uints(ex, 1, orig_idxs);
 }
