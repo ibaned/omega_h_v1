@@ -5,22 +5,23 @@
 #include "ints.h"
 #include "loop.h"
 
-struct exchanger* new_exchanger(unsigned nsent, unsigned const* part_of_sent)
+struct exchanger* new_exchanger(unsigned nsent,
+    unsigned const* dest_rank_of_sent)
 {
   struct exchanger* ex = LOOP_HOST_MALLOC(struct exchanger, 1);
   ex->nsent = nsent;
-  categorize_by_part(part_of_sent, nsent,
+  categorize_by_part(dest_rank_of_sent, nsent,
       &ex->send_of_sent, &ex->send_idx_of_sent,
-      &ex->nsends, &ex->send_parts, &ex->send_counts);
-  ex->forward_comm = comm_graph(comm_using(), ex->nsends, ex->send_parts,
+      &ex->nsends, &ex->send_ranks, &ex->send_counts);
+  ex->forward_comm = comm_graph(comm_using(), ex->nsends, ex->send_ranks,
       ex->send_counts);
-  comm_recvs(ex->forward_comm, &ex->nrecvs, &ex->recv_parts, &ex->recv_counts);
+  comm_recvs(ex->forward_comm, &ex->nrecvs, &ex->recv_ranks, &ex->recv_counts);
   ex->send_offsets = uints_exscan(ex->send_counts, ex->nsends);
   ex->recv_offsets = uints_exscan(ex->recv_counts, ex->nrecvs);
   ex->nrecvd = ex->recv_offsets[ex->nrecvs];
   ex->reverse_comm = comm_graph_exact(comm_using(),
-      ex->nsends, ex->send_parts, ex->send_counts,
-      ex->nrecvs, ex->recv_parts, ex->recv_counts);
+      ex->nsends, ex->send_ranks, ex->send_counts,
+      ex->nrecvs, ex->recv_ranks, ex->recv_counts);
   return ex;
 }
 
@@ -54,8 +55,8 @@ void free_exchanger(struct exchanger* ex)
 {
   comm_free(ex->forward_comm);
   comm_free(ex->reverse_comm);
-  loop_free(ex->send_parts);
-  loop_free(ex->recv_parts);
+  loop_free(ex->send_ranks);
+  loop_free(ex->recv_ranks);
   loop_free(ex->send_counts);
   loop_free(ex->recv_counts);
   loop_free(ex->send_offsets);

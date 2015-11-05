@@ -58,15 +58,15 @@ void owners_from_global(
         own_idx = orig_idxs_recvd[recvd];
       } else if ((recv_nents[recv_of_recvd[recvd]] ==
                   recv_nents[own_recv]) &&
-                 (ex->recv_parts[recv_of_recvd[recvd]] <
-                  ex->recv_parts[own_recv])) {
+                 (ex->recv_ranks[recv_of_recvd[recvd]] <
+                  ex->recv_ranks[own_recv])) {
         own_recv = recv_of_recvd[recvd];
         own_idx = orig_idxs_recvd[recvd];
       }
     }
     for (unsigned j = first; j < end; ++j) {
       recvd = recvd_of_lins[j];
-      own_part_of_recvd[recvd] = ex->recv_parts[own_recv];
+      own_part_of_recvd[recvd] = ex->recv_ranks[own_recv];
       own_idx_of_recvd[recvd] = own_idx;
     }
   }

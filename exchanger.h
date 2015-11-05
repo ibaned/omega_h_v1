@@ -10,8 +10,8 @@ struct exchanger {
   unsigned nrecvd;
   unsigned nsends;
   unsigned nrecvs;
-  unsigned* send_parts;
-  unsigned* recv_parts;
+  unsigned* send_ranks;
+  unsigned* recv_ranks;
   unsigned* send_counts;
   unsigned* recv_counts;
   unsigned* send_offsets;
@@ -20,7 +20,8 @@ struct exchanger {
   unsigned* send_idx_of_sent;
 };
 
-struct exchanger* new_exchanger(unsigned nsent, unsigned const* part_of_sent);
+struct exchanger* new_exchanger(unsigned nsent,
+    unsigned const* dest_rank_of_sent);
 unsigned* exchange_uints(struct exchanger* ex, unsigned width,
     unsigned const* sent);
 unsigned* unexchange_uints(struct exchanger* ex, unsigned width,
