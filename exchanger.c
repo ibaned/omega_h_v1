@@ -24,16 +24,16 @@ static void sends_from_dest_ranks(
     unsigned** p_send_ranks,
     unsigned** p_send_counts)
 {
-  /* queued[i]==1 iff (i) has not been categorized yet */
+  /* queued[i]==1 iff (i) is not part of a message yet */
   unsigned* queued = LOOP_MALLOC(unsigned, nsent);
   for (unsigned i = 0; i < nsent; ++i)
     queued[i] = 1;
-  /* loop over categories, we don't know how many but
-     there certainly won't be more than (nsent) */
   unsigned* send_of_sent = LOOP_MALLOC(unsigned, nsent);
   unsigned* send_idx_of_sent = LOOP_MALLOC(unsigned, nsent);
   unsigned* send_counts = LOOP_MALLOC(unsigned, nsent);
   unsigned* send_ranks = LOOP_MALLOC(unsigned, nsent);
+  /* loop over messages, we don't know how many but
+     there certainly won't be more than (nsent) */
   unsigned send;
   for (send = 0; send < nsent; ++send) {
     unsigned current_rank = 0;
@@ -41,9 +41,9 @@ static void sends_from_dest_ranks(
     unsigned nqueued = queue_offsets[nsent];
     if (nqueued == 0) {
       loop_free(queue_offsets);
-      break; /* stop when all entries categorized */
+      break; /* stop when all entries are part of a message */
     }
-    /* process the rank of the first uncategorized entry */
+    /* process the rank of the first queued entry */
     for (unsigned i = 0; i < nsent; ++i)
       if ((queue_offsets[i + 1] - queue_offsets[i] == 1) &&
           queue_offsets[i] == 0)
