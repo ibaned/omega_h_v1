@@ -8,6 +8,7 @@
 #include <thrust/functional.h>
 #include <thrust/transform.h>
 #include <thrust/reduce.h>
+#include <thrust/sort.h>
 #else
 #include <stdlib.h>
 #endif
@@ -36,13 +37,13 @@ unsigned uints_max(unsigned const* a, unsigned n)
 
 unsigned* uints_exscan(unsigned const* a, unsigned n)
 {
-  unsigned* o = LOOP_MALLOC(unsigned, (n + 1));
-  unsigned sum = 0;
-  o[0] = 0;
-  for (unsigned i = 0; i < n; ++i) {
-    sum += a[i];
-    o[i + 1] = sum;
-  }
+  unsigned * o = LOOP_MALLOC(unsigned , n + 1);
+  thrust::device_ptr<unsigned const> inp(a);
+  thrust::device_ptr<unsigned> outp(o);
+  thrust::exclusive_scan(inp, inp + n, outp);
+  /* fixup the last element quirk */
+  unsigned sum = thrust::reduce(inp, inp + n);
+  CUDACALL(cudaMemcpy(o + n, &sum, sizeof(unsigned), cudaMemcpyHostToDevice));
   return o;
 }
 
@@ -159,6 +160,53 @@ unsigned char* uchars_copy(unsigned char const* a, unsigned n)
   CUDACALL(cudaMemcpy(b, a, n * sizeof(unsigned char), cudaMemcpyDeviceToDevice));
   return b;
 }
+
+
+LOOP_KERNEL(checker , unsigned *jump, unsigned *sorted )
+  if( i < n)
+  {
+	  jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
+  }
+}
+
+
+LOOP_KERNEL( worker, unsigned **unique , unsigned *scan ,unsigned *sorted , unsigned * jump)
+	if( jump[i] )
+	{
+		(*unique)[scan[i]] = sorted[i]; //Are there race conditons? I do not know.
+	}
+}
+
+
+void uints_unique(unsigned const* a, unsigned n,
+    unsigned* nunique, unsigned** unique)
+{
+  unsigned* sorted = uints_sort(a, n);
+  unsigned* jump = LOOP_MALLOC(unsigned, n);
+  LOOP_EXEC(checker , n, jump , sorted);
+  //for (unsigned i = 0; i < n; ++i)
+  //  jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
+  unsigned* scan = uints_exscan(jump, n);
+  *nunique = scan[n];
+  *unique = LOOP_MALLOC(unsigned, *nunique);
+  LOOP_EXEC( worker ,n, unique , scan, sorted, jump);
+  //for (unsigned i = 0; i < n; ++i)
+  //  if (jump[i])
+  //     (*unique)[scan[i]] = sorted[i];
+  loop_free(sorted);
+  loop_free(jump);
+  loop_free(scan);
+}
+
+
+unsigned* uints_sort(unsigned const* a, unsigned n)
+{
+  unsigned* out = uints_copy(a, n);
+  thrust::device_ptr<unsigned> p2(out);
+  thrust::sort( p2 , p2 + n);
+  return out;
+}
+
 
 #else
 
