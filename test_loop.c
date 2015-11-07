@@ -132,6 +132,7 @@ void COUNT_TEST()
 	  }
 	  loop_free( counts);
 #endif
+
 }
 
 
@@ -147,7 +148,6 @@ int main()
   loop_free(d);
 */
 #ifdef __CUDACC__
-  cudaDeviceReset();
 
   unsigned  a[7] = {1,2,1,3,5,1,2};
   unsigned *b  = (unsigned *)loop_to_device(a , sizeof(unsigned)*7 );
@@ -164,7 +164,9 @@ int main()
 	  printf( "%d\n" ,z[i]);
   }
   loop_free( counts);
-#endif
   Ints_Test();
+#endif
   return 0;
+
+
 }

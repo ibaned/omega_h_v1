@@ -16,7 +16,15 @@ unsigned loop_openmp_atomic_increment( unsigned * p )
 			*p = *p +1;
 	return a;
 }
-
+		/*
+static inline unsigned loop_openmp_atomic_increment(unsigned* p)
+{
+  unsigned a = *p;
+#pragma omp atomic update
+    *p = *p +1;
+  return a;
+}
+*/
 #define loop_atomic_increment loop_openmp_atomic_increment
 
 #define LOOP_KERNEL(fname, ...) \
