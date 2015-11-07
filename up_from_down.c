@@ -4,6 +4,21 @@
 #include "loop.h"
 #include "tables.h"
 
+LOOP_KERNEL( worker ,
+	unsigned * directions,
+	unsigned * highs_of_lows,
+	unsigned  lows_per_high)
+  unsigned both = highs_of_lows[i];
+  unsigned high = both/ lows_per_high;
+  highs_of_lows[i] = high;
+  if(directions)
+  {
+	  unsigned dir = both % lows_per_high;
+	  directions[i] = dir;
+  }
+}
+
+
 void up_from_down(
     unsigned high_dim,
     unsigned low_dim,
@@ -22,6 +37,8 @@ void up_from_down(
   unsigned* directions = 0;
   if (directions_out)
     directions = LOOP_MALLOC(unsigned, nuses);
+  LOOP_EXEC( worker, nuses , directions, highs_of_lows, lows_per_high);
+  /*
   for (unsigned i = 0; i < nuses; ++i) {
     unsigned both = highs_of_lows[i];
     unsigned high = both / lows_per_high;
@@ -31,6 +48,7 @@ void up_from_down(
       directions[i] = dir;
     }
   }
+*/
   *offsets_out = offsets;
   *highs_of_lows_out = highs_of_lows;
   if (directions_out)
