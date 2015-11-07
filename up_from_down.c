@@ -48,7 +48,7 @@ void up_from_down(
       directions[i] = dir;
     }
   }
-/*
+*/
   *offsets_out = offsets;
   *highs_of_lows_out = highs_of_lows;
   if (directions_out)

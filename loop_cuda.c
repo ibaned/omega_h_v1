@@ -11,12 +11,6 @@ void* loop_cuda_malloc(unsigned long n)
   return p;
 }
 
-__device__  unsigned cuda_atomic_increment( unsigned * p )
-{
-	int a= *p;
-	atomicAdd( p , 1);
-	return a;
-}
 
 void loop_cuda_free(void* p)
 {

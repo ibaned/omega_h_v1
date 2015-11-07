@@ -90,55 +90,6 @@ unsigned uints_sum(unsigned const* a, unsigned n)
   return sum;
 }
 
-
-unsigned* uints_sort(unsigned const* a, unsigned n)
-{
-  unsigned* out = uints_copy(a, n);
-  thrust::device_ptr< unsigned int> p (out);
-  thrust::sort( p , n+p);
-  return out;
-}
-
-
-LOOP_KERNEL( check , unsigned *jump, unsigned *sorted , unsigned n)
-  if( i < n)
-  {
-	  jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
-  }
-}
-
-
-LOOP_KERNEL( worker, unsigned **unique , unsigned *scan ,unsigned *sorted , unsigned * jump)
-	if( jump[i] )
-	{
-		(*unique)[scan[i]] = sorted[i]; //Are there race conditons? I do not know.
-	}
-}
-
-
-void uints_unique(unsigned const* a, unsigned n,
-    unsigned* nunique, unsigned** unique)
-{
-  unsigned* sorted = uints_sort(a, n);
-  unsigned* jump = LOOP_MALLOC(unsigned, n);
-  LOOP_EXEC(check , n, jump , sorted, n);
-  //for (unsigned i = 0; i < n; ++i)
-  //  jump[i] = ((i == 0) || (sorted[i - 1] != sorted[i]));
-  unsigned* scan = uints_exscan(jump, n);
-  *nunique = scan[n];
-  *unique = LOOP_MALLOC(unsigned, *nunique);
-  LOOP_EXEC( worker ,n, unique , scan, sorted, jump);
-  //for (unsigned i = 0; i < n; ++i)
-  //  if (jump[i])
-  //     (*unique)[scan[i]] = sorted[i];
-  loop_free(sorted);
-  loop_free(jump);
-  loop_free(scan);
-}
-
-
-
-
 unsigned long* ulongs_copy(unsigned long const * a , unsigned n)
 {
   unsigned long *b = LOOP_MALLOC(unsigned long, n);
@@ -214,6 +165,14 @@ void uints_zero(unsigned* a, unsigned n)
 {
   for (unsigned i = 0; i < n; ++i)
     a[i] = 0;
+}
+
+unsigned* uints_copy(unsigned const* a, unsigned n)
+{
+  unsigned* b = LOOP_MALLOC(unsigned, n);
+  for (unsigned i = 0; i < n; ++i)
+    b[i] = a[i];
+  return b;
 }
 
 unsigned uints_max(unsigned const* a, unsigned n)
@@ -358,11 +317,3 @@ unsigned char* uchars_copy(unsigned char const* a, unsigned n)
 }
 
 #endif
-
-unsigned* uints_copy(unsigned const* a, unsigned n)
-{
-  unsigned* b = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    b[i] = a[i];
-  return b;
-}
