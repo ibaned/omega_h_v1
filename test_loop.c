@@ -4,7 +4,7 @@
 #include <time.h>
 #include <limits.h>
 
-#define N 1000000
+#define N 100000000
 
 
 
@@ -39,7 +39,7 @@ void Ints_Test()
 #endif
 
   loop_free(a);;
-  printf( "ZERO: %f" , (double)(end-start)/CLOCKS_PER_SEC);
+  printf( "ZERO: %F\n" , (double)(end-start)/CLOCKS_PER_SEC);
 
 
   //units_copy (Max values ?? ; Min values ?? ; Runtime)
@@ -65,7 +65,7 @@ void Ints_Test()
   for(unsigned i = 0; i<N;i++)
     if( a[i] != b[i]){ printf("uints copy failed!"); abort();}
   free(b); free(a);
-  printf( "COPY: %f" , (double)(end-start)/CLOCKS_PER_SEC);
+  printf( "COPY: %F\n" , (double)(end-start)/CLOCKS_PER_SEC);
 
 
   //units_max (Max values; Min values; Runtime)
@@ -92,9 +92,14 @@ void Ints_Test()
 
   if ( zz != 0xFFFFFFFF){ printf( "MAX FAILED"); abort();}
 
-  printf( "COPY: %f" , (double)(end-start)/CLOCKS_PER_SEC);
+  printf( "MAX: %F\n" , (double)(end-start)/CLOCKS_PER_SEC);
 
   // uints_exscan (Max values; Min values; Runtime)
+  a = (unsigned *)malloc(N *sizeof(unsigned));
+  for( int i =0 ; i< N ;i++)
+  {
+    a[i] = rand()%(0xFFFFFFFF);
+  }
 
 
   // uints_unscan (Max values; Min values; Runtime)
@@ -108,7 +113,7 @@ void Ints_Test()
 
 }
 
-int COUNT_TEST()
+void COUNT_TEST()
 {
 	unsigned  a[7] = {1,2,1,3,5,1,2};
 	  unsigned *b = (unsigned *)loop_to_device(a , sizeof(unsigned)*7 );
@@ -157,5 +162,7 @@ int main()
 	  printf( "%d\n" ,z[i]);
   }
   loop_free( counts);
+
+  Ints_Test();
 
 }
