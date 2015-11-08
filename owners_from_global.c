@@ -22,13 +22,7 @@ void owners_from_global(
   loop_free(lin_parts);
   unsigned* lin_idxs_recvd = exchange_uints(ex, 1, lin_idxs);
   loop_free(lin_idxs);
-  unsigned* recv_of_recvd = LOOP_MALLOC(unsigned, ex->nrecvd);
-  for (unsigned i = 0; i < ex->nrecvs; ++i) {
-    unsigned first = ex->recv_offsets[i];
-    unsigned end = ex->recv_offsets[i + 1];
-    for (unsigned j = first; j < end; ++j)
-      recv_of_recvd[j] = i;
-  }
+  unsigned const* recv_of_recvd = ex->recv_of_recvd;
   unsigned linsize = linpart_size(total, nparts, comm_rank());
   unsigned* recvd_of_lins;
   unsigned* recvd_of_lin_offsets;
@@ -70,7 +64,6 @@ void owners_from_global(
       own_idx_of_recvd[recvd] = own_idx;
     }
   }
-  loop_free(recv_of_recvd);
   loop_free(recvd_of_lins);
   loop_free(recvd_of_lin_offsets);
   loop_free(orig_idxs_recvd);

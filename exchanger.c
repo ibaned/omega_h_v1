@@ -81,6 +81,21 @@ static void sends_from_dest_ranks(
   loop_free(send_counts);
 }
 
+static unsigned* make_recv_of_recvd(
+    unsigned nrecvd,
+    unsigned nrecvs,
+    unsigned const* recv_offsets)
+{
+  unsigned* recv_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
+  for (unsigned i = 0; i < nrecvs; ++i) {
+    unsigned first = recv_offsets[i];
+    unsigned end = recv_offsets[i + 1];
+    for (unsigned j = first; j < end; ++j)
+      recv_of_recvd[j] = i;
+  }
+  return recv_of_recvd;
+}
+
 struct exchanger* new_exchanger(unsigned nsent,
     unsigned const* dest_rank_of_sent)
 {
@@ -98,6 +113,7 @@ struct exchanger* new_exchanger(unsigned nsent,
   ex->reverse_comm = comm_graph_exact(comm_using(),
       ex->nsends, ex->send_ranks, ex->send_counts,
       ex->nrecvs, ex->recv_ranks, ex->recv_counts);
+  ex->recv_of_recvd = make_recv_of_recvd(ex->nrecvd, ex->nrecvs, ex->recv_offsets);
   return ex;
 }
 
@@ -139,5 +155,6 @@ void free_exchanger(struct exchanger* ex)
   loop_free(ex->recv_offsets);
   loop_free(ex->send_of_sent);
   loop_free(ex->send_idx_of_sent);
+  loop_free(ex->recv_of_recvd);
   loop_host_free(ex);
 }

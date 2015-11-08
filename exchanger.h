@@ -18,6 +18,7 @@ struct exchanger {
   unsigned* recv_offsets;
   unsigned* send_of_sent;
   unsigned* send_idx_of_sent;
+  unsigned* recv_of_recvd;
 };
 
 struct exchanger* new_exchanger(unsigned nsent,
