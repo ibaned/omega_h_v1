@@ -81,6 +81,13 @@ static void sends_from_dest_ranks(
   loop_free(send_counts);
 }
 
+/* given the number of items to receive,
+   and how they are organized to received messages,
+   make an array which for every item received lists
+   the message it came from.
+   this is a slightly embarrassing thing to do, but
+   is useful in writing user algorithms */
+
 static unsigned* make_recv_of_recvd(
     unsigned nrecvd,
     unsigned nrecvs,
