@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 #include "loop.h"
 #include "tables.h"
 #include "up_from_down.h"
@@ -12,12 +11,18 @@ int main()
   unsigned* offsets;
   unsigned* adj;
   unsigned* directions;
+#ifdef __CUDACC__
+  unsigned const * in = (unsigned const *)
+		  loop_cuda_to_device( the_box_conns[dim] , sizeof(unsigned) * nelems * nverts);
+#else
+  unsigned const *in = the_box_conns[dim];
+#endif
   up_from_down(
       dim,
       0,
       nelems,
       nverts,
-      the_box_conns[dim],
+      in,
       &offsets,
       &adj,
       &directions);
