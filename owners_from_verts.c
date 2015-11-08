@@ -5,6 +5,30 @@
 #include "loop.h"
 #include "tables.h"
 
+/* checks whether two received copies (e,e2) describe the same element
+   by comparing the owners of their vertices
+   (except the first one, which in this case we already
+    know is the same)
+   we assume (require) that the order of the vertices
+   is the same amongst copies */
+static unsigned are_same_element(
+    unsigned verts_per_elem,
+    unsigned const* vop_of_recvd,
+    unsigned const* voi_of_recvd,
+    unsigned e,
+    unsigned e2)
+{
+  for (unsigned i = 0; i < (verts_per_elem - 1); ++i) {
+    if (vop_of_recvd[e  * (verts_per_elem - 1) + i] !=
+        vop_of_recvd[e2 * (verts_per_elem - 1) + i])
+      return 0;
+    if (voi_of_recvd[e  * (verts_per_elem - 1) + i] !=
+        voi_of_recvd[e2 * (verts_per_elem - 1) + i])
+      return 0;
+  }
+  return 1;
+}
+
 void owners_from_verts(
     unsigned elem_dim,
     unsigned nelems,
@@ -42,7 +66,7 @@ void owners_from_verts(
   unsigned* orig_idxs = LOOP_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i)
     orig_idxs[i] = i;
-  unsigned* recvd_orig_idxs = exchange_uints(ex, 1, orig_idxs);
+  unsigned* orig_idx_of_recvd = exchange_uints(ex, 1, orig_idxs);
   unsigned* vop_of_recvd = exchange_uints(ex, verts_per_elem - 1,
       vert_own_parts_of_elems);
   unsigned* voi_of_recvd = exchange_uints(ex, verts_per_elem - 1,
@@ -63,11 +87,24 @@ void owners_from_verts(
     unsigned first = ex->recvd_of_dests_offsets[i];
     unsigned end = ex->recvd_of_dests_offsets[i + 1];
     for (unsigned j = first; j < end; ++j) {
-      unsigned elem = ex->recvd_of_dests[j];
+      unsigned e = ex->recvd_of_dests[j];
       if (op_of_recvd[elem] != INVALID)
         continue; /* an owner was already chosen */
-      unsigned op = ex->recv_ranks
-      for (unsigned k = first; k < end; ++k) {
+      unsigned own_recv = ex->recv_of_recvd[e];
+      unsigned own_idx = orig_idx_of_recvd[e];
+      for (unsigned k = j + 1; k < end; ++k) {
+        unsigned e2 = ex->recvd_of_dests[j];
+        if (!are_same_element(verts_per_elem, vop_of_recvd, voi_of_recvd,
+              e, e2))
+          continue;
+        unsigned recv2 = ex->recv_of_recvd[e2];
+        unsigned idx2 = orig_idx_of_recvd[e];
+        if ((recv_nelems[recv2] < recv_nelems[own_recv]) ||
+            ((recv_nelems[recv2] == recv_nelems[own_recv]) &&
+             (ex->recv_ranks[recv2] < ex->recv_ranks[own_recv]))) {
+          own_recv = recv2;
+          own_idx = idx2;
+        }
       }
     }
   }
