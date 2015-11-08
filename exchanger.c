@@ -3,6 +3,7 @@
 #include "comm.h"
 #include "global.h"
 #include "ints.h"
+#include "invert_map.h"
 #include "loop.h"
 
 /* given an array that indicates which rank an
@@ -103,8 +104,11 @@ static unsigned* make_recv_of_recvd(
   return recv_of_recvd;
 }
 
-struct exchanger* new_exchanger(unsigned nsent,
-    unsigned const* dest_rank_of_sent)
+struct exchanger* new_exchanger(
+    unsigned nsent,
+    unsigned ndests,
+    unsigned const* dest_rank_of_sent,
+    unsigned const* dest_idx_of_sent)
 {
   struct exchanger* ex = LOOP_HOST_MALLOC(struct exchanger, 1);
   ex->nsent = nsent;
@@ -121,6 +125,10 @@ struct exchanger* new_exchanger(unsigned nsent,
       ex->nsends, ex->send_ranks, ex->send_counts,
       ex->nrecvs, ex->recv_ranks, ex->recv_counts);
   ex->recv_of_recvd = make_recv_of_recvd(ex->nrecvd, ex->nrecvs, ex->recv_offsets);
+  unsigned* dest_idx_of_recvd = exchange_uints(ex, 1, dest_idx_of_sent);
+  invert_map(ex->nrecvd, dest_idx_of_recvd, ndests,
+      &ex->recvd_of_dests, &ex->recvd_of_dests_offsets);
+  loop_free(dest_idx_of_recvd);
   return ex;
 }
 
@@ -163,5 +171,7 @@ void free_exchanger(struct exchanger* ex)
   loop_free(ex->send_of_sent);
   loop_free(ex->send_idx_of_sent);
   loop_free(ex->recv_of_recvd);
+  loop_free(ex->recvd_of_dests);
+  loop_free(ex->recvd_of_dests_offsets);
   loop_host_free(ex);
 }

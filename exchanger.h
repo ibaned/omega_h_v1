@@ -3,6 +3,12 @@
 
 struct comm;
 
+/* this system encompasses the exchange of many small items
+   to many small destinations on other MPI ranks.
+   for example, consider sending values from duplicate nodes
+   of a mesh to the "owner" or "master" nodes
+*/
+
 struct exchanger {
   struct comm* forward_comm;
   struct comm* reverse_comm;
@@ -19,10 +25,18 @@ struct exchanger {
   unsigned* send_of_sent;
   unsigned* send_idx_of_sent;
   unsigned* recv_of_recvd;
+  unsigned* recvd_of_dests;
+  unsigned* recvd_of_dests_offsets;
 };
 
-struct exchanger* new_exchanger(unsigned nsent,
-    unsigned const* dest_rank_of_sent);
+struct exchanger* new_exchanger(
+    unsigned nsent, /* number of items to send */
+    /* number of destinations on this MPI rank
+       for items from other MPI ranks */
+    unsigned ndests,
+    /* destinations of each item */
+    unsigned const* dest_rank_of_sent,
+    unsigned const* dest_idx_of_sent);
 unsigned* exchange_uints(struct exchanger* ex, unsigned width,
     unsigned const* sent);
 unsigned* unexchange_uints(struct exchanger* ex, unsigned width,
