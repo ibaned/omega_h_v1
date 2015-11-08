@@ -42,16 +42,13 @@ void owners_from_global(
     unsigned own_idx = orig_idxs_recvd[first];
     for (unsigned j = first + 1; j < end; ++j) {
       recvd = recvd_of_lins[j];
-      if (recv_nents[recv_of_recvd[recvd]] <
-          recv_nents[own_recv]) {
-        own_recv = recv_of_recvd[recvd];
-        own_idx = orig_idxs_recvd[recvd];
-      } else if ((recv_nents[recv_of_recvd[recvd]] ==
-                  recv_nents[own_recv]) &&
-                 (ex->recv_ranks[recv_of_recvd[recvd]] <
-                  ex->recv_ranks[own_recv])) {
-        own_recv = recv_of_recvd[recvd];
-        own_idx = orig_idxs_recvd[recvd];
+      unsigned recv2 = ex->recv_ranks[recv_of_recvd[j]];
+      unsigned idx2 = orig_idxs_recvd[j];
+      if ((recv_nents[recv2] < recv_nents[own_recv]) ||
+          ((recv_nents[recv2] == recv_nents[own_recv]) &&
+           (ex->recv_ranks[recv2] < ex->recv_ranks[own_recv]))) {
+        own_recv = recv2;
+        own_idx = idx2;
       }
     }
     for (unsigned j = first; j < end; ++j) {
