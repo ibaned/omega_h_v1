@@ -37,9 +37,38 @@ void owners_from_verts(
       vert_own_idxs[j - 1] = own_idx_of_verts[verts_of_elem[j]];
     }
   }
-  struct exchanger* ex = new_exchanger(nelems, own_vert_part_of_elems);
+  struct exchanger* ex = new_exchanger(nelems, nverts,
+      own_vert_part_of_elems, own_vert_idx_of_elems);
   unsigned* orig_idxs = LOOP_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i)
     orig_idxs[i] = i;
   unsigned* recvd_orig_idxs = exchange_uints(ex, 1, orig_idxs);
+  unsigned* vop_of_recvd = exchange_uints(ex, verts_per_elem - 1,
+      vert_own_parts_of_elems);
+  unsigned* voi_of_recvd = exchange_uints(ex, verts_per_elem - 1,
+      vert_own_idx_of_elems);
+  unsigned* recv_nelems = LOOP_MALLOC(unsigned, ex->nrecvs);
+  comm_sync_uint(ex->forward_comm, nelems, recv_nelems);
+  unsigned* op_of_recvd = LOOP_MALLOC(unsigned, ex->nrecvd);
+  unsigned* oi_of_recvd = LOOP_MALLOC(unsigned, ex->nrecvd);
+  for (unsigned i = 0; i < ex->nrecvd; ++i)
+    op_of_recvd[i] = INVALID;
+  /* okay, this algorithm is a mess.
+     we have all *copies* of elements which call
+     this vertex their vertex #0, and we simultaneously
+     have to keep track of which copies are actually
+     copies of the same element and also assign
+     an owner to that subset of the copies */
+  for (unsigned i = 0; i < nverts; ++i) {
+    unsigned first = ex->recvd_of_dests_offsets[i];
+    unsigned end = ex->recvd_of_dests_offsets[i + 1];
+    for (unsigned j = first; j < end; ++j) {
+      unsigned elem = ex->recvd_of_dests[j];
+      if (op_of_recvd[elem] != INVALID)
+        continue; /* an owner was already chosen */
+      unsigned op = ex->recv_ranks
+      for (unsigned k = first; k < end; ++k) {
+      }
+    }
+  }
 }
