@@ -38,12 +38,12 @@ void owners_from_global(
     unsigned first = recvd_of_lin_offsets[i];
     unsigned end = recvd_of_lin_offsets[i + 1];
     unsigned recvd = recvd_of_lins[first];
-    unsigned own_recv = recv_of_recvd[first];
-    unsigned own_idx = orig_idxs_recvd[first];
+    unsigned own_recv = recv_of_recvd[recvd];
+    unsigned own_idx = orig_idxs_recvd[recvd];
     for (unsigned j = first + 1; j < end; ++j) {
       recvd = recvd_of_lins[j];
-      unsigned recv2 = ex->recv_ranks[recv_of_recvd[j]];
-      unsigned idx2 = orig_idxs_recvd[j];
+      unsigned recv2 = ex->recv_ranks[recv_of_recvd[recvd]];
+      unsigned idx2 = orig_idxs_recvd[recvd];
       if ((recv_nents[recv2] < recv_nents[own_recv]) ||
           ((recv_nents[recv2] == recv_nents[own_recv]) &&
            (ex->recv_ranks[recv2] < ex->recv_ranks[own_recv]))) {
