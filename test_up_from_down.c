@@ -30,7 +30,7 @@ int main()
   unsigned t_size  = the_down_degrees[dim][0] * nelems;
   unsigned*t_off = offsets;
   offsets = (unsigned*)
-    loop_cuda_to_host( offsets , sizeof(unsigned)* nverts);
+    loop_cuda_to_host( offsets , (sizeof(unsigned)* nverts)+1);
   unsigned*t_adj = adj;
   adj = (unsigned*)
     loop_cuda_to_host( adj , sizeof(unsigned)* t_size);
