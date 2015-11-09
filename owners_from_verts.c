@@ -13,14 +13,14 @@
    is the same amongst copies */
 static unsigned are_same_element(
     unsigned verts_per_elem,
-    unsigned const* vop_of_recvd,
+    unsigned const* vor_of_recvd,
     unsigned const* voi_of_recvd,
     unsigned e,
     unsigned e2)
 {
   for (unsigned i = 0; i < (verts_per_elem - 1); ++i) {
-    if (vop_of_recvd[e  * (verts_per_elem - 1) + i] !=
-        vop_of_recvd[e2 * (verts_per_elem - 1) + i])
+    if (vor_of_recvd[e  * (verts_per_elem - 1) + i] !=
+        vor_of_recvd[e2 * (verts_per_elem - 1) + i])
       return 0;
     if (voi_of_recvd[e  * (verts_per_elem - 1) + i] !=
         voi_of_recvd[e2 * (verts_per_elem - 1) + i])
@@ -36,7 +36,7 @@ void owners_from_verts(
     unsigned const* verts_of_elems,
     unsigned const* own_part_of_verts,
     unsigned const* own_idx_of_verts,
-    unsigned** p_own_parts,
+    unsigned** p_own_ranks,
     unsigned** p_own_idxs)
 {
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
@@ -67,16 +67,16 @@ void owners_from_verts(
   for (unsigned i = 0; i < nelems; ++i)
     orig_idxs[i] = i;
   unsigned* orig_idx_of_recvd = exchange_uints(ex, 1, orig_idxs);
-  unsigned* vop_of_recvd = exchange_uints(ex, verts_per_elem - 1,
+  unsigned* vor_of_recvd = exchange_uints(ex, verts_per_elem - 1,
       vert_own_parts_of_elems);
   unsigned* voi_of_recvd = exchange_uints(ex, verts_per_elem - 1,
       vert_own_idx_of_elems);
   unsigned* recv_nelems = LOOP_MALLOC(unsigned, ex->nrecvs);
   comm_sync_uint(ex->forward_comm, nelems, recv_nelems);
-  unsigned* op_of_recvd = LOOP_MALLOC(unsigned, ex->nrecvd);
-  unsigned* oi_of_recvd = LOOP_MALLOC(unsigned, ex->nrecvd);
+  unsigned* own_rank_of_recvd = LOOP_MALLOC(unsigned, ex->nrecvd);
+  unsigned* own_idx_of_recvd = LOOP_MALLOC(unsigned, ex->nrecvd);
   for (unsigned i = 0; i < ex->nrecvd; ++i)
-    op_of_recvd[i] = INVALID;
+    own_rank_of_recvd[i] = INVALID;
   /* okay, this algorithm is a mess.
      we have all *copies* of elements which call
      this vertex their vertex #0, and we simultaneously
@@ -88,13 +88,13 @@ void owners_from_verts(
     unsigned end = ex->recvd_of_dests_offsets[i + 1];
     for (unsigned j = first; j < end; ++j) {
       unsigned e = ex->recvd_of_dests[j];
-      if (op_of_recvd[elem] != INVALID)
+      if (own_rank_of_recvd[e] != INVALID)
         continue; /* an owner was already chosen */
       unsigned own_recv = ex->recv_of_recvd[e];
       unsigned own_idx = orig_idx_of_recvd[e];
       for (unsigned k = j + 1; k < end; ++k) {
         unsigned e2 = ex->recvd_of_dests[j];
-        if (!are_same_element(verts_per_elem, vop_of_recvd, voi_of_recvd,
+        if (!are_same_element(verts_per_elem, vor_of_recvd, voi_of_recvd,
               e, e2))
           continue;
         unsigned recv2 = ex->recv_of_recvd[e2];
@@ -106,6 +106,17 @@ void owners_from_verts(
           own_idx = idx2;
         }
       }
+      for (unsigned k = j + 1; k < end; ++k) {
+        unsigned e2 = ex->recvd_of_dests[j];
+        if (!are_same_element(verts_per_elem, vor_of_recvd, voi_of_recvd,
+              e, e2))
+          continue;
+        own_rank_of_recvd[e2] = ex->recv_ranks[own_recv];
+        own_idx_of_recvd[e2] = own_idx;
+      }
     }
   }
+  *p_own_ranks = unexchange_uints(ex, (verts_per_elem - 1), own_rank_of_recvd);
+  *p_own_idxs = unexchange_uints(ex, (verts_per_elem - 1), own_idx_of_recvd);
+  free_exchanger(ex);
 }
