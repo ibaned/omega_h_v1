@@ -100,6 +100,7 @@ global.c \
 base64.c \
 invert_map.c \
 owners_from_global.c \
+owners_from_verts.c \
 gmsh_io.c \
 exchanger.c
 

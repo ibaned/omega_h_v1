@@ -1,5 +1,6 @@
 #include "owners_from_verts.h"
 
+#include "comm.h"
 #include "exchanger.h"
 #include "global.h"
 #include "loop.h"
@@ -40,7 +41,6 @@ void owners_from_verts(
     unsigned** p_own_idxs)
 {
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned nuses = nelems * verts_per_elem;
   unsigned* own_vert_part_of_elems = LOOP_MALLOC(unsigned, nelems);
   unsigned* own_vert_idx_of_elems = LOOP_MALLOC(unsigned, nelems);
   unsigned* vert_own_parts_of_elems = LOOP_MALLOC(unsigned,
@@ -50,8 +50,8 @@ void owners_from_verts(
   for (unsigned i = 0; i < nelems; ++i) {
     unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
     unsigned own_vert = verts_of_elem[0];
-    unsigned own_vert_part_of_elems[i] = own_part_of_verts[own_vert];
-    unsigned own_vert_idx_of_elems[i] = own_idx_of_verts[own_vert];
+    own_vert_part_of_elems[i] = own_part_of_verts[own_vert];
+    own_vert_idx_of_elems[i] = own_idx_of_verts[own_vert];
     unsigned* vert_own_parts = vert_own_parts_of_elems +
       i * (verts_per_elem - 1);
     unsigned* vert_own_idxs = vert_own_idxs_of_elems +
@@ -70,7 +70,7 @@ void owners_from_verts(
   unsigned* vor_of_recvd = exchange_uints(ex, verts_per_elem - 1,
       vert_own_parts_of_elems);
   unsigned* voi_of_recvd = exchange_uints(ex, verts_per_elem - 1,
-      vert_own_idx_of_elems);
+      vert_own_idxs_of_elems);
   unsigned* recv_nelems = LOOP_MALLOC(unsigned, ex->nrecvs);
   comm_sync_uint(ex->forward_comm, nelems, recv_nelems);
   unsigned* own_rank_of_recvd = LOOP_MALLOC(unsigned, ex->nrecvd);
