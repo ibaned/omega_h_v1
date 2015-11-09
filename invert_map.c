@@ -4,8 +4,9 @@
 #include "loop.h"
 
 LOOP_KERNEL(fill, unsigned const* in,
-		unsigned* offsets, unsigned* counts,
-		unsigned* out)
+	unsigned* offsets,
+	unsigned* counts,
+	unsigned* out)
   unsigned d = in[i];
   unsigned o = offsets[d];
   unsigned j = loop_atomic_increment(&(counts[d]));
@@ -17,8 +18,7 @@ LOOP_KERNEL(fill, unsigned const* in,
    which we can counteract by sorting the sub-arrays.
    given the assumption that these sub-arrays are small
    (about a dozen entries),
-   we use a hand-coded selection sort.
-
+   we use a hand-coded selection sort.git
    there is a reward for someone who comes up with
    an equally efficient implementation that is deterministic
    from the start */
@@ -38,6 +38,13 @@ LOOP_KERNEL(sort,
   }
 }
 
+LOOP_KERNEL(count ,
+	unsigned const* in ,
+	unsigned * counts)
+  loop_atomic_increment(&(counts[in[i]]));
+}
+
+
 void invert_map(
     unsigned nin,
     unsigned const* in,
@@ -47,8 +54,7 @@ void invert_map(
 {
   unsigned* counts = LOOP_MALLOC(unsigned, nout);
   uints_zero(counts, nout);
-  for (unsigned i = 0; i < nin; ++i)
-    counts[in[i]]++; /* TODO: loop kernel for this */
+  LOOP_EXEC(count, nin, in, counts);
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   uints_zero(counts, nout);
