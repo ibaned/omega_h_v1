@@ -29,7 +29,7 @@ LOOP_KERNEL(sort,
   unsigned end = offsets[i + 1];
   for (unsigned j = first; j < end; ++j) {
     unsigned min_k = j;
-    for (unsigned k = j + 1; j < end; ++j)
+    for (unsigned k = j + 1; k < end; ++k)
       if (out[k] < out[min_k])
         min_k = k;
     unsigned tmp = out[j];
