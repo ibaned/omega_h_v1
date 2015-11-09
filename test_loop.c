@@ -3,25 +3,13 @@
 #include <stdio.h>
 #include <time.h>
 #include <limits.h>
+#include <stdlib.h>
 
 #define N 100000000
 
-
-
-
-LOOP_KERNEL(fill, double* a)
-  a[i] = 0;
-}
-
-LOOP_KERNEL(count ,
-	unsigned const* in ,
-	unsigned * counts)
-	loop_atomic_increment(&(counts[in[i]]));
-}
-
-void Ints_Test()
+static void Ints_Test()
 {
-  unsigned *a, *b, *c , *d , zz; clock_t start , end;
+  unsigned *a, *b, zz; clock_t start , end;
   //Zero (Runtime)
   a = LOOP_MALLOC(unsigned , N);
   start = clock();
@@ -46,7 +34,7 @@ void Ints_Test()
   a = (unsigned *)malloc(N *sizeof(unsigned));
   for( int i =0 ; i< N ;i++)
   {
-	  a[i] = rand()%(0xFFFFFFFF);
+	  a[i] = ((unsigned)rand()) % 0xFFFFFFFF;
   }
 #ifdef __CUDACC__
   c = (unsigned *)loop_cuda_to_device( a , N* sizeof(unsigned));
@@ -73,7 +61,7 @@ void Ints_Test()
   a = (unsigned *)malloc(N *sizeof(unsigned));
   for( int i =0 ; i< N ;i++)
   {
-	  a[i] = rand()%(0xFFFFFFFF);
+	  a[i] = ((unsigned)rand()) % 0xFFFFFFFF;
   }
   a[0] = 0xFFFFFFFF; //Max value
 
@@ -98,7 +86,7 @@ void Ints_Test()
   a = (unsigned *)malloc(N *sizeof(unsigned));
   for( int i =0 ; i< N ;i++)
   {
-    a[i] = rand()%(0xFFFFFFFF);
+	  a[i] = ((unsigned)rand()) % 0xFFFFFFFF;
   }
 
 
@@ -113,39 +101,37 @@ void Ints_Test()
 
 }
 
-void COUNT_TEST()
+LOOP_KERNEL(count ,
+	unsigned const* in ,
+	unsigned * counts)
+	loop_atomic_increment(&(counts[in[i]]));
+}
+
+static void COUNT_TEST()
 {
-#ifdef __CUDACC__
-	unsigned  a[7] = {1,2,1,3,5,1,2};
-	  unsigned *b = (unsigned *)loop_to_device(a , sizeof(unsigned)*7 );
+  unsigned  a[7] = {1,2,1,3,5,1,2};
+  unsigned* b = (unsigned*) loop_to_device(a, sizeof(unsigned) * 7);
 
-	  unsigned* counts = LOOP_MALLOC(unsigned, 7);
-	  uints_zero(counts, 7);
+  unsigned* counts = LOOP_MALLOC(unsigned, 7);
+  uints_zero(counts, 7);
 
-	  LOOP_EXEC( count , 7 , b , counts);
+  LOOP_EXEC( count , 7 , b , counts);
 
-	  unsigned *z = (unsigned *)loop_cuda_to_host( counts, sizeof(unsigned)*7);
+  unsigned* z = (unsigned *)loop_to_host(counts, sizeof(unsigned) * 7);
 
-	  for(int i = 0 ; i<7; i++)
-	  {
-		  printf( "%d\n" ,z[i]);
-	  }
-	  loop_free( counts);
-#endif
+  for(int i = 0 ; i<7; i++)
+  {
+    printf("%d\n", z[i]);
+  }
+  loop_free(counts);
 }
 
 
 int main()
 {
-
-	/*
-  unsigned n = 1024*1024;
-  double* d = LOOP_MALLOC(double, n);
-  LOOP_EXEC(fill, n, d);
-  loop_free(d);
-*/
 #ifdef __CUDACC__
   cudaDeviceReset();
+#endif
 
   unsigned  a[7] = {1,2,1,3,5,1,2};
   unsigned *b  = (unsigned *)loop_to_device(a , sizeof(unsigned)*7 );
@@ -155,7 +141,7 @@ int main()
 
   LOOP_EXEC( count , 7 , b , counts);
 
-  unsigned *z = (unsigned *)loop_cuda_to_host( counts, sizeof(unsigned)*7);
+  unsigned *z = (unsigned *)loop_to_host( counts, sizeof(unsigned)*7);
 
   for(int i = 0 ; i<7; i++)
   {
@@ -163,8 +149,7 @@ int main()
   }
   loop_free( counts);
 
-
   Ints_Test();
-#endif
+  COUNT_TEST();
   return 0;
 }
