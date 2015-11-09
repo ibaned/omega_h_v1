@@ -135,8 +135,6 @@ void COUNT_TEST()
 }
 
 
-
-
 int main()
 {
 
@@ -164,7 +162,9 @@ int main()
 	  printf( "%d\n" ,z[i]);
   }
   loop_free( counts);
-#endif
+
+
   Ints_Test();
+#endif
   return 0;
 }
