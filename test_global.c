@@ -5,9 +5,8 @@
 #include "loop.h"
 #include "owners_from_global.h"
 
-int main()
+static void test_owners_from_global(void)
 {
-  comm_init();
   unsigned* own_parts;
   unsigned* own_idxs;
   unsigned n;
@@ -31,5 +30,11 @@ int main()
   }
   loop_free(own_parts);
   loop_free(own_idxs);
+}
+
+int main()
+{
+  comm_init();
+  test_owners_from_global();
   comm_fini();
 }
