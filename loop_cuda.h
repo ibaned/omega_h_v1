@@ -2,6 +2,7 @@
 #define LOOP_CUDA_H
 
 #include "loop_host.h"
+#include "stdio.h"
 
 void* loop_cuda_malloc(unsigned long n);
 #define LOOP_CUDA_MALLOC(T, n) \
@@ -13,9 +14,7 @@ void* loop_cuda_to_device(void const* p, unsigned long n);
 
 static inline __device__ unsigned loop_cuda_atomic_increment(unsigned* p)
 {
-  unsigned a = *p;
-  atomicAdd(p, 1);
-  return a;
+  return atomicAdd(p, 1);
 }
 
 #define loop_to_host loop_cuda_to_host
@@ -43,7 +42,8 @@ static inline unsigned loop_ceildiv(unsigned a, unsigned b)
 }
 
 #define LOOP_EXEC(fname, n, ...) \
-fname<<< loop_ceildiv((n), LOOP_BLOCK_SIZE), LOOP_BLOCK_SIZE >>>(n,__VA_ARGS__);
+fname<<< loop_ceildiv((n), LOOP_BLOCK_SIZE), LOOP_BLOCK_SIZE >>>(n,__VA_ARGS__);\
+CUDACALL(cudaDeviceSynchronize());
 
 #define CUDACALL(f) \
 do { \
