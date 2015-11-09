@@ -16,13 +16,19 @@ int main()
     n = 2;
     unsigned long global[2] = {0,1};
     owners_from_global(n, global, &own_parts, &own_idxs);
+    assert(own_parts[0] == 0);
+    assert(own_parts[1] == 0);
+    assert(own_idxs[0] == 0);
+    assert(own_idxs[1] == 1);
   } else {
     n = 2;
     unsigned long global[2] = {1,2};
     owners_from_global(n, global, &own_parts, &own_idxs);
+    assert(own_parts[0] == 0);
+    assert(own_parts[1] == 1);
+    assert(own_idxs[0] == 1);
+    assert(own_idxs[1] == 1);
   }
-  for (unsigned i = 0; i < n; ++i)
-    printf("%u %u\n", own_parts[i], own_idxs[i]);
   loop_free(own_parts);
   loop_free(own_idxs);
   comm_fini();
