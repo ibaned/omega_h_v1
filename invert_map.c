@@ -12,6 +12,32 @@ LOOP_KERNEL(fill, unsigned const* in,
   out[o + j] = i;
 }
 
+/* the atomic increments give the fill
+   kernel some non-determinism,
+   which we can counteract by sorting the sub-arrays.
+   given the assumption that these sub-arrays are small
+   (about a dozen entries),
+   we use a hand-coded selection sort.
+
+   there is a reward for someone who comes up with
+   an equally efficient implementation that is deterministic
+   from the start */
+LOOP_KERNEL(sort,
+		unsigned* offsets,
+		unsigned* out)
+  unsigned first = offsets[i];
+  unsigned end = offsets[i + 1];
+  for (unsigned j = first; j < end; ++j) {
+    unsigned min_k = j;
+    for (unsigned k = j + 1; j < end; ++j)
+      if (out[k] < out[min_k])
+        min_k = k;
+    unsigned tmp = out[j];
+    out[j] = out[min_k];
+    out[min_k] = tmp;
+  }
+}
+
 void invert_map(
     unsigned nin,
     unsigned const* in,
@@ -28,6 +54,7 @@ void invert_map(
   uints_zero(counts, nout);
   LOOP_EXEC(fill, nin, in, offsets, counts, out);
   loop_free(counts);
+  LOOP_EXEC(sort, nout, offsets, out);
   *p_out = out;
   *p_offsets = offsets;
 }
