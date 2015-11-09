@@ -100,7 +100,9 @@ global.c \
 base64.c \
 invert_map.c \
 owners_from_global.c \
-gmsh_io.c
+owners_from_verts.c \
+gmsh_io.c \
+exchanger.c
 
 #handle optional features:
 USE_MPI ?= 0

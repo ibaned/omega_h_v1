@@ -92,6 +92,7 @@ struct mesh* read_msh(char const* filename)
       ++nelems;
     }
   }
+  fclose(f);
   struct mesh* m = new_mesh(dim);
   mesh_set_ents(m, 0, nnodes, 0);
   mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, node_coords);

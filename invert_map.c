@@ -19,6 +19,10 @@ LOOP_KERNEL(fill, unsigned const* in,
    given the assumption that these sub-arrays are small
    (about a dozen entries),
    we use a hand-coded selection sort.
+<<<<<<< HEAD
+=======
+
+>>>>>>> 54f7f7a455a16a4df665723cce3bf3e456e58e95
    there is a reward for someone who comes up with
    an equally efficient implementation that is deterministic
    from the start */
@@ -43,7 +47,6 @@ LOOP_KERNEL(count ,
 	unsigned * counts)
   loop_atomic_increment(&(counts[in[i]]));
 }
-
 
 
 void invert_map(
