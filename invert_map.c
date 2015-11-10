@@ -7,9 +7,9 @@
 
 
 LOOP_KERNEL(fill, unsigned const* in,
-	unsigned* offsets,
-	unsigned* counts,
-	unsigned* out)
+  unsigned* offsets,
+  unsigned* counts,
+  unsigned* out)
   unsigned d = in[i];
   unsigned o = offsets[d];
   unsigned j = loop_atomic_increment(&(counts[d]));
@@ -26,8 +26,8 @@ LOOP_KERNEL(fill, unsigned const* in,
    an equally efficient implementation that is deterministic
    from the start */
 LOOP_KERNEL(sort,
-		unsigned* offsets,
-		unsigned* out)
+    unsigned* offsets,
+    unsigned* out)
   unsigned first = offsets[i];
   unsigned end = offsets[i + 1];
   for (unsigned j = first; j < end; ++j) {
@@ -42,8 +42,8 @@ LOOP_KERNEL(sort,
 }
 
 LOOP_KERNEL(count ,
-	unsigned const* in ,
-	unsigned * counts)
+  unsigned const* in ,
+  unsigned * counts)
   loop_atomic_increment(&(counts[in[i]]));
 }
 
