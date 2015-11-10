@@ -10,8 +10,6 @@
 #include <thrust/reduce.h>
 #include <thrust/sort.h>
 
-
-
 double doubles_max(double const* a, unsigned n)
 {
   double max = 0;
@@ -28,25 +26,24 @@ double doubles_min(double const* a, unsigned n)
   return min;
 }
 
-LOOP_KERNEL( axpy,
+LOOP_KERNEL(axpy,
 		double a,
 		double const* x,
 		double const* y,
 		double* out)
-  out[i] = a*x[i] + y[i];
+  out[i] = a * x[i] + y[i];
 }
-
 
 void doubles_axpy(double a, double const* x, double const* y,
     double* out, unsigned n)
 {
-  LOOP_EXEC( axpy,n, a, x, y , out);
+  LOOP_EXEC(axpy, n, a, x, y, out);
 }
 
 double* doubles_copy(double const* a, unsigned n)
 {
   double *b = LOOP_MALLOC(double, n);
-  CUDACALL(cudaMemcpy(b, a, n*sizeof(double), cudaMemcpyDeviceToDevice));
+  CUDACALL(cudaMemcpy(b, a, n * sizeof(double), cudaMemcpyDeviceToDevice));
   return b;
 }
 
@@ -57,6 +54,7 @@ double doubles_sum(double const* a, unsigned n)
   sum = thrust::reduce(p, p + n, (double)0, thrust::plus<double>());
   return sum;
 }
+
 double* doubles_exscan(double const* a, unsigned n)
 {
   double * o = LOOP_MALLOC(double , n + 1);
@@ -69,8 +67,8 @@ double* doubles_exscan(double const* a, unsigned n)
   return o;
 }
 
-
 #else
+
 double doubles_max(double const* a, unsigned n)
 {
   double max = a[0];
