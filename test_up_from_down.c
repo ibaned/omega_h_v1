@@ -11,12 +11,8 @@ int main()
   unsigned* offsets;
   unsigned* adj;
   unsigned* directions;
-#ifdef __CUDACC__
   unsigned const * in = (unsigned const *)
-		  loop_cuda_to_device( the_box_conns[dim] , sizeof(unsigned) * nelems * nverts);
-#else
-  unsigned const *in = the_box_conns[dim];
-#endif
+		  loop_to_device( the_box_conns[dim] , sizeof(unsigned) * nelems * nverts);
   up_from_down(
       dim,
       0,
@@ -26,18 +22,16 @@ int main()
       &offsets,
       &adj,
       &directions);
-#ifdef __CUDACC__
   unsigned t_size  = the_down_degrees[dim][0] * nelems;
-  unsigned*t_off = offsets;
+  unsigned* t_off = offsets;
   offsets = (unsigned*)
-    loop_cuda_to_host( offsets , (sizeof(unsigned)* nverts)+1);
-  unsigned*t_adj = adj;
+    loop_to_host( offsets , (sizeof(unsigned)* nverts)+1);
+  unsigned* t_adj = adj;
   adj = (unsigned*)
-    loop_cuda_to_host( adj , sizeof(unsigned)* t_size);
-  unsigned*t_directions = directions;
+    loop_to_host( adj , sizeof(unsigned)* t_size);
+  unsigned* t_directions = directions;
   directions = (unsigned*)
-    loop_cuda_to_host( directions , sizeof(unsigned)* t_size);
-#endif
+    loop_to_host( directions , sizeof(unsigned)* t_size);
   for (unsigned i = 0; i < nverts; ++i) {
     printf("[%u] =", i);
     unsigned first_adj = offsets[i];
@@ -46,14 +40,10 @@ int main()
       printf(" %u(%u)", adj[j], directions[j]);
     printf("\n");
   }
-#ifdef __CUDACC__
   loop_free(t_off);
   loop_free(t_adj);
   loop_free(t_directions);
-  free(offsets);free(adj);free(directions);
-#else
-  loop_free(offsets);
-  loop_free(adj);
-  loop_free(directions);
-#endif
+  loop_host_free(offsets);
+  loop_host_free(adj);
+  loop_host_free(directions);
 }
