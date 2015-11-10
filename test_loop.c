@@ -10,6 +10,10 @@
 static void Ints_Test()
 {
   unsigned *a, *b, zz; clock_t start , end;
+#ifdef __CUDACC__
+  unsigned *c;
+  unsigned *d;
+#endif
   //Zero (Runtime)
   a = LOOP_MALLOC(unsigned , N);
   start = clock();
