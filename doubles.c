@@ -27,10 +27,10 @@ double doubles_min(double const* a, unsigned n)
 }
 
 LOOP_KERNEL(axpy,
-		double a,
-		double const* x,
-		double const* y,
-		double* out)
+    double a,
+    double const* x,
+    double const* y,
+    double* out)
   out[i] = a * x[i] + y[i];
 }
 

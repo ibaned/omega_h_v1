@@ -36,7 +36,7 @@ static void Ints_Test()
   a = LOOP_HOST_MALLOC(unsigned, N);
   for(unsigned i = 0; i < N ;i++)
   {
-	  a[i] = ((unsigned)rand()) % 0xFFFFFFFF;
+    a[i] = ((unsigned)rand()) % 0xFFFFFFFF;
   }
   c = (unsigned*) loop_to_device(a, N * sizeof(unsigned));
   start = clock();
@@ -58,7 +58,7 @@ static void Ints_Test()
   a = (unsigned*) malloc(N * sizeof(unsigned));
   for(unsigned i = 0; i < N; ++i)
   {
-	  a[i] = ((unsigned)rand()) % 0xFFFFFFFF;
+    a[i] = ((unsigned)rand()) % 0xFFFFFFFF;
   }
   a[0] = 0xFFFFFFFF; //Max value
   c = (unsigned*) loop_to_device(a, N * sizeof(unsigned));
@@ -77,7 +77,7 @@ static void Ints_Test()
   a = LOOP_HOST_MALLOC(unsigned, N);
   for( int i =0 ; i< N ;i++)
   {
-	  a[i] = ((unsigned)rand()) % 0xFFFFFFFF;
+    a[i] = ((unsigned)rand()) % 0xFFFFFFFF;
   }
   /* todo ? */
   loop_host_free(a);
@@ -134,7 +134,7 @@ int main()
 
   for(unsigned i = 0; i < 7; ++i)
   {
-	  printf("%d\n", z[i]);
+    printf("%d\n", z[i]);
   }
   loop_free(counts);
   loop_host_free(z);
