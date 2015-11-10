@@ -3,6 +3,9 @@
 #include "ints.h"
 #include "loop.h"
 
+#include <thrust/sort.h>
+
+
 LOOP_KERNEL(fill, unsigned const* in,
 	unsigned* offsets,
 	unsigned* counts,
@@ -43,6 +46,48 @@ LOOP_KERNEL(count ,
 	unsigned * counts)
   loop_atomic_increment(&(counts[in[i]]));
 }
+
+
+struct Counter
+{
+  unsigned origin;
+  unsigned sorted;
+  unsigned count;
+};
+
+LOOP_KERNEL( assign , struct Counter * out )
+  out[i].origin = i;
+}
+
+LOOP_KERNEL( count_work , struct Counter * out , unsigned * in )
+  out[i].count = 0;
+  while( i > 0 && in[i]==in[i-1])
+  {
+	  out[i].count += 1;
+	  i--;
+  }
+}
+
+void Count_Sort_Dance( unsigned *in , struct Counter*  out, unsigned nin)
+{
+  out = LOOP_MALLOC( struct Counter , nin);
+  LOOP_EXEC( assign, nin , out );
+  unsigned * n_sorted = uints_copy( in , nin);
+
+  thrust::stable_sort_by_key( n_sorted ,n_sorted+nin , out );
+  LOOP_EXEC( assign, nin, out);
+
+  LOOP_EXEC( count_work , nin, out , in);
+}
+
+
+
+
+
+
+
+
+
 
 
 void invert_map(
