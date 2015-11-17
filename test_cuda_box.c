@@ -5,14 +5,12 @@
 #include "refine_by_size.h"
 #include "vtk.h"
 
-
-
 int main()
 {
   printf("Started\n");
   unsigned dim = 3;
   struct mesh* m= new_box_mesh(dim);
-  struct const_up * a  = mesh_ask_up(  m ,0 ,3);
+  struct const_up* a = mesh_ask_up(m, 0, 3);
   unsigned nverts = mesh_count(m, dim);
   for (unsigned i = 0; i < nverts; ++i) {
     printf("[%u] =", i);
