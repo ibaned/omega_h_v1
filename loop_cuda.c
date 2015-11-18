@@ -7,7 +7,7 @@
 void* loop_cuda_malloc(unsigned long n)
 {
   void* p;
-  CUDACALL(cudaMalloc(&p, n));
+  CUDACALL(cudaMallocManaged(&p, n));
   return p;
 }
 
