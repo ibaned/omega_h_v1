@@ -129,7 +129,7 @@ static unsigned try_read_int_attrib(char const* header, char const* attrib, unsi
   unsigned ok = try_read_attrib(header, attrib, val_text);
   if (!ok)
     return 0;
-  *val = atoi(val_text);
+  *val = (unsigned) atoi(val_text);
   return 1;
 }
 
