@@ -1,6 +1,9 @@
 #include "infer_class.h"
 
+#include <assert.h>
+
 #include "loop.h"
+#include "mesh.h"
 #include "tables.h"
 
 void infer_class(
@@ -36,4 +39,37 @@ void infer_class(
   }
   *p_class_dim_of_ents = dim_of_ents;
   *p_class_id_of_ents = id_of_ents;
+}
+
+static void ask_class(struct mesh* m, unsigned dim)
+{
+  if (mesh_find_tag(m, dim, "class_dim"))
+    return;
+  assert(mesh_find_tag(m, 0, "class_dim"));
+  unsigned nents = mesh_count(m, dim);
+  unsigned const* verts_of_ents = mesh_ask_down(m, dim, 0);
+  unsigned const* class_dim_of_verts = mesh_find_tag(m, 0, "class_dim")->d.u32;
+  unsigned const* class_id_of_verts = 0;
+  if (mesh_find_tag(m, 0, "class_id"))
+    class_id_of_verts = mesh_find_tag(m, 0, "class_id")->d.u32;
+  unsigned* class_dim_of_ents;
+  unsigned* class_id_of_ents;
+  infer_class(dim, nents, verts_of_ents, class_dim_of_verts, class_id_of_verts,
+      &class_dim_of_ents, &class_id_of_ents);
+  mesh_add_tag(m, dim, TAG_U32, "class_dim", 1, class_dim_of_ents);
+  if (class_id_of_ents)
+    mesh_add_tag(m, dim, TAG_U32, "class_id", 1, class_id_of_ents);
+}
+
+unsigned const* mesh_ask_class_dim(struct mesh* m, unsigned dim)
+{
+  ask_class(m, dim);
+  return mesh_find_tag(m, dim, "class_dim")->d.u32;
+}
+
+unsigned const* mesh_ask_class_id(struct mesh* m, unsigned dim)
+{
+  ask_class(m, dim);
+  assert(mesh_find_tag(m, dim, "class_id"));
+  return mesh_find_tag(m, dim, "class_id")->d.u32;
 }
