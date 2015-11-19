@@ -38,7 +38,8 @@ void infer_class(
       id_of_ents[i] = id;
   }
   *p_class_dim_of_ents = dim_of_ents;
-  *p_class_id_of_ents = id_of_ents;
+  if (class_id_of_verts)
+    *p_class_id_of_ents = id_of_ents;
 }
 
 static void ask_class(struct mesh* m, unsigned dim)
