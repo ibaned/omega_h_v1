@@ -45,10 +45,8 @@ static char const* type_name(enum tag_type t)
     case TAG_U32: return "UInt32";
     case TAG_U64: return "UInt64";
     case TAG_F64: return "Float64";
+    default: return "";
   }
-#ifdef __CUDACC__
-  return "";
-#endif
 }
 
 static char const* format_name(enum vtk_format fmt)
@@ -56,10 +54,8 @@ static char const* format_name(enum vtk_format fmt)
   switch (fmt) {
     case VTK_ASCII: return "ascii";
     case VTK_BINARY: return "binary";
+    default: return "";
   }
-#ifdef __CUDACC__
-  return "";
-#endif
 }
 
 static unsigned try_read_attrib(char const* elem, char const* name,
@@ -243,10 +239,8 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%lf", &out[i]);
       return out;
     }
+    default: return 0;
   }
-#ifdef __CUDACC__
-  return 0;
-#endif
 }
 
 static void describe_array(FILE* file, enum tag_type t,
