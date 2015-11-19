@@ -142,7 +142,9 @@ unsigned* mesh_mark_class_closure_verts(struct mesh* m, unsigned target_dim,
     unsigned target_id)
 {
   unsigned* equal_order = mesh_mark_class(m, target_dim, target_dim, target_id);
-  return mesh_mark_down(m, target_dim, 0, equal_order);
+  unsigned* out = mesh_mark_down(m, target_dim, 0, equal_order);
+  loop_free(equal_order);
+  return out;
 }
 
 void unmark_boundary(

@@ -1,4 +1,7 @@
 #include "include/omega_h.h"
+
+#include "loop.h"
+#include "mark.h"
 #include "mesh.h"
 #include "tag.h"
 #include "vtk.h"
@@ -70,4 +73,16 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
 unsigned const* osh_ask_label(osh_t m, char const* name)
 {
   return mesh_find_tag((struct mesh*)m, 0, name)->d.u32;
+}
+
+void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
+    unsigned* marked)
+{
+  unsigned* to_mark = mesh_mark_class_closure_verts((struct mesh*)m,
+      class_dim, class_id);
+  unsigned nverts = osh_nverts(m);
+  for (unsigned i = 0; i < nverts; ++i)
+    if (to_mark[i])
+      marked[i] = 1;
+  loop_free(to_mark);
 }

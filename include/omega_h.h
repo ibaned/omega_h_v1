@@ -27,6 +27,9 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data);
 
 unsigned const* osh_ask_label(osh_t m, char const* name);
 
+void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
+    unsigned* marked);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
