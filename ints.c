@@ -76,10 +76,12 @@ unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
   return out;
 }
 
-void uints_fill(unsigned* a, unsigned n, unsigned v)
+unsigned* uints_filled(unsigned n, unsigned v)
 {
+  unsigned* a = LOOP_MALLOC(unsigned, n);
   thrust::device_ptr< unsigned int> p (a);
   thrust::fill(p, p + n, v);
+  return a;
 }
 
 unsigned uints_sum(unsigned const* a, unsigned n)
@@ -175,10 +177,12 @@ unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
   return out;
 }
 
-void uints_fill(unsigned* a, unsigned n, unsigned v)
+unsigned* uints_filled(unsigned n, unsigned v)
 {
+  unsigned* a = LOOP_MALLOC(unsigned, n);
   for (unsigned i = 0; i < n; ++i)
     a[i] = v;
+  return a;
 }
 
 unsigned uints_sum(unsigned const* a, unsigned n)
