@@ -71,6 +71,7 @@ unsigned const* mesh_ask_class_dim(struct mesh* m, unsigned dim)
 unsigned const* mesh_ask_class_id(struct mesh* m, unsigned dim)
 {
   ask_class(m, dim);
-  assert(mesh_find_tag(m, dim, "class_id"));
+  if (!mesh_find_tag(m, dim, "class_id"))
+    return 0;
   return mesh_find_tag(m, dim, "class_id")->d.u32;
 }

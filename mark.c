@@ -1,5 +1,7 @@
 #include "mark.h"
 
+#include <assert.h>
+
 #include "infer_class.h"
 #include "loop.h"
 #include "mesh.h"
@@ -114,6 +116,8 @@ unsigned* mark_class(
     unsigned const* class_dim_of_ents,
     unsigned const* class_id_of_ents)
 {
+  if (target_id != INVALID)
+    assert(class_id_of_ents);
   unsigned* out = LOOP_MALLOC(unsigned, nents);
   for (unsigned i = 0; i < nents; ++i) {
     out[i] = 0;
@@ -122,6 +126,23 @@ unsigned* mark_class(
         out[i] = 1;
   }
   return out;
+}
+
+unsigned* mesh_mark_class(struct mesh* m, unsigned ent_dim,
+    unsigned target_dim, unsigned target_id)
+{
+  unsigned const* class_dim_of_ents = mesh_ask_class_dim(m, ent_dim);
+  unsigned const* class_id_of_ents = mesh_ask_class_id(m, ent_dim);
+  unsigned nents = mesh_count(m, ent_dim);
+  return mark_class(nents, target_dim, target_id, class_dim_of_ents,
+      class_id_of_ents);
+}
+
+unsigned* mesh_mark_class_closure_verts(struct mesh* m, unsigned target_dim,
+    unsigned target_id)
+{
+  unsigned* equal_order = mesh_mark_class(m, target_dim, target_dim, target_id);
+  return mesh_mark_down(m, target_dim, 0, equal_order);
 }
 
 void unmark_boundary(
