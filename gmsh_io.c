@@ -149,6 +149,9 @@ struct mesh* read_msh(char const* filename)
       }
     }
   }
+  loop_free(verts_of_eqs);
+  loop_free(class_id_of_eqs);
+  loop_free(dim_of_eqs);
   for (unsigned i = 0; i <= dim; ++i) {
     mesh_add_tag(m, i, TAG_U32, "class_dim", 1, class_dims[i]);
     mesh_add_tag(m, i, TAG_U32, "class_id", 1, class_ids[i]);
