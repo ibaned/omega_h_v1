@@ -25,10 +25,11 @@ double const* osh_coords(osh_t m);
 
 void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data);
 
-unsigned const* osh_ask_label(osh_t m, char const* name);
-
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     unsigned* marked);
+
+void osh_add_label(osh_t m, char const* name, unsigned* data);
+void osh_free_label(osh_t m, char const* name);
 
 #ifdef __cplusplus
 } // extern "C"

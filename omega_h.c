@@ -70,11 +70,6 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
   mesh_add_tag((struct mesh*)m, 0, TAG_F64, name, ncomps, data);
 }
 
-unsigned const* osh_ask_label(osh_t m, char const* name)
-{
-  return mesh_find_tag((struct mesh*)m, 0, name)->d.u32;
-}
-
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     unsigned* marked)
 {
@@ -85,4 +80,14 @@ void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     if (to_mark[i])
       marked[i] = 1;
   loop_free(to_mark);
+}
+
+void osh_add_label(osh_t m, char const* name, unsigned* data)
+{
+  mesh_add_tag((struct mesh*)m, 0, TAG_U32, name, 1, data);
+}
+
+void osh_free_label(osh_t m, char const* name)
+{
+  mesh_free_tag((struct mesh*)m, 0, name);
 }
