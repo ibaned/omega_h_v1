@@ -4,13 +4,14 @@
 #include <stdio.h>
 
 #include "files.h"
+#include "ints.h"
 #include "loop.h"
 #include "mesh.h"
 #include "tables.h"
 
 static unsigned get_gmsh_type_dim(unsigned type)
 {
-  switch (dim) {
+  switch (type) {
     case 15: return 0;
     case 1: return 1;
     case 2: return 2;
@@ -43,9 +44,9 @@ struct mesh* read_msh(char const* filename)
   safe_scanf(f, 1, "%u", &neqs);
   /* conservative allocation, each entity will get 4 vertex
      slots and may leave the later ones unused */
-  unsigned* verts_of_eqs = LOOP_HOST_MALLOC(unsigned, nents * 4);
-  unsigned* class_id_of_eqs = LOOP_HOST_MALLOC(unsigned, nents);
-  unsigned* dim_of_eqs = LOOP_HOST_MALLOC(unsigned, nents);
+  unsigned* verts_of_eqs = LOOP_HOST_MALLOC(unsigned, neqs * 4);
+  unsigned* class_id_of_eqs = LOOP_HOST_MALLOC(unsigned, neqs);
+  unsigned* dim_of_eqs = LOOP_HOST_MALLOC(unsigned, neqs);
   unsigned last_dim = 0;
   for (unsigned i = 0; i < neqs; ++i) {
     unsigned type, ntags;
@@ -70,12 +71,13 @@ struct mesh* read_msh(char const* filename)
   fclose(f);
   /* alright, we can tell the highest-dimensional entity
      and store the vertices at least */
-  unsigned dim = uints_max(dim_of_ents, nents);
+  unsigned dim = uints_max(dim_of_eqs, neqs);
   struct mesh* m = new_mesh(dim);
   mesh_set_ents(m, 0, nnodes, 0);
   mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, node_coords);
   /* we can also form the elements and derive all intermediate
      entities based on the elements */
+  unsigned nelems = 0;
   for (unsigned i = 0; i < neqs; ++i)
     if (dim_of_eqs[i] == dim)
       ++nelems;
@@ -131,21 +133,21 @@ struct mesh* read_msh(char const* filename)
         break;
     }
     assert(ent != INVALID);
-    class_dims[eq_dim][ent] = class_dim_of_eqs[i];
+    class_dims[eq_dim][ent] = eq_dim;
     class_ids[eq_dim][ent] = class_id_of_eqs[i];
     for (unsigned dd = 0; dd < eq_dim; ++dd) {
       unsigned const* des_of_ents = mesh_ask_down(m, eq_dim, dd);
       unsigned des_per_ent = the_down_degrees[eq_dim][dd];
       for (unsigned j = 0; j < des_per_ent; ++j) {
         unsigned de = des_of_ents[ent * des_per_ent + j];
-        class_dims[dd][de] = class_dim_of_eqs[i];
+        class_dims[dd][de] = eq_dim;
         class_ids[dd][de] = class_id_of_eqs[i];
       }
     }
   }
   for (unsigned i = 0; i <= dim; ++i) {
     mesh_add_tag(m, i, TAG_U32, "class_dim", 1, class_dims[i]);
-    mesh_add_tag(m, i, TAG_U32, "class_id", 1, class_id[i]);
+    mesh_add_tag(m, i, TAG_U32, "class_id", 1, class_ids[i]);
   }
   return m;
 }
