@@ -67,6 +67,7 @@ struct mesh* read_msh(char const* filename)
       safe_scanf(f, 1, "%u", verts_of_eqs + i * 4 + j);
       verts_of_eqs[i * 4 + j] -= 1;
     }
+    last_dim = dim_of_eqs[i];
   }
   fclose(f);
   /* alright, we can tell the highest-dimensional entity
@@ -82,7 +83,7 @@ struct mesh* read_msh(char const* filename)
     if (dim_of_eqs[i] == dim)
       ++nelems;
   unsigned verts_per_elem = dim + 1;
-  unsigned* verts_of_elems = LOOP_HOST_MALLOC(unsigned, verts_per_elem);
+  unsigned* verts_of_elems = LOOP_HOST_MALLOC(unsigned, nelems * verts_per_elem);
   unsigned ei = 0;
   for (unsigned i = 0; i < neqs; ++i) {
     if (dim_of_eqs[i] != dim)
@@ -114,24 +115,27 @@ struct mesh* read_msh(char const* filename)
        it may have been created with a different vertex
        ordering too, so matching has to try all combinations */
     unsigned vert = eq_verts[0];
-    unsigned const* verts_of_ents = mesh_ask_down(m, eq_dim, 0);
-    unsigned const* ents_of_verts = mesh_ask_up(m, 0, eq_dim)->adj;
-    unsigned const* ents_of_verts_offsets = mesh_ask_up(m, 0, eq_dim)->offsets;
     unsigned verts_per_ent = eq_dim + 1;
     unsigned ent = INVALID;
-    for (unsigned j = ents_of_verts_offsets[vert];
-         j < ents_of_verts_offsets[vert + 1]; ++j) {
-      ent = ents_of_verts[j];
-      unsigned const* ent_verts = verts_of_ents + ent * verts_per_ent;
-      unsigned nmatches = 0;
-      for (unsigned k = 0; k < verts_per_ent; ++k)
-      for (unsigned l = 0; l < verts_per_ent; ++l)
-        if (ent_verts[k] == eq_verts[l])
-          ++nmatches;
-      /* found a match, has the same vertices */
-      if (nmatches == verts_per_ent)
-        break;
-    }
+    if (eq_dim) {
+      unsigned const* verts_of_ents = mesh_ask_down(m, eq_dim, 0);
+      unsigned const* ents_of_verts = mesh_ask_up(m, 0, eq_dim)->adj;
+      unsigned const* ents_of_verts_offsets = mesh_ask_up(m, 0, eq_dim)->offsets;
+      for (unsigned j = ents_of_verts_offsets[vert];
+           j < ents_of_verts_offsets[vert + 1]; ++j) {
+        ent = ents_of_verts[j];
+        unsigned const* ent_verts = verts_of_ents + ent * verts_per_ent;
+        unsigned nmatches = 0;
+        for (unsigned k = 0; k < verts_per_ent; ++k)
+        for (unsigned l = 0; l < verts_per_ent; ++l)
+          if (ent_verts[k] == eq_verts[l])
+            ++nmatches;
+        /* found a match, has the same vertices */
+        if (nmatches == verts_per_ent)
+          break;
+      }
+    } else
+        ent = eq_verts[0];
     assert(ent != INVALID);
     class_dims[eq_dim][ent] = eq_dim;
     class_ids[eq_dim][ent] = class_id_of_eqs[i];
