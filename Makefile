@@ -124,8 +124,8 @@ endif
 exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
 test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
 lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
-sources := $(lib_sources) $(test_sources)
-depfiles := $(patsubst %.c,deps/%.dep,$(sources))
+depfiles := $(patsubst %.c,deps/%.dep,$(lib_sources)) \
+$(patsubst %.c,deps/%.dep,$(test_sources))
 
 lib := lib/libomega_h.a
 
@@ -144,7 +144,7 @@ clean:
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
 objs/%.o: %.c | objs
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
 $(lib): $(lib_objects) | lib
 	ar cru $@ $(lib_objects)
