@@ -3,8 +3,8 @@
 
 struct mesh;
 
-struct mesh* refine_common(
-    struct mesh* m,
+unsigned refine_common(
+    struct mesh** p_m,
     unsigned src_dim,
     unsigned* candidates,
     double qual_floor,

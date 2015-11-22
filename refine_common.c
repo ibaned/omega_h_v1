@@ -16,13 +16,14 @@
 #include "splits_to_elements.h"
 #include "tag.h"
 
-struct mesh* refine_common(
-    struct mesh* m,
+unsigned refine_common(
+    struct mesh** p_m,
     unsigned src_dim,
     unsigned* candidates,
     double qual_floor,
     unsigned require_better)
 {
+  struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
   if (!uints_max(candidates, nsrcs))
@@ -106,5 +107,7 @@ struct mesh* refine_common(
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
   loop_free(offset_of_same_elems);
   loop_free(verts_of_gen_elems);
-  return m_out;
+  free_mesh(m);
+  *p_m = m_out;
+  return 1;
 }
