@@ -73,7 +73,7 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     unsigned* marked)
 {
-  unsigned* to_mark = mesh_mark_class_closure_verts((struct mesh*)m,
+  unsigned* to_mark = mesh_mark_class((struct mesh*)m, 0,
       class_dim, class_id);
   unsigned nverts = osh_nverts(m);
   for (unsigned i = 0; i < nverts; ++i)
