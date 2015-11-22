@@ -6,6 +6,7 @@
 #include "bridge_graph.h"
 #include "derive_faces.h"
 #include "graph.h"
+#include "ints.h"
 #include "loop.h"
 #include "reflect_down.h"
 #include "star.h"
@@ -93,8 +94,8 @@ unsigned mesh_count(struct mesh* m, unsigned dim)
 
 void free_mesh(struct mesh* m)
 {
-  for (unsigned high_dim = 1; high_dim <= m->elem_dim; ++high_dim)
-    for (unsigned low_dim = 0; low_dim < high_dim; ++low_dim) {
+  for (unsigned high_dim = 0; high_dim <= m->elem_dim; ++high_dim)
+    for (unsigned low_dim = 0; low_dim <= high_dim; ++low_dim) {
       loop_free(m->down[high_dim][low_dim]);
       free_up(m->up[low_dim][high_dim]);
       free_graph(m->star[low_dim][high_dim]);
@@ -120,41 +121,51 @@ static void set_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
 
 unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
 {
-  assert(low_dim < high_dim);
+  assert(low_dim <= high_dim);
   if (m->down[high_dim][low_dim])
     return m->down[high_dim][low_dim];
-  if (low_dim) { /* deriving intermediate downward adjacency */
-    unsigned nhighs = m->counts[high_dim];
-    unsigned const* verts_of_highs = mesh_ask_down(m, high_dim, 0);
-    struct const_up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
-    unsigned* lows_of_highs = reflect_down(high_dim, low_dim, nhighs,
-        verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
+  if (low_dim == high_dim) {
+    /* waste memory to prevent algorithms from having to deal
+       with equal-order cases separately */
+    unsigned n = m->counts[high_dim];
+    unsigned* ones = uints_filled(n, 1);
+    unsigned* lows_of_highs = uints_exscan(ones, n);
+    loop_free(ones);
     set_down(m, high_dim, low_dim, lows_of_highs);
-  } else { /* deriving intermediate entities (entity to vertex connectivity) */
-    if (high_dim == 1) { /* deriving edges */
-      struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
-      unsigned nverts = m->counts[0];
-      unsigned nedges;
-      unsigned* verts_of_edges;
-      bridge_graph(nverts, verts_of_verts->offsets, verts_of_verts->adj,
-          &nedges, &verts_of_edges);
-      mesh_set_ents(m, 1, nedges, verts_of_edges);
-    } else { /* deriving faces in 3D */
-      assert(high_dim == 2);
-      assert(m->elem_dim == 3);
-      unsigned const* elems_of_elems = mesh_ask_dual(m);
-      unsigned nelems = m->counts[m->elem_dim];
-      unsigned const* verts_of_elems = m->down[m->elem_dim][0];
-      unsigned nfaces;
-      unsigned* elems_of_faces;
-      unsigned* elem_face_of_faces;
-      bridge_dual_graph(m->elem_dim, nelems, elems_of_elems,
-          &nfaces, &elems_of_faces, &elem_face_of_faces);
-      unsigned* verts_of_faces = derive_faces(nfaces, verts_of_elems,
-          elems_of_faces, elem_face_of_faces);
-      loop_free(elems_of_faces);
-      loop_free(elem_face_of_faces);
-      mesh_set_ents(m, 2, nfaces, verts_of_faces);
+  } else {
+    if (low_dim) {/* deriving intermediate downward adjacency */
+      unsigned nhighs = m->counts[high_dim];
+      unsigned const* verts_of_highs = mesh_ask_down(m, high_dim, 0);
+      struct const_up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
+      unsigned* lows_of_highs = reflect_down(high_dim, low_dim, nhighs,
+          verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
+      set_down(m, high_dim, low_dim, lows_of_highs);
+    } else {/* deriving intermediate entities (entity to vertex connectivity) */
+      if (high_dim == 1) { /* deriving edges */
+        struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
+        unsigned nverts = m->counts[0];
+        unsigned nedges;
+        unsigned* verts_of_edges;
+        bridge_graph(nverts, verts_of_verts->offsets, verts_of_verts->adj,
+            &nedges, &verts_of_edges);
+        mesh_set_ents(m, 1, nedges, verts_of_edges);
+      } else { /* deriving faces in 3D */
+        assert(high_dim == 2);
+        assert(m->elem_dim == 3);
+        unsigned const* elems_of_elems = mesh_ask_dual(m);
+        unsigned nelems = m->counts[m->elem_dim];
+        unsigned const* verts_of_elems = m->down[m->elem_dim][0];
+        unsigned nfaces;
+        unsigned* elems_of_faces;
+        unsigned* elem_face_of_faces;
+        bridge_dual_graph(m->elem_dim, nelems, elems_of_elems,
+            &nfaces, &elems_of_faces, &elem_face_of_faces);
+        unsigned* verts_of_faces = derive_faces(nfaces, verts_of_elems,
+            elems_of_faces, elem_face_of_faces);
+        loop_free(elems_of_faces);
+        loop_free(elem_face_of_faces);
+        mesh_set_ents(m, 2, nfaces, verts_of_faces);
+      }
     }
   }
   return m->down[high_dim][low_dim];
@@ -169,18 +180,30 @@ static void set_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
 
 struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim)
 {
-  assert(low_dim < high_dim);
+  assert(low_dim <= high_dim);
   if (m->up[low_dim][high_dim])
     return (struct const_up*) m->up[low_dim][high_dim];
-  unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
-  unsigned nhighs = m->counts[high_dim];
-  unsigned nlows = m->counts[low_dim];
-  unsigned* offsets;
-  unsigned* highs_of_lows;
-  unsigned* directions;
-  up_from_down(high_dim, low_dim, nhighs, nlows, lows_of_highs,
-      &offsets, &highs_of_lows, &directions);
-  set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
+  if (low_dim == high_dim) {
+    /* waste memory to prevent algorithms from having to deal
+       with equal-order cases separately */
+    unsigned n = m->counts[high_dim];
+    unsigned* ones = uints_filled(n, 1);
+    unsigned* offsets = uints_exscan(ones, n);
+    loop_free(ones);
+    unsigned* highs_of_lows = uints_copy(offsets, n);
+    unsigned* directions = uints_filled(n, 0);
+    set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
+  } else {
+    unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
+    unsigned nhighs = m->counts[high_dim];
+    unsigned nlows = m->counts[low_dim];
+    unsigned* offsets;
+    unsigned* highs_of_lows;
+    unsigned* directions;
+    up_from_down(high_dim, low_dim, nhighs, nlows, lows_of_highs,
+        &offsets, &highs_of_lows, &directions);
+    set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
+  }
   return (struct const_up*) m->up[low_dim][high_dim];
 }
 
@@ -193,17 +216,25 @@ static void set_star(struct mesh* m, unsigned low_dim, unsigned high_dim,
 
 struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned high_dim)
 {
-  assert(low_dim < high_dim);
+  assert(low_dim <= high_dim);
   if (m->star[low_dim][high_dim])
     return (struct const_graph*) m->star[low_dim][high_dim];
-  unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
-  struct const_up* highs_of_lows = mesh_ask_up(m, low_dim, high_dim);
-  unsigned nlows = m->counts[low_dim];
-  unsigned* offsets;
-  unsigned* adj;
-  get_star(low_dim, high_dim, nlows, highs_of_lows->offsets, highs_of_lows->adj,
-      lows_of_highs, &offsets, &adj);
-  set_star(m, low_dim, high_dim, new_graph(offsets, adj));
+  if (low_dim == high_dim) {
+    /* waste memory to prevent algorithms from having to deal
+       with equal-order cases separately */
+    unsigned n = m->counts[low_dim];
+    unsigned* offsets = uints_filled(n + 1, 0);
+    set_star(m, low_dim, high_dim, new_graph(offsets, 0));
+  } else {
+    unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
+    struct const_up* highs_of_lows = mesh_ask_up(m, low_dim, high_dim);
+    unsigned nlows = m->counts[low_dim];
+    unsigned* offsets;
+    unsigned* adj;
+    get_star(low_dim, high_dim, nlows, highs_of_lows->offsets, highs_of_lows->adj,
+        lows_of_highs, &offsets, &adj);
+    set_star(m, low_dim, high_dim, new_graph(offsets, adj));
+  }
   return (struct const_graph*) m->star[low_dim][high_dim];
 }
 

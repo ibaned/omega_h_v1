@@ -62,7 +62,7 @@ unsigned refine_common(
   unsigned nverts = mesh_count(m, 0);
   unsigned* gen_vert_of_srcs = LOOP_MALLOC(unsigned, nsrcs);
   for (unsigned i = 0; i < nsrcs; ++i)
-    if (gen_offset_of_srcs[i] != gen_offset_of_srcs[i + src_dim])
+    if (gen_offset_of_srcs[i] != gen_offset_of_srcs[i + 1])
       gen_vert_of_srcs[i] = nverts + gen_offset_of_srcs[i];
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned const* srcs_of_elems = mesh_ask_down(m, elem_dim, src_dim);

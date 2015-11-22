@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "files.h"
+#include "find_by_verts.h"
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
@@ -111,31 +112,11 @@ struct mesh* read_msh(char const* filename)
     unsigned i = neqs - ii - 1;
     unsigned eq_dim = dim_of_eqs[i];
     unsigned const* eq_verts = verts_of_eqs + i * 4;
-    /* find via reverse lookup from the first vertex.
-       it may have been created with a different vertex
-       ordering too, so matching has to try all combinations */
-    unsigned vert = eq_verts[0];
-    unsigned verts_per_ent = eq_dim + 1;
-    unsigned ent = INVALID;
-    if (eq_dim) {
-      unsigned const* verts_of_ents = mesh_ask_down(m, eq_dim, 0);
-      unsigned const* ents_of_verts = mesh_ask_up(m, 0, eq_dim)->adj;
-      unsigned const* ents_of_verts_offsets = mesh_ask_up(m, 0, eq_dim)->offsets;
-      for (unsigned j = ents_of_verts_offsets[vert];
-           j < ents_of_verts_offsets[vert + 1]; ++j) {
-        ent = ents_of_verts[j];
-        unsigned const* ent_verts = verts_of_ents + ent * verts_per_ent;
-        unsigned nmatches = 0;
-        for (unsigned k = 0; k < verts_per_ent; ++k)
-        for (unsigned l = 0; l < verts_per_ent; ++l)
-          if (ent_verts[k] == eq_verts[l])
-            ++nmatches;
-        /* found a match, has the same vertices */
-        if (nmatches == verts_per_ent)
-          break;
-      }
-    } else
-        ent = eq_verts[0];
+    /* general reverse lookup via vertices. */
+    unsigned ent = find_by_verts(eq_dim + 1, eq_verts,
+        mesh_ask_down(m, eq_dim, 0),
+        mesh_ask_up(m, 0, eq_dim)->adj,
+        mesh_ask_up(m, 0, eq_dim)->offsets);
     assert(ent != INVALID);
     class_dims[eq_dim][ent] = eq_dim;
     class_ids[eq_dim][ent] = class_id_of_eqs[i];

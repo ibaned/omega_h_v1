@@ -106,7 +106,8 @@ owners_from_verts.c \
 gmsh_io.c \
 exchanger.c \
 infer_class.c \
-copy_mesh.c
+copy_mesh.c \
+refine_by_class.c
 
 #handle optional features:
 USE_MPI ?= 0
