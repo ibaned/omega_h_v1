@@ -33,7 +33,7 @@ test_loop.c \
 test_base64.c \
 test_global.c \
 test_vtk_ascii.c \
-test_read_msh.c \
+test_from_gmsh.c \
 test_cuda_box.c \
 test_infer_class.c
 
