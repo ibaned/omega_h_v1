@@ -93,24 +93,7 @@ struct mesh* refine_common(
     loop_free(gen_vals);
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
   }
-  if (mesh_find_tag(m, 0, "class_dim")) {
-    assert(mesh_find_tag(m, 0, "class_id"));
-    unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->d.u32;
-    unsigned const* class_id = mesh_find_tag(m, 0, "class_id")->d.u32;
-    unsigned* gen_class_dim;
-    unsigned* gen_class_id;
-    refine_class(src_dim, nsrcs, verts_of_srcs,
-        gen_offset_of_srcs, class_dim, class_id,
-        &gen_class_dim, &gen_class_id);
-    unsigned* class_dim_out = concat_uints(1, class_dim, nverts,
-        gen_class_dim, nsplit_srcs);
-    loop_free(gen_class_dim);
-    unsigned* class_id_out = concat_uints(1, class_id, nverts,
-        gen_class_id, nsplit_srcs);
-    loop_free(gen_class_id);
-    mesh_add_tag(m_out, 0, TAG_U32, "class_dim", 1, class_dim_out);
-    mesh_add_tag(m_out, 0, TAG_U32, "class_id", 1, class_id_out);
-  }
+  refine_class(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);
   unsigned* offset_of_same_elems = uints_negate_offsets(
       gen_offset_of_elems, nelems);
