@@ -158,11 +158,14 @@ void unmark_boundary(
   unsigned* ent_class_dim;
   infer_class(ent_dim, nents, verts_of_ents, vert_class_dim, 0,
       &ent_class_dim, 0);
+  /* TODO: if this was computed before we shouldn't recompute it */
   unsigned* interior_ents = mark_class(nents, elem_dim, INVALID,
       ent_class_dim, 0);
+  loop_free(ent_class_dim);
   for (unsigned i = 0; i < nents; ++i)
     if (!interior_ents[i])
       marked[i] = 0;
+  loop_free(interior_ents);
 }
 
 static unsigned* mark_slivers(

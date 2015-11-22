@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "concat.h"
+#include "copy_mesh.h"
 #include "doubles.h"
 #include "graph.h"
 #include "indset.h"
@@ -88,21 +89,7 @@ unsigned swap_common(
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts, 0);
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
-  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
-    struct const_tag* t = mesh_get_tag(m, 0, i);
-    void* data = 0;
-    switch (t->type) {
-      case TAG_U8:  data = uchars_copy(t->d.u8, nverts * t->ncomps);
-                    break;
-      case TAG_U32: data = uints_copy(t->d.u32, nverts * t->ncomps);
-                    break;
-      case TAG_U64: data = ulongs_copy(t->d.u64, nverts * t->ncomps);
-                    break;
-      case TAG_F64: data = doubles_copy(t->d.f64, nverts * t->ncomps);
-                    break;
-    };
-    mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, data);
-  }
+  copy_tags(mesh_tags(m, 0), mesh_tags(m_out, 0), nverts);
   free_mesh(m);
   *p_m = m_out;
   return 1;
