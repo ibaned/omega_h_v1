@@ -27,7 +27,7 @@ void infer_class(
     for (unsigned j = 0; j < verts_per_ent; ++j) {
       unsigned vert = verts_of_ent[j];
       unsigned vert_dim = class_dim_of_verts[vert];
-      if (dim == INVALID || vert_dim > dim) {
+      if (j == 0 || vert_dim > dim) {
         dim = vert_dim;
         if (class_id_of_verts)
           id = class_id_of_verts[vert];
