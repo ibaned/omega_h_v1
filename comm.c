@@ -19,7 +19,7 @@ static struct comm* using = &world;
 
 void comm_init(void)
 {
-  CALL(MPI_Init(NULL,NULL));
+  CALL(MPI_Init(0,0));
 }
 
 void comm_fini(void)
