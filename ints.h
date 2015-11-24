@@ -3,13 +3,12 @@
 
 void uints_zero(unsigned* a, unsigned n);
 unsigned* uints_copy(unsigned const* a, unsigned n);
-//unsigned* uints_copy(unsigned * a, unsigned n);
 unsigned uints_max(unsigned const* a, unsigned n);
 unsigned* uints_exscan(unsigned const* a, unsigned n);
 unsigned* uints_unscan(unsigned const* a, unsigned n);
 unsigned* uints_negate(unsigned const* a, unsigned n);
 unsigned* uints_negate_offsets(unsigned const* a, unsigned n);
-void uints_fill(unsigned* a, unsigned n, unsigned v);
+unsigned* uints_filled(unsigned n, unsigned v);
 unsigned uints_sum(unsigned const* a, unsigned n);
 
 static inline unsigned has(unsigned const* a, unsigned n, unsigned e)

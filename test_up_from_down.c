@@ -11,8 +11,8 @@ int main()
   unsigned* offsets;
   unsigned* adj;
   unsigned* directions;
-  unsigned const * in = (unsigned const *)
-		  loop_to_device( the_box_conns[dim] , sizeof(unsigned) * nelems * nverts);
+  unsigned const* in = (unsigned const*)
+      loop_to_device(the_box_conns[dim], sizeof(unsigned) * nelems * nverts);
   up_from_down(
       dim,
       0,
@@ -25,13 +25,13 @@ int main()
   unsigned t_size  = the_down_degrees[dim][0] * nelems;
   unsigned* t_off = offsets;
   offsets = (unsigned*)
-    loop_to_host( offsets , (sizeof(unsigned)* nverts)+1);
+    loop_to_host(offsets, (sizeof(unsigned) * nverts) + 1);
   unsigned* t_adj = adj;
   adj = (unsigned*)
-    loop_to_host( adj , sizeof(unsigned)* t_size);
+    loop_to_host(adj, sizeof(unsigned) * t_size);
   unsigned* t_directions = directions;
   directions = (unsigned*)
-    loop_to_host( directions , sizeof(unsigned)* t_size);
+    loop_to_host(directions, sizeof(unsigned) * t_size);
   for (unsigned i = 0; i < nverts; ++i) {
     printf("[%u] =", i);
     unsigned first_adj = offsets[i];

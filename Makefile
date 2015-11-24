@@ -33,8 +33,9 @@ test_loop.c \
 test_base64.c \
 test_global.c \
 test_vtk_ascii.c \
-test_read_msh.c \
-test_cuda_box.c
+test_from_gmsh.c \
+test_cuda_box.c \
+test_infer_class.c
 
 lib_sources := \
 star.c \
@@ -103,16 +104,21 @@ invert_map.c \
 owners_from_global.c \
 owners_from_verts.c \
 gmsh_io.c \
-exchanger.c
+exchanger.c \
+infer_class.c \
+copy_mesh.c \
+refine_by_class.c
 
 #handle optional features:
 USE_MPI ?= 0
+USE_CUDA_MALLOC_MANAGED ?= 1
 #comm.c is compiled with -DUSE_MPI
 objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
 
 LOOP_MODE ?= serial
 ifeq "$(LOOP_MODE)" "cuda"
 lib_sources += loop_cuda.c
+objs/loop_cuda.o : CFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
 endif
 
 #generated file names are derived from source
@@ -120,8 +126,8 @@ endif
 exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
 test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
 lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
-sources := $(lib_sources) $(test_sources)
-depfiles := $(patsubst %.c,deps/%.dep,$(sources))
+depfiles := $(patsubst %.c,deps/%.dep,$(lib_sources)) \
+$(patsubst %.c,deps/%.dep,$(test_sources))
 
 lib := lib/libomega_h.a
 
@@ -140,7 +146,7 @@ clean:
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
 objs/%.o: %.c | objs
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
 $(lib): $(lib_objects) | lib
 	ar cru $@ $(lib_objects)

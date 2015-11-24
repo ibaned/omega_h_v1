@@ -7,28 +7,23 @@
 void* loop_host_malloc(unsigned long n)
 {
   if (!n)
-    return NULL;
+    n = 1;
   void* p = malloc(n);
   assert(p);
   return p;
 }
 
-unsigned loop_host_atomic_increment( unsigned * p )
+unsigned loop_host_atomic_increment(unsigned* p)
 {
-	unsigned a = *p;
-	*p = *p +1;
-	return a;
+  unsigned a = *p;
+  *p = *p + 1;
+  return a;
 }
-
 
 void* loop_host_realloc(void* p, unsigned long n)
 {
-  if (!n) {
-    free(p);
-    return NULL;
-  }
-  if (!p)
-    return loop_host_malloc(n);
+  if (!n)
+    n = 1;
   void* q = realloc(p, n);
   assert(q);
   return q;

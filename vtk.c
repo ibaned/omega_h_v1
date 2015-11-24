@@ -45,10 +45,8 @@ static char const* type_name(enum tag_type t)
     case TAG_U32: return "UInt32";
     case TAG_U64: return "UInt64";
     case TAG_F64: return "Float64";
+    default: return "";
   }
-#ifdef __CUDACC__
-  return "";
-#endif
 }
 
 static char const* format_name(enum vtk_format fmt)
@@ -56,17 +54,16 @@ static char const* format_name(enum vtk_format fmt)
   switch (fmt) {
     case VTK_ASCII: return "ascii";
     case VTK_BINARY: return "binary";
+    default: return "";
   }
-#ifdef __CUDACC__
-  return "";
-#endif
 }
 
-static void read_attrib(char const* elem, char const* name,
+static unsigned try_read_attrib(char const* elem, char const* name,
     char* val)
 {
   char const* pname = strstr(elem, name);
-  assert(pname);
+  if (!pname)
+    return 0;
   line_t assign;
   assert(strlen(pname) < sizeof(assign));
   strcpy(assign, pname);
@@ -74,6 +71,14 @@ static void read_attrib(char const* elem, char const* name,
   char const* pval = strtok(assign + strlen(name) + 2, "\"");
   assert(pval && strlen(pval));
   strcpy(val, pval);
+  return 1;
+}
+
+static void read_attrib(char const* elem, char const* name,
+    char* val)
+{
+  unsigned ok = try_read_attrib(elem, name, val);
+  assert(ok);
 }
 
 static void read_array_name(char const* header, char* name)
@@ -114,9 +119,22 @@ static unsigned read_int_attrib(char const* header, char const* attrib)
   return (unsigned) atoi(val);
 }
 
+static unsigned try_read_int_attrib(char const* header, char const* attrib, unsigned* val)
+{
+  line_t val_text;
+  unsigned ok = try_read_attrib(header, attrib, val_text);
+  if (!ok)
+    return 0;
+  *val = (unsigned) atoi(val_text);
+  return 1;
+}
+
 static unsigned read_array_ncomps(char const* header)
 {
-  return read_int_attrib(header, "NumberOfComponents");
+  unsigned n;
+  if (try_read_int_attrib(header, "NumberOfComponents", &n))
+    return n;
+  return 1;
 }
 
 static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
@@ -221,10 +239,8 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%lf", &out[i]);
       return out;
     }
+    default: return 0;
   }
-#ifdef __CUDACC__
-  return 0;
-#endif
 }
 
 static void describe_array(FILE* file, enum tag_type t,
