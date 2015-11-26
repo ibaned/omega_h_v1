@@ -137,8 +137,21 @@ unsigned* exchange_uints(struct exchanger* ex, unsigned width,
 {
   unsigned* sorted = sort_uints_by_category(sent, width, ex->nsent,
       ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets);
-  unsigned* recvd = LOOP_HOST_MALLOC(unsigned, ex->nrecvd * width);
+  unsigned* recvd = LOOP_MALLOC(unsigned, ex->nrecvd * width);
   comm_exch_uints(ex->forward_comm, width,
+      sorted, ex->send_counts, ex->send_offsets,
+      recvd,  ex->recv_counts, ex->recv_offsets);
+  loop_free(sorted);
+  return recvd;
+}
+
+double* exchange_doubles(struct exchanger* ex, unsigned width,
+    double const* sent)
+{
+  double* sorted = sort_doubles_by_category(sent, width, ex->nsent,
+      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets);
+  double* recvd = LOOP_MALLOC(double, ex->nrecvd * width);
+  comm_exch_doubles(ex->forward_comm, width,
       sorted, ex->send_counts, ex->send_offsets,
       recvd,  ex->recv_counts, ex->recv_offsets);
   loop_free(sorted);

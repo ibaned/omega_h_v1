@@ -169,6 +169,15 @@ void comm_exch_uints(struct comm* c,
       MPI_UNSIGNED);
 }
 
+void comm_exch_doubles(struct comm* c,
+    unsigned width,
+    double const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    double* in, unsigned const* incounts, unsigned const* inoffsets)
+{
+  comm_exch_any(c, width, out, outcounts, outoffsets, in, incounts, inoffsets,
+      MPI_DOUBLE);
+}
+
 static void comm_sync_any(struct comm* c, void const* out, void* in, MPI_Datatype type)
 {
   CALL(MPI_Neighbor_allgather(out, 1, type, in, 1, type, c->c));
@@ -343,6 +352,23 @@ void comm_exch_uints(struct comm* c,
     assert(gc->nout == 0);
 }
 
+void comm_exch_doubles(struct comm* c,
+    unsigned width,
+    double const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    double* in, unsigned const* incounts, unsigned const* inoffsets)
+{
+  (void) outoffsets;
+  (void) inoffsets;
+  struct graph_comm* gc = (struct graph_comm*) c;
+  if (gc->nout == 1) {
+    assert(outcounts[0] == incounts[0]);
+    for (unsigned i = 0; i < outcounts[0] * width; ++i)
+      in[i] = out[i];
+  }
+  else
+    assert(gc->nout == 0);
+}
+
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
 {
   struct graph_comm* gc = (struct graph_comm*) c;
@@ -388,3 +414,10 @@ unsigned long comm_max_ulong(unsigned long x)
 }
 
 #endif
+
+double comm_add_double(double x)
+{
+  double a[1] = {x};
+  comm_add_doubles(a, 1);
+  return a[0];
+}

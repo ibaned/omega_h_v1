@@ -79,6 +79,17 @@ unsigned* sort_uints_by_category(
   GENERIC_SORT_BY_CATEGORY(unsigned, a, width, n, cats, indices, cat_offsets);
 }
 
+double* sort_doubles_by_category(
+    double const* a,
+    unsigned width,
+    unsigned n,
+    unsigned const* cats,
+    unsigned const* indices,
+    unsigned const* cat_offsets)
+{
+  GENERIC_SORT_BY_CATEGORY(double, a, width, n, cats, indices, cat_offsets);
+}
+
 #define GENERIC_UNSORT_BY_CATEGORY(T, a, width, n, cats, indices, cat_offsets) \
   T* out = LOOP_MALLOC(T, n); \
   for (unsigned i = 0; i < n; ++i) { \

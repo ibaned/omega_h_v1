@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "algebra.h"
+#include "comm.h"
 #include "doubles.h"
 #include "loop.h"
 #include "qr.h"
@@ -55,11 +56,12 @@ void least_inertial_axis(double IC[3][3], double a[3])
     a[i] = q[i][best];
 }
 
-static void local_weighted_coords(
+static void get_weighted_coords(
     unsigned n,
     double const* coords,
     double const* masses,
-    double* c)
+    double* c,
+    unsigned is_global)
 {
   for (unsigned i = 0; i < 3; ++i)
     c[i] = 0;
@@ -68,26 +70,30 @@ static void local_weighted_coords(
     double m = masses ? masses[i] : 1;
     c[j] += coords[i * 3 + j] * m;
   }
+  if (is_global)
+    comm_add_doubles(c, 3);
 }
 
-static void local_center_of_mass(
+static void get_center_of_mass(
     unsigned n,
     double const* coords,
     double const* masses,
     double lm,
-    double* c)
+    double* c,
+    unsigned is_global)
 {
-  local_weighted_coords(n, coords, masses, c);
+  get_weighted_coords(n, coords, masses, c, is_global);
   for (unsigned i = 0; i < 3; ++i)
     c[i] /= lm;
 }
 
-static void local_inertia(
+static void get_total_inertia(
     unsigned n,
     double const* coords,
     double const* masses,
     double const* c,
-    double ic[3][3])
+    double ic[3][3],
+    unsigned is_global)
 {
   zero_3x3(ic);
   for (unsigned i = 0; i < n; ++i) {
@@ -96,21 +102,24 @@ static void local_inertia(
     inertia_contribution(m, coords + i * 3, c, pic);
     add_3x3(ic, pic, ic);
   }
+  if (is_global)
+    comm_add_doubles(ic[0], 9);
 }
 
-static void local_axis(
+static void get_axis(
     unsigned n,
     double const* coords,
     double const* masses,
     double const* c,
-    double* a)
+    double* a,
+    unsigned is_global)
 {
   double ic[3][3];
-  local_inertia(n, coords, masses, c, ic);
+  get_total_inertia(n, coords, masses, c, ic, is_global);
   least_inertial_axis(ic, a);
 }
 
-static double* local_radii(
+static double* get_radii(
     unsigned n,
     double const* coords,
     double const* c,
@@ -126,22 +135,22 @@ static double* local_radii(
   return out;
 }
 
-static unsigned* mark_local_in(
+static unsigned* mark_in(
     unsigned n,
     double const* radii,
     double r)
 {
   unsigned* in = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i) {
+  for (unsigned i = 0; i < n; ++i)
     in[i] = (radii[i] >= r);
-  }
   return in;
 }
 
-static double local_weighted_in(
+static double get_weighted_in_count(
     unsigned n,
     unsigned const* in,
-    double const* masses)
+    double const* masses,
+    unsigned is_global)
 {
   double s = 0;
   for (unsigned i = 0; i < n; ++i)
@@ -149,21 +158,24 @@ static double local_weighted_in(
       double m = masses ? masses[i] : 1;
       s += m;
     }
+  if (is_global)
+    return comm_add_double(s);
   return s;
 }
 
-static double local_mean_radius(
+static double get_mean_radius(
     unsigned n,
     double const* radii,
     double const* masses,
-    double local_mass)
+    double total_mass,
+    unsigned is_global)
 {
   double r = 0;
   double dr = doubles_max(radii, n) / 2;
-  double hm = local_mass / 2;
+  double hm = total_mass / 2;
   for (unsigned i = 0; i < 52; ++i) {
-    unsigned* in = mark_local_in(n, radii, r);
-    double wi = local_weighted_in(n, in, masses);
+    unsigned* in = mark_in(n, radii, r);
+    double wi = get_weighted_in_count(n, in, masses, is_global);
     loop_free(in);
     if (wi > hm)
       r += dr;
@@ -174,23 +186,26 @@ static double local_mean_radius(
   return r;
 }
 
-unsigned* local_inertia_mark(
+unsigned* mark_inertial_bisection(
     unsigned n,
     double const* coords,
-    double const* masses)
+    double const* masses,
+    unsigned is_global)
 {
-  double lm;
+  double tm;
   if (masses)
-    lm = doubles_sum(masses, n);
+    tm = doubles_sum(masses, n);
   else
-    lm = n;
+    tm = n;
+  if (is_global)
+    tm = comm_add_double(tm);
   double c[3];
-  local_center_of_mass(n, coords, masses, lm, c);
+  get_center_of_mass(n, coords, masses, tm, c, is_global);
   double a[3];
-  local_axis(n, coords, masses, c, a);
-  double* radii = local_radii(n, coords, c, a);
-  double r = local_mean_radius(n, radii, masses, lm);
-  unsigned* in = mark_local_in(n, radii, r);
+  get_axis(n, coords, masses, c, a, is_global);
+  double* radii = get_radii(n, coords, c, a);
+  double r = get_mean_radius(n, radii, masses, tm, is_global);
+  unsigned* in = mark_in(n, radii, r);
   loop_free(radii);
   return in;
 }

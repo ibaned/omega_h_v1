@@ -39,6 +39,8 @@ struct exchanger* new_exchanger(
     unsigned const* dest_idx_of_sent);
 unsigned* exchange_uints(struct exchanger* ex, unsigned width,
     unsigned const* sent);
+double* exchange_doubles(struct exchanger* ex, unsigned width,
+    double const* sent);
 unsigned* unexchange_uints(struct exchanger* ex, unsigned width,
     unsigned const* recvd);
 void free_exchanger(struct exchanger* ex);
