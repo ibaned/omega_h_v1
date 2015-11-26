@@ -107,7 +107,8 @@ gmsh_io.c \
 exchanger.c \
 infer_class.c \
 copy_mesh.c \
-refine_by_class.c
+refine_by_class.c \
+parallel_inertial_bisect.c
 
 #handle optional features:
 USE_MPI ?= 0
