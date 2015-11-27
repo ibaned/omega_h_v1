@@ -125,10 +125,15 @@ struct exchanger* new_exchanger(
       ex->nsends, ex->send_ranks, ex->send_counts,
       ex->nrecvs, ex->recv_ranks, ex->recv_counts);
   ex->recv_of_recvd = make_recv_of_recvd(ex->nrecvd, ex->nrecvs, ex->recv_offsets);
-  unsigned* dest_idx_of_recvd = exchange_uints(ex, 1, dest_idx_of_sent);
-  invert_map(ex->nrecvd, dest_idx_of_recvd, ndests,
-      &ex->recvd_of_dests, &ex->recvd_of_dests_offsets);
-  loop_free(dest_idx_of_recvd);
+  if (dest_idx_of_sent) {
+    unsigned* dest_idx_of_recvd = exchange_uints(ex, 1, dest_idx_of_sent);
+    invert_map(ex->nrecvd, dest_idx_of_recvd, ndests,
+        &ex->recvd_of_dests, &ex->recvd_of_dests_offsets);
+    loop_free(dest_idx_of_recvd);
+  } else {
+    ex->recvd_of_dests = 0;
+    ex->recvd_of_dests_offsets = 0;
+  }
   return ex;
 }
 

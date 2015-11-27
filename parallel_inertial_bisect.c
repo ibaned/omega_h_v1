@@ -46,6 +46,7 @@ void parallel_inertial_bisect(
     unsigned long nsub_total = comm_add_ulong(nsub);
     global_to_linpart(global, nsub, nsub_total, nsubranks,
         &lin_ranks, &lin_ids);
+    loop_free(lin_ids);
     loop_free(global);
     for (unsigned i = 0; i < nsub; ++i)
       lin_ranks[i] += first_rank;
@@ -56,9 +57,8 @@ void parallel_inertial_bisect(
       ndests = linpart_size(nsub_total, nsubranks, comm_rank() - first_rank);
       n_out = ndests;
     }
-    struct exchanger* ex = new_exchanger(nsub, ndests, lin_ranks, lin_ids);
+    struct exchanger* ex = new_exchanger(nsub, ndests, lin_ranks, 0);
     loop_free(lin_ranks);
-    loop_free(lin_ids);
     double* sub_coords = doubles_subset(n, 3, coords, offsets);
     double* coords_recvd = exchange_doubles(ex, 3, sub_coords);
     loop_free(sub_coords);
