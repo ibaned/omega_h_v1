@@ -98,3 +98,27 @@ void parallel_inertial_bisect(
   loop_free(*p_orig_ids);
   *p_orig_ids = orig_ids_out;
 }
+
+void recursive_inertial_bisect(
+    unsigned* p_n,
+    double** p_coords,
+    double** p_masses,
+    unsigned** p_orig_ranks,
+    unsigned** p_orig_ids)
+{
+  if (comm_size() == 1)
+    return;
+  assert(comm_size() % 2 == 0);
+  parallel_inertial_bisect(p_n, p_coords, p_masses,
+      p_orig_ranks, p_orig_ids);
+  unsigned half = comm_size() / 2;
+  unsigned group = comm_rank() / half;
+  unsigned subrank = comm_rank() % half;
+  struct comm* oldcomm = comm_using();
+  struct comm* subcomm = comm_split(oldcomm, group, subrank);
+  comm_use(subcomm);
+  recursive_inertial_bisect(p_n, p_coords, p_masses,
+      p_orig_ranks, p_orig_ids);
+  comm_use(oldcomm);
+  comm_free(subcomm);
+}

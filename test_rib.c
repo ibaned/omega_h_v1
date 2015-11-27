@@ -31,7 +31,7 @@ int main()
       sizeof(unsigned) * n);
   unsigned* orig_ids = loop_to_device(orig_ids_in[comm_rank()],
       sizeof(unsigned) * n);
-  parallel_inertial_bisect(&n, &coords, &masses, &orig_ranks, &orig_ids);
+  recursive_inertial_bisect(&n, &coords, &masses, &orig_ranks, &orig_ids);
   printf("n %u\n", n);
   for (unsigned i = 0; i < n; ++i)
     printf("%u %u : (%f %f %f) %f %u %u\n",
