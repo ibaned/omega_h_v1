@@ -39,4 +39,8 @@ struct const_tag* mesh_get_tag(struct mesh* m, unsigned dim, unsigned i);
 struct tags* mesh_tags(struct mesh* m, unsigned dim);
 unsigned mesh_has_dim(struct mesh* m, unsigned dim);
 
+struct parallel_mesh;
+
+struct parallel_mesh* mesh_parallel(struct mesh* m);
+
 #endif

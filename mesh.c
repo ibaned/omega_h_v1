@@ -8,6 +8,7 @@
 #include "graph.h"
 #include "ints.h"
 #include "loop.h"
+#include "parallel_mesh.h"
 #include "reflect_down.h"
 #include "star.h"
 #include "tables.h"
@@ -28,6 +29,7 @@ struct mesh {
   struct graph* star[4][4];
   unsigned* dual;
   struct tags tags[4];
+  struct parallel_mesh* parallel;
 };
 
 static struct up* new_up(unsigned* offsets, unsigned* adj, unsigned* directions)
@@ -54,6 +56,7 @@ struct mesh* new_mesh(unsigned elem_dim)
   struct mesh* m = LOOP_HOST_MALLOC(struct mesh, 1);
   memset(m, 0, sizeof(*m));
   m->elem_dim = elem_dim;
+  m->parallel = new_parallel_mesh(m);
   return m;
 }
 
@@ -103,6 +106,7 @@ void free_mesh(struct mesh* m)
   loop_free(m->dual);
   for (unsigned d = 0; d < 4; ++d)
     free_tags(&m->tags[d]);
+  free_parallel_mesh(m->parallel);
   loop_host_free(m);
 }
 
@@ -292,4 +296,9 @@ struct tags* mesh_tags(struct mesh* m, unsigned dim)
 unsigned mesh_has_dim(struct mesh* m, unsigned dim)
 {
   return dim == 0 || m->down[dim][0] != 0;
+}
+
+struct parallel_mesh* mesh_parallel(struct mesh* m)
+{
+  return m->parallel;
 }

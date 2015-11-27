@@ -109,7 +109,8 @@ exchanger.c \
 infer_class.c \
 copy_mesh.c \
 refine_by_class.c \
-parallel_inertial_bisect.c
+parallel_inertial_bisect.c \
+parallel_mesh.c
 
 #handle optional features:
 USE_MPI ?= 0
