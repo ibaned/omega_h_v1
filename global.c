@@ -58,7 +58,7 @@ unsigned linpart_size(unsigned long total, unsigned nparts, unsigned part)
 }
 
 #define GENERIC_SORT_BY_CATEGORY(T, a, width, n, cats, indices, cat_offsets) \
-  T* out = LOOP_MALLOC(T, n); \
+  T* out = LOOP_MALLOC(T, n * width); \
   for (unsigned i = 0; i < n; ++i) { \
     unsigned cat = cats[i]; \
     unsigned idx = indices[i]; \
