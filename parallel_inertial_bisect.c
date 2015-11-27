@@ -57,6 +57,8 @@ void parallel_inertial_bisect(
       n_out = ndests;
     }
     struct exchanger* ex = new_exchanger(nsub, ndests, lin_ranks, lin_ids);
+    loop_free(lin_ranks);
+    loop_free(lin_ids);
     double* sub_coords = doubles_subset(n, 3, coords, offsets);
     double* coords_recvd = exchange_doubles(ex, 3, sub_coords);
     loop_free(sub_coords);
@@ -69,6 +71,7 @@ void parallel_inertial_bisect(
     unsigned* sub_orig_ids = uints_subset(n, 1, orig_ids, offsets);
     unsigned* orig_ids_recvd = exchange_uints(ex, 1, sub_orig_ids);
     loop_free(sub_orig_ids);
+    free_exchanger(ex);
     if (in_subgroup) {
       coords_out = coords_recvd;
       masses_out = masses_recvd;
@@ -85,6 +88,7 @@ void parallel_inertial_bisect(
     offsets = opp_offsets;
     first_rank += nsubranks;
   }
+  loop_free(offsets);
   loop_free(*p_coords);
   *p_coords = coords_out;
   loop_free(*p_masses);
