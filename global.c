@@ -111,3 +111,26 @@ unsigned* unsort_uints_by_category(
 {
   GENERIC_UNSORT_BY_CATEGORY(unsigned, a, width, n, cats, indices, cat_offsets);
 }
+
+double* unsort_doubles_by_category(
+    double const* a,
+    unsigned width,
+    unsigned n,
+    unsigned const* cats,
+    unsigned const* indices,
+    unsigned const* cat_offsets)
+{
+  GENERIC_UNSORT_BY_CATEGORY(double, a, width, n, cats, indices, cat_offsets);
+}
+
+unsigned long* unsort_ulongs_by_category(
+    unsigned long const* a,
+    unsigned width,
+    unsigned n,
+    unsigned const* cats,
+    unsigned const* indices,
+    unsigned const* cat_offsets)
+{
+  GENERIC_UNSORT_BY_CATEGORY(unsigned long, a, width, n, cats, indices,
+      cat_offsets);
+}

@@ -112,6 +112,7 @@ struct exchanger* new_exchanger(
 {
   struct exchanger* ex = LOOP_HOST_MALLOC(struct exchanger, 1);
   ex->nsent = nsent;
+  ex->ndests = ndests;
   sends_from_dest_ranks(nsent, dest_rank_of_sent,
       &ex->send_of_sent, &ex->send_idx_of_sent,
       &ex->nsends, &ex->send_ranks, &ex->send_counts);
@@ -171,6 +172,32 @@ unsigned* unexchange_uints(struct exchanger* ex, unsigned width,
       recvd,  ex->recv_counts, ex->recv_offsets,
       sorted, ex->send_counts, ex->send_offsets);
   unsigned* sent = unsort_uints_by_category(sorted, width, ex->nsent,
+      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets);
+  loop_free(sorted);
+  return sent;
+}
+
+double* unexchange_doubles(struct exchanger* ex, unsigned width,
+    double const* recvd)
+{
+  double* sorted = LOOP_HOST_MALLOC(double, ex->nsent * width);
+  comm_exch_doubles(ex->reverse_comm, width,
+      recvd,  ex->recv_counts, ex->recv_offsets,
+      sorted, ex->send_counts, ex->send_offsets);
+  double* sent = unsort_doubles_by_category(sorted, width, ex->nsent,
+      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets);
+  loop_free(sorted);
+  return sent;
+}
+
+unsigned long* unexchange_ulongs(struct exchanger* ex, unsigned width,
+    unsigned long const* recvd)
+{
+  unsigned long* sorted = LOOP_HOST_MALLOC(unsigned long, ex->nsent * width);
+  comm_exch_ulongs(ex->reverse_comm, width,
+      recvd,  ex->recv_counts, ex->recv_offsets,
+      sorted, ex->send_counts, ex->send_offsets);
+  unsigned long* sent = unsort_ulongs_by_category(sorted, width, ex->nsent,
       ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets);
   loop_free(sorted);
   return sent;

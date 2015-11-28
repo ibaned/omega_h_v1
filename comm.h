@@ -29,6 +29,10 @@ void comm_exch_doubles(struct comm* c,
     unsigned width,
     double const* out, unsigned const* outcounts, unsigned const* outoffsets,
     double* in, unsigned const* incounts, unsigned const* inoffsets);
+void comm_exch_ulongs(struct comm* c,
+    unsigned width,
+    unsigned long const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    unsigned long* in, unsigned const* incounts, unsigned const* inoffsets);
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in);
 
 void comm_free(struct comm* c);

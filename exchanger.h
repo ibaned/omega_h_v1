@@ -16,6 +16,8 @@ struct exchanger {
   unsigned nrecvd;
   unsigned nsends;
   unsigned nrecvs;
+  unsigned ndests;
+  unsigned padding__;
   unsigned* send_ranks;
   unsigned* recv_ranks;
   unsigned* send_counts;
@@ -43,6 +45,10 @@ double* exchange_doubles(struct exchanger* ex, unsigned width,
     double const* sent);
 unsigned* unexchange_uints(struct exchanger* ex, unsigned width,
     unsigned const* recvd);
+double* unexchange_doubles(struct exchanger* ex, unsigned width,
+    double const* recvd);
+unsigned long* unexchange_ulongs(struct exchanger* ex, unsigned width,
+    unsigned long const* recvd);
 void free_exchanger(struct exchanger* ex);
 
 #endif

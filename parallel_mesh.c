@@ -3,7 +3,10 @@
 #include <assert.h>
 #include <string.h>
 
+#include "comm.h"
 #include "exchanger.h"
+#include "global.h"
+#include "ints.h"
 #include "loop.h"
 #include "mesh.h"
 #include "owners_from_global.h"
@@ -33,6 +36,50 @@ void free_parallel_mesh(struct parallel_mesh* pm)
   }
   loop_host_free(pm);
 }
+
+#define GENERIC_CONFORM_RECVD(T, ex, width, a) \
+  T* recvd = LOOP_MALLOC(T, ex->nrecvd * width); \
+  for (unsigned i = 0; i < ex->ndests; ++i) { \
+    unsigned first = ex->recvd_of_dests_offsets[i]; \
+    unsigned end = ex->recvd_of_dests_offsets[i + 1]; \
+    for (unsigned j = first; j < end; ++j) { \
+      unsigned irecvd = ex->recvd_of_dests[j]; \
+      for (unsigned k = 0; k < width; ++k) \
+        recvd[irecvd * width + k] = a[i * width + k]; \
+    } \
+  }
+
+unsigned long* conform_ulongs(struct exchanger* ex, unsigned width,
+    unsigned long const* a)
+{
+  GENERIC_CONFORM_RECVD(unsigned long, ex, width, a);
+  return unexchange_ulongs(ex, width, recvd);
+}
+
+double* conform_doubles(struct exchanger* ex, unsigned width,
+    double const* a)
+{
+  GENERIC_CONFORM_RECVD(double, ex, width, a);
+  return unexchange_doubles(ex, width, recvd);
+}
+
+/*
+static unsigned long* global_from_owners(
+    struct exchanger* ex,
+    unsigned const* own_ranks)
+{
+  unsigned n = ex->nsent;
+  unsigned* owned = LOOP_MALLOC(unsigned, n);
+  unsigned rank = comm_rank();
+  for (unsigned i = 0; i < n; ++i)
+    owned[i] = (own_ranks[i] == rank);
+  unsigned* offsets = uints_exscan(owned, n);
+  unsigned long* local_globals = globalize_offsets(offsets, n);
+  unsigned long* globals = conform_ulongs(ex, 1, local_globals);
+  loop_free(local_globals);
+  return globals;
+}
+*/
 
 unsigned long const* mesh_ask_global(struct mesh* m, unsigned dim)
 {

@@ -34,4 +34,20 @@ unsigned* unsort_uints_by_category(
     unsigned const* indices,
     unsigned const* cat_offsets);
 
+double* unsort_doubles_by_category(
+    double const* a,
+    unsigned width,
+    unsigned n,
+    unsigned const* cats,
+    unsigned const* indices,
+    unsigned const* cat_offsets);
+
+unsigned long* unsort_ulongs_by_category(
+    unsigned long const* a,
+    unsigned width,
+    unsigned n,
+    unsigned const* cats,
+    unsigned const* indices,
+    unsigned const* cat_offsets);
+
 #endif
