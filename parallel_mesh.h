@@ -17,5 +17,6 @@ unsigned long* conform_ulongs(struct exchanger* ex, unsigned width,
     unsigned long const* a);
 double* conform_doubles(struct exchanger* ex, unsigned width,
     double const* a);
+void mesh_global_renumber(struct mesh* m, unsigned dim);
 
 #endif

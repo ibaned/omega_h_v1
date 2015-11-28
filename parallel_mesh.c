@@ -63,24 +63,6 @@ double* conform_doubles(struct exchanger* ex, unsigned width,
   return unexchange_doubles(ex, width, recvd);
 }
 
-/*
-static unsigned long* global_from_owners(
-    struct exchanger* ex,
-    unsigned const* own_ranks)
-{
-  unsigned n = ex->nsent;
-  unsigned* owned = LOOP_MALLOC(unsigned, n);
-  unsigned rank = comm_rank();
-  for (unsigned i = 0; i < n; ++i)
-    owned[i] = (own_ranks[i] == rank);
-  unsigned* offsets = uints_exscan(owned, n);
-  unsigned long* local_globals = globalize_offsets(offsets, n);
-  unsigned long* globals = conform_ulongs(ex, 1, local_globals);
-  loop_free(local_globals);
-  return globals;
-}
-*/
-
 unsigned long const* mesh_ask_global(struct mesh* m, unsigned dim)
 {
   return mesh_find_tag(m, dim, "global_number")->d.u64;
@@ -120,4 +102,30 @@ struct exchanger* mesh_ask_exchanger(struct mesh* m, unsigned dim)
     pm->ex[dim] = new_exchanger(n, n, own_ranks, own_ids);
   }
   return pm->ex[dim];
+}
+
+static unsigned long* global_from_owners(
+    struct exchanger* ex,
+    unsigned const* own_ranks)
+{
+  unsigned n = ex->nsent;
+  unsigned* owned = LOOP_MALLOC(unsigned, n);
+  unsigned rank = comm_rank();
+  for (unsigned i = 0; i < n; ++i)
+    owned[i] = (own_ranks[i] == rank);
+  unsigned* offsets = uints_exscan(owned, n);
+  unsigned long* local_globals = globalize_offsets(offsets, n);
+  unsigned long* globals = conform_ulongs(ex, 1, local_globals);
+  loop_free(local_globals);
+  return globals;
+}
+
+void mesh_global_renumber(struct mesh* m, unsigned dim)
+{
+  unsigned long* new_global = global_from_owners(
+      mesh_ask_exchanger(m, dim),
+      mesh_ask_own_ranks(m, dim));
+  if (mesh_find_tag(m, dim, "global_number"))
+    mesh_free_tag(m, dim, "global_number");
+  mesh_add_tag(m, dim, TAG_U64, "global_number", 1, new_global);
 }
