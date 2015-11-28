@@ -9,6 +9,7 @@
 #include "cloud.h"
 #include "comm.h"
 #include "files.h"
+#include "ints.h"
 #include "loop.h"
 #include "mesh.h"
 #include "tables.h"
@@ -618,7 +619,10 @@ struct mesh* read_parallel_vtu(char const* inpath)
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
-  return read_vtu(piecepath);
+  struct mesh* m = read_vtu(piecepath);
+  if (mesh_find_tag(m, mesh_dim(m), "piece"))
+    mesh_free_tag(m, mesh_dim(m), "piece");
+  return m;
 }
 
 void write_parallel_vtu(struct mesh* m, char const* outpath)
@@ -629,7 +633,11 @@ void write_parallel_vtu(struct mesh* m, char const* outpath)
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
+  unsigned* piece = uints_filled(mesh_count(m, mesh_dim(m)),
+      comm_rank());
+  mesh_add_tag(m, mesh_dim(m), TAG_U32, "piece", 1, piece);
   write_vtu(m, piecepath);
+  mesh_free_tag(m, mesh_dim(m), "piece");
   if (!comm_rank() && !strcmp(suffix, "pvtu"))
     write_pvtu(m, outpath, comm_size(), 0);
 }
