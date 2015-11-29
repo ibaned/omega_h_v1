@@ -163,7 +163,7 @@ static double get_weighted_in_count(
   return s;
 }
 
-static double get_mean_radius(
+static double get_median_radius(
     unsigned n,
     double const* radii,
     double const* masses,
@@ -205,7 +205,7 @@ unsigned* mark_inertial_bisection(
   double a[3];
   get_axis(n, coords, masses, c, a, is_global);
   double* radii = get_radii(n, coords, c, a);
-  double r = get_mean_radius(n, radii, masses, tm, is_global);
+  double r = get_median_radius(n, radii, masses, tm, is_global);
   unsigned* in = mark_in(n, radii, r);
   loop_free(radii);
   return in;
