@@ -94,6 +94,7 @@ void parallel_inertial_bisect(
     first_rank += nsubranks;
   }
   loop_free(offsets);
+  *p_n = n_out;
   loop_free(*p_coords);
   *p_coords = coords_out;
   if (p_masses) {
