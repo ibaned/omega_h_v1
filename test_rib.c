@@ -3,7 +3,10 @@
 
 #include "cloud.h"
 #include "comm.h"
+#include "doubles.h"
+#include "ints.h"
 #include "loop.h"
+#include "parallel_inertial_bisect.h"
 #include "vtk.h"
 
 static struct cloud* make_shuffled_cloud(unsigned n)
@@ -26,6 +29,16 @@ int main(int argc, char** argv)
   unsigned n = (unsigned) atoi(argv[1]);
   struct cloud* c = make_shuffled_cloud(n);
   write_parallel_vtu_cloud(c, "before.pvtu");
+  double* coords = doubles_copy(
+      cloud_find_tag(c, "coordinates")->d.f64, n * 3);
+  unsigned* orig_ranks = uints_filled(n, comm_rank());
+  unsigned* ones = uints_filled(n, 1);
+  unsigned* orig_ids = uints_exscan(ones, n);
+  loop_free(ones);
+  parallel_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
+  loop_free(coords);
+  loop_free(orig_ranks);
+  loop_free(orig_ids);
   free_cloud(c);
   comm_fini();
 }
