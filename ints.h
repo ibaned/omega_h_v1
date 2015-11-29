@@ -1,7 +1,6 @@
 #ifndef INTS_H
 #define INTS_H
 
-void uints_zero(unsigned* a, unsigned n);
 unsigned* uints_copy(unsigned const* a, unsigned n);
 unsigned uints_max(unsigned const* a, unsigned n);
 unsigned* uints_exscan(unsigned const* a, unsigned n);

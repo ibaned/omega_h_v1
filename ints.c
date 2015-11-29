@@ -14,11 +14,6 @@
 #endif
 
 #ifdef __CUDACC__
-void uints_zero(unsigned* a, unsigned n)
-{
-  thrust::device_ptr<unsigned int> p (a);
-  thrust::fill(p, p+n, (unsigned) 0);
-}
 
 unsigned* uints_copy(unsigned const* a, unsigned n)
 {
@@ -115,12 +110,6 @@ unsigned char* uchars_copy(unsigned char const* a, unsigned n)
 }
 
 #else
-
-void uints_zero(unsigned* a, unsigned n)
-{
-  for (unsigned i = 0; i < n; ++i)
-    a[i] = 0;
-}
 
 unsigned* uints_copy(unsigned const* a, unsigned n)
 {

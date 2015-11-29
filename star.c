@@ -50,8 +50,7 @@ void get_star(
     star_buf[i] = INVALID;
 #endif
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
-  unsigned* degrees = LOOP_MALLOC(unsigned, nlows);
-  uints_zero(degrees, nlows);
+  unsigned* degrees = uints_filled(nlows, 0);
   for (unsigned i = 0; i < nlows; ++i)
     degrees[i] = get_ent_star(
         highs_of_lows_offsets,
