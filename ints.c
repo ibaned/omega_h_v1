@@ -54,16 +54,6 @@ unsigned* uints_negate(unsigned const* a, unsigned n)
   return o;
 }
 
-unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
-{
-  unsigned* unscanned = uints_unscan(a, n);
-  unsigned* negated = uints_negate(unscanned, n);
-  loop_free(unscanned);
-  unsigned* out = uints_exscan(negated, n);
-  loop_free(negated);
-  return out;
-}
-
 unsigned* uints_filled(unsigned n, unsigned v)
 {
   unsigned* a = LOOP_MALLOC(unsigned, n);
@@ -127,16 +117,6 @@ unsigned* uints_negate(unsigned const* a, unsigned n)
   return o;
 }
 
-unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
-{
-  unsigned* unscanned = uints_unscan(a, n);
-  unsigned* negated = uints_negate(unscanned, n);
-  loop_free(unscanned);
-  unsigned* out = uints_exscan(negated, n);
-  loop_free(negated);
-  return out;
-}
-
 unsigned* uints_filled(unsigned n, unsigned v)
 {
   unsigned* a = LOOP_MALLOC(unsigned, n);
@@ -170,4 +150,14 @@ unsigned* uints_linear(unsigned n)
   unsigned* linear = uints_exscan(ones, n);
   loop_free(ones);
   return linear;
+}
+
+unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
+{
+  unsigned* unscanned = uints_unscan(a, n);
+  unsigned* negated = uints_negate(unscanned, n);
+  loop_free(unscanned);
+  unsigned* out = uints_exscan(negated, n);
+  loop_free(negated);
+  return out;
 }
