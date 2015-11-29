@@ -23,21 +23,22 @@ static void sends_from_dest_ranks(
     unsigned nsent,
     unsigned const* dest_rank_of_sent,
     unsigned** p_send_of_sent,
-    unsigned** p_send_idx_of_sent,
+    unsigned** p_send_shuffle,
     unsigned* p_nsends,
     unsigned** p_send_ranks,
-    unsigned** p_send_counts)
+    unsigned** p_send_offsets)
 {
   /* queued[i]==1 iff (i) is not part of a message yet */
   unsigned* queued = LOOP_MALLOC(unsigned, nsent);
   for (unsigned i = 0; i < nsent; ++i)
     queued[i] = 1;
   unsigned* send_of_sent = LOOP_MALLOC(unsigned, nsent);
-  unsigned* send_idx_of_sent = LOOP_MALLOC(unsigned, nsent);
-  unsigned* send_counts = LOOP_MALLOC(unsigned, nsent);
+  unsigned* send_shuffle = LOOP_MALLOC(unsigned, nsent);
+  unsigned* send_offsets = LOOP_MALLOC(unsigned, nsent + 1);
   unsigned* send_ranks = LOOP_MALLOC(unsigned, nsent);
   /* loop over messages, we don't know how many but
      there certainly won't be more than (nsent) */
+  send_offsets[0] = 0;
   unsigned send;
   for (send = 0; send < nsent; ++send) {
     unsigned current_rank = 0;
@@ -65,24 +66,24 @@ static void sends_from_dest_ranks(
       }
     }
     unsigned* send_idxs = uints_exscan(to_rank, nsent);
-    send_counts[send] = send_idxs[nsent];
+    send_offsets[send + 1] = send_offsets[send] + send_idxs[nsent];
     for (unsigned i = 0; i < nsent; ++i)
       if (to_rank[i])
-        send_idx_of_sent[i] = send_idxs[i];
+        send_shuffle[i] = send_idxs[i] + send_offsets[send];
     loop_free(to_rank);
     loop_free(send_idxs);
   }
   unsigned nsends = send;
   loop_free(queued);
   *p_send_of_sent = send_of_sent;
-  *p_send_idx_of_sent = send_idx_of_sent;
+  *p_send_shuffle = send_shuffle;
   *p_nsends = nsends;
   /* shrink these arrays to fit, they were
      allocated to the maximum possible size of (nsent) */
   *p_send_ranks = uints_copy(send_ranks, nsends);
   loop_free(send_ranks);
-  *p_send_counts = uints_copy(send_counts, nsends);
-  loop_free(send_counts);
+  *p_send_offsets = uints_copy(send_offsets, nsends + 1);
+  loop_free(send_offsets);
 }
 
 /* given the number of items to receive,
@@ -117,12 +118,12 @@ struct exchanger* new_exchanger(
   ex->nsent = nsent;
   ex->ndests = ndests;
   sends_from_dest_ranks(nsent, dest_rank_of_sent,
-      &ex->send_of_sent, &ex->send_idx_of_sent,
-      &ex->nsends, &ex->send_ranks, &ex->send_counts);
+      &ex->send_of_sent, &ex->send_shuffle,
+      &ex->nsends, &ex->send_ranks, &ex->send_offsets);
+  ex->send_counts = uints_unscan(ex->send_offsets, ex->nsends);
   ex->forward_comm = comm_graph(comm_using(), ex->nsends, ex->send_ranks,
       ex->send_counts);
   comm_recvs(ex->forward_comm, &ex->nrecvs, &ex->recv_ranks, &ex->recv_counts);
-  ex->send_offsets = uints_exscan(ex->send_counts, ex->nsends);
   ex->recv_offsets = uints_exscan(ex->recv_counts, ex->nrecvs);
   ex->nrecvd = ex->recv_offsets[ex->nrecvs];
   ex->reverse_comm = comm_graph_exact(comm_using(),
@@ -145,13 +146,13 @@ struct exchanger* new_exchanger(
 T* exchange_##name(struct exchanger* ex, unsigned width, \
     T const* sent) \
 { \
-  T* sorted = sort_##name##_by_category(sent, width, ex->nsent, \
-      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets); \
+  T* shuffled = name##_shuffle(ex->nsent, sent, width, \
+      ex->send_shuffle); \
   T* recvd = LOOP_MALLOC(T, ex->nrecvd * width); \
   comm_exch_##name(ex->forward_comm, width, \
-      sorted, ex->send_counts, ex->send_offsets, \
+      shuffled, ex->send_counts, ex->send_offsets, \
       recvd,  ex->recv_counts, ex->recv_offsets); \
-  loop_free(sorted); \
+  loop_free(shuffled); \
   return recvd; \
 }
 
@@ -162,13 +163,13 @@ GENERIC_EXCHANGE(double, doubles)
 T* unexchange_##name(struct exchanger* ex, unsigned width, \
     T const* recvd) \
 { \
-  T* sorted = LOOP_MALLOC(T, ex->nsent * width); \
+  T* shuffled = LOOP_MALLOC(T, ex->nsent * width); \
   comm_exch_##name(ex->reverse_comm, width, \
       recvd,  ex->recv_counts, ex->recv_offsets, \
-      sorted, ex->send_counts, ex->send_offsets); \
-  T* sent = unsort_##name##_by_category(sorted, width, ex->nsent, \
-      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets); \
-  loop_free(sorted); \
+      shuffled, ex->send_counts, ex->send_offsets); \
+  T* sent = name##_unshuffle(ex->nsent, shuffled, width, \
+      ex->send_shuffle); \
+  loop_free(shuffled); \
   return sent; \
 }
 
@@ -210,7 +211,7 @@ void free_exchanger(struct exchanger* ex)
   loop_free(ex->send_offsets);
   loop_free(ex->recv_offsets);
   loop_free(ex->send_of_sent);
-  loop_free(ex->send_idx_of_sent);
+  loop_free(ex->send_shuffle);
   loop_free(ex->recv_of_recvd);
   loop_free(ex->recvd_of_dests);
   loop_free(ex->recvd_of_dests_offsets);

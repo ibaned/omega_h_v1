@@ -25,7 +25,7 @@ struct exchanger {
   unsigned* send_offsets;
   unsigned* recv_offsets;
   unsigned* send_of_sent;
-  unsigned* send_idx_of_sent;
+  unsigned* send_shuffle;
   unsigned* recv_of_recvd;
   unsigned* recvd_of_dests;
   unsigned* recvd_of_dests_offsets;
