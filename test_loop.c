@@ -1,5 +1,7 @@
+#include "arrays.h"
 #include "loop.h"
 #include "ints.h"
+
 #include <stdio.h>
 #include <time.h>
 #include <limits.h>

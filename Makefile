@@ -112,7 +112,7 @@ refine_by_class.c \
 parallel_inertial_bisect.c \
 parallel_mesh.c \
 migrate_cloud.c \
-copy.c
+arrays.c
 
 #handle optional features:
 USE_MPI ?= 0

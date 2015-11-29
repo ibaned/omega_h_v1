@@ -1,11 +1,10 @@
 #include "copy_mesh.h"
 
+#include "arrays.h"
 #include "ints.h"
 #include "doubles.h"
 #include "mesh.h"
 #include "tables.h"
-
-/* TODO: move uints_copy and friends to this file ? */
 
 void copy_tags(struct tags* a, struct tags* b, unsigned n)
 {

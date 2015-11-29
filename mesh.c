@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include "arrays.h"
 #include "bridge_graph.h"
 #include "derive_faces.h"
 #include "graph.h"

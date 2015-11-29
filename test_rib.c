@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "arrays.h"
 #include "cloud.h"
 #include "comm.h"
 #include "doubles.h"

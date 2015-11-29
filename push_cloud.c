@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "arrays.h"
 #include "algebra.h"
 #include "cloud.h"
 #include "ints.h"

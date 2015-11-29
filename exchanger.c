@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "arrays.h"
 #include "comm.h"
 #include "global.h"
 #include "ints.h"

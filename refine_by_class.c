@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "arrays.h"
 #include "copy_mesh.h"
 #include "find_by_verts.h"
 #include "infer_class.h"
