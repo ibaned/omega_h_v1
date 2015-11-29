@@ -152,3 +152,21 @@ unsigned* uints_filled(unsigned n, unsigned v)
   LOOP_EXEC(fill_kern, n, a, v);
   return a;
 }
+
+LOOP_KERNEL(expand_kern, unsigned const* a, unsigned width,
+    unsigned const* offsets, unsigned* o)
+  unsigned first = offsets[i];
+  unsigned end = offsets[i + 1];
+  for (unsigned j = first; j < end; ++j)
+    for (unsigned k = 0; k < width; ++k)
+      o[j * width + k] = a[i * width + k];
+}
+
+unsigned* uints_expand(unsigned n, unsigned const* a,
+    unsigned width, unsigned const* offsets)
+{
+  unsigned nout = offsets[n];
+  unsigned* o = LOOP_MALLOC(unsigned, nout);
+  LOOP_EXEC(expand_kern, n, a, width, offsets, o);
+  return o;
+}
