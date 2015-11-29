@@ -36,7 +36,7 @@ int main(int argc, char** argv)
   unsigned* ones = uints_filled(n, 1);
   unsigned* orig_ids = uints_exscan(ones, n);
   loop_free(ones);
-  parallel_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
+  recursive_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
   for (unsigned i = 0; i < n; ++i)
     printf("(%u %u) (%f %f %f)\n",
         orig_ranks[i],
