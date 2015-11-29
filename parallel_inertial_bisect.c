@@ -21,7 +21,9 @@ void parallel_inertial_bisect(
   assert(comm_size() % 2 == 0);
   unsigned n = *p_n;
   double const* coords = *p_coords;
-  double const* masses = *p_masses;
+  double const* masses = 0;
+  if (p_masses)
+    masses = *p_masses;
   unsigned const* orig_ranks = *p_orig_ranks;
   unsigned const* orig_ids = *p_orig_ids;
   unsigned* marked = mark_inertial_bisection(n, coords, masses, 1);
@@ -62,9 +64,12 @@ void parallel_inertial_bisect(
     double* sub_coords = doubles_subset(n, 3, coords, offsets);
     double* coords_recvd = exchange_doubles(ex, 3, sub_coords);
     loop_free(sub_coords);
-    double* sub_masses = doubles_subset(n, 1, masses, offsets);
-    double* masses_recvd = exchange_doubles(ex, 1, sub_masses);
-    loop_free(sub_masses);
+    double* masses_recvd = 0;
+    if (masses) {
+      double* sub_masses = doubles_subset(n, 1, masses, offsets);
+      masses_recvd = exchange_doubles(ex, 1, sub_masses);
+      loop_free(sub_masses);
+    }
     unsigned* sub_orig_ranks = uints_subset(n, 1, orig_ranks, offsets);
     unsigned* orig_ranks_recvd = exchange_uints(ex, 1, sub_orig_ranks);
     loop_free(sub_orig_ranks);
@@ -91,8 +96,10 @@ void parallel_inertial_bisect(
   loop_free(offsets);
   loop_free(*p_coords);
   *p_coords = coords_out;
-  loop_free(*p_masses);
-  *p_masses = masses_out;
+  if (p_masses) {
+    loop_free(*p_masses);
+    *p_masses = masses_out;
+  }
   loop_free(*p_orig_ranks);
   *p_orig_ranks = orig_ranks_out;
   loop_free(*p_orig_ids);
