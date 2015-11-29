@@ -9,6 +9,7 @@ unsigned* uints_unscan(unsigned const* a, unsigned n);
 unsigned* uints_negate(unsigned const* a, unsigned n);
 unsigned* uints_negate_offsets(unsigned const* a, unsigned n);
 unsigned* uints_filled(unsigned n, unsigned v);
+unsigned* uints_linear(unsigned n);
 unsigned uints_sum(unsigned const* a, unsigned n);
 
 static inline unsigned has(unsigned const* a, unsigned n, unsigned e)

@@ -132,9 +132,7 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
     /* waste memory to prevent algorithms from having to deal
        with equal-order cases separately */
     unsigned n = m->counts[high_dim];
-    unsigned* ones = uints_filled(n, 1);
-    unsigned* lows_of_highs = uints_exscan(ones, n);
-    loop_free(ones);
+    unsigned* lows_of_highs = uints_linear(n);
     set_down(m, high_dim, low_dim, lows_of_highs);
   } else {
     if (low_dim) {/* deriving intermediate downward adjacency */

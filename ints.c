@@ -219,3 +219,11 @@ unsigned char* uchars_copy(unsigned char const* a, unsigned n)
 }
 
 #endif
+
+unsigned* uints_linear(unsigned n)
+{
+  unsigned* ones = uints_filled(n, 1);
+  unsigned* linear = uints_exscan(ones, n);
+  loop_free(ones);
+  return linear;
+}
