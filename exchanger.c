@@ -140,70 +140,40 @@ struct exchanger* new_exchanger(
   return ex;
 }
 
-unsigned* exchange_uints(struct exchanger* ex, unsigned width,
-    unsigned const* sent)
-{
-  unsigned* sorted = sort_uints_by_category(sent, width, ex->nsent,
-      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets);
-  unsigned* recvd = LOOP_MALLOC(unsigned, ex->nrecvd * width);
-  comm_exch_uints(ex->forward_comm, width,
-      sorted, ex->send_counts, ex->send_offsets,
-      recvd,  ex->recv_counts, ex->recv_offsets);
-  loop_free(sorted);
-  return recvd;
+#define GENERIC_EXCHANGE(T, name) \
+T* exchange_##name(struct exchanger* ex, unsigned width, \
+    T const* sent) \
+{ \
+  T* sorted = sort_##name##_by_category(sent, width, ex->nsent, \
+      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets); \
+  T* recvd = LOOP_MALLOC(T, ex->nrecvd * width); \
+  comm_exch_##name(ex->forward_comm, width, \
+      sorted, ex->send_counts, ex->send_offsets, \
+      recvd,  ex->recv_counts, ex->recv_offsets); \
+  loop_free(sorted); \
+  return recvd; \
 }
 
-double* exchange_doubles(struct exchanger* ex, unsigned width,
-    double const* sent)
-{
-  double* sorted = sort_doubles_by_category(sent, width, ex->nsent,
-      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets);
-  double* recvd = LOOP_MALLOC(double, ex->nrecvd * width);
-  comm_exch_doubles(ex->forward_comm, width,
-      sorted, ex->send_counts, ex->send_offsets,
-      recvd,  ex->recv_counts, ex->recv_offsets);
-  loop_free(sorted);
-  return recvd;
+GENERIC_EXCHANGE(unsigned, uints)
+GENERIC_EXCHANGE(double, doubles)
+
+#define GENERIC_UNEXCHANGE(T, name) \
+T* unexchange_##name(struct exchanger* ex, unsigned width, \
+    T const* recvd) \
+{ \
+  T* sorted = LOOP_MALLOC(T, ex->nsent * width); \
+  comm_exch_##name(ex->reverse_comm, width, \
+      recvd,  ex->recv_counts, ex->recv_offsets, \
+      sorted, ex->send_counts, ex->send_offsets); \
+  T* sent = unsort_##name##_by_category(sorted, width, ex->nsent, \
+      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets); \
+  loop_free(sorted); \
+  return sent; \
 }
 
-unsigned* unexchange_uints(struct exchanger* ex, unsigned width,
-    unsigned const* recvd)
-{
-  unsigned* sorted = LOOP_HOST_MALLOC(unsigned, ex->nsent * width);
-  comm_exch_uints(ex->reverse_comm, width,
-      recvd,  ex->recv_counts, ex->recv_offsets,
-      sorted, ex->send_counts, ex->send_offsets);
-  unsigned* sent = unsort_uints_by_category(sorted, width, ex->nsent,
-      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets);
-  loop_free(sorted);
-  return sent;
-}
-
-double* unexchange_doubles(struct exchanger* ex, unsigned width,
-    double const* recvd)
-{
-  double* sorted = LOOP_HOST_MALLOC(double, ex->nsent * width);
-  comm_exch_doubles(ex->reverse_comm, width,
-      recvd,  ex->recv_counts, ex->recv_offsets,
-      sorted, ex->send_counts, ex->send_offsets);
-  double* sent = unsort_doubles_by_category(sorted, width, ex->nsent,
-      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets);
-  loop_free(sorted);
-  return sent;
-}
-
-unsigned long* unexchange_ulongs(struct exchanger* ex, unsigned width,
-    unsigned long const* recvd)
-{
-  unsigned long* sorted = LOOP_HOST_MALLOC(unsigned long, ex->nsent * width);
-  comm_exch_ulongs(ex->reverse_comm, width,
-      recvd,  ex->recv_counts, ex->recv_offsets,
-      sorted, ex->send_counts, ex->send_offsets);
-  unsigned long* sent = unsort_ulongs_by_category(sorted, width, ex->nsent,
-      ex->send_of_sent, ex->send_idx_of_sent, ex->send_offsets);
-  loop_free(sorted);
-  return sent;
-}
+GENERIC_UNEXCHANGE(unsigned, uints)
+GENERIC_UNEXCHANGE(double, doubles)
+GENERIC_UNEXCHANGE(unsigned long, ulongs)
 
 #define GENERIC_PULL(T, name) \
 T* pull_##name(struct exchanger* ex, unsigned width, \
