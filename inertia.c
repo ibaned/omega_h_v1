@@ -173,7 +173,8 @@ static double get_mean_radius(
   double r = 0;
   double dr = doubles_max(radii, n) / 2;
   double hm = total_mass / 2;
-  for (unsigned i = 0; i < 52; ++i) {
+  unsigned const fraction_bits = 52;
+  for (unsigned i = 0; i < fraction_bits; ++i) {
     unsigned* in = mark_in(n, radii, r);
     double wi = get_weighted_in_count(n, in, masses, is_global);
     loop_free(in);
