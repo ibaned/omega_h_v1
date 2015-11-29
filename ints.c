@@ -170,3 +170,33 @@ unsigned* uints_expand(unsigned n, unsigned const* a,
   LOOP_EXEC(expand_kern, n, a, width, offsets, o);
   return o;
 }
+
+LOOP_KERNEL(shuffle_kern, unsigned const* a, unsigned width,
+    unsigned const* out_of_in, unsigned* o)
+  unsigned j = out_of_in[i];
+  for (unsigned k = 0; k < width; ++k)
+    o[j * width + k] = a[i * width + k];
+}
+
+unsigned* uints_shuffle(unsigned n, unsigned const* a,
+    unsigned width, unsigned const* out_of_in)
+{
+  unsigned* o = LOOP_MALLOC(unsigned, n);
+  LOOP_EXEC(shuffle_kern, n, a, width, out_of_in, o);
+  return o;
+}
+
+LOOP_KERNEL(unshuffle_kern, unsigned const* a, unsigned width,
+    unsigned const* out_of_in, unsigned* o)
+  unsigned j = out_of_in[i];
+  for (unsigned k = 0; k < width; ++k)
+    o[i * width + k] = a[j * width + k];
+}
+
+unsigned* uints_unshuffle(unsigned n, unsigned const* a,
+    unsigned width, unsigned const* out_of_in)
+{
+  unsigned* o = LOOP_MALLOC(unsigned, n);
+  LOOP_EXEC(unshuffle_kern, n, a, width, out_of_in, o);
+  return o;
+}

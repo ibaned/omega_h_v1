@@ -12,6 +12,10 @@ unsigned* uints_linear(unsigned n);
 unsigned uints_sum(unsigned const* a, unsigned n);
 unsigned* uints_expand(unsigned n, unsigned const* a,
     unsigned width, unsigned const* offsets);
+unsigned* uints_shuffle(unsigned n, unsigned const* a,
+    unsigned width, unsigned const* out_of_in);
+unsigned* uints_unshuffle(unsigned n, unsigned const* a,
+    unsigned width, unsigned const* out_of_in);
 
 static inline unsigned has(unsigned const* a, unsigned n, unsigned e)
 {
