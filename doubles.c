@@ -26,20 +26,6 @@ double doubles_min(double const* a, unsigned n)
   return min;
 }
 
-LOOP_KERNEL(axpy,
-    double a,
-    double const* x,
-    double const* y,
-    double* out)
-  out[i] = a * x[i] + y[i];
-}
-
-void doubles_axpy(double a, double const* x, double const* y,
-    double* out, unsigned n)
-{
-  LOOP_EXEC(axpy, n, a, x, y, out);
-}
-
 double doubles_sum(double const* a, unsigned n)
 {
   double sum = 0;
@@ -80,13 +66,6 @@ double doubles_min(double const* a, unsigned n)
   return min;
 }
 
-void doubles_axpy(double a, double const* x, double const* y,
-    double* out, unsigned n)
-{
-  for (unsigned i = 0; i < n; ++i)
-    out[i] = a * x[i] + y[i];
-}
-
 /* ambitious note to self: this could be one source
    of partitionig/ordering dependence from inputs
    to outputs. */
@@ -109,4 +88,19 @@ double* doubles_exscan(double const* a, unsigned n)
   }
   return o;
 }
+
 #endif
+
+LOOP_KERNEL(axpy_kern,
+    double a,
+    double const* x,
+    double const* y,
+    double* out)
+  out[i] = a * x[i] + y[i];
+}
+
+void doubles_axpy(double a, double const* x, double const* y,
+    double* out, unsigned n)
+{
+  LOOP_EXEC(axpy_kern, n, a, x, y, out);
+}
