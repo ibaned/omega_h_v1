@@ -6,26 +6,6 @@
 #include "exchanger.h"
 #include "loop.h"
 
-#define GENERIC_MIGRATE(T, name) \
-static T* name##_migrate(struct exchanger* ex, unsigned ncomps, \
-    T const* data) \
-{ \
-  T* recvd = LOOP_MALLOC(T, ex->nrecvd * ncomps); \
-  for (unsigned i = 0; i < ex->ndests; ++i) { \
-    assert(ex->recvd_of_dests_offsets[i] == i); \
-    unsigned irecvd = ex->recvd_of_dests[i]; \
-    for (unsigned j = 0; j < ncomps; ++j) \
-      recvd[irecvd * ncomps + j] = data[i * ncomps + j]; \
-  } \
-  T* out = unexchange_##name(ex, ncomps, recvd); \
-  loop_free(recvd); \
-  return out; \
-}
-
-GENERIC_MIGRATE(unsigned, uints)
-GENERIC_MIGRATE(unsigned long, ulongs)
-GENERIC_MIGRATE(double, doubles)
-
 void migrate_cloud(struct cloud** p_c,
     unsigned nrecvd,
     unsigned const* recvd_ranks,
@@ -44,13 +24,13 @@ void migrate_cloud(struct cloud** p_c,
         data_out = 0;
         break;
       case TAG_U32:
-        data_out = uints_migrate(ex, t->ncomps, t->d.u32);
+        data_out = pull_uints(ex, t->ncomps, t->d.u32);
         break;
       case TAG_U64:
-        data_out = ulongs_migrate(ex, t->ncomps, t->d.u64);
+        data_out = pull_ulongs(ex, t->ncomps, t->d.u64);
         break;
       case TAG_F64:
-        data_out = doubles_migrate(ex, t->ncomps, t->d.f64);
+        data_out = pull_doubles(ex, t->ncomps, t->d.f64);
         break;
     }
     assert(data_out);

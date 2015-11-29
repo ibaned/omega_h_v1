@@ -49,6 +49,12 @@ double* unexchange_doubles(struct exchanger* ex, unsigned width,
     double const* recvd);
 unsigned long* unexchange_ulongs(struct exchanger* ex, unsigned width,
     unsigned long const* recvd);
+unsigned* pull_uints(struct exchanger* ex, unsigned width,
+    unsigned const* recvd);
+double* pull_doubles(struct exchanger* ex, unsigned width,
+    double const* recvd);
+unsigned long* pull_ulongs(struct exchanger* ex, unsigned width,
+    unsigned long const* recvd);
 void free_exchanger(struct exchanger* ex);
 
 #endif

@@ -1,5 +1,7 @@
 #include "exchanger.h"
 
+#include <assert.h>
+
 #include "comm.h"
 #include "global.h"
 #include "ints.h"
@@ -202,6 +204,26 @@ unsigned long* unexchange_ulongs(struct exchanger* ex, unsigned width,
   loop_free(sorted);
   return sent;
 }
+
+#define GENERIC_PULL(T, name) \
+T* pull_##name(struct exchanger* ex, unsigned width, \
+    T const* data) \
+{ \
+  T* recvd = LOOP_MALLOC(T, ex->nrecvd * width); \
+  for (unsigned i = 0; i < ex->ndests; ++i) { \
+    assert(ex->recvd_of_dests_offsets[i] == i); \
+    unsigned irecvd = ex->recvd_of_dests[i]; \
+    for (unsigned j = 0; j < width; ++j) \
+      recvd[irecvd * width + j] = data[i * width + j]; \
+  } \
+  T* out = unexchange_##name(ex, width, recvd); \
+  loop_free(recvd); \
+  return out; \
+}
+
+GENERIC_PULL(unsigned, uints)
+GENERIC_PULL(unsigned long, ulongs)
+GENERIC_PULL(double, doubles)
 
 void free_exchanger(struct exchanger* ex)
 {
