@@ -111,7 +111,8 @@ copy_mesh.c \
 refine_by_class.c \
 parallel_inertial_bisect.c \
 parallel_mesh.c \
-migrate_cloud.c
+migrate_cloud.c \
+copy.c
 
 #handle optional features:
 USE_MPI ?= 0

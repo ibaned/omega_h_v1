@@ -40,13 +40,6 @@ void doubles_axpy(double a, double const* x, double const* y,
   LOOP_EXEC(axpy, n, a, x, y, out);
 }
 
-double* doubles_copy(double const* a, unsigned n)
-{
-  double *b = LOOP_MALLOC(double, n);
-  CUDACALL(cudaMemcpy(b, a, n * sizeof(double), cudaMemcpyDeviceToDevice));
-  return b;
-}
-
 double doubles_sum(double const* a, unsigned n)
 {
   double sum = 0;
@@ -92,14 +85,6 @@ void doubles_axpy(double a, double const* x, double const* y,
 {
   for (unsigned i = 0; i < n; ++i)
     out[i] = a * x[i] + y[i];
-}
-
-double* doubles_copy(double const* a, unsigned n)
-{
-  double* b = LOOP_MALLOC(double, n);
-  for (unsigned i = 0; i < n; ++i)
-    b[i] = a[i];
-  return b;
 }
 
 /* ambitious note to self: this could be one source
