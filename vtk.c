@@ -627,9 +627,7 @@ void write_pvtu_cloud(struct cloud* c, char const* filename,
       fprintf(file, "/>\n");
     }
   }
-  fprintf(file, "</PointData>\n");
-  fprintf(file, "<CellData>\n");
-  fprintf(file, "</CellData>\n");
+  fprintf(file, "</PPointData>\n");
   fprintf(file, "<PPoints>\n");
   fprintf(file, "<PDataArray ");
   describe_tag(file, coord_tag);
@@ -667,9 +665,9 @@ void write_parallel_vtu(struct mesh* m, char const* outpath)
       comm_rank());
   mesh_add_tag(m, mesh_dim(m), TAG_U32, "piece", 1, piece);
   write_vtu(m, piecepath);
-  mesh_free_tag(m, mesh_dim(m), "piece");
   if (!comm_rank() && !strcmp(suffix, "pvtu"))
     write_pvtu(m, outpath, comm_size(), 0);
+  mesh_free_tag(m, mesh_dim(m), "piece");
 }
 
 struct cloud* read_parallel_vtu_cloud(char const* inpath)
@@ -686,7 +684,7 @@ struct cloud* read_parallel_vtu_cloud(char const* inpath)
   return c;
 }
 
-void write_cloud_parallel_vtu(struct cloud* c, char const* outpath)
+void write_parallel_vtu_cloud(struct cloud* c, char const* outpath)
 {
   char* suffix;
   line_t prefix;
@@ -697,7 +695,7 @@ void write_cloud_parallel_vtu(struct cloud* c, char const* outpath)
   unsigned* piece = uints_filled(cloud_count(c), comm_rank());
   cloud_add_tag(c, TAG_U32, "piece", 1, piece);
   write_vtu_cloud(c, piecepath);
-  cloud_free_tag(c, "piece");
   if (!comm_rank() && !strcmp(suffix, "pvtu"))
     write_pvtu_cloud(c, outpath, comm_size());
+  cloud_free_tag(c, "piece");
 }
