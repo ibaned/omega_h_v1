@@ -178,6 +178,8 @@ static double get_median_radius(
     unsigned* in = mark_in(n, radii, r);
     double wi = get_weighted_in_count(n, in, masses, is_global);
     loop_free(in);
+    if (wi == hm)
+      break;
     if (wi > hm)
       r += dr;
     else
