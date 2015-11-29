@@ -181,10 +181,13 @@ T* pull_##name(struct exchanger* ex, unsigned width, \
 { \
   T* recvd = LOOP_MALLOC(T, ex->nrecvd * width); \
   for (unsigned i = 0; i < ex->ndests; ++i) { \
-    assert(ex->recvd_of_dests_offsets[i] == i); \
-    unsigned irecvd = ex->recvd_of_dests[i]; \
-    for (unsigned j = 0; j < width; ++j) \
-      recvd[irecvd * width + j] = data[i * width + j]; \
+    unsigned first = ex->recvd_of_dests_offsets[i]; \
+    unsigned end = ex->recvd_of_dests_offsets[i + 1]; \
+    for (unsigned j = first; j < end; ++j) { \
+      unsigned irecvd = ex->recvd_of_dests[j]; \
+      for (unsigned k = 0; k < width; ++k) \
+        recvd[irecvd * width + k] = data[i * width + k]; \
+    } \
   } \
   T* out = unexchange_##name(ex, width, recvd); \
   loop_free(recvd); \
