@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "cloud.h"
@@ -36,6 +37,13 @@ int main(int argc, char** argv)
   unsigned* orig_ids = uints_exscan(ones, n);
   loop_free(ones);
   parallel_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
+  for (unsigned i = 0; i < n; ++i)
+    printf("(%u %u) (%f %f %f)\n",
+        orig_ranks[i],
+        orig_ids[i],
+        coords[i * 3 + 0],
+        coords[i * 3 + 1],
+        coords[i * 3 + 2]);
   loop_free(coords);
   loop_free(orig_ranks);
   loop_free(orig_ids);
