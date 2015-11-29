@@ -35,16 +35,6 @@ unsigned* uints_exscan(unsigned const* a, unsigned n)
   return o;
 }
 
-unsigned* uints_unscan(unsigned const* a, unsigned n)
-{
-  unsigned* o = LOOP_MALLOC(unsigned, n);
-  thrust::device_ptr<unsigned> p2(o);
-  thrust::device_ptr<unsigned const> p1(a);
-  thrust::minus<unsigned int> op;
-  thrust::transform(p1, p1 + n, p1 + 1, p2, op);
-  return o;
-}
-
 unsigned* uints_negate(unsigned const* a, unsigned n)
 {
   unsigned* o = LOOP_MALLOC(unsigned, n);
@@ -52,14 +42,6 @@ unsigned* uints_negate(unsigned const* a, unsigned n)
   thrust::device_ptr<unsigned const> p1(a);
   thrust::transform(p1, p1 + n, p2, thrust::negate<unsigned>());
   return o;
-}
-
-unsigned* uints_filled(unsigned n, unsigned v)
-{
-  unsigned* a = LOOP_MALLOC(unsigned, n);
-  thrust::device_ptr< unsigned int> p (a);
-  thrust::fill(p, p + n, v);
-  return a;
 }
 
 unsigned uints_sum(unsigned const* a, unsigned n)
@@ -101,30 +83,6 @@ unsigned* uints_exscan(unsigned const* a, unsigned n)
   return o;
 }
 
-unsigned* uints_unscan(unsigned const* a, unsigned n)
-{
-  unsigned* o = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    o[i] = a[i + 1] - a[i];
-  return o;
-}
-
-unsigned* uints_negate(unsigned const* a, unsigned n)
-{
-  unsigned* o = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    o[i] = !a[i];
-  return o;
-}
-
-unsigned* uints_filled(unsigned n, unsigned v)
-{
-  unsigned* a = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    a[i] = v;
-  return a;
-}
-
 unsigned uints_sum(unsigned const* a, unsigned n)
 {
   unsigned sum = 0;
@@ -152,6 +110,28 @@ unsigned* uints_linear(unsigned n)
   return linear;
 }
 
+LOOP_KERNEL(unscan_kern, unsigned const* a, unsigned* o)
+  o[i] = a[i + 1] - a[i];
+}
+
+unsigned* uints_unscan(unsigned const* a, unsigned n)
+{
+  unsigned* o = LOOP_MALLOC(unsigned, n);
+  LOOP_EXEC(unscan_kern, n, a, o);
+  return o;
+}
+
+LOOP_KERNEL(negate_kern, unsigned const* a, unsigned* o)
+  o[i] = !a[i];
+}
+
+unsigned* uints_negate(unsigned const* a, unsigned n)
+{
+  unsigned* o = LOOP_MALLOC(unsigned, n);
+  LOOP_EXEC(negate_kern, n, a, o);
+  return o;
+}
+
 unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
 {
   unsigned* unscanned = uints_unscan(a, n);
@@ -160,4 +140,15 @@ unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
   unsigned* out = uints_exscan(negated, n);
   loop_free(negated);
   return out;
+}
+
+LOOP_KERNEL(fill_kern, unsigned* a, unsigned v)
+  a[i] = v;
+}
+
+unsigned* uints_filled(unsigned n, unsigned v)
+{
+  unsigned* a = LOOP_MALLOC(unsigned, n);
+  LOOP_EXEC(fill_kern, n, a, v);
+  return a;
 }
