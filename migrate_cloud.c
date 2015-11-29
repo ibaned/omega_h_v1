@@ -56,6 +56,7 @@ void migrate_cloud(struct cloud** p_c,
     assert(data_out);
     cloud_add_tag(c_out, t->type, t->name, t->ncomps, data_out);
   }
+  free_exchanger(ex);
   free_cloud(*p_c);
   *p_c = c_out;
 }

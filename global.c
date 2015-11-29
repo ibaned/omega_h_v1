@@ -91,7 +91,7 @@ double* sort_doubles_by_category(
 }
 
 #define GENERIC_UNSORT_BY_CATEGORY(T, a, width, n, cats, indices, cat_offsets) \
-  T* out = LOOP_MALLOC(T, n); \
+  T* out = LOOP_MALLOC(T, n * width); \
   for (unsigned i = 0; i < n; ++i) { \
     unsigned cat = cats[i]; \
     unsigned idx = indices[i]; \
