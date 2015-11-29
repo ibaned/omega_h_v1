@@ -28,7 +28,7 @@ LOOP_KERNEL(shuffle_##name##_kern, T const* a, unsigned width, \
 T* name##_shuffle(unsigned n, T const* a, \
     unsigned width, unsigned const* out_of_in) \
 { \
-  T* o = LOOP_MALLOC(T, n); \
+  T* o = LOOP_MALLOC(T, n * width); \
   LOOP_EXEC(shuffle_##name##_kern, n, a, width, out_of_in, o); \
   return o; \
 } \
@@ -41,7 +41,7 @@ LOOP_KERNEL(unshuffle_##name##_kern, T const* a, unsigned width, \
 T* name##_unshuffle(unsigned n, T const* a, \
     unsigned width, unsigned const* out_of_in) \
 { \
-  T* o = LOOP_MALLOC(T, n); \
+  T* o = LOOP_MALLOC(T, n * width); \
   LOOP_EXEC(unshuffle_##name##_kern, n, a, width, out_of_in, o); \
   return o; \
 }
