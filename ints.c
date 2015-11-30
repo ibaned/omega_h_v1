@@ -35,15 +35,6 @@ unsigned* uints_exscan(unsigned const* a, unsigned n)
   return o;
 }
 
-unsigned* uints_negate(unsigned const* a, unsigned n)
-{
-  unsigned* o = LOOP_MALLOC(unsigned, n);
-  thrust::device_ptr<unsigned> p2(o);
-  thrust::device_ptr<unsigned const> p1(a);
-  thrust::transform(p1, p1 + n, p2, thrust::negate<unsigned>());
-  return o;
-}
-
 unsigned uints_sum(unsigned const* a, unsigned n)
 {
   unsigned sum = 0;
