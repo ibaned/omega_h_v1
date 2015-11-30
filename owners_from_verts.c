@@ -63,14 +63,19 @@ void owners_from_verts(
   }
   struct exchanger* ex = new_exchanger(nelems, nverts,
       own_vert_rank_of_elems, own_vert_idx_of_elems);
+  loop_free(own_vert_rank_of_elems);
+  loop_free(own_vert_idx_of_elems);
   unsigned* orig_idxs = LOOP_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i)
     orig_idxs[i] = i;
   unsigned* orig_idx_of_recvd = exchange_uints(ex, 1, orig_idxs);
+  loop_free(orig_idxs);
   unsigned* vert_own_ranks_of_recvd = exchange_uints(ex, verts_per_elem - 1,
       vert_own_ranks_of_elems);
+  loop_free(vert_own_ranks_of_elems);
   unsigned* vert_own_idxs_of_recvd = exchange_uints(ex, verts_per_elem - 1,
       vert_own_idxs_of_elems);
+  loop_free(vert_own_idxs_of_elems);
   unsigned* recv_nelems = LOOP_MALLOC(unsigned, ex->nrecvs);
   comm_sync_uint(ex->forward_comm, nelems, recv_nelems);
   unsigned* own_rank_of_recvd = LOOP_MALLOC(unsigned, ex->nrecvd);
@@ -120,7 +125,13 @@ void owners_from_verts(
       }
     }
   }
+  loop_free(recv_nelems);
+  loop_free(vert_own_ranks_of_recvd);
+  loop_free(vert_own_idxs_of_recvd);
+  loop_free(orig_idx_of_recvd);
   *p_own_ranks = unexchange_uints(ex, (verts_per_elem - 1), own_rank_of_recvd);
   *p_own_idxs = unexchange_uints(ex, (verts_per_elem - 1), own_idx_of_recvd);
+  loop_free(own_idx_of_recvd);
+  loop_free(own_rank_of_recvd);
   free_exchanger(ex);
 }

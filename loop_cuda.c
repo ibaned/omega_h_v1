@@ -3,14 +3,12 @@
 
 #include "loop_cuda.h"
 
-
 void* loop_cuda_malloc(unsigned long n)
 {
   void* p;
   CUDACALL(cudaMallocManaged(&p, n));
   return p;
 }
-
 
 void loop_cuda_free(void* p)
 {
