@@ -52,27 +52,26 @@ void parallel_inertial_bisect(
       lin_ranks[i] += first_rank;
     unsigned in_subgroup = ((first_rank <= comm_rank()) &&
         (comm_rank() < (first_rank + nsubranks)));
-    unsigned ndests = 0;
-    if (in_subgroup) {
-      ndests = linpart_size(nsub_total, nsubranks, comm_rank() - first_rank);
-      n_out = ndests;
-    }
-    struct exchanger* ex = new_exchanger(nsub, ndests, lin_ranks, 0);
+    struct exchanger* ex = new_exchanger(nsub, lin_ranks);
     loop_free(lin_ranks);
+    if (in_subgroup)
+      n_out = ex->nitems[EX_REV];
     double* sub_coords = doubles_subset(n, 3, coords, offsets);
-    double* coords_recvd = exchange_doubles(ex, 3, sub_coords);
+    double* coords_recvd = exchange_doubles(ex, 3, sub_coords, EX_FOR, EX_ITEM);
     loop_free(sub_coords);
     double* masses_recvd = 0;
     if (masses) {
       double* sub_masses = doubles_subset(n, 1, masses, offsets);
-      masses_recvd = exchange_doubles(ex, 1, sub_masses);
+      masses_recvd = exchange_doubles(ex, 1, sub_masses, EX_FOR, EX_ITEM);
       loop_free(sub_masses);
     }
     unsigned* sub_orig_ranks = uints_subset(n, 1, orig_ranks, offsets);
-    unsigned* orig_ranks_recvd = exchange_uints(ex, 1, sub_orig_ranks);
+    unsigned* orig_ranks_recvd = exchange_uints(ex, 1, sub_orig_ranks,
+        EX_FOR, EX_ITEM);
     loop_free(sub_orig_ranks);
     unsigned* sub_orig_ids = uints_subset(n, 1, orig_ids, offsets);
-    unsigned* orig_ids_recvd = exchange_uints(ex, 1, sub_orig_ids);
+    unsigned* orig_ids_recvd = exchange_uints(ex, 1, sub_orig_ids,
+        EX_FOR, EX_ITEM);
     loop_free(sub_orig_ids);
     free_exchanger(ex);
     if (in_subgroup) {

@@ -73,7 +73,8 @@ struct exchanger* mesh_ask_exchanger(struct mesh* m, unsigned dim)
     unsigned const* own_ranks = mesh_ask_own_ranks(m, dim);
     unsigned const* own_ids = mesh_ask_own_ids(m, dim);
     unsigned n = mesh_count(m, dim);
-    pm->ex[dim] = new_exchanger(n, n, own_ranks, own_ids);
+    pm->ex[dim] = new_exchanger(n, own_ranks);
+    set_exchanger_dests(pm->ex[dim], n, own_ids);
   }
   return pm->ex[dim];
 }
@@ -82,14 +83,15 @@ static unsigned long* global_from_owners(
     struct exchanger* ex,
     unsigned const* own_ranks)
 {
-  unsigned n = ex->nsent;
+  unsigned n = ex->nitems[EX_REV];
   unsigned* owned = LOOP_MALLOC(unsigned, n);
   unsigned rank = comm_rank();
   for (unsigned i = 0; i < n; ++i)
     owned[i] = (own_ranks[i] == rank);
   unsigned* offsets = uints_exscan(owned, n);
   unsigned long* local_globals = globalize_offsets(offsets, n);
-  unsigned long* globals = pull_ulongs(ex, 1, local_globals);
+  unsigned long* globals = exchange_ulongs(ex, 1, local_globals,
+      EX_REV, EX_ROOT);
   loop_free(local_globals);
   return globals;
 }
