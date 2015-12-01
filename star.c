@@ -96,8 +96,7 @@ void get_star(
     star_buf[i] = INVALID;
 #endif
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
-  unsigned* degrees = LOOP_MALLOC(unsigned, nlows);
-  uints_zero(degrees, nlows);
+  unsigned* degrees = uints_filled(nlows, 0);
   LOOP_EXEC(Degree_Shift, nlows,
     degrees,
     highs_of_lows_offsets,
