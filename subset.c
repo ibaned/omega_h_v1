@@ -31,12 +31,12 @@ GENERIC_SUBSET(unsigned, uints)
 GENERIC_SUBSET(unsigned long, ulongs)
 GENERIC_SUBSET(double, doubles)
 
-void vert_tags_subset(struct mesh* in, struct mesh* out,
-    unsigned const* offsets)
+void tags_subset(struct mesh* in, struct mesh* out,
+    unsigned dim, unsigned const* offsets)
 {
-  unsigned nverts = mesh_count(in, 0);
-  for (unsigned i = 0; i < mesh_count_tags(in, 0); ++i) {
-    struct const_tag* t = mesh_get_tag(in, 0, i);
+  unsigned nverts = mesh_count(in, dim);
+  for (unsigned i = 0; i < mesh_count_tags(in, dim); ++i) {
+    struct const_tag* t = mesh_get_tag(in, dim, i);
     void* vals_out = 0;
     switch (t->type) {
       case TAG_U8:
@@ -56,7 +56,7 @@ void vert_tags_subset(struct mesh* in, struct mesh* out,
             offsets);
         break;
     }
-    mesh_add_tag(out, 0, t->type, t->name, t->ncomps, vals_out);
+    mesh_add_tag(out, dim, t->type, t->name, t->ncomps, vals_out);
   }
 }
 
@@ -85,7 +85,8 @@ struct mesh* subset_mesh(
   struct mesh* out = new_mesh(elem_dim);
   mesh_set_ents(out, 0, nverts_out, 0);
   mesh_set_ents(out, elem_dim, nelems_out, verts_of_elems_out);
-  vert_tags_subset(m, out, vert_offsets);
+  tags_subset(m, out, 0, vert_offsets);
+  tags_subset(m, out, elem_dim, offsets);
   loop_free(vert_offsets);
   return out;
 }

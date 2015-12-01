@@ -1,5 +1,7 @@
+#include "arrays.h"
 #include "loop.h"
 #include "ints.h"
+
 #include <stdio.h>
 #include <time.h>
 #include <limits.h>
@@ -18,9 +20,8 @@ static void Ints_Test()
   clock_t end;
 
   //Zero (Runtime)
-  a = LOOP_MALLOC(unsigned, N);
+  a = uints_filled(N, 0);
   start = clock();
-  uints_zero(a, N);
   end = clock();
   b = (unsigned*) loop_to_host(a, N * sizeof(unsigned));
   for(unsigned i = 0; i < N; ++i)
@@ -98,8 +99,7 @@ static void COUNT_TEST()
   unsigned  a[7] = {1,2,1,3,5,1,2};
   unsigned* b = (unsigned*) loop_to_device(a, sizeof(unsigned) * 7);
 
-  unsigned* counts = LOOP_MALLOC(unsigned, 7);
-  uints_zero(counts, 7);
+  unsigned* counts = uints_filled(7, 0);
 
   LOOP_EXEC(count, 7, b, counts);
   loop_free(b);
@@ -124,8 +124,7 @@ int main()
   unsigned a[7] = {1,2,1,3,5,1,2};
   unsigned* b = (unsigned*) loop_to_device(a, sizeof(unsigned) * 7);
 
-  unsigned* counts = LOOP_MALLOC(unsigned, 7);
-  uints_zero(counts, 7);
+  unsigned* counts = uints_filled(7,0);
 
   LOOP_EXEC(count, 7, b, counts);
   loop_free(b);

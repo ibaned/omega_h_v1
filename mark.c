@@ -1,5 +1,8 @@
 #include "mark.h"
 
+#include <assert.h>
+
+#include "infer_class.h"
 #include "loop.h"
 #include "mesh.h"
 #include "quality.h"
@@ -106,6 +109,44 @@ void mesh_mark_dual_layers(
       mesh_ask_dual(m), marked, nlayers);
 }
 
+unsigned* mark_class(
+    unsigned nents,
+    unsigned target_dim,
+    unsigned target_id,
+    unsigned const* class_dim_of_ents,
+    unsigned const* class_id_of_ents)
+{
+  if (target_id != INVALID)
+    assert(class_id_of_ents);
+  unsigned* out = LOOP_MALLOC(unsigned, nents);
+  for (unsigned i = 0; i < nents; ++i) {
+    out[i] = 0;
+    if (class_dim_of_ents[i] == target_dim)
+      if (target_id == INVALID || class_id_of_ents[i] == target_id)
+        out[i] = 1;
+  }
+  return out;
+}
+
+unsigned* mesh_mark_class(struct mesh* m, unsigned ent_dim,
+    unsigned target_dim, unsigned target_id)
+{
+  unsigned const* class_dim_of_ents = mesh_ask_class_dim(m, ent_dim);
+  unsigned const* class_id_of_ents = mesh_ask_class_id(m, ent_dim);
+  unsigned nents = mesh_count(m, ent_dim);
+  return mark_class(nents, target_dim, target_id, class_dim_of_ents,
+      class_id_of_ents);
+}
+
+unsigned* mesh_mark_class_closure_verts(struct mesh* m, unsigned target_dim,
+    unsigned target_id)
+{
+  unsigned* equal_order = mesh_mark_class(m, target_dim, target_dim, target_id);
+  unsigned* out = mesh_mark_down(m, target_dim, 0, equal_order);
+  loop_free(equal_order);
+  return out;
+}
+
 void unmark_boundary(
     unsigned elem_dim,
     unsigned ent_dim,
@@ -114,20 +155,17 @@ void unmark_boundary(
     unsigned const* vert_class_dim,
     unsigned* marked)
 {
-  unsigned verts_per_ent = the_down_degrees[ent_dim][0];
-  for (unsigned i = 0; i < nents; ++i) {
-    if (!marked[i])
-      continue;
-    unsigned const* verts_of_ent = verts_of_ents + i * verts_per_ent;
-    unsigned is_boundary = 1;
-    for (unsigned j = 0; j < verts_per_ent; ++j) {
-      unsigned vert = verts_of_ent[j];
-      if (vert_class_dim[vert] == elem_dim)
-        is_boundary = 0;
-    }
-    if (is_boundary)
+  unsigned* ent_class_dim;
+  infer_class(ent_dim, nents, verts_of_ents, vert_class_dim, 0,
+      &ent_class_dim, 0);
+  /* TODO: if this was computed before we shouldn't recompute it */
+  unsigned* interior_ents = mark_class(nents, elem_dim, INVALID,
+      ent_class_dim, 0);
+  loop_free(ent_class_dim);
+  for (unsigned i = 0; i < nents; ++i)
+    if (!interior_ents[i])
       marked[i] = 0;
-  }
+  loop_free(interior_ents);
 }
 
 static unsigned* mark_slivers(

@@ -6,10 +6,16 @@
 #include <thrust/sort.h>
 
 
+LOOP_KERNEL(count,
+    unsigned const* in,
+    unsigned* counts)
+  loop_atomic_increment(&(counts[in[i]]));
+}
+
 LOOP_KERNEL(fill, unsigned const* in,
-  unsigned* offsets,
-  unsigned* counts,
-  unsigned* out)
+    unsigned* offsets,
+    unsigned* counts,
+    unsigned* out)
   unsigned d = in[i];
   unsigned o = offsets[d];
   unsigned j = loop_atomic_increment(&(counts[d]));
@@ -21,7 +27,7 @@ LOOP_KERNEL(fill, unsigned const* in,
    which we can counteract by sorting the sub-arrays.
    given the assumption that these sub-arrays are small
    (about a dozen entries),
-   we use a hand-coded selection sort.git
+   we use a hand-coded selection sort.
    there is a reward for someone who comes up with
    an equally efficient implementation that is deterministic
    from the start */
@@ -83,13 +89,6 @@ void Count_Sort_Dance( unsigned *in , struct Counter*  out, unsigned nin)
 
 
 
-
-
-
-
-
-
-
 void invert_map(
     unsigned nin,
     unsigned const* in,
@@ -97,12 +96,12 @@ void invert_map(
     unsigned** p_out,
     unsigned** p_offsets)
 {
-  unsigned* counts = LOOP_MALLOC(unsigned, nout);
-  uints_zero(counts, nout);
+  unsigned* counts = uints_filled(nout, 0);
   LOOP_EXEC(count, nin, in, counts);
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
-  uints_zero(counts, nout);
+  loop_free(counts);
+  counts = uints_filled(nout, 0);
   LOOP_EXEC(fill, nin, in, offsets, counts, out);
   loop_free(counts);
   LOOP_EXEC(sort, nout, offsets, out);

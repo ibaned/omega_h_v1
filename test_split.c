@@ -32,7 +32,7 @@ static void split(struct mesh* m, char const* outpath, unsigned npieces,
   unsigned n = mesh_count(m, mesh_dim(m));
   double const* coords = mesh_find_tag(m, mesh_dim(m), "coordinates")->d.f64;
   double* masses = 0;
-  unsigned* in = local_inertia_mark(n, coords, masses);
+  unsigned* in = mark_inertial_bisection(n, coords, masses, 0);
   mesh_free_tag(m, mesh_dim(m), "coordinates");
   unsigned* offsets_in = uints_exscan(in, n);
   loop_free(in);

@@ -4,18 +4,20 @@
 #include <stdio.h>
 
 #include "files.h"
+#include "find_by_verts.h"
+#include "ints.h"
 #include "loop.h"
 #include "mesh.h"
 #include "tables.h"
 
-static unsigned get_dim_type(unsigned dim)
+static unsigned get_gmsh_type_dim(unsigned type)
 {
-  switch (dim) {
-    case 0: return 15;
+  switch (type) {
+    case 15: return 0;
     case 1: return 1;
     case 2: return 2;
-    case 3: return 4;
-    default: return 0;
+    case 4: return 3;
+    default: return INVALID;
   }
 }
 
@@ -37,68 +39,103 @@ struct mesh* read_msh(char const* filename)
         node_coords + i * 3 + 2);
     assert(node_id == i + 1);
   }
-  unsigned dim = 0;
-  for (unsigned j = 0; j < 3; ++j) {
-    for (unsigned i = 0; i < nnodes; ++i) {
-      if (node_coords[i * 3 + j] != 0.0) {
-        ++dim;
-        break;
-      }
-    }
-  }
-  assert(dim > 0);
-  assert(dim <= 3);
-  unsigned* class_dim = LOOP_HOST_MALLOC(unsigned, nnodes);
-  unsigned* class_id = LOOP_HOST_MALLOC(unsigned, nnodes);
-  unsigned* class_phys = LOOP_HOST_MALLOC(unsigned, nnodes);
-  for (unsigned i = 0; i < nnodes; ++i)
-    class_dim[i] = INVALID;
   seek_prefix(f, line, sizeof(line), "$Elements");
-  unsigned nents;
-  safe_scanf(f, 1, "%u", &nents);
-  unsigned nverts_per_elem = dim + 1;
-  /* conservative allocation, nents >= nelems */
-  unsigned* verts_of_elems = LOOP_HOST_MALLOC(unsigned, nents * nverts_per_elem);
-  unsigned ent_dim = 0;
-  unsigned nelems = 0;
-  for (unsigned i = 0; i < nents; ++i) {
+  /* we call these "eq"s, for equal-order classified mesh entities */
+  unsigned neqs;
+  safe_scanf(f, 1, "%u", &neqs);
+  /* conservative allocation, each entity will get 4 vertex
+     slots and may leave the later ones unused */
+  unsigned* verts_of_eqs = LOOP_HOST_MALLOC(unsigned, neqs * 4);
+  unsigned* class_id_of_eqs = LOOP_HOST_MALLOC(unsigned, neqs);
+  unsigned* dim_of_eqs = LOOP_HOST_MALLOC(unsigned, neqs);
+  unsigned last_dim = 0;
+  for (unsigned i = 0; i < neqs; ++i) {
     unsigned type, ntags;
     safe_scanf(f, 2, "%*u %u %u", &type, &ntags);
-    if (type != get_dim_type(ent_dim)) {
-      ++ent_dim;
-      assert(type == get_dim_type(ent_dim));
-    }
+    dim_of_eqs[i] = get_gmsh_type_dim(type);
+    assert(dim_of_eqs[i] >= last_dim);
+    assert(dim_of_eqs[i] <= last_dim + 1);
     assert(ntags >= 2);
-    unsigned physical, cad;
-    safe_scanf(f, 2, "%u %u", &physical, &cad);
+    unsigned physical;
+    /* grab the physical and raw geometric classifications */
+    safe_scanf(f, 2, "%u %u", &physical, class_id_of_eqs + i);
+    /* for now ignore physical, but will be very useful in the future */
+    (void) physical;
     for (unsigned j = 2; j < ntags; ++j)
-      safe_scanf(f, 0, "%*u");
-    unsigned nent_verts = ent_dim + 1;
-    unsigned ent_verts[4];
+      safe_scanf(f, 0, "%*u"); /* discard other "tags" */
+    unsigned nent_verts = dim_of_eqs[i] + 1;
     for (unsigned j = 0; j < nent_verts; ++j) {
-      safe_scanf(f, 1, "%u", ent_verts + j);
-      ent_verts[j] -= 1;
+      safe_scanf(f, 1, "%u", verts_of_eqs + i * 4 + j);
+      verts_of_eqs[i * 4 + j] -= 1;
     }
-    for (unsigned j = 0; j < nent_verts; ++j)
-      if (class_dim[ent_verts[j]] == INVALID) {
-        class_dim[ent_verts[j]] = ent_dim;
-        class_id[ent_verts[j]] = cad;
-        class_phys[ent_verts[j]] = physical;
-      }
-    if (ent_dim == dim) {
-      for (unsigned j = 0; j < nent_verts; ++j)
-        verts_of_elems[nelems * nverts_per_elem + j] =
-            ent_verts[j];
-      ++nelems;
-    }
+    last_dim = dim_of_eqs[i];
   }
   fclose(f);
+  /* alright, we can tell the highest-dimensional entity
+     and store the vertices at least */
+  unsigned dim = uints_max(dim_of_eqs, neqs);
   struct mesh* m = new_mesh(dim);
   mesh_set_ents(m, 0, nnodes, 0);
   mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, node_coords);
-  mesh_add_tag(m, 0, TAG_U32, "class_dim", 1, class_dim);
-  mesh_add_tag(m, 0, TAG_U32, "class_id", 1, class_id);
-  mesh_add_tag(m, 0, TAG_U32, "class_phys", 1, class_phys);
+  /* we can also form the elements and derive all intermediate
+     entities based on the elements */
+  unsigned nelems = 0;
+  for (unsigned i = 0; i < neqs; ++i)
+    if (dim_of_eqs[i] == dim)
+      ++nelems;
+  unsigned verts_per_elem = dim + 1;
+  unsigned* verts_of_elems = LOOP_HOST_MALLOC(unsigned, nelems * verts_per_elem);
+  unsigned ei = 0;
+  for (unsigned i = 0; i < neqs; ++i) {
+    if (dim_of_eqs[i] != dim)
+      continue;
+    for (unsigned j = 0; j < verts_per_elem; ++j)
+      verts_of_elems[ei * verts_per_elem + j] =
+          verts_of_eqs[i * 4 + j];
+    ++ei;
+  }
   mesh_set_ents(m, dim, nelems, verts_of_elems);
+  /* now for the tricky bit. for each equal-order entity from the file,
+     find its mesh-structure counterpart, and classify the closure of
+     that mesh entity the same as the equal-order classification.
+     to get the right results, we have to do this in order of decreasing
+     dimension, which as we've asserted while reading the file, is
+     decreasing order of appearance in the file */
+  unsigned* class_dims[4];
+  unsigned* class_ids[4];
+  for (unsigned i = 0; i <= dim; ++i) {
+    unsigned n = mesh_count(m, i);
+    class_dims[i] = LOOP_MALLOC(unsigned, n);
+    class_ids[i] = LOOP_MALLOC(unsigned, n);
+  }
+  for (unsigned ii = 0; ii < neqs; ++ii) {
+    unsigned i = neqs - ii - 1;
+    unsigned eq_dim = dim_of_eqs[i];
+    unsigned const* eq_verts = verts_of_eqs + i * 4;
+    /* general reverse lookup via vertices. */
+    unsigned ent = find_by_verts(eq_dim + 1, eq_verts,
+        mesh_ask_down(m, eq_dim, 0),
+        mesh_ask_up(m, 0, eq_dim)->adj,
+        mesh_ask_up(m, 0, eq_dim)->offsets);
+    assert(ent != INVALID);
+    class_dims[eq_dim][ent] = eq_dim;
+    class_ids[eq_dim][ent] = class_id_of_eqs[i];
+    for (unsigned dd = 0; dd < eq_dim; ++dd) {
+      unsigned const* des_of_ents = mesh_ask_down(m, eq_dim, dd);
+      unsigned des_per_ent = the_down_degrees[eq_dim][dd];
+      for (unsigned j = 0; j < des_per_ent; ++j) {
+        unsigned de = des_of_ents[ent * des_per_ent + j];
+        class_dims[dd][de] = eq_dim;
+        class_ids[dd][de] = class_id_of_eqs[i];
+      }
+    }
+  }
+  loop_free(verts_of_eqs);
+  loop_free(class_id_of_eqs);
+  loop_free(dim_of_eqs);
+  for (unsigned i = 0; i <= dim; ++i) {
+    mesh_add_tag(m, i, TAG_U32, "class_dim", 1, class_dims[i]);
+    mesh_add_tag(m, i, TAG_U32, "class_id", 1, class_ids[i]);
+  }
   return m;
 }

@@ -16,11 +16,10 @@ void collapses_to_elements(
     unsigned** offset_of_same_elems_out)
 {
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned* elem_will_gen = LOOP_MALLOC(unsigned, nelems);
+  unsigned* elem_will_gen = uints_filled(nelems, 0);
   unsigned* gen_vert_of_elems = LOOP_MALLOC(unsigned, nelems);
   unsigned* gen_direction_of_elems = LOOP_MALLOC(unsigned, nelems);
   unsigned* elem_is_same = LOOP_MALLOC(unsigned, nelems);
-  uints_zero(elem_will_gen, nelems);
   for (unsigned i = 0; i < nelems; ++i) {
     unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
     unsigned col_vert = INVALID;

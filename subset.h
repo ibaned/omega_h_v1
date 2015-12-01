@@ -27,8 +27,8 @@ double* doubles_subset(
 
 struct mesh;
 
-void vert_tags_subset(struct mesh* in, struct mesh* out,
-    unsigned const* offsets);
+void tags_subset(struct mesh* in, struct mesh* out,
+    unsigned dim, unsigned const* offsets);
 
 struct mesh* subset_mesh(
     struct mesh* m,

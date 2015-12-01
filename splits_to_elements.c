@@ -19,8 +19,7 @@ void project_splits_to_elements(
 {
   assert(elem_dim >= src_dim);
   unsigned srcs_per_elem = the_down_degrees[elem_dim][src_dim];
-  unsigned* elem_will_split = LOOP_MALLOC(unsigned, nelems);
-  uints_zero(elem_will_split, nelems);
+  unsigned* elem_will_split = uints_filled(nelems, 0);
   unsigned* gen_vert_of_elems = LOOP_MALLOC(unsigned, nelems);
   unsigned* gen_direction_of_elems = LOOP_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i) {

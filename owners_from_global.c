@@ -9,7 +9,7 @@
 
 void owners_from_global(
     unsigned n,
-    unsigned long* global_in,
+    unsigned long const* global_in,
     unsigned** p_own_ranks,
     unsigned** p_own_idxs)
 {
@@ -25,9 +25,7 @@ void owners_from_global(
   unsigned const* recv_of_recvd = ex->recv_of_recvd;
   unsigned const* recvd_of_lins = ex->recvd_of_dests;
   unsigned const* recvd_of_lin_offsets = ex->recvd_of_dests_offsets;
-  unsigned* orig_idxs = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    orig_idxs[i] = i;
+  unsigned* orig_idxs = uints_linear(n);
   unsigned* orig_idxs_recvd = exchange_uints(ex, 1, orig_idxs);
   loop_free(orig_idxs);
   unsigned* own_rank_of_recvd = LOOP_MALLOC(unsigned, ex->nrecvd);

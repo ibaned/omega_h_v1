@@ -26,10 +26,10 @@ static inline __device__ unsigned loop_cuda_atomic_increment(unsigned* p)
 #define loop_free loop_cuda_free
 
 #define LOOP_KERNEL(fname, ...) \
-static __global__ void fname( unsigned n, __VA_ARGS__) \
+static __global__ void fname(unsigned n, __VA_ARGS__) \
 { \
   unsigned i = blockIdx.x * blockDim.x + threadIdx.x;\
-  if(i >= n ) return;
+  if (i >= n) return;
 
 #define LOOP_BLOCK_SIZE 256
 
@@ -41,10 +41,6 @@ static inline unsigned loop_ceildiv(unsigned a, unsigned b)
   return c;
 }
 
-#define LOOP_EXEC(fname, n, ...) \
-fname<<< loop_ceildiv((n), LOOP_BLOCK_SIZE), LOOP_BLOCK_SIZE >>>(n,__VA_ARGS__);\
-CUDACALL(cudaDeviceSynchronize());
-
 #define CUDACALL(f) \
 do { \
   cudaError_t err = f; \
@@ -55,5 +51,9 @@ do { \
     abort(); \
   } \
 } while (0)
+
+#define LOOP_EXEC(fname, n, ...) \
+fname<<< loop_ceildiv((n), LOOP_BLOCK_SIZE), LOOP_BLOCK_SIZE >>>(n,__VA_ARGS__);\
+CUDACALL(cudaDeviceSynchronize());
 
 #endif

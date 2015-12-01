@@ -9,6 +9,7 @@
 #include "cloud.h"
 #include "comm.h"
 #include "files.h"
+#include "ints.h"
 #include "loop.h"
 #include "mesh.h"
 #include "tables.h"
@@ -45,10 +46,8 @@ static char const* type_name(enum tag_type t)
     case TAG_U32: return "UInt32";
     case TAG_U64: return "UInt64";
     case TAG_F64: return "Float64";
+    default: return "";
   }
-#ifdef __CUDACC__
-  return "";
-#endif
 }
 
 static char const* format_name(enum vtk_format fmt)
@@ -56,17 +55,16 @@ static char const* format_name(enum vtk_format fmt)
   switch (fmt) {
     case VTK_ASCII: return "ascii";
     case VTK_BINARY: return "binary";
+    default: return "";
   }
-#ifdef __CUDACC__
-  return "";
-#endif
 }
 
-static void read_attrib(char const* elem, char const* name,
+static unsigned try_read_attrib(char const* elem, char const* name,
     char* val)
 {
   char const* pname = strstr(elem, name);
-  assert(pname);
+  if (!pname)
+    return 0;
   line_t assign;
   assert(strlen(pname) < sizeof(assign));
   strcpy(assign, pname);
@@ -74,6 +72,14 @@ static void read_attrib(char const* elem, char const* name,
   char const* pval = strtok(assign + strlen(name) + 2, "\"");
   assert(pval && strlen(pval));
   strcpy(val, pval);
+  return 1;
+}
+
+static void read_attrib(char const* elem, char const* name,
+    char* val)
+{
+  unsigned ok = try_read_attrib(elem, name, val);
+  assert(ok);
 }
 
 static void read_array_name(char const* header, char* name)
@@ -114,9 +120,22 @@ static unsigned read_int_attrib(char const* header, char const* attrib)
   return (unsigned) atoi(val);
 }
 
+static unsigned try_read_int_attrib(char const* header, char const* attrib, unsigned* val)
+{
+  line_t val_text;
+  unsigned ok = try_read_attrib(header, attrib, val_text);
+  if (!ok)
+    return 0;
+  *val = (unsigned) atoi(val_text);
+  return 1;
+}
+
 static unsigned read_array_ncomps(char const* header)
 {
-  return read_int_attrib(header, "NumberOfComponents");
+  unsigned n;
+  if (try_read_int_attrib(header, "NumberOfComponents", &n))
+    return n;
+  return 1;
 }
 
 static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
@@ -221,10 +240,8 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%lf", &out[i]);
       return out;
     }
+    default: return 0;
   }
-#ifdef __CUDACC__
-  return 0;
-#endif
 }
 
 static void describe_array(FILE* file, enum tag_type t,
@@ -594,6 +611,34 @@ void write_pvtu(struct mesh* m, char const* filename,
   fclose(file);
 }
 
+void write_pvtu_cloud(struct cloud* c, char const* filename,
+    unsigned npieces)
+{
+  FILE* file = fopen(filename, "w");
+  fprintf(file, "<VTKFile type=\"PUnstructuredGrid\">\n");
+  fprintf(file, "<PUnstructuredGrid>\n");
+  struct const_tag* coord_tag = cloud_find_tag(c, "coordinates");
+  fprintf(file, "<PPointData>\n");
+  for (unsigned i = 0; i < cloud_count_tags(c); ++i) {
+    struct const_tag* t = cloud_get_tag(c, i);
+    if (t != coord_tag) {
+      fprintf(file, "<PDataArray ");
+      describe_tag(file, t);
+      fprintf(file, "/>\n");
+    }
+  }
+  fprintf(file, "</PPointData>\n");
+  fprintf(file, "<PPoints>\n");
+  fprintf(file, "<PDataArray ");
+  describe_tag(file, coord_tag);
+  fprintf(file, "/>\n");
+  fprintf(file, "</PPoints>\n");
+  write_pieces(file, filename, npieces);
+  fprintf(file, "</PUnstructuredGrid>\n");
+  fprintf(file, "</VTKFile>\n");
+  fclose(file);
+}
+
 struct mesh* read_parallel_vtu(char const* inpath)
 {
   char* suffix;
@@ -602,7 +647,10 @@ struct mesh* read_parallel_vtu(char const* inpath)
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
-  return read_vtu(piecepath);
+  struct mesh* m = read_vtu(piecepath);
+  if (mesh_find_tag(m, mesh_dim(m), "piece"))
+    mesh_free_tag(m, mesh_dim(m), "piece");
+  return m;
 }
 
 void write_parallel_vtu(struct mesh* m, char const* outpath)
@@ -613,7 +661,41 @@ void write_parallel_vtu(struct mesh* m, char const* outpath)
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
+  unsigned* piece = uints_filled(mesh_count(m, mesh_dim(m)),
+      comm_rank());
+  mesh_add_tag(m, mesh_dim(m), TAG_U32, "piece", 1, piece);
   write_vtu(m, piecepath);
   if (!comm_rank() && !strcmp(suffix, "pvtu"))
     write_pvtu(m, outpath, comm_size(), 0);
+  mesh_free_tag(m, mesh_dim(m), "piece");
+}
+
+struct cloud* read_parallel_vtu_cloud(char const* inpath)
+{
+  char* suffix;
+  line_t prefix;
+  split_pathname(inpath, prefix, sizeof(prefix), 0, &suffix);
+  line_t piecepath;
+  enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
+      piecepath, sizeof(piecepath));
+  struct cloud* c = read_vtu_cloud(piecepath);
+  if (cloud_find_tag(c, "piece"))
+    cloud_free_tag(c, "piece");
+  return c;
+}
+
+void write_parallel_vtu_cloud(struct cloud* c, char const* outpath)
+{
+  char* suffix;
+  line_t prefix;
+  split_pathname(outpath, prefix, sizeof(prefix), 0, &suffix);
+  line_t piecepath;
+  enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
+      piecepath, sizeof(piecepath));
+  unsigned* piece = uints_filled(cloud_count(c), comm_rank());
+  cloud_add_tag(c, TAG_U32, "piece", 1, piece);
+  write_vtu_cloud(c, piecepath);
+  if (!comm_rank() && !strcmp(suffix, "pvtu"))
+    write_pvtu_cloud(c, outpath, comm_size());
+  cloud_free_tag(c, "piece");
 }

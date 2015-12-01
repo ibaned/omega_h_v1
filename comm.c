@@ -19,7 +19,7 @@ static struct comm* using = &world;
 
 void comm_init(void)
 {
-  CALL(MPI_Init(NULL,NULL));
+  CALL(MPI_Init(0,0));
 }
 
 void comm_fini(void)
@@ -167,6 +167,24 @@ void comm_exch_uints(struct comm* c,
 {
   comm_exch_any(c, width, out, outcounts, outoffsets, in, incounts, inoffsets,
       MPI_UNSIGNED);
+}
+
+void comm_exch_doubles(struct comm* c,
+    unsigned width,
+    double const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    double* in, unsigned const* incounts, unsigned const* inoffsets)
+{
+  comm_exch_any(c, width, out, outcounts, outoffsets, in, incounts, inoffsets,
+      MPI_DOUBLE);
+}
+
+void comm_exch_ulongs(struct comm* c,
+    unsigned width,
+    unsigned long const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    unsigned long* in, unsigned const* incounts, unsigned const* inoffsets)
+{
+  comm_exch_any(c, width, out, outcounts, outoffsets, in, incounts, inoffsets,
+      MPI_UNSIGNED_LONG);
 }
 
 static void comm_sync_any(struct comm* c, void const* out, void* in, MPI_Datatype type)
@@ -326,21 +344,40 @@ void comm_recvs(struct comm* c,
   }
 }
 
+#define GENERIC_EXCH \
+  (void) outoffsets; \
+  (void) inoffsets; \
+  struct graph_comm* gc = (struct graph_comm*) c; \
+  if (gc->nout == 1) { \
+    assert(outcounts[0] == incounts[0]); \
+    for (unsigned i = 0; i < outcounts[0] * width; ++i) \
+      in[i] = out[i]; \
+  } \
+  else \
+    assert(gc->nout == 0);
+
 void comm_exch_uints(struct comm* c,
     unsigned width,
     unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
     unsigned* in, unsigned const* incounts, unsigned const* inoffsets)
 {
-  (void) outoffsets;
-  (void) inoffsets;
-  struct graph_comm* gc = (struct graph_comm*) c;
-  if (gc->nout == 1) {
-    assert(outcounts[0] == incounts[0]);
-    for (unsigned i = 0; i < outcounts[0] * width; ++i)
-      in[i] = out[i];
-  }
-  else
-    assert(gc->nout == 0);
+  GENERIC_EXCH
+}
+
+void comm_exch_doubles(struct comm* c,
+    unsigned width,
+    double const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    double* in, unsigned const* incounts, unsigned const* inoffsets)
+{
+  GENERIC_EXCH
+}
+
+void comm_exch_ulongs(struct comm* c,
+    unsigned width,
+    unsigned long const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    unsigned long* in, unsigned const* incounts, unsigned const* inoffsets)
+{
+  GENERIC_EXCH
 }
 
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
@@ -388,3 +425,10 @@ unsigned long comm_max_ulong(unsigned long x)
 }
 
 #endif
+
+double comm_add_double(double x)
+{
+  double a[1] = {x};
+  comm_add_doubles(a, 1);
+  return a[0];
+}

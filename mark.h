@@ -26,6 +26,19 @@ void mesh_mark_dual_layers(
     unsigned** marked,
     unsigned nlayers);
 
+unsigned* mark_class(
+    unsigned nents,
+    unsigned target_dim,
+    unsigned target_id,
+    unsigned const* class_dim_of_ents,
+    unsigned const* class_id_of_ents);
+
+unsigned* mesh_mark_class(struct mesh* m, unsigned ent_dim,
+    unsigned target_dim, unsigned target_id);
+
+unsigned* mesh_mark_class_closure_verts(struct mesh* m, unsigned target_dim,
+    unsigned target_id);
+
 void unmark_boundary(
     unsigned elem_dim,
     unsigned ent_dim,

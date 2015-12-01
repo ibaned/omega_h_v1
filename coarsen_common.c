@@ -110,7 +110,7 @@ unsigned coarsen_common(
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts_out, 0);
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
-  vert_tags_subset(m, m_out, offset_of_same_verts);
+  tags_subset(m, m_out, 0, offset_of_same_verts);
   loop_free(offset_of_same_verts);
   free_mesh(m);
   *p_m = m_out;

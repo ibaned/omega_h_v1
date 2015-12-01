@@ -129,6 +129,7 @@ void owners_from_verts(
   loop_free(vert_own_ranks_of_recvd);
   loop_free(vert_own_idxs_of_recvd);
   loop_free(orig_idx_of_recvd);
+  /* I think (verts_per_elem - 1) should be 1 here... this code is untested... */
   *p_own_ranks = unexchange_uints(ex, (verts_per_elem - 1), own_rank_of_recvd);
   *p_own_idxs = unexchange_uints(ex, (verts_per_elem - 1), own_idx_of_recvd);
   loop_free(own_idx_of_recvd);

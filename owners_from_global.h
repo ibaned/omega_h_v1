@@ -3,7 +3,7 @@
 
 void owners_from_global(
     unsigned n,
-    unsigned long* global_in,
+    unsigned long const* global_in,
     unsigned** p_own_parts,
     unsigned** p_own_idxs);
 

@@ -25,7 +25,7 @@ unsigned long* globalize_offsets(unsigned* local, unsigned n)
   return global;
 }
 
-void global_to_linpart(unsigned long* global, unsigned n,
+void global_to_linpart(unsigned long const* global, unsigned n,
     unsigned long total, unsigned nparts,
     unsigned** p_part, unsigned** p_local)
 {
@@ -55,48 +55,4 @@ unsigned linpart_size(unsigned long total, unsigned nparts, unsigned part)
   if (part < rem)
     return (unsigned) (quot + 1);
   return (unsigned) quot;
-}
-
-#define GENERIC_SORT_BY_CATEGORY(T, a, width, n, cats, indices, cat_offsets) \
-  T* out = LOOP_MALLOC(T, n); \
-  for (unsigned i = 0; i < n; ++i) { \
-    unsigned cat = cats[i]; \
-    unsigned idx = indices[i]; \
-    unsigned o = cat_offsets[cat]; \
-    for (unsigned j = 0; j < width; ++j) \
-      out[(o + idx) * width + j] = a[i * width + j]; \
-  } \
-  return out;
-
-unsigned* sort_uints_by_category(
-    unsigned const* a,
-    unsigned width,
-    unsigned n,
-    unsigned const* cats,
-    unsigned const* indices,
-    unsigned const* cat_offsets)
-{
-  GENERIC_SORT_BY_CATEGORY(unsigned, a, width, n, cats, indices, cat_offsets);
-}
-
-#define GENERIC_UNSORT_BY_CATEGORY(T, a, width, n, cats, indices, cat_offsets) \
-  T* out = LOOP_MALLOC(T, n); \
-  for (unsigned i = 0; i < n; ++i) { \
-    unsigned cat = cats[i]; \
-    unsigned idx = indices[i]; \
-    unsigned o = cat_offsets[cat]; \
-    for (unsigned j = 0; j < width; ++j) \
-      out[i * width + j] = a[(o + idx) * width + j]; \
-  } \
-  return out;
-
-unsigned* unsort_uints_by_category(
-    unsigned const* a,
-    unsigned width,
-    unsigned n,
-    unsigned const* cats,
-    unsigned const* indices,
-    unsigned const* cat_offsets)
-{
-  GENERIC_UNSORT_BY_CATEGORY(unsigned, a, width, n, cats, indices, cat_offsets);
 }
