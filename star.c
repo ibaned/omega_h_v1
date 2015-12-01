@@ -48,12 +48,12 @@ LOOP_KERNEL( Degree_Shift,
 	unsigned* star_buf)
 
   degrees[i] = get_ent_star(
-	  	highs_of_lows_offsets,
-		highs_of_lows,
-		lows_of_highs,
-		lows_per_high,
-		i,
-        star_buf);
+      highs_of_lows_offsets,
+	  highs_of_lows,
+	  lows_of_highs,
+	  lows_per_high,
+	  i,
+      star_buf);
 }
 
 LOOP_KERNEL( Shift,
@@ -66,12 +66,12 @@ LOOP_KERNEL( Shift,
 	unsigned* star_offsets)
 
   get_ent_star(
-        highs_of_lows_offsets,
-        highs_of_lows,
-        lows_of_highs,
-        lows_per_high,
-        i,
-        star_buf);
+      highs_of_lows_offsets,
+      highs_of_lows,
+      lows_of_highs,
+      lows_per_high,
+      i,
+      star_buf);
   unsigned first_star = star_offsets[i];
   unsigned last_star = star_offsets[i + 1];
   for (unsigned j = first_star; j < last_star; ++j) {
@@ -90,7 +90,7 @@ void get_star(
     unsigned** star_offsets_out,
     unsigned** star_out)
 {
-  unsigned star_buf[MAX_UP * MAX_DOWN];
+  unsigned* star_buf = LOOP_MALLOC(unsigned, MAX_UP*MAX_DOWN);
 #ifndef NDEBUG
   for (unsigned i = 0; i < MAX_UP * MAX_DOWN; ++i)
     star_buf[i] = INVALID;
@@ -145,6 +145,7 @@ void get_star(
     }
   }
 */
+  loop_free(star_buf);
   *star_offsets_out = star_offsets;
   *star_out = star;
 }
