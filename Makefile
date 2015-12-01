@@ -36,6 +36,7 @@ test_vtk_ascii.c \
 test_from_gmsh.c \
 test_cuda_box.c \
 test_infer_class.c \
+test_star.c \
 test_rib.c
 
 lib_sources := \
