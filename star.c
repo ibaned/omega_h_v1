@@ -11,6 +11,9 @@
    If you are going to optimize, optimize here !
  */
 
+#ifdef __CUDACC__
+__device__
+#endif
 static unsigned get_ent_star(
     unsigned const* highs_of_lows_offsets,
     unsigned const* highs_of_lows,
@@ -34,6 +37,40 @@ static unsigned get_ent_star(
   return size;
 }
 
+LOOP_KERNEL( Degree_Shift,
+    unsigned *degrees,
+    unsigned const* highs_of_lows_offsets,
+    unsigned const* highs_of_lows,
+    unsigned const* lows_of_highs,
+    unsigned lows_per_high)
+
+  unsigned star_buf[MAX_UP * MAX_DOWN];
+  degrees[i] = get_ent_star(
+      highs_of_lows_offsets,
+      highs_of_lows,
+      lows_of_highs,
+      lows_per_high,
+      i,
+      star_buf);
+}
+
+LOOP_KERNEL( Shift,
+    unsigned const* highs_of_lows_offsets,
+    unsigned const* highs_of_lows,
+    unsigned const* lows_of_highs,
+    unsigned lows_per_high,
+    unsigned* star,
+    unsigned const* star_offsets)
+
+  get_ent_star(
+      highs_of_lows_offsets,
+      highs_of_lows,
+      lows_of_highs,
+      lows_per_high,
+      i,
+      star + star_offsets[i]);
+}
+
 void get_star(
     unsigned low_dim,
     unsigned high_dim,
@@ -44,40 +81,26 @@ void get_star(
     unsigned** star_offsets_out,
     unsigned** star_out)
 {
-  unsigned star_buf[MAX_UP * MAX_DOWN];
-#ifndef NDEBUG
-  for (unsigned i = 0; i < MAX_UP * MAX_DOWN; ++i)
-    star_buf[i] = INVALID;
-#endif
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned* degrees = uints_filled(nlows, 0);
-  for (unsigned i = 0; i < nlows; ++i)
-    degrees[i] = get_ent_star(
-        highs_of_lows_offsets,
-        highs_of_lows,
-        lows_of_highs,
-        lows_per_high,
-        i,
-        star_buf);
+  LOOP_EXEC(Degree_Shift, nlows,
+    degrees,
+    highs_of_lows_offsets,
+    highs_of_lows,
+    lows_of_highs,
+    lows_per_high);
   unsigned* star_offsets = uints_exscan(degrees, nlows);
   loop_free(degrees);
   unsigned sum_degrees = star_offsets[nlows];
   unsigned* star = LOOP_MALLOC(unsigned, sum_degrees);
-  for (unsigned i = 0; i < nlows; ++i) {
-    get_ent_star(
-        highs_of_lows_offsets,
-        highs_of_lows,
-        lows_of_highs,
-        lows_per_high,
-        i,
-        star_buf);
-    unsigned first_star = star_offsets[i];
-    unsigned last_star = star_offsets[i + 1];
-    for (unsigned j = first_star; j < last_star; ++j) {
-      assert(j >= first_star);
-      star[j] = star_buf[j - first_star];
-    }
-  }
+  LOOP_EXEC( Shift ,
+    nlows ,
+    highs_of_lows_offsets,
+    highs_of_lows,
+    lows_of_highs,
+    lows_per_high,
+    star,
+    star_offsets);
   *star_offsets_out = star_offsets;
   *star_out = star;
 }

@@ -11,6 +11,9 @@ unsigned* uints_linear(unsigned n);
 unsigned uints_sum(unsigned const* a, unsigned n);
 unsigned long ulongs_max(unsigned long const* a, unsigned n);
 
+#ifdef __CUDACC__
+__device__ __host__
+#endif
 static inline unsigned has(unsigned const* a, unsigned n, unsigned e)
 {
   for (unsigned i = 0; i < n; ++i)
@@ -19,6 +22,9 @@ static inline unsigned has(unsigned const* a, unsigned n, unsigned e)
   return 0;
 }
 
+#ifdef __CUDACC__
+__device__  __host__
+#endif
 static inline unsigned add_unique(unsigned* a, unsigned n, unsigned e)
 {
   if (has(a, n, e))
