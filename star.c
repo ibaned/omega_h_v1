@@ -37,7 +37,7 @@ static unsigned get_ent_star(
   return size;
 }
 
-LOOP_KERNEL( Degree_Shift,
+LOOP_KERNEL(count,
     unsigned *degrees,
     unsigned const* highs_of_lows_offsets,
     unsigned const* highs_of_lows,
@@ -54,7 +54,7 @@ LOOP_KERNEL( Degree_Shift,
       star_buf);
 }
 
-LOOP_KERNEL( Shift,
+LOOP_KERNEL(fill,
     unsigned const* highs_of_lows_offsets,
     unsigned const* highs_of_lows,
     unsigned const* lows_of_highs,
@@ -83,7 +83,8 @@ void get_star(
 {
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned* degrees = uints_filled(nlows, 0);
-  LOOP_EXEC(Degree_Shift, nlows,
+  LOOP_EXEC(count,
+    nlows,
     degrees,
     highs_of_lows_offsets,
     highs_of_lows,
@@ -93,8 +94,8 @@ void get_star(
   loop_free(degrees);
   unsigned sum_degrees = star_offsets[nlows];
   unsigned* star = LOOP_MALLOC(unsigned, sum_degrees);
-  LOOP_EXEC( Shift ,
-    nlows ,
+  LOOP_EXEC(fill,
+    nlows,
     highs_of_lows_offsets,
     highs_of_lows,
     lows_of_highs,
