@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "arrays.h"
 #include "copy_mesh.h"
 #include "find_by_verts.h"
 #include "infer_class.h"
@@ -90,7 +91,7 @@ void refine_by_class(struct mesh** p_m)
       }
       assert(nskipped == nfixed);
       /* free the current classifications and replace them
-         modified classifications, which will
+         with the modified classifications, which will
          induce refinement to correctly classify new vertices */
       mesh_free_tag(*p_m, d, "class_dim");
       mesh_add_tag(*p_m, d, TAG_U32, "class_dim", 1, class_dims);

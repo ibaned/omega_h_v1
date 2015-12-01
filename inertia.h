@@ -9,9 +9,10 @@ void inertia_contribution(
 
 void least_inertial_axis(double IC[3][3], double* a);
 
-unsigned* local_inertia_mark(
+unsigned* mark_inertial_bisection(
     unsigned n,
     double const* coords,
-    double const* masses);
+    double const* masses,
+    unsigned is_global);
 
 #endif

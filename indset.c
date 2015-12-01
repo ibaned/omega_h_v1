@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 
+#include "arrays.h"
 #include "ints.h"
 #include "loop.h"
 

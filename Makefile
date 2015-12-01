@@ -36,7 +36,8 @@ test_vtk_ascii.c \
 test_from_gmsh.c \
 test_cuda_box.c \
 test_infer_class.c \
-test_star.c
+test_star.c \
+test_rib.c
 
 lib_sources := \
 star.c \
@@ -108,7 +109,11 @@ gmsh_io.c \
 exchanger.c \
 infer_class.c \
 copy_mesh.c \
-refine_by_class.c
+refine_by_class.c \
+parallel_inertial_bisect.c \
+parallel_mesh.c \
+migrate_cloud.c \
+arrays.c
 
 #handle optional features:
 USE_MPI ?= 0

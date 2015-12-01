@@ -9,6 +9,7 @@
 #include "cloud.h"
 #include "comm.h"
 #include "files.h"
+#include "ints.h"
 #include "loop.h"
 #include "mesh.h"
 #include "tables.h"
@@ -610,6 +611,34 @@ void write_pvtu(struct mesh* m, char const* filename,
   fclose(file);
 }
 
+void write_pvtu_cloud(struct cloud* c, char const* filename,
+    unsigned npieces)
+{
+  FILE* file = fopen(filename, "w");
+  fprintf(file, "<VTKFile type=\"PUnstructuredGrid\">\n");
+  fprintf(file, "<PUnstructuredGrid>\n");
+  struct const_tag* coord_tag = cloud_find_tag(c, "coordinates");
+  fprintf(file, "<PPointData>\n");
+  for (unsigned i = 0; i < cloud_count_tags(c); ++i) {
+    struct const_tag* t = cloud_get_tag(c, i);
+    if (t != coord_tag) {
+      fprintf(file, "<PDataArray ");
+      describe_tag(file, t);
+      fprintf(file, "/>\n");
+    }
+  }
+  fprintf(file, "</PPointData>\n");
+  fprintf(file, "<PPoints>\n");
+  fprintf(file, "<PDataArray ");
+  describe_tag(file, coord_tag);
+  fprintf(file, "/>\n");
+  fprintf(file, "</PPoints>\n");
+  write_pieces(file, filename, npieces);
+  fprintf(file, "</PUnstructuredGrid>\n");
+  fprintf(file, "</VTKFile>\n");
+  fclose(file);
+}
+
 struct mesh* read_parallel_vtu(char const* inpath)
 {
   char* suffix;
@@ -618,7 +647,10 @@ struct mesh* read_parallel_vtu(char const* inpath)
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
-  return read_vtu(piecepath);
+  struct mesh* m = read_vtu(piecepath);
+  if (mesh_find_tag(m, mesh_dim(m), "piece"))
+    mesh_free_tag(m, mesh_dim(m), "piece");
+  return m;
 }
 
 void write_parallel_vtu(struct mesh* m, char const* outpath)
@@ -629,7 +661,41 @@ void write_parallel_vtu(struct mesh* m, char const* outpath)
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
+  unsigned* piece = uints_filled(mesh_count(m, mesh_dim(m)),
+      comm_rank());
+  mesh_add_tag(m, mesh_dim(m), TAG_U32, "piece", 1, piece);
   write_vtu(m, piecepath);
   if (!comm_rank() && !strcmp(suffix, "pvtu"))
     write_pvtu(m, outpath, comm_size(), 0);
+  mesh_free_tag(m, mesh_dim(m), "piece");
+}
+
+struct cloud* read_parallel_vtu_cloud(char const* inpath)
+{
+  char* suffix;
+  line_t prefix;
+  split_pathname(inpath, prefix, sizeof(prefix), 0, &suffix);
+  line_t piecepath;
+  enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
+      piecepath, sizeof(piecepath));
+  struct cloud* c = read_vtu_cloud(piecepath);
+  if (cloud_find_tag(c, "piece"))
+    cloud_free_tag(c, "piece");
+  return c;
+}
+
+void write_parallel_vtu_cloud(struct cloud* c, char const* outpath)
+{
+  char* suffix;
+  line_t prefix;
+  split_pathname(outpath, prefix, sizeof(prefix), 0, &suffix);
+  line_t piecepath;
+  enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
+      piecepath, sizeof(piecepath));
+  unsigned* piece = uints_filled(cloud_count(c), comm_rank());
+  cloud_add_tag(c, TAG_U32, "piece", 1, piece);
+  write_vtu_cloud(c, piecepath);
+  if (!comm_rank() && !strcmp(suffix, "pvtu"))
+    write_pvtu_cloud(c, outpath, comm_size());
+  cloud_free_tag(c, "piece");
 }

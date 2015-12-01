@@ -25,6 +25,14 @@ void comm_exch_uints(struct comm* c,
     unsigned width,
     unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
     unsigned* in, unsigned const* incounts, unsigned const* inoffsets);
+void comm_exch_doubles(struct comm* c,
+    unsigned width,
+    double const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    double* in, unsigned const* incounts, unsigned const* inoffsets);
+void comm_exch_ulongs(struct comm* c,
+    unsigned width,
+    unsigned long const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    unsigned long* in, unsigned const* incounts, unsigned const* inoffsets);
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in);
 
 void comm_free(struct comm* c);
@@ -33,6 +41,7 @@ unsigned comm_rank(void);
 unsigned comm_size(void);
 
 void comm_add_doubles(double* p, unsigned n);
+double comm_add_double(double x);
 unsigned long comm_add_ulong(unsigned long x);
 unsigned long comm_exscan_ulong(unsigned long x);
 unsigned long comm_max_ulong(unsigned long x);
