@@ -11,8 +11,6 @@
    If you are going to optimize, optimize here !
  */
 
-
-
 #ifdef __CUDACC__
 __device__
 #endif
@@ -40,30 +38,30 @@ static unsigned get_ent_star(
 }
 
 LOOP_KERNEL( Degree_Shift,
-	unsigned *degrees,
-	unsigned const* highs_of_lows_offsets,
-	unsigned const* highs_of_lows,
-	unsigned const* lows_of_highs,
-	unsigned lows_per_high,
-	unsigned* star_buf)
+    unsigned *degrees,
+    unsigned const* highs_of_lows_offsets,
+    unsigned const* highs_of_lows,
+    unsigned const* lows_of_highs,
+    unsigned lows_per_high,
+    unsigned* star_buf)
 
   degrees[i] = get_ent_star(
       highs_of_lows_offsets,
-	  highs_of_lows,
-	  lows_of_highs,
-	  lows_per_high,
-	  i,
+      highs_of_lows,
+      lows_of_highs,
+      lows_per_high,
+      i,
       star_buf);
 }
 
 LOOP_KERNEL( Shift,
-	unsigned const* highs_of_lows_offsets,
-	unsigned const* highs_of_lows,
-	unsigned const* lows_of_highs,
-	unsigned lows_per_high,
-	unsigned* star_buf,
-	unsigned* star,
-	unsigned* star_offsets)
+    unsigned const* highs_of_lows_offsets,
+    unsigned const* highs_of_lows,
+    unsigned const* lows_of_highs,
+    unsigned lows_per_high,
+    unsigned* star_buf,
+    unsigned* star,
+    unsigned* star_offsets)
 
   get_ent_star(
       highs_of_lows_offsets,
@@ -120,13 +118,13 @@ void get_star(
   unsigned* star = LOOP_MALLOC(unsigned, sum_degrees);
   LOOP_EXEC( Shift ,
     nlows ,
-	highs_of_lows_offsets,
-	highs_of_lows,
-	lows_of_highs,
-	lows_per_high,
-	star_buf,
-	star,
-	star_offsets);
+    highs_of_lows_offsets,
+    highs_of_lows,
+    lows_of_highs,
+    lows_per_high,
+    star_buf,
+    star,
+    star_offsets);
 /*
   for (unsigned i = 0; i < nlows; ++i) {
     get_ent_star(
