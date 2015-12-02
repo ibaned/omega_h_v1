@@ -86,10 +86,10 @@ static void get_unique_ranks_of_owners(
   unsigned* rank_of_copies = LOOP_MALLOC(unsigned, ncopies);
   for (unsigned i = 0; i < nowners; ++i) {
     unsigned fu = uses_of_owners_offsets[i];
-    unsigned eu = uses_of_owners_offsets[i + 1];
     unsigned fc = copies_of_owners_offsets[i];
-    unsigned nu = eu - fu;
-    for (unsigned j = 0; j < nu; ++j)
+    unsigned ec = copies_of_owners_offsets[i + 1];
+    unsigned nc = ec - fc;
+    for (unsigned j = 0; j < nc; ++j)
       rank_of_copies[fc + j] = scratch[fu + j];
   }
   loop_free(scratch);
