@@ -63,7 +63,7 @@ unsigned const* mesh_ask_own_ranks(struct mesh* m, unsigned dim)
 unsigned const* mesh_ask_own_ids(struct mesh* m, unsigned dim)
 {
   ask_owners(m, dim);
-  return mesh_parallel(m)->own_ranks[dim];
+  return mesh_parallel(m)->own_ids[dim];
 }
 
 struct exchanger* mesh_ask_exchanger(struct mesh* m, unsigned dim)
