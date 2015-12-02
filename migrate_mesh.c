@@ -198,20 +198,20 @@ static struct mesh* migrate_element_topology(
 }
 
 static void conform_tag(struct exchanger* push, struct const_tag* t,
-    struct tags* into)
+    struct tags* into, enum exch_dir dir, enum exch_start start)
 {
   void* data_out = 0;
   switch (t->type) {
     case TAG_U8:
       break;
     case TAG_U32:
-      data_out = exchange_uints(push, t->ncomps, t->d.u32, EX_FOR, EX_ROOT);
+      data_out = exchange_uints(push, t->ncomps, t->d.u32, dir, start);
       break;
     case TAG_U64:
-      data_out = exchange_ulongs(push, t->ncomps, t->d.u64, EX_FOR, EX_ROOT);
+      data_out = exchange_ulongs(push, t->ncomps, t->d.u64, dir, start);
       break;
     case TAG_F64:
-      data_out = exchange_doubles(push, t->ncomps, t->d.f64, EX_FOR, EX_ROOT);
+      data_out = exchange_doubles(push, t->ncomps, t->d.f64, dir, start);
       break;
   }
   if (find_tag(into, t->name))
@@ -220,10 +220,10 @@ static void conform_tag(struct exchanger* push, struct const_tag* t,
 }
 
 static void conform_tags(struct exchanger* push, struct tags* from,
-    struct tags* into)
+    struct tags* into, enum exch_dir dir, enum exch_start start)
 {
   for (unsigned i = 0; i < count_tags(from); ++i)
-    conform_tag(push, get_tag(from, i), into);
+    conform_tag(push, get_tag(from, i), into, dir, start);
 }
 
 void migrate_mesh(struct mesh** p_m,
@@ -237,8 +237,12 @@ void migrate_mesh(struct mesh** p_m,
   struct mesh* m_out = migrate_element_topology(m_in,
       nelems_recvd, recvd_elem_ranks, recvd_elem_ids,
       &elem_pull, &vert_push);
-  conform_tags(vert_push, mesh_tags(m_in, 0), mesh_tags(m_out, 0));
+  conform_tags(vert_push, mesh_tags(m_in, 0), mesh_tags(m_out, 0),
+      EX_FOR, EX_ROOT);
   free_exchanger(elem_pull);
+  unsigned dim = mesh_dim(m_in);
+  conform_tags(vert_push, mesh_tags(m_in, dim), mesh_tags(m_out, dim),
+      EX_REV, EX_ITEM);
   free_exchanger(vert_push);
   free_mesh(*p_m);
   *p_m = m_out;
