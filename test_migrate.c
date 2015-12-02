@@ -2,6 +2,7 @@
 
 #include "comm.h"
 #include "global.h"
+#include "loop.h"
 #include "mesh.h"
 #include "migrate_mesh.h"
 #include "vtk.h"
@@ -14,7 +15,7 @@ int main()
   if (comm_rank() == 0)
     m = new_box_mesh(1);
   else
-    m = new_mesh(1);
+    m = new_empty_mesh(1);
   mesh_number_simply(m);
   write_parallel_vtu(m, "before.pvtu");
 //if (comm_rank() == 0) {
