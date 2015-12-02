@@ -150,13 +150,17 @@ static struct mesh* migrate_element_topology(
   /* own rank of vertex uses of received elements */
   unsigned* or_of_vus_of_res = exchange_uints(elem_pull, nverts_per_elem,
       or_of_vus_of_es, EX_REV, EX_ITEM);
+  loop_free(or_of_vus_of_es);
   unsigned* oi_of_vus_of_res = exchange_uints(elem_pull, nverts_per_elem,
       oi_of_vus_of_es, EX_REV, EX_ITEM);
+  loop_free(oi_of_vus_of_es);
   unsigned nverts = mesh_count(m, 0);
   /* received vertex uses to old owner vertices exchanger */
   struct exchanger* us_to_own_ex = new_exchanger(nelems_recvd * nverts_per_elem,
       or_of_vus_of_res);
+  loop_free(or_of_vus_of_res);
   set_exchanger_dests(us_to_own_ex, nverts, oi_of_vus_of_res);
+  loop_free(oi_of_vus_of_res);
   unsigned* copies_of_owners_offsets;
   unsigned* rank_of_copies;
   unsigned const* rus_of_own_offsets =
@@ -178,6 +182,8 @@ static struct mesh* migrate_element_topology(
       copies_of_owners_offsets, rank_of_copies,
       lid_of_copies, us_to_own_ex->msg_of_items[EX_REV],
       us_to_own_ex->ranks[EX_REV]);
+  loop_free(copies_of_owners_offsets);
+  loop_free(rank_of_copies);
   loop_free(lid_of_copies);
   unsigned* verts_of_elems = exchange_uints(us_to_own_ex, 1, lid_of_rvus,
       EX_REV, EX_ITEM);
