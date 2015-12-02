@@ -166,6 +166,7 @@ static struct mesh* migrate_element_topology(
       &copies_of_owners_offsets, &rank_of_copies);
   unsigned ncopies = copies_of_owners_offsets[nverts];
   struct exchanger* copies_push = new_exchanger(ncopies, rank_of_copies);
+  set_exchanger_srcs(copies_push, nverts, copies_of_owners_offsets);
   unsigned nverts_recvd = copies_push->nitems[EX_REV];
   unsigned* lids = uints_linear(nverts_recvd);
   unsigned* lid_of_copies = exchange_uints(copies_push, 1, lids,
@@ -190,6 +191,35 @@ static struct mesh* migrate_element_topology(
   return m_out;
 }
 
+static void conform_tag(struct exchanger* push, struct const_tag* t,
+    struct tags* into)
+{
+  void* data_out = 0;
+  switch (t->type) {
+    case TAG_U8:
+      break;
+    case TAG_U32:
+      data_out = exchange_uints(push, t->ncomps, t->d.u32, EX_FOR, EX_ROOT);
+      break;
+    case TAG_U64:
+      data_out = exchange_ulongs(push, t->ncomps, t->d.u64, EX_FOR, EX_ROOT);
+      break;
+    case TAG_F64:
+      data_out = exchange_doubles(push, t->ncomps, t->d.f64, EX_FOR, EX_ROOT);
+      break;
+  }
+  if (find_tag(into, t->name))
+    remove_tag(into, t->name);
+  add_tag(into, t->type, t->name, t->ncomps, data_out);
+}
+
+static void conform_tags(struct exchanger* push, struct tags* from,
+    struct tags* into)
+{
+  for (unsigned i = 0; i < count_tags(from); ++i)
+    conform_tag(push, get_tag(from, i), into);
+}
+
 void migrate_mesh(struct mesh** p_m,
     unsigned nelems_recvd,
     unsigned const* recvd_elem_ranks,
@@ -197,9 +227,11 @@ void migrate_mesh(struct mesh** p_m,
 {
   struct exchanger* elem_pull;
   struct exchanger* vert_push;
-  struct mesh* m_out = migrate_element_topology(*p_m,
+  struct mesh* m_in = *p_m;
+  struct mesh* m_out = migrate_element_topology(m_in,
       nelems_recvd, recvd_elem_ranks, recvd_elem_ids,
       &elem_pull, &vert_push);
+  conform_tags(vert_push, mesh_tags(m_in, 0), mesh_tags(m_out, 0));
   free_exchanger(elem_pull);
   free_exchanger(vert_push);
   free_mesh(*p_m);
