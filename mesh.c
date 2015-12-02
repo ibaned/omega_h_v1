@@ -79,6 +79,15 @@ struct mesh* new_box_mesh(unsigned elem_dim)
   return m;
 }
 
+struct mesh* new_empty_mesh(unsigned elem_dim)
+{
+  struct mesh* m = new_mesh(elem_dim);
+  mesh_set_ents(m, 0, 0, 0);
+  mesh_set_ents(m, elem_dim, 0, LOOP_MALLOC(unsigned, 0));
+  mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, LOOP_MALLOC(double, 0));
+  return m;
+}
+
 unsigned mesh_dim(struct mesh* m)
 {
   return m->elem_dim;
