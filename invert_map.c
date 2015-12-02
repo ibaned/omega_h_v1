@@ -80,7 +80,6 @@ LOOP_KERNEL( copy , unsigned const* in , unsigned * out)
 
 void Count_Sort_Dance(unsigned const*in , struct Counter*  out, unsigned nin)
 {
-  out = LOOP_MALLOC( struct Counter , nin);
   struct Counter** ref = LOOP_MALLOC( struct Counter* , nin);
   LOOP_EXEC( assign, nin , out );
   unsigned * n_sorted = LOOP_MALLOC( unsigned , nin);
@@ -102,7 +101,7 @@ void invert_map(
 {
   unsigned* counts = uints_filled(nout, 0);
   LOOP_EXEC(count, nin, in, counts);
-  struct Counter* counters;
+  struct Counter* counters = LOOP_MALLOC( struct Counter , nin);
   Count_Sort_Dance( in, counters , nin);
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
