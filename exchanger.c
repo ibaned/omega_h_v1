@@ -1,6 +1,7 @@
 #include "exchanger.h"
 
 #include <assert.h>
+#include <string.h>
 
 #include "arrays.h"
 #include "comm.h"
@@ -108,112 +109,109 @@ static unsigned* make_recv_of_recvd(
   return recv_of_recvd;
 }
 
+#define F EX_FOR
+#define R EX_REV
+
 struct exchanger* new_exchanger(
     unsigned nsent,
-    unsigned ndests,
-    unsigned const* dest_rank_of_sent,
-    unsigned const* dest_idx_of_sent)
+    unsigned const* dest_rank_of_sent)
 {
   struct exchanger* ex = LOOP_HOST_MALLOC(struct exchanger, 1);
-  ex->nsent = nsent;
-  ex->ndests = ndests;
+  memset(ex, 0, sizeof(struct exchanger));
+  ex->nitems[F] = nsent;
   sends_from_dest_ranks(nsent, dest_rank_of_sent,
-      &ex->send_of_sent, &ex->send_shuffle,
-      &ex->nsends, &ex->send_ranks, &ex->send_offsets);
-  ex->send_counts = uints_unscan(ex->send_offsets, ex->nsends);
-  ex->forward_comm = comm_graph(comm_using(), ex->nsends, ex->send_ranks,
-      ex->send_counts);
-  comm_recvs(ex->forward_comm, &ex->nrecvs, &ex->recv_ranks, &ex->recv_counts);
-  ex->recv_offsets = uints_exscan(ex->recv_counts, ex->nrecvs);
-  ex->nrecvd = ex->recv_offsets[ex->nrecvs];
-  ex->reverse_comm = comm_graph_exact(comm_using(),
-      ex->nsends, ex->send_ranks, ex->send_counts,
-      ex->nrecvs, ex->recv_ranks, ex->recv_counts);
-  ex->recv_of_recvd = make_recv_of_recvd(ex->nrecvd, ex->nrecvs, ex->recv_offsets);
-  if (dest_idx_of_sent) {
-    unsigned* dest_idx_of_recvd = exchange_uints(ex, 1, dest_idx_of_sent);
-    invert_map(ex->nrecvd, dest_idx_of_recvd, ndests,
-        &ex->recvd_of_dests, &ex->recvd_of_dests_offsets);
-    loop_free(dest_idx_of_recvd);
-  } else {
-    ex->recvd_of_dests = 0;
-    ex->recvd_of_dests_offsets = 0;
-  }
+      &ex->msg_of_items[F], &ex->shuffles[F], &ex->nmsgs[F], &ex->ranks[F],
+      &ex->msg_offsets[F]);
+  ex->msg_counts[F] = uints_unscan(ex->msg_offsets[F], ex->nmsgs[F]);
+  ex->comms[F] = comm_graph(comm_using(), ex->nmsgs[F], ex->ranks[F],
+      ex->msg_counts[F]);
+  comm_recvs(ex->comms[F], &ex->nmsgs[R], &ex->ranks[R], &ex->msg_counts[R]);
+  ex->msg_offsets[R] = uints_exscan(ex->msg_counts[R], ex->nmsgs[R]);
+  ex->nitems[R] = ex->msg_offsets[R][ex->nmsgs[R]];
+  ex->comms[R] = comm_graph_exact(comm_using(),
+      ex->nmsgs[F], ex->ranks[F], ex->msg_counts[F],
+      ex->nmsgs[R], ex->ranks[R], ex->msg_counts[R]);
+  ex->msg_of_items[R] = make_recv_of_recvd(ex->nitems[R], ex->nmsgs[R],
+      ex->msg_offsets[R]);
   return ex;
+}
+
+void set_exchanger_dests(
+    struct exchanger* ex,
+    unsigned ndests,
+    unsigned const* dest_idx_of_sent)
+{
+  unsigned* dest_idx_of_recvd = exchange_uints(ex, 1, dest_idx_of_sent,
+      EX_FOR, EX_ITEM);
+  ex->nroots[R] = ndests;
+  invert_map(ex->nitems[R], dest_idx_of_recvd, ndests,
+      &ex->shuffles[R], &ex->items_of_roots_offsets[R]);
+  loop_free(dest_idx_of_recvd);
+}
+
+void set_exchanger_srcs(
+    struct exchanger* ex,
+    unsigned nsrcs,
+    unsigned const* sent_of_srcs_offsets)
+{
+  ex->nroots[F] = nsrcs;
+  ex->items_of_roots_offsets[F] = uints_copy(sent_of_srcs_offsets, nsrcs + 1);
+}
+
+static enum exch_dir opp_dir(enum exch_dir d)
+{
+  if (d == EX_FOR)
+    return EX_REV;
+  return EX_FOR;
 }
 
 #define GENERIC_EXCHANGE(T, name) \
 T* exchange_##name(struct exchanger* ex, unsigned width, \
-    T const* sent) \
+    T const* data, enum exch_dir dir, enum exch_start start) \
 { \
-  T* shuffled = name##_shuffle(ex->nsent, sent, width, \
-      ex->send_shuffle); \
-  T* recvd = LOOP_MALLOC(T, ex->nrecvd * width); \
-  comm_exch_##name(ex->forward_comm, width, \
-      shuffled, ex->send_counts, ex->send_offsets, \
-      recvd,  ex->recv_counts, ex->recv_offsets); \
-  loop_free(shuffled); \
-  return recvd; \
+  enum exch_dir odir = opp_dir(dir); \
+  T const* current = data; \
+  T* last = 0; \
+  if (start == EX_ROOT) { \
+    T* expanded = name##_expand(ex->nroots[dir], current, width, \
+        ex->items_of_roots_offsets[dir]); \
+    current = last = expanded; \
+  } \
+  if (ex->shuffles[dir]) { \
+    T* shuffled = name##_shuffle(ex->nitems[dir], current, width, \
+        ex->shuffles[dir]); \
+    loop_free(last); \
+    current = last = shuffled; \
+  } \
+  T* recvd = LOOP_MALLOC(T, ex->nitems[odir] * width); \
+  comm_exch_##name(ex->comms[dir], width, \
+      current, ex->msg_counts[dir], ex->msg_offsets[dir], \
+      recvd,  ex->msg_counts[odir], ex->msg_offsets[odir]); \
+  loop_free(last); \
+  current = last = recvd; \
+  if (ex->shuffles[odir]) { \
+    T* unshuffled = name##_unshuffle(ex->nitems[odir], current, width, \
+        ex->shuffles[odir]); \
+    loop_free(last); \
+    current = last = unshuffled; \
+  } \
+  return last; \
 }
 
 GENERIC_EXCHANGE(unsigned, uints)
+GENERIC_EXCHANGE(unsigned long, ulongs)
 GENERIC_EXCHANGE(double, doubles)
-
-#define GENERIC_UNEXCHANGE(T, name) \
-T* unexchange_##name(struct exchanger* ex, unsigned width, \
-    T const* recvd) \
-{ \
-  T* shuffled = LOOP_MALLOC(T, ex->nsent * width); \
-  comm_exch_##name(ex->reverse_comm, width, \
-      recvd,  ex->recv_counts, ex->recv_offsets, \
-      shuffled, ex->send_counts, ex->send_offsets); \
-  T* sent = name##_unshuffle(ex->nsent, shuffled, width, \
-      ex->send_shuffle); \
-  loop_free(shuffled); \
-  return sent; \
-}
-
-GENERIC_UNEXCHANGE(unsigned, uints)
-GENERIC_UNEXCHANGE(double, doubles)
-GENERIC_UNEXCHANGE(unsigned long, ulongs)
-
-#define GENERIC_PULL(T, name) \
-T* pull_##name(struct exchanger* ex, unsigned width, \
-    T const* data) \
-{ \
-  T* recvd = LOOP_MALLOC(T, ex->nrecvd * width); \
-  for (unsigned i = 0; i < ex->ndests; ++i) { \
-    unsigned first = ex->recvd_of_dests_offsets[i]; \
-    unsigned end = ex->recvd_of_dests_offsets[i + 1]; \
-    for (unsigned j = first; j < end; ++j) { \
-      unsigned irecvd = ex->recvd_of_dests[j]; \
-      for (unsigned k = 0; k < width; ++k) \
-        recvd[irecvd * width + k] = data[i * width + k]; \
-    } \
-  } \
-  T* out = unexchange_##name(ex, width, recvd); \
-  loop_free(recvd); \
-  return out; \
-}
-
-GENERIC_PULL(unsigned, uints)
-GENERIC_PULL(unsigned long, ulongs)
-GENERIC_PULL(double, doubles)
 
 void free_exchanger(struct exchanger* ex)
 {
-  comm_free(ex->forward_comm);
-  comm_free(ex->reverse_comm);
-  loop_free(ex->send_ranks);
-  loop_free(ex->recv_ranks);
-  loop_free(ex->send_counts);
-  loop_free(ex->recv_counts);
-  loop_free(ex->send_offsets);
-  loop_free(ex->recv_offsets);
-  loop_free(ex->send_of_sent);
-  loop_free(ex->send_shuffle);
-  loop_free(ex->recv_of_recvd);
-  loop_free(ex->recvd_of_dests);
-  loop_free(ex->recvd_of_dests_offsets);
+  for (unsigned i = 0; i < 2; ++i) {
+    comm_free(ex->comms[i]);
+    loop_free(ex->ranks[i]);
+    loop_free(ex->msg_counts[i]);
+    loop_free(ex->msg_offsets[i]);
+    loop_free(ex->shuffles[i]);
+    loop_free(ex->msg_of_items[i]);
+    loop_free(ex->items_of_roots_offsets[i]);
+  }
   loop_host_free(ex);
 }
