@@ -147,6 +147,10 @@ void set_exchanger_dests(
   invert_map(ex->nitems[R], dest_idx_of_recvd, ndests,
       &ex->shuffles[R], &ex->items_of_roots_offsets[R]);
   loop_free(dest_idx_of_recvd);
+  unsigned* msg_of_items = uints_unshuffle(ex->nitems[R],
+      ex->msg_of_items[R], 1, ex->shuffles[R]);
+  loop_free(ex->msg_of_items[R]);
+  ex->msg_of_items[R] = msg_of_items;
 }
 
 void set_exchanger_srcs(
