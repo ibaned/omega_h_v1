@@ -37,7 +37,8 @@ test_from_gmsh.c \
 test_cuda_box.c \
 test_infer_class.c \
 test_star.c \
-test_rib.c
+test_rib.c \
+test_migrate.c
 
 lib_sources := \
 star.c \
