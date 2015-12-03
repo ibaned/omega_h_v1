@@ -56,6 +56,18 @@ void least_inertial_axis(double IC[3][3], double a[3])
     a[i] = q[i][best];
 }
 
+static void positivize_axis(double a[3])
+{
+  unsigned signbits = 0;
+  for (unsigned i = 0; i < 3; ++i)
+    if (a[i] > 0)
+      signbits |= (1 << (3-i-1));
+  unsigned opp_signbits = signbits ^ 0x7;
+  if (opp_signbits > signbits)
+    for (unsigned i = 0; i < 3; ++i)
+      a[i] = -a[i];
+}
+
 static void get_weighted_coords(
     unsigned n,
     double const* coords,
@@ -117,6 +129,7 @@ static void get_axis(
   double ic[3][3];
   get_total_inertia(n, coords, masses, c, ic, is_global);
   least_inertial_axis(ic, a);
+  positivize_axis(a);
 }
 
 static double* get_radii(
