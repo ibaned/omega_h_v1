@@ -38,7 +38,8 @@ test_cuda_box.c \
 test_infer_class.c \
 test_star.c \
 test_rib.c \
-test_migrate.c
+test_migrate.c \
+test_conform.c
 
 lib_sources := \
 star.c \
