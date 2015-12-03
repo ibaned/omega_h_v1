@@ -41,6 +41,8 @@ int main()
   write_parallel_vtu(m, "one.pvtu");
   mesh_accumulate_tag(m, 0, "field");
   write_parallel_vtu(m, "two.pvtu");
+  mesh_conform_tag(m, 0, "field");
+  write_parallel_vtu(m, "three.pvtu");
   free_mesh(m);
   comm_fini();
 }
