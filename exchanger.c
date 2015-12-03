@@ -239,8 +239,9 @@ void exchange_tag(struct exchanger* ex, struct const_tag* t,
       break;
   }
   if (find_tag(into, t->name))
-    remove_tag(into, t->name);
-  add_tag(into, t->type, t->name, t->ncomps, data_out);
+    modify_tag(into, t->name, data_out);
+  else
+    add_tag(into, t->type, t->name, t->ncomps, data_out);
 }
 
 void exchange_tags(struct exchanger* ex, struct tags* from,

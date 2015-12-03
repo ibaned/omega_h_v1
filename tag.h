@@ -37,6 +37,7 @@ struct const_tag* find_tag(struct tags* ts, char const* name);
 unsigned count_tags(struct tags* ts);
 struct const_tag* get_tag(struct tags* ts, unsigned i);
 void rename_tag(struct tags* ts, char const* oldname, char const* newname);
+void modify_tag(struct tags* ts, char const* name, void* data);
 
 unsigned tag_size(enum tag_type t);
 

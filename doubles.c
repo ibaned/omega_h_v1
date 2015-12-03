@@ -104,3 +104,14 @@ void doubles_axpy(double a, double const* x, double const* y,
 {
   LOOP_EXEC(axpy_kern, n, a, x, y, out);
 }
+
+LOOP_KERNEL(fill_kern, double* o, double v)
+  o[i] = v;
+}
+
+double* doubles_filled(unsigned n, double v)
+{
+  double* o = LOOP_MALLOC(double, n);
+  LOOP_EXEC(fill_kern, n, o, v);
+  return o;
+}

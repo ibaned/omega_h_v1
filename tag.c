@@ -113,3 +113,11 @@ void rename_tag(struct tags* ts, char const* oldname, char const* newname)
   ts->at[i]->name = LOOP_HOST_MALLOC(char, strlen(newname) + 1);
   strcpy(ts->at[i]->name, newname);
 }
+
+void modify_tag(struct tags* ts, char const* name, void* data)
+{
+  unsigned i = find_i(ts, name);
+  struct tag* t = ts->at[i];
+  loop_free(t->data);
+  t->data = data;
+}
