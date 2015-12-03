@@ -2,13 +2,17 @@
 
 #include <assert.h>
 
+#include "arrays.h"
 #include "comm.h"
 #include "doubles.h"
+#include "element_field.h"
 #include "exchanger.h"
 #include "global.h"
 #include "inertia.h"
 #include "ints.h"
 #include "loop.h"
+#include "mesh.h"
+#include "migrate_mesh.h"
 #include "subset.h"
 
 void parallel_inertial_bisect(
@@ -126,4 +130,26 @@ void recursive_inertial_bisect(
       p_orig_ranks, p_orig_ids);
   comm_use(oldcomm);
   comm_free(subcomm);
+}
+
+void balance_mesh_inertial(struct mesh** p_m)
+{
+  struct mesh* m = *p_m;
+  unsigned dim = mesh_dim(m);
+  unsigned had_elem_coords =
+    (0 != mesh_find_tag(m, dim, "coordinates"));
+  if (!had_elem_coords)
+    mesh_interp_to_elems(m, "coordinates");
+  unsigned n = mesh_count(m, dim);
+  double* coords = doubles_copy(
+      mesh_find_tag(m, dim, "coordinates")->d.f64, n * 3);
+  if (!had_elem_coords)
+    mesh_free_tag(m, dim, "coordinates");
+  unsigned* orig_ranks = uints_filled(n, comm_rank());
+  unsigned* orig_ids = uints_linear(n);
+  recursive_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
+  loop_free(coords);
+  migrate_mesh(p_m, n, orig_ranks, orig_ids);
+  loop_free(orig_ranks);
+  loop_free(orig_ids);
 }
