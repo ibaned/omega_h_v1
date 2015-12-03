@@ -91,7 +91,9 @@ static unsigned long* global_from_owners(
   for (unsigned i = 0; i < nowners; ++i)
     owned[i] = (own_ranks[i] == rank);
   unsigned* offsets = uints_exscan(owned, nowners);
+  loop_free(owned);
   unsigned long* local_globals = globalize_offsets(offsets, nowners);
+  loop_free(offsets);
   unsigned long* globals = exchange_ulongs(ex, 1, local_globals,
       EX_REV, EX_ROOT);
   loop_free(local_globals);
