@@ -60,7 +60,7 @@ struct exchanger {
   unsigned* shuffles[EX_DIRS];
 /* message index for each input and output item */
   unsigned* msg_of_items[EX_DIRS];
-/* one-to-many mapping from roots to offsets */
+/* one-to-many mapping from roots to items */
   unsigned* items_of_roots_offsets[EX_DIRS];
 };
 
