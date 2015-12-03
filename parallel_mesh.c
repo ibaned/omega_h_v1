@@ -85,13 +85,13 @@ static unsigned long* global_from_owners(
     struct exchanger* ex,
     unsigned const* own_ranks)
 {
-  unsigned n = ex->nitems[EX_REV];
-  unsigned* owned = LOOP_MALLOC(unsigned, n);
+  unsigned nowners = ex->nroots[EX_REV];
+  unsigned* owned = LOOP_MALLOC(unsigned, nowners);
   unsigned rank = comm_rank();
-  for (unsigned i = 0; i < n; ++i)
+  for (unsigned i = 0; i < nowners; ++i)
     owned[i] = (own_ranks[i] == rank);
-  unsigned* offsets = uints_exscan(owned, n);
-  unsigned long* local_globals = globalize_offsets(offsets, n);
+  unsigned* offsets = uints_exscan(owned, nowners);
+  unsigned long* local_globals = globalize_offsets(offsets, nowners);
   unsigned long* globals = exchange_ulongs(ex, 1, local_globals,
       EX_REV, EX_ROOT);
   loop_free(local_globals);
