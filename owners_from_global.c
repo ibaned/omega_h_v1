@@ -42,7 +42,7 @@ void owners_from_global(
     unsigned own_recv = recv_of_recvd[first];
     unsigned own_idx = orig_idxs_recvd[first];
     for (unsigned j = first + 1; j < end; ++j) {
-      unsigned recv2 = recv_ranks[recv_of_recvd[j]];
+      unsigned recv2 = recv_of_recvd[j];
       unsigned idx2 = orig_idxs_recvd[j];
       if ((recv_nents[recv2] < recv_nents[own_recv]) ||
           ((recv_nents[recv2] == recv_nents[own_recv]) &&
