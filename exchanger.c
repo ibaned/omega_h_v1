@@ -9,6 +9,7 @@
 #include "ints.h"
 #include "invert_map.h"
 #include "loop.h"
+#include "tag.h"
 
 /* given an array that indicates which rank an
    entry is going to,
@@ -218,4 +219,33 @@ void free_exchanger(struct exchanger* ex)
     loop_free(ex->items_of_roots_offsets[i]);
   }
   loop_host_free(ex);
+}
+
+void exchange_tag(struct exchanger* ex, struct const_tag* t,
+    struct tags* into, enum exch_dir dir, enum exch_start start)
+{
+  void* data_out = 0;
+  switch (t->type) {
+    case TAG_U8:
+      break;
+    case TAG_U32:
+      data_out = exchange_uints(ex, t->ncomps, t->d.u32, dir, start);
+      break;
+    case TAG_U64:
+      data_out = exchange_ulongs(ex, t->ncomps, t->d.u64, dir, start);
+      break;
+    case TAG_F64:
+      data_out = exchange_doubles(ex, t->ncomps, t->d.f64, dir, start);
+      break;
+  }
+  if (find_tag(into, t->name))
+    remove_tag(into, t->name);
+  add_tag(into, t->type, t->name, t->ncomps, data_out);
+}
+
+void exchange_tags(struct exchanger* ex, struct tags* from,
+    struct tags* into, enum exch_dir dir, enum exch_start start)
+{
+  for (unsigned i = 0; i < count_tags(from); ++i)
+    exchange_tag(ex, get_tag(from, i), into, dir, start);
 }

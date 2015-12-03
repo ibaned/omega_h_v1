@@ -90,4 +90,12 @@ unsigned long* exchange_ulongs(struct exchanger* ex, unsigned width,
 
 void free_exchanger(struct exchanger* ex);
 
+struct const_tag;
+struct tags;
+
+void exchange_tag(struct exchanger* ex, struct const_tag* t,
+    struct tags* into, enum exch_dir dir, enum exch_start start);
+void exchange_tags(struct exchanger* push, struct tags* from,
+    struct tags* into, enum exch_dir dir, enum exch_start start);
+
 #endif
