@@ -13,7 +13,6 @@ struct const_up {
 
 struct mesh* new_mesh(unsigned elem_dim);
 struct mesh* new_box_mesh(unsigned elem_dim);
-struct mesh* new_empty_mesh(unsigned elem_dim);
 void free_mesh(struct mesh* m);
 
 unsigned mesh_dim(struct mesh* m);

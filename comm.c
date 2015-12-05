@@ -1,6 +1,7 @@
 #include "comm.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "loop.h"
 
@@ -152,6 +153,7 @@ static void comm_exch_any(struct comm* c,
     recvcounts[i] = (int) (incounts[i] * width);
     rdispls[i] = (int) (inoffsets[i] * width);
   }
+  printf("calling MPI_Neighbor_alltoallv dt %d\n", type);
   CALL(MPI_Neighbor_alltoallv(out, sendcounts, sdispls, type,
         in, recvcounts, rdispls, type, c->c));
   loop_host_free(sendcounts);
@@ -195,6 +197,17 @@ static void comm_sync_any(struct comm* c, void const* out, void* in, MPI_Datatyp
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
 {
   comm_sync_any(c, &out, in, MPI_UNSIGNED);
+}
+
+unsigned comm_bcast_uint(unsigned x)
+{
+  CALL(MPI_Bcast(&x, 1, MPI_UNSIGNED, 0, comm_using()->c));
+  return x;
+}
+
+void comm_bcast_chars(char* s, unsigned n)
+{
+  CALL(MPI_Bcast(s, (int) n, MPI_CHAR, 0, comm_using()->c));
 }
 
 void comm_free(struct comm* c)
@@ -385,6 +398,17 @@ void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
   struct graph_comm* gc = (struct graph_comm*) c;
   if (gc->nout)
     in[0] = out;
+}
+
+unsigned comm_bcast_uint(unsigned x)
+{
+  return x;
+}
+
+void comm_bcast_chars(char* s, unsigned n)
+{
+  (void) s;
+  (void) n;
 }
 
 void comm_free(struct comm* c)

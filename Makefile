@@ -117,7 +117,8 @@ parallel_inertial_bisect.c \
 parallel_mesh.c \
 migrate_cloud.c \
 arrays.c \
-migrate_mesh.c
+migrate_mesh.c \
+bcast.c
 
 #handle optional features:
 USE_MPI ?= 0

@@ -1,3 +1,4 @@
+#include "bcast.h"
 #include "comm.h"
 #include "global.h"
 #include "mesh.h"
@@ -14,9 +15,9 @@ int main()
     m = new_box_mesh(3);
     for (unsigned i = 0; i < 5; ++i)
       uniformly_refine(&m);
-  } else
-    m = new_empty_mesh(3);
-  mesh_number_simply(m);
+    mesh_number_simply(m);
+  }
+  m = bcast_mesh_metadata(m);
   write_parallel_vtu(m, "before.pvtu");
   balance_mesh_inertial(&m);
   mesh_global_renumber(m, 0);
