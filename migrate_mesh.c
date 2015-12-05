@@ -210,11 +210,11 @@ void migrate_mesh(struct mesh** p_m,
       &elem_pull, &vert_push);
   exchange_tags(vert_push, mesh_tags(m_in, 0), mesh_tags(m_out, 0),
       EX_FOR, EX_ROOT);
-  free_exchanger(elem_pull);
-  unsigned dim = mesh_dim(m_in);
-  exchange_tags(vert_push, mesh_tags(m_in, dim), mesh_tags(m_out, dim),
-      EX_REV, EX_ITEM);
   free_exchanger(vert_push);
+  unsigned dim = mesh_dim(m_in);
+  exchange_tags(elem_pull, mesh_tags(m_in, dim), mesh_tags(m_out, dim),
+      EX_REV, EX_ITEM);
+  free_exchanger(elem_pull);
   free_mesh(*p_m);
   *p_m = m_out;
 }
