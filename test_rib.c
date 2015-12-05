@@ -30,6 +30,7 @@ int main(int argc, char** argv)
   comm_init();
   assert(argc == 2);
   unsigned n = (unsigned) atoi(argv[1]);
+  assert(n < 100);
   struct cloud* c = make_shuffled_cloud(n);
   write_parallel_vtu_cloud(c, "before.pvtu");
   double* coords = doubles_copy(

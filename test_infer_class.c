@@ -13,6 +13,7 @@ int main(int argc, char** argv)
   assert(argc == 3);
   const char* infile = argv[1];
   unsigned dim = (unsigned) atoi(argv[2]);
+  assert(dim <= 3);
   struct mesh* m = read_vtu(infile);
   mesh_ask_class_dim(m, dim);
   unsigned nents = mesh_count(m, dim);
