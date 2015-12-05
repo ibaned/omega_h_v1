@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "bcast.h"
 #include "comm.h"
 #include "global.h"
@@ -7,21 +9,19 @@
 #include "refine_by_size.h"
 #include "vtk.h"
 
-int main()
+int main(int argc, char** argv)
 {
   comm_init();
+  assert(argc == 3);
   struct mesh* m = 0;
   if (comm_rank() == 0) {
-    m = new_box_mesh(3);
-    for (unsigned i = 0; i < 5; ++i)
-      uniformly_refine(&m);
+    m = read_vtu(argv[1]);
     mesh_number_simply(m);
   }
   m = bcast_mesh_metadata(m);
-  write_parallel_vtu(m, "before.pvtu");
   balance_mesh_inertial(&m);
   mesh_global_renumber(m, 0);
-  write_parallel_vtu(m, "after.pvtu");
+  write_parallel_vtu(m, argv[2]);
   free_mesh(m);
   comm_fini();
 }
