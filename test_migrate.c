@@ -1,5 +1,6 @@
 #include <assert.h>
 
+#include "bcast.h"
 #include "comm.h"
 #include "global.h"
 #include "loop.h"
@@ -10,13 +11,13 @@
 int main()
 {
   comm_init();
-  struct mesh* m = 0;
   assert(comm_size() == 2);
-  if (comm_rank() == 0)
+  struct mesh* m = 0;
+  if (comm_rank() == 0) {
     m = new_box_mesh(2);
-  else
-    m = new_empty_mesh(2);
-  mesh_number_simply(m);
+    mesh_number_simply(m);
+  }
+  m = bcast_mesh_metadata(m);
   write_parallel_vtu(m, "before.pvtu");
   if (comm_rank() == 0) {
     unsigned n = 1;
