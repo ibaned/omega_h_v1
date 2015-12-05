@@ -1,7 +1,6 @@
 #include "comm.h"
 
 #include <assert.h>
-#include <stdio.h>
 
 #include "loop.h"
 
@@ -153,7 +152,6 @@ static void comm_exch_any(struct comm* c,
     recvcounts[i] = (int) (incounts[i] * width);
     rdispls[i] = (int) (inoffsets[i] * width);
   }
-  printf("calling MPI_Neighbor_alltoallv dt %d\n", type);
   CALL(MPI_Neighbor_alltoallv(out, sendcounts, sdispls, type,
         in, recvcounts, rdispls, type, c->c));
   loop_host_free(sendcounts);
