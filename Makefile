@@ -118,7 +118,8 @@ parallel_mesh.c \
 migrate_cloud.c \
 arrays.c \
 migrate_mesh.c \
-bcast.c
+bcast.c \
+close_partition.c
 
 #handle optional features:
 USE_MPI ?= 0
