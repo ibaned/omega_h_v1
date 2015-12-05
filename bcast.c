@@ -37,8 +37,12 @@ static void bcast_tags(struct tags* from, struct tags* into)
   if (!comm_rank())
     ntags = count_tags(from);
   ntags = comm_bcast_uint(ntags);
-  for (unsigned i = 0; i < ntags; ++i)
-    bcast_tag(get_tag(from, i), into);
+  for (unsigned i = 0; i < ntags; ++i) {
+    struct const_tag* t = 0;
+    if (!comm_rank())
+      t = get_tag(from, i);
+    bcast_tag(t, into);
+  }
 }
 
 struct mesh* bcast_mesh_metadata(struct mesh* m)
