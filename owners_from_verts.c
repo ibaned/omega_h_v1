@@ -66,7 +66,7 @@ void owners_from_verts(
   loop_free(hub_rank_of_elems);
   set_exchanger_dests(ex, nverts, hub_idx_of_elems);
   loop_free(hub_idx_of_elems);
-  unsigned* elem_idxs = uints_linear(nelems);
+  unsigned* elem_idxs = uints_linear(nelems, 1);
   unsigned* idx_of_ecopies = exchange_uints(ex, 1, elem_idxs, EX_FOR, EX_ITEM);
   loop_free(elem_idxs);
   unsigned* spoke_ranks_of_ecopies = exchange_uints(ex, verts_per_elem - 1,

@@ -127,7 +127,7 @@ void close_partition(
   for (unsigned i = 0; i < nbcopies; ++i)
     bcopy_own_ranks[i] = bown_to_copy->ranks[EX_REV][
       bown_to_copy->msg_of_items[EX_REV][i]];
-  unsigned* lids = uints_linear(nbowners);
+  unsigned* lids = uints_linear(nbowners, 1);
   unsigned* bcopy_own_ids = exchange_uints(bown_to_copy, 1, lids,
       EX_FOR, EX_ROOT);
   loop_free(lids);

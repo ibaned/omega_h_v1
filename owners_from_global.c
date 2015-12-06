@@ -26,7 +26,7 @@ void owners_from_global(
   unsigned const* recv_of_recvd = ex->msg_of_items[EX_REV];
   unsigned const* recvd_of_lin_offsets =
     ex->items_of_roots_offsets[EX_REV];
-  unsigned* orig_idxs = uints_linear(n);
+  unsigned* orig_idxs = uints_linear(n, 1);
   unsigned* orig_idxs_recvd = exchange_uints(ex, 1, orig_idxs, EX_FOR, EX_ITEM);
   loop_free(orig_idxs);
   unsigned nrecvd = ex->nitems[EX_REV];

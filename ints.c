@@ -93,11 +93,11 @@ unsigned long ulongs_max(unsigned long const* a, unsigned n)
 
 #endif
 
-unsigned* uints_linear(unsigned n)
+unsigned* uints_linear(unsigned n, unsigned stride)
 {
-  unsigned* ones = uints_filled(n, 1);
-  unsigned* linear = uints_exscan(ones, n);
-  loop_free(ones);
+  unsigned* scrap = uints_filled(n, stride);
+  unsigned* linear = uints_exscan(scrap, n);
+  loop_free(scrap);
   return linear;
 }
 

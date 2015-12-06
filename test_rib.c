@@ -36,7 +36,7 @@ int main(int argc, char** argv)
   double* coords = doubles_copy(
       cloud_find_tag(c, "coordinates")->d.f64, n * 3);
   unsigned* orig_ranks = uints_filled(n, comm_rank());
-  unsigned* orig_ids = uints_linear(n);
+  unsigned* orig_ids = uints_linear(n, 1);
   recursive_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
   loop_free(coords);
   migrate_cloud(&c, n, orig_ranks, orig_ids);

@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "close_partition.h"
 #include "exchanger.h"
 #include "ints.h"
 #include "loop.h"
@@ -16,8 +17,8 @@
 static void get_vert_use_owners_of_elems(
     struct mesh* m,
     /* own rank of vertex uses of elements */
-    unsigned** p_or_of_vus_of_es,
-    unsigned** p_oi_of_vus_of_es)
+    unsigned** p_use_own_ranks,
+    unsigned** p_use_own_ids)
 {
   unsigned dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, dim);
@@ -25,108 +26,60 @@ static void get_vert_use_owners_of_elems(
   unsigned const* verts_of_elems = mesh_ask_down(m, dim, 0);
   unsigned const* vert_own_ranks = mesh_ask_own_ranks(m, 0);
   unsigned const* vert_own_ids = mesh_ask_own_ids(m, 0);
-  unsigned* or_of_vus_of_es = LOOP_MALLOC(unsigned,
+  unsigned* use_own_ranks = LOOP_MALLOC(unsigned,
       nelems * nverts_per_elem);
-  unsigned* oi_of_vus_of_es = LOOP_MALLOC(unsigned,
+  unsigned* use_own_ids = LOOP_MALLOC(unsigned,
       nelems * nverts_per_elem);
   for (unsigned i = 0; i < nelems; ++i) {
-    unsigned const* verts_of_elem = verts_of_elems + i * nverts_per_elem;
-    unsigned* or_of_vus_of_e = or_of_vus_of_es +
-        i * nverts_per_elem;
-    unsigned* oi_of_vus_of_e = oi_of_vus_of_es +
-        i * nverts_per_elem;
     for (unsigned j = 0; j < nverts_per_elem; ++j) {
-      unsigned vert = verts_of_elem[j];
-      or_of_vus_of_e[j] = vert_own_ranks[vert];
-      oi_of_vus_of_e[j] = vert_own_ids[vert];
+      unsigned vert = verts_of_elems[i * nverts_per_elem + j];
+      use_own_ranks[i * nverts_per_elem + j] = vert_own_ranks[vert];
+      use_own_ids[i * nverts_per_elem + j] = vert_own_ids[vert];
     }
   }
-  *p_or_of_vus_of_es = or_of_vus_of_es;
-  *p_oi_of_vus_of_es = oi_of_vus_of_es;
-}
-
-static unsigned get_unique_ranks_of_owner(
-    unsigned const* uses_of_owners_offsets,
-    unsigned const* msg_of_uses,
-    unsigned const* rank_of_msgs,
-    unsigned owner,
-    unsigned* uranks_of_owner)
-{
-  unsigned nuranks = 0;
-  unsigned first = uses_of_owners_offsets[owner];
-  unsigned end = uses_of_owners_offsets[owner + 1];
-  for (unsigned j = first; j < end; ++j) {
-    unsigned msg = msg_of_uses[j];
-    unsigned rank = rank_of_msgs[msg];
-    nuranks = add_unique(uranks_of_owner, nuranks, rank);
-  }
-  return nuranks;
-}
-
-static void get_unique_ranks_of_owners(
-    unsigned nowners,
-    unsigned const* uses_of_owners_offsets,
-    unsigned const* msg_of_uses,
-    unsigned const* rank_of_msgs,
-    unsigned** p_copies_of_owners_offsets,
-    unsigned** p_rank_of_copies)
-{
-  unsigned* ncopies_of_owners = LOOP_MALLOC(unsigned, nowners);
-  unsigned nuses = uses_of_owners_offsets[nowners];
-  unsigned* scratch = LOOP_MALLOC(unsigned, nuses);
-  for (unsigned i = 0; i < nowners; ++i) {
-    ncopies_of_owners[i] = get_unique_ranks_of_owner(
-        uses_of_owners_offsets, msg_of_uses, rank_of_msgs,
-        i, scratch + uses_of_owners_offsets[i]);
-  }
-  unsigned* copies_of_owners_offsets = uints_exscan(
-      ncopies_of_owners, nowners);
-  loop_free(ncopies_of_owners);
-  unsigned ncopies = copies_of_owners_offsets[nowners];
-  unsigned* rank_of_copies = LOOP_MALLOC(unsigned, ncopies);
-  for (unsigned i = 0; i < nowners; ++i) {
-    unsigned fu = uses_of_owners_offsets[i];
-    unsigned fc = copies_of_owners_offsets[i];
-    unsigned ec = copies_of_owners_offsets[i + 1];
-    unsigned nc = ec - fc;
-    for (unsigned j = 0; j < nc; ++j)
-      rank_of_copies[fc + j] = scratch[fu + j];
-  }
-  loop_free(scratch);
-  *p_copies_of_owners_offsets = copies_of_owners_offsets;
-  *p_rank_of_copies = rank_of_copies;
+  *p_use_own_ranks = use_own_ranks;
+  *p_use_own_ids = use_own_ids;
 }
 
 static unsigned* use_lids_from_copy_lids(
-    unsigned nuses,
-    unsigned nowners,
-    unsigned const* uses_of_owners_offsets,
-    unsigned const* copies_of_owners_offsets,
-    unsigned const* rank_of_copies,
-    unsigned const* lid_of_copies,
-    unsigned const* msg_of_uses,
-    unsigned const* rank_of_msgs)
+    struct exchanger* use_to_own,
+    struct exchanger* own_to_copy,
+    unsigned const* copy_lids)
 {
-  unsigned* lid_of_uses = LOOP_MALLOC(unsigned, nuses);
+  unsigned nuses = use_to_own->nitems[EX_REV];
+  unsigned nowners = own_to_copy->nroots[EX_FOR];
+  unsigned const* use_offsets =
+    use_to_own->items_of_roots_offsets[EX_REV];
+  unsigned const* use_msgs =
+    use_to_own->msg_of_items[EX_REV];
+  unsigned const* use_msg_ranks =
+    use_to_own->ranks[EX_REV];
+  unsigned const* copy_offsets =
+    own_to_copy->items_of_roots_offsets[EX_FOR];
+  unsigned const* copy_msgs =
+    own_to_copy->msg_of_items[EX_FOR];
+  unsigned const* copy_msg_ranks =
+    own_to_copy->ranks[EX_FOR];
+  unsigned* use_lids = LOOP_MALLOC(unsigned, nuses);
   for (unsigned i = 0; i < nowners; ++i) {
-    unsigned fu = uses_of_owners_offsets[i];
-    unsigned eu = uses_of_owners_offsets[i + 1];
-    unsigned fc = copies_of_owners_offsets[i];
-    unsigned ec = copies_of_owners_offsets[i + 1];
+    unsigned fu = use_offsets[i];
+    unsigned eu = use_offsets[i + 1];
+    unsigned fc = copy_offsets[i];
+    unsigned ec = copy_offsets[i + 1];
     for (unsigned j = fu; j < eu; ++j) {
-      unsigned msg = msg_of_uses[j];
-      unsigned rank = rank_of_msgs[msg];
+      unsigned msg = use_msgs[j];
+      unsigned rank = use_msg_ranks[msg];
       unsigned lid = INVALID;
       for (unsigned k = fc; k < ec; ++k)
-        if (rank == rank_of_copies[k]) {
-          lid = lid_of_copies[k];
+        if (rank == copy_msg_ranks[copy_msgs[k]]) {
+          lid = copy_lids[k];
           break;
         }
       assert(lid != INVALID);
-      lid_of_uses[j] = lid;
+      use_lids[j] = lid;
     }
   }
-  return lid_of_uses;
+  return use_lids;
 }
 
 static struct mesh* migrate_element_topology(
@@ -137,63 +90,49 @@ static struct mesh* migrate_element_topology(
     /* this exchanger sends from new elements to old elements */
     struct exchanger** p_elem_pull,
     /* this exchanger sends from old vertex owners to new vertex copies */
-    struct exchanger** p_vcopy_push)
+    struct exchanger** p_vert_push)
 {
   unsigned dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, dim);
   unsigned nverts_per_elem = the_down_degrees[dim][0];
-  unsigned* or_of_vus_of_es;
-  unsigned* oi_of_vus_of_es;
-  get_vert_use_owners_of_elems(m, &or_of_vus_of_es, &oi_of_vus_of_es);
+  unsigned* use_own_rank_sent;
+  unsigned* use_own_id_sent;
+  get_vert_use_owners_of_elems(m, &use_own_rank_sent, &use_own_id_sent);
   struct exchanger* elem_pull = new_exchanger(nelems_recvd, recvd_elem_ranks);
   set_exchanger_dests(elem_pull, nelems, recvd_elem_ids);
   /* own rank of vertex uses of received elements */
-  unsigned* or_of_vus_of_res = exchange_uints(elem_pull, nverts_per_elem,
-      or_of_vus_of_es, EX_REV, EX_ITEM);
-  loop_free(or_of_vus_of_es);
-  unsigned* oi_of_vus_of_res = exchange_uints(elem_pull, nverts_per_elem,
-      oi_of_vus_of_es, EX_REV, EX_ITEM);
-  loop_free(oi_of_vus_of_es);
+  unsigned* use_own_rank_recvd = exchange_uints(elem_pull, nverts_per_elem,
+      use_own_rank_sent, EX_REV, EX_ROOT);
+  loop_free(use_own_rank_sent);
+  unsigned* use_own_id_recvd = exchange_uints(elem_pull, nverts_per_elem,
+      use_own_id_sent, EX_REV, EX_ROOT);
+  loop_free(use_own_id_sent);
   unsigned nverts = mesh_count(m, 0);
-  /* received vertex uses to old owner vertices exchanger */
-  struct exchanger* us_to_own_ex = new_exchanger(nelems_recvd * nverts_per_elem,
-      or_of_vus_of_res);
-  loop_free(or_of_vus_of_res);
-  set_exchanger_dests(us_to_own_ex, nverts, oi_of_vus_of_res);
-  loop_free(oi_of_vus_of_res);
-  unsigned* copies_of_owners_offsets;
-  unsigned* rank_of_copies;
-  unsigned const* rus_of_own_offsets =
-    us_to_own_ex->items_of_roots_offsets[EX_REV];
-  get_unique_ranks_of_owners(nverts, rus_of_own_offsets,
-      us_to_own_ex->msg_of_items[EX_REV], us_to_own_ex->ranks[EX_REV],
-      &copies_of_owners_offsets, &rank_of_copies);
-  unsigned ncopies = copies_of_owners_offsets[nverts];
-  struct exchanger* copies_push = new_exchanger(ncopies, rank_of_copies);
-  set_exchanger_srcs(copies_push, nverts, copies_of_owners_offsets);
-  unsigned nverts_recvd = copies_push->nitems[EX_REV];
-  unsigned* lids = uints_linear(nverts_recvd);
-  unsigned* lid_of_copies = exchange_uints(copies_push, 1, lids,
+  struct exchanger* use_to_own;
+  struct exchanger* vert_push;
+  unsigned* uses_by_copies_offsets = uints_linear(nelems_recvd, nverts_per_elem);
+  close_partition_exchangers(nelems_recvd, nverts, uses_by_copies_offsets,
+      use_own_rank_recvd, use_own_id_recvd, &use_to_own, &vert_push);
+  loop_free(use_own_rank_recvd);
+  loop_free(use_own_id_recvd);
+  loop_free(uses_by_copies_offsets);
+  unsigned nverts_recvd = vert_push->nitems[EX_REV];
+  unsigned* lids = uints_linear(nverts_recvd, 1);
+  unsigned* lid_of_copies = exchange_uints(vert_push, 1, lids,
       EX_REV, EX_ITEM);
   loop_free(lids);
-  unsigned nuses_recvd = us_to_own_ex->nitems[EX_REV];
   unsigned* lid_of_rvus = use_lids_from_copy_lids(
-      nuses_recvd, nverts, rus_of_own_offsets,
-      copies_of_owners_offsets, rank_of_copies,
-      lid_of_copies, us_to_own_ex->msg_of_items[EX_REV],
-      us_to_own_ex->ranks[EX_REV]);
-  loop_free(copies_of_owners_offsets);
-  loop_free(rank_of_copies);
+      use_to_own, vert_push, lid_of_copies);
   loop_free(lid_of_copies);
-  unsigned* verts_of_elems = exchange_uints(us_to_own_ex, 1, lid_of_rvus,
+  unsigned* verts_of_elems = exchange_uints(use_to_own, 1, lid_of_rvus,
       EX_REV, EX_ITEM);
   loop_free(lid_of_rvus);
-  free_exchanger(us_to_own_ex);
+  free_exchanger(use_to_own);
   struct mesh* m_out = new_mesh(dim);
   mesh_set_ents(m_out, 0, nverts_recvd, 0);
   mesh_set_ents(m_out, dim, nelems_recvd, verts_of_elems);
   *p_elem_pull = elem_pull;
-  *p_vcopy_push = copies_push;
+  *p_vert_push = vert_push;
   return m_out;
 }
 
@@ -213,7 +152,7 @@ void migrate_mesh(struct mesh** p_m,
   free_exchanger(vert_push);
   unsigned dim = mesh_dim(m_in);
   exchange_tags(elem_pull, mesh_tags(m_in, dim), mesh_tags(m_out, dim),
-      EX_REV, EX_ITEM);
+      EX_REV, EX_ROOT);
   free_exchanger(elem_pull);
   free_mesh(*p_m);
   *p_m = m_out;
