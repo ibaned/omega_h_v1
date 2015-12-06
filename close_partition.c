@@ -1,8 +1,12 @@
 #include "close_partition.h"
 
+#include "arrays.h"
 #include "exchanger.h"
 #include "ints.h"
 #include "loop.h"
+#include "mesh.h"
+#include "parallel_mesh.h"
+#include "tables.h"
 
 static unsigned get_unique_ranks_of_owner(
     unsigned const* uses_of_owners_offsets,
@@ -134,4 +138,112 @@ void close_partition(
   *p_nbcopies = nbcopies;
   *p_bcopy_own_ranks = bcopy_own_ranks;
   *p_bcopy_own_ids = bcopy_own_ids;
+}
+
+/* for each element in the mesh, for each vertex it uses,
+   return the owner of that vertex.
+   the result is of size (nelems * verts_per_elem) */
+
+void get_vert_use_owners_of_elems(
+    struct mesh* m,
+    /* own rank of vertex uses of elements */
+    unsigned** p_use_own_ranks,
+    unsigned** p_use_own_ids,
+    unsigned** p_uses_of_elems_offsets)
+{
+  unsigned dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, dim);
+  unsigned nverts_per_elem = the_down_degrees[dim][0];
+  unsigned const* verts_of_elems = mesh_ask_down(m, dim, 0);
+  unsigned const* vert_own_ranks = mesh_ask_own_ranks(m, 0);
+  unsigned const* vert_own_ids = mesh_ask_own_ids(m, 0);
+  unsigned* use_own_ranks = LOOP_MALLOC(unsigned,
+      nelems * nverts_per_elem);
+  unsigned* use_own_ids = LOOP_MALLOC(unsigned,
+      nelems * nverts_per_elem);
+  for (unsigned i = 0; i < nelems; ++i) {
+    for (unsigned j = 0; j < nverts_per_elem; ++j) {
+      unsigned vert = verts_of_elems[i * nverts_per_elem + j];
+      use_own_ranks[i * nverts_per_elem + j] = vert_own_ranks[vert];
+      use_own_ids[i * nverts_per_elem + j] = vert_own_ids[vert];
+    }
+  }
+  *p_use_own_ranks = use_own_ranks;
+  *p_use_own_ids = use_own_ids;
+  unsigned* uses_of_elems_offsets = uints_linear(nelems + 1, nverts_per_elem);
+  *p_uses_of_elems_offsets = uses_of_elems_offsets;
+}
+
+/* this is supposed to be a simple operation.
+   for each entity copy in the old mesh, we have a set of entities
+   it uses, identified by their owners, and we
+   simply want to communicate that set to all
+   copies of that entity in the new mesh.
+   unfortunately, the whole exchanger system is built for equally-sized
+   entries (via the "width" argument), and in the cases of
+   vertices "using" elements we have variable-size data.
+   so this function is mostly a custom uints_expand for that
+   possibly-variable-sized data.
+   this also involves making another exchanger */
+
+void pull_use_owners(
+    struct exchanger* pull,
+    unsigned const* use_own_ranks_in,
+    unsigned const* use_own_ids_in,
+    unsigned const* offsets_in,
+    unsigned** p_use_own_ranks_out,
+    unsigned** p_use_own_ids_out,
+    unsigned** p_offsets_out)
+{
+  unsigned nents_out = pull->nitems[EX_FOR];
+  unsigned nents_in = pull->nroots[EX_REV];
+  unsigned const* out_of_in_offsets = pull->items_of_roots_offsets[EX_REV];
+  unsigned* nout_of_in = uints_unscan(out_of_in_offsets, nents_in);
+  unsigned* nuses_of_in = uints_unscan(offsets_in, nents_in);
+  unsigned* prod_counts = LOOP_MALLOC(unsigned, nents_in);
+  for (unsigned i = 0; i < nents_in; ++i)
+    prod_counts[i] = nout_of_in[i] * nuses_of_in[i];
+  loop_free(nout_of_in);
+  loop_free(nuses_of_in);
+  unsigned* prod_offsets = uints_exscan(prod_counts, nents_in);
+  loop_free(prod_counts);
+  unsigned* lids_out = uints_linear(nents_out, 1);
+  unsigned* lids_in = exchange_uints(pull, 1, lids_out, EX_FOR, EX_ITEM);
+  loop_free(lids_out);
+  unsigned nprod = prod_offsets[nents_in];
+  unsigned* prod_dest_ranks = LOOP_MALLOC(unsigned, nprod);
+  unsigned* prod_dest_ids = LOOP_MALLOC(unsigned, nprod);
+  unsigned* prod_use_ranks = LOOP_MALLOC(unsigned, nprod);
+  unsigned* prod_use_ids = LOOP_MALLOC(unsigned, nprod);
+  for (unsigned i = 0; i < nents_in; ++i) {
+    unsigned fu = offsets_in[i];
+    unsigned eu = offsets_in[i + 1];
+    unsigned fo = out_of_in_offsets[i];
+    unsigned eo = out_of_in_offsets[i + 1];
+    unsigned l = prod_offsets[i];
+    for (unsigned j = fu; j < eu; ++j)
+      for (unsigned k = fo; k < eo; ++k) {
+        prod_dest_ranks[l] = pull->ranks[EX_REV][
+          pull->msg_of_items[EX_REV][k]];
+        prod_dest_ids[l] = lids_in[k];
+        prod_use_ranks[l] = use_own_ranks_in[j];
+        prod_use_ids[l] = use_own_ids_in[j];
+        ++l;
+      }
+  }
+  loop_free(lids_in);
+  loop_free(prod_offsets);
+  struct exchanger* prod_push = new_exchanger(nprod, prod_dest_ranks);
+  loop_free(prod_dest_ranks);
+  set_exchanger_dests(prod_push, nents_out, prod_dest_ids);
+  loop_free(prod_dest_ids);
+  *p_use_own_ranks_out = exchange_uints(prod_push, 1, prod_use_ranks,
+      EX_FOR, EX_ITEM);
+  loop_free(prod_use_ranks);
+  *p_use_own_ids_out = exchange_uints(prod_push, 1, prod_use_ids,
+      EX_FOR, EX_ITEM);
+  loop_free(prod_use_ids);
+  *p_offsets_out = uints_copy(prod_push->items_of_roots_offsets[EX_REV],
+      nents_out + 1);
+  free_exchanger(prod_push);
 }

@@ -27,7 +27,7 @@ int main()
   } else {
     unsigned n = 2;
     unsigned recvd_elem_ranks[2] = {0,0};
-    unsigned recvd_elem_ids[2] = {0,1};
+    unsigned recvd_elem_ids[2] = {1,0};
     migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
   }
   write_parallel_vtu(m, "after.pvtu");

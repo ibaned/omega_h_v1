@@ -10,37 +10,6 @@
 #include "parallel_mesh.h"
 #include "tables.h"
 
-/* for each element in the mesh, for each
-   vertex it uses, return the owner of that
-   vertex. the result is of size (nelems * verts_per_elem) */
-
-static void get_vert_use_owners_of_elems(
-    struct mesh* m,
-    /* own rank of vertex uses of elements */
-    unsigned** p_use_own_ranks,
-    unsigned** p_use_own_ids)
-{
-  unsigned dim = mesh_dim(m);
-  unsigned nelems = mesh_count(m, dim);
-  unsigned nverts_per_elem = the_down_degrees[dim][0];
-  unsigned const* verts_of_elems = mesh_ask_down(m, dim, 0);
-  unsigned const* vert_own_ranks = mesh_ask_own_ranks(m, 0);
-  unsigned const* vert_own_ids = mesh_ask_own_ids(m, 0);
-  unsigned* use_own_ranks = LOOP_MALLOC(unsigned,
-      nelems * nverts_per_elem);
-  unsigned* use_own_ids = LOOP_MALLOC(unsigned,
-      nelems * nverts_per_elem);
-  for (unsigned i = 0; i < nelems; ++i) {
-    for (unsigned j = 0; j < nverts_per_elem; ++j) {
-      unsigned vert = verts_of_elems[i * nverts_per_elem + j];
-      use_own_ranks[i * nverts_per_elem + j] = vert_own_ranks[vert];
-      use_own_ids[i * nverts_per_elem + j] = vert_own_ids[vert];
-    }
-  }
-  *p_use_own_ranks = use_own_ranks;
-  *p_use_own_ids = use_own_ids;
-}
-
 static unsigned* use_lids_from_copy_lids(
     struct exchanger* use_to_own,
     struct exchanger* own_to_copy,
@@ -97,16 +66,21 @@ static struct mesh* migrate_element_topology(
   unsigned nverts_per_elem = the_down_degrees[dim][0];
   unsigned* use_own_rank_sent;
   unsigned* use_own_id_sent;
-  get_vert_use_owners_of_elems(m, &use_own_rank_sent, &use_own_id_sent);
+  unsigned* elem_use_offsets_sent;
+  get_vert_use_owners_of_elems(m, &use_own_rank_sent, &use_own_id_sent,
+      &elem_use_offsets_sent);
   struct exchanger* elem_pull = new_exchanger(nelems_recvd, recvd_elem_ranks);
   set_exchanger_dests(elem_pull, nelems, recvd_elem_ids);
-  /* own rank of vertex uses of received elements */
-  unsigned* use_own_rank_recvd = exchange_uints(elem_pull, nverts_per_elem,
-      use_own_rank_sent, EX_REV, EX_ROOT);
+  unsigned* use_own_rank_recvd;
+  unsigned* use_own_id_recvd;
+  unsigned* elem_use_offsets_recvd;
+  pull_use_owners(elem_pull,
+      use_own_rank_sent, use_own_id_sent, elem_use_offsets_sent,
+      &use_own_rank_recvd, &use_own_id_recvd, &elem_use_offsets_recvd);
   loop_free(use_own_rank_sent);
-  unsigned* use_own_id_recvd = exchange_uints(elem_pull, nverts_per_elem,
-      use_own_id_sent, EX_REV, EX_ROOT);
   loop_free(use_own_id_sent);
+  loop_free(elem_use_offsets_sent);
+  loop_free(elem_use_offsets_recvd);
   unsigned nverts = mesh_count(m, 0);
   struct exchanger* use_to_own;
   struct exchanger* vert_push;
