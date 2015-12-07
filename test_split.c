@@ -5,11 +5,11 @@
 
 #include "element_field.h"
 #include "files.h"
-#include "global.h"
 #include "inertia.h"
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
 #include "subset.h"
 #include "tag.h"
 #include "vtk.h"
@@ -53,6 +53,6 @@ int main(int argc, char** argv)
   char const* outpath = argv[2];
   unsigned depth = (unsigned) atoi(argv[3]);
   struct mesh* m = read_vtu(inpath);
-  mesh_number_simply(m);
+  mesh_number_simply(m, 0);
   split(m, outpath, 1, 0, depth);
 }

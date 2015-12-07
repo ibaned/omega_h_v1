@@ -119,7 +119,8 @@ migrate_cloud.c \
 arrays.c \
 migrate_mesh.c \
 bcast.c \
-close_partition.c
+close_partition.c \
+ghost_mesh.c
 
 #handle optional features:
 USE_MPI ?= 0

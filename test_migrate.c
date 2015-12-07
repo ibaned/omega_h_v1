@@ -2,10 +2,10 @@
 
 #include "bcast.h"
 #include "comm.h"
-#include "global.h"
 #include "loop.h"
 #include "mesh.h"
 #include "migrate_mesh.h"
+#include "parallel_mesh.h"
 #include "vtk.h"
 
 int main()
@@ -13,11 +13,10 @@ int main()
   comm_init();
   assert(comm_size() == 2);
   struct mesh* m = 0;
-  if (comm_rank() == 0) {
+  if (comm_rank() == 0)
     m = new_box_mesh(2);
-    mesh_number_simply(m);
-  }
   m = bcast_mesh_metadata(m);
+  mesh_number_simply(m, 0);
   write_parallel_vtu(m, "before.pvtu");
   if (comm_rank() == 0) {
     unsigned n = 1;

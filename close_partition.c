@@ -170,7 +170,7 @@ void get_vert_use_owners_of_elems(
   }
   *p_use_own_ranks = use_own_ranks;
   *p_use_own_ids = use_own_ids;
-  unsigned* uses_of_elems_offsets = uints_linear(nelems + 1, nverts_per_elem);
+  unsigned* uses_of_elems_offsets = uints_linear(nelems, nverts_per_elem);
   *p_uses_of_elems_offsets = uses_of_elems_offsets;
 }
 

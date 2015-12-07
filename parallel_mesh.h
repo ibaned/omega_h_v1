@@ -18,6 +18,6 @@ void mesh_global_renumber(struct mesh* m, unsigned dim);
 void mesh_conform_tag(struct mesh* m, unsigned dim, const char* name);
 void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name);
 
-void mesh_number_simply(struct mesh* m);
+void mesh_number_simply(struct mesh* m, unsigned dim);
 
 #endif

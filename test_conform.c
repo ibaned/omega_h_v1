@@ -14,11 +14,10 @@ static struct mesh* make_2_tri_parallel(void)
 {
   struct mesh* m = 0;
   assert(comm_size() == 2);
-  if (comm_rank() == 0) {
+  if (comm_rank() == 0)
     m = new_box_mesh(2);
-    mesh_number_simply(m);
-  }
   m = bcast_mesh_metadata(m);
+  mesh_number_simply(m, 0);
   if (comm_rank() == 0) {
     unsigned n = 1;
     unsigned recvd_elem_ranks[1] = {0};

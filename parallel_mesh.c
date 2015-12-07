@@ -141,11 +141,13 @@ void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
   modify_tag(mesh_tags(m, dim), t->name, out);
 }
 
-void mesh_number_simply(struct mesh* m)
+void mesh_number_simply(struct mesh* m, unsigned dim)
 {
-  unsigned nverts = mesh_count(m, 0);
-  unsigned long* data = LOOP_MALLOC(unsigned long, nverts);
-  for (unsigned i = 0; i < nverts; ++i)
-    data[i] = i;
-  mesh_add_tag(m, 0, TAG_U64, "global_number", 1, data);
+  if (mesh_find_tag(m, dim, "global_number"))
+    return;
+  unsigned n = mesh_count(m, dim);
+  unsigned* in = uints_linear(n, 1);
+  unsigned long* out = globalize_offsets(in, n);
+  loop_free(in);
+  mesh_add_tag(m, 0, TAG_U64, "global_number", 1, out);
 }
