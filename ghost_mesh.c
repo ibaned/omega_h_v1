@@ -1,10 +1,27 @@
 #include "ghost_mesh.h"
 
+#include <string.h>
+
 #include "arrays.h"
+#include "close_partition.h"
 #include "exchanger.h"
 #include "loop.h"
 #include "mesh.h"
+#include "migrate_mesh.h"
 #include "parallel_mesh.h"
+
+/* this function is analogous to
+   get_vert_use_owners_of_elems
+   in close_partition.c.
+   each owned vertex in the old mesh is
+   given a set of adjacent elements.
+   that set is the correct global set,
+   accounting for all partitions.
+   each element is, as usual, identified
+   by its owner.
+   the main difference in this code is
+   that adjacent elements have to be
+   collected from all the partitions. */
 
 static void get_elem_use_owners_of_verts(
     struct mesh* m,
@@ -53,18 +70,163 @@ static void get_elem_use_owners_of_verts(
   free_exchanger(ex);
 }
 
+/* the set of entities on this partition in the
+   new mesh, identified by their owners in the old mesh */
+
+struct resident {
+  unsigned n;
+  unsigned padding__;
+  unsigned* ranks;
+  unsigned* ids;
+};
+
+/* the set of entities B adjacent to a given set of entities A,
+   identified by the owners of B in the old mesh and
+   offsets from the A group to the B group */
+
+struct uses {
+  unsigned* offsets;
+  unsigned* ranks;
+  unsigned* ids;
+};
+
+enum ghost_type { VERT, ELEM };
+
+struct ghost_state {
+  unsigned nown[2];
+  /* the entities currently resident on this part */
+  struct resident resident[2];
+  /* the "opposite" entities adjacent to the resident entities */
+  struct uses res_uses[2];
+  /* the opposite entities adjacent to the old owners
+     (used by pull_use_owners to set up res_uses) */
+  struct uses own_uses[2];
+};
+
+static unsigned ghost_dim(struct mesh* m, enum ghost_type t)
+{
+  switch (t) {
+    case VERT: return 0;
+    case ELEM: return mesh_dim(m);
+  }
+}
+
+static enum ghost_type ghost_opp(enum ghost_type t)
+{
+  switch (t) {
+    case VERT: return ELEM;
+    case ELEM: return VERT;
+  }
+}
+
+static void init_ghost_resident(struct ghost_state* s,
+    struct mesh* m, enum ghost_type t)
+{
+  unsigned d = ghost_dim(m, t);
+  unsigned n = mesh_count(m, d);
+  s->resident[t].n = n;
+  s->resident[t].ranks = uints_copy(mesh_ask_own_ranks(m, d), n);
+  s->resident[t].ids = uints_copy(mesh_ask_own_ids(m, d), n);
+}
+
+static void init_ghost_uses(struct ghost_state* s,
+    struct mesh* m, enum ghost_type t)
+{
+  switch (t) {
+    case VERT: get_elem_use_owners_of_verts(m,
+          &s->own_uses[t].ranks,
+          &s->own_uses[t].ids,
+          &s->own_uses[t].offsets);
+      break;
+    case ELEM: get_vert_use_owners_of_elems(m,
+          &s->own_uses[t].ranks,
+          &s->own_uses[t].ids,
+          &s->own_uses[t].offsets);
+      break;
+  }
+}
+
+static void free_resident(struct resident* r)
+{
+  loop_free(r->ranks);
+  loop_free(r->ids);
+}
+
+static void free_uses(struct uses* u)
+{
+  loop_free(u->ranks);
+  loop_free(u->ids);
+  loop_free(u->offsets);
+}
+
+static void init_ghosts(struct ghost_state* s, struct mesh* m)
+{
+  s->nown[VERT] = mesh_count(m, 0);
+  s->nown[ELEM] = mesh_count(m, mesh_dim(m));
+  /* the old mesh already tells us which vertices are resident
+     in a non-ghosted mesh, we'll start from there */
+  init_ghost_resident(s, m, VERT);
+  init_ghost_uses(s, m, VERT);
+  init_ghost_uses(s, m, ELEM);
+}
+
+/* figure out the adjacencies of resident entities based
+   on the adjacencies of their owners */
+
+static void pull_ghosts(struct ghost_state* s, enum ghost_type t)
+{
+  struct exchanger* ex = new_exchanger(s->resident[t].n, s->resident[t].ranks);
+  set_exchanger_dests(ex, s->nown[t], s->resident[t].ids);
+  free_uses(&s->res_uses[t]);
+  pull_use_owners(ex,
+      s->own_uses[t].ranks, s->own_uses[t].ids, s->own_uses[t].offsets,
+      &s->res_uses[t].ranks, &s->res_uses[t].ids, &s->res_uses[t].offsets);
+}
+
+/* figure out the resident entities of type B
+   based on the resident entities of type A
+   and their adjacent type B entities */
+
+static void close_ghosts(struct ghost_state* s, enum ghost_type t)
+{
+  enum ghost_type ot = ghost_opp(t);
+  free_resident(&s->resident[ot]);
+  close_partition(s->resident[t].n, s->nown[t],
+      s->res_uses[t].offsets, s->res_uses[t].ranks, s->res_uses[t].ids,
+      &s->resident[ot].n, &s->resident[ot].ranks, &s->resident[ot].ids);
+}
+
+static void free_ghosts(struct ghost_state* s)
+{
+  for (unsigned i = 0; i < 2; ++i) {
+    free_uses(&s->own_uses[i]);
+    free_uses(&s->res_uses[i]);
+  }
+  free_resident(&s->resident[VERT]);
+  /* we don't free the resident elements,
+     that gets input to mesh_migrate */
+}
+
 void ghost_mesh(struct mesh** p_m, unsigned nlayers)
 {
-  struct mesh* m = *p_m;
-  unsigned dim = mesh_dim(m);
-  /* we assume the input mesh has no ghosting, so we
-     can "simply" number the element to determine
-     their ownership */
-  mesh_number_simply(m, dim);
-  (void) nlayers;
-  /* get use owners of elements used by vertices */
-  /* close_partition to determine 1st layer elements */
-  /* 1st layer element used vertex owners, pulled from
-     input layer used vertex owners */
-  /* close_partition to determine 1st layer vertices */
+  if (nlayers == 0)
+    return;
+  struct ghost_state s;
+  memset(&s, 0, sizeof(s));
+  init_ghosts(&s, *p_m);
+  pull_ghosts(&s, VERT);
+  close_ghosts(&s, VERT);
+  /* now we have the resident elements for 1 layer of ghosting */
+  for (unsigned i = 1; i < nlayers; ++i) {
+    pull_ghosts(&s, ELEM);
+    close_ghosts(&s, ELEM);
+    /* now we have the resident vertices for (i) layers of ghosting */
+    pull_ghosts(&s, VERT);
+    close_ghosts(&s, VERT);
+    /* now we have the resident vertices for (i + 1) layers of ghosting */
+  }
+  free_ghosts(&s); /* deletes all but resident elements */
+  migrate_mesh(p_m, s.resident[ELEM].n,
+      s.resident[ELEM].ranks, s.resident[ELEM].ids);
+  free_resident(&s.resident[ELEM]);
 }
