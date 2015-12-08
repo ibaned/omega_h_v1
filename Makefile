@@ -41,7 +41,8 @@ test_rib.c \
 test_migrate.c \
 test_conform.c \
 test_mesh_rib.c \
-test_ghost.c
+test_ghost.c \
+test_memory.c
 
 lib_sources := \
 star.c \
