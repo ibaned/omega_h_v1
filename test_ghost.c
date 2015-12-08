@@ -23,7 +23,7 @@ int main()
   balance_mesh_inertial(&m);
   mesh_global_renumber(m, 0);
   write_parallel_vtu(m, "before.pvtu");
-  ghost_mesh(&m, 3);
+  ghost_mesh(&m, 2);
   write_parallel_vtu(m, "after.pvtu");
   free_mesh(m);
   comm_fini();
