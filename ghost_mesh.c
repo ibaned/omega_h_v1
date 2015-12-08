@@ -181,6 +181,7 @@ static void pull_ghosts(struct ghost_state* s, enum ghost_type t)
   pull_use_owners(ex,
       s->own_uses[t].ranks, s->own_uses[t].ids, s->own_uses[t].offsets,
       &s->res_uses[t].ranks, &s->res_uses[t].ids, &s->res_uses[t].offsets);
+  free_exchanger(ex);
 }
 
 /* figure out the resident entities of type B
