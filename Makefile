@@ -126,10 +126,11 @@ ghost_mesh.c
 #handle optional features:
 USE_MPI ?= 0
 USE_CUDA_MALLOC_MANAGED ?= 1
+MEASURE_MEMORY ?= 0
+LOOP_MODE ?= serial
 #comm.c is compiled with -DUSE_MPI
 objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
-
-LOOP_MODE ?= serial
+objs/loop_host.o : CFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
 ifeq "$(LOOP_MODE)" "cuda"
 lib_sources += loop_cuda.c
 objs/loop_cuda.o : CFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
