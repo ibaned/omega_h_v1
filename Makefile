@@ -40,7 +40,8 @@ test_star.c \
 test_rib.c \
 test_migrate.c \
 test_conform.c \
-test_mesh_rib.c
+test_mesh_rib.c \
+test_ghost.c
 
 lib_sources := \
 star.c \
