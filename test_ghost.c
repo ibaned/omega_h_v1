@@ -15,7 +15,7 @@ int main()
   struct mesh* m = 0;
   if (comm_rank() == 0) {
     m = new_box_mesh(1);
-    for (unsigned i = 0; i < 3; ++i)
+    for (unsigned i = 0; i < 2; ++i)
       uniformly_refine(&m);
   }
   m = bcast_mesh_metadata(m);
