@@ -192,7 +192,7 @@ static void close_ghosts(struct ghost_state* s, enum ghost_type t)
 {
   enum ghost_type ot = ghost_opp(t);
   free_resident(&s->resident[ot]);
-  close_partition(s->resident[t].n, s->nown[t],
+  close_partition(s->resident[t].n, s->nown[ot],
       s->res_uses[t].offsets, s->res_uses[t].ranks, s->res_uses[t].ids,
       &s->resident[ot].n, &s->resident[ot].ranks, &s->resident[ot].ids);
 }
