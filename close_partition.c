@@ -135,6 +135,7 @@ void close_partition(
   unsigned* bcopy_own_ids = exchange_uints(bown_to_copy, 1, lids,
       EX_FOR, EX_ROOT);
   loop_free(lids);
+  free_exchanger(bown_to_copy);
   *p_nbcopies = nbcopies;
   *p_bcopy_own_ranks = bcopy_own_ranks;
   *p_bcopy_own_ids = bcopy_own_ids;
