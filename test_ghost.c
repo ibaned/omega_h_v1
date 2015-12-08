@@ -2,6 +2,7 @@
 
 #include "bcast.h"
 #include "comm.h"
+#include "ghost_mesh.h"
 #include "mesh.h"
 #include "parallel_inertial_bisect.h"
 #include "parallel_mesh.h"
@@ -21,7 +22,9 @@ int main()
   mesh_number_simply(m, 0);
   balance_mesh_inertial(&m);
   mesh_global_renumber(m, 0);
-  write_parallel_vtu(m, "out.pvtu");
+  write_parallel_vtu(m, "before.pvtu");
+  ghost_mesh(&m, 1);
+  write_parallel_vtu(m, "after.pvtu");
   free_mesh(m);
   comm_fini();
 }

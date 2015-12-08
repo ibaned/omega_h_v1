@@ -149,5 +149,5 @@ void mesh_number_simply(struct mesh* m, unsigned dim)
   unsigned* in = uints_linear(n, 1);
   unsigned long* out = globalize_offsets(in, n);
   loop_free(in);
-  mesh_add_tag(m, 0, TAG_U64, "global_number", 1, out);
+  mesh_add_tag(m, dim, TAG_U64, "global_number", 1, out);
 }

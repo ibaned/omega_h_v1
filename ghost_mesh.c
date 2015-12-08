@@ -211,6 +211,10 @@ void ghost_mesh(struct mesh** p_m, unsigned nlayers)
 {
   if (nlayers == 0)
     return;
+  /* we assume the input mesh has no ghosts, so we can
+     "simply" number the elements to kick off the
+     ownership derivation process for them */
+  mesh_number_simply(*p_m, mesh_dim(*p_m));
   struct ghost_state s;
   memset(&s, 0, sizeof(s));
   init_ghosts(&s, *p_m);
