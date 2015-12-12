@@ -70,11 +70,21 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
   mesh_add_tag((struct mesh*)m, 0, TAG_F64, name, ncomps, data);
 }
 
-double* osh_new_field(osh_t m, char const* name, unsigned ncomps)
+void osh_new_field(osh_t m, char const* name, unsigned ncomps)
 {
   double* data = LOOP_MALLOC(double, ncomps * mesh_count((struct mesh*)m, 0));
   mesh_add_tag((struct mesh*)m, 0, TAG_F64, name, ncomps, data);
-  return data;
+}
+
+double* osh_get_field(osh_t m, char const* name)
+{
+  double const* p = mesh_find_tag((struct mesh*)m, 0, name)->d.f64;
+  /* HACK ALERT:
+   * the omega_h tag system is mean to be an immutable/functional
+   * type of interface.
+   * for now, to get things going with Alexa, we can just
+   * have the compiler ignore some cheating */
+  return (double*) p;
 }
 
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
