@@ -108,6 +108,7 @@ static unsigned ghost_dim(struct mesh* m, enum ghost_type t)
   switch (t) {
     case VERT: return 0;
     case ELEM: return mesh_dim(m);
+    default: return 42;
   }
 }
 
@@ -116,6 +117,7 @@ static enum ghost_type ghost_opp(enum ghost_type t)
   switch (t) {
     case VERT: return ELEM;
     case ELEM: return VERT;
+    default: return VERT;
   }
 }
 
