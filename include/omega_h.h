@@ -24,6 +24,7 @@ unsigned const* osh_up_dirs(osh_t m, unsigned low_dim, unsigned high_dim);
 double const* osh_coords(osh_t m);
 
 void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data);
+double* osh_new_field(osh_t m, char const* name, unsigned ncomps);
 
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     unsigned* marked);

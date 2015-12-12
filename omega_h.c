@@ -70,6 +70,13 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
   mesh_add_tag((struct mesh*)m, 0, TAG_F64, name, ncomps, data);
 }
 
+double* osh_new_field(osh_t m, char const* name, unsigned ncomps)
+{
+  double* data = LOOP_MALLOC(double, ncomps * mesh_count((struct mesh*)m, 0));
+  mesh_add_tag((struct mesh*)m, 0, TAG_F64, name, ncomps, data);
+  return data;
+}
+
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     unsigned* marked)
 {
