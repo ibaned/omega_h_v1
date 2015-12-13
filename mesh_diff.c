@@ -109,7 +109,7 @@ static unsigned tag_diff(struct const_tag* a, struct const_tag* b, unsigned n,
 static unsigned tags_diff(struct tags* a, struct tags* b, unsigned n,
     double tol, double floor)
 {
-  unsigned ntags = b->n > a->n ? b->n : a->n;
+  unsigned ntags = b->n < a->n ? b->n : a->n;
   for (unsigned i = 0; i < ntags; ++i)
     if (tag_diff(get_tag(a, i), get_tag(b, i), n, tol, floor))
       return 1;
