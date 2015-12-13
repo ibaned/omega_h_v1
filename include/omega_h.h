@@ -27,6 +27,9 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data);
 void osh_new_field(osh_t m, char const* name, unsigned ncomps);
 double* osh_get_field(osh_t m, char const* name);
 
+void osh_accumulate_to_owner(osh_t m, char const* name);
+void osh_conform(osh_t m, char const* name);
+
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     unsigned* marked);
 

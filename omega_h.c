@@ -3,6 +3,7 @@
 #include "loop.h"
 #include "mark.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
 #include "tag.h"
 #include "vtk.h"
 
@@ -82,11 +83,21 @@ double* osh_get_field(osh_t m, char const* name)
 {
   double const* p = mesh_find_tag((struct mesh*)m, 0, name)->d.f64;
   /* HACK ALERT:
-   * the omega_h tag system is mean to be an immutable/functional
+   * the omega_h tag system is meant to be an immutable/functional
    * type of interface.
    * for now, to get things going with Alexa, we can just
    * have the compiler ignore some cheating */
   return (double*) p;
+}
+
+void osh_accumulate_to_owner(osh_t m, char const* name)
+{
+  mesh_accumulate_tag((struct mesh*)m, 0, name);
+}
+
+void osh_conform(osh_t m, char const* name)
+{
+  mesh_conform_tag((struct mesh*)m, 0, name);
 }
 
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
