@@ -12,6 +12,9 @@ void osh_free(osh_t m);
 osh_t osh_read_vtk(char const* filename);
 void osh_write_vtk(osh_t m, char const* filename);
 
+osh_t osh_build(unsigned dim, unsigned nelems, unsigned nverts,
+    unsigned* conn);
+
 unsigned osh_dim(osh_t m);
 unsigned osh_nelems(osh_t m);
 unsigned osh_nverts(osh_t m);
@@ -23,9 +26,18 @@ unsigned const* osh_up_dirs(osh_t m, unsigned low_dim, unsigned high_dim);
 
 double const* osh_coords(osh_t m);
 
+unsigned const* osh_own_rank(osh_t m, unsigned dim);
+unsigned const* osh_own_id(osh_t m, unsigned dim);
+
 void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data);
+
 void osh_new_field(osh_t m, char const* name, unsigned ncomps);
 double* osh_get_field(osh_t m, char const* name);
+
+void osh_new_label(osh_t m, char const* name, unsigned ncomps);
+unsigned* osh_get_label(osh_t m, char const* name);
+
+void osh_set_global(osh_t m, unsigned long* data);
 
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     unsigned* marked);
