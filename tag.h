@@ -15,11 +15,11 @@ struct const_tag {
   unsigned const ncomps;
   enum tag_type const type;
   union {
-    void const* raw;
-    unsigned char const* u8;
-    unsigned const* u32;
-    unsigned long const* u64;
-    double const* f64;
+    void* raw;
+    unsigned char* u8;
+    unsigned* u32;
+    unsigned long* u64;
+    double* f64;
   } d;
 };
 
