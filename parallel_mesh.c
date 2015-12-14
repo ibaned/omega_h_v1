@@ -41,6 +41,12 @@ void free_parallel_mesh(struct parallel_mesh* pm)
 
 unsigned long const* mesh_ask_global(struct mesh* m, unsigned dim)
 {
+  if (!mesh_find_tag(m, dim, "global_number")) {
+    if (comm_size() == 1)
+      mesh_number_simply(m, dim);
+    else
+      assert(0);
+  }
   return mesh_find_tag(m, dim, "global_number")->d.u64;
 }
 
@@ -49,9 +55,8 @@ static void ask_owners(struct mesh* m, unsigned dim)
   struct parallel_mesh* pm = mesh_parallel(m);
   if (pm->own_ranks[dim])
     return;
-  assert(mesh_find_tag(m, dim, "global_number"));
-  owners_from_global(mesh_count(m, dim),
-      mesh_find_tag(m, dim, "global_number")->d.u64,
+  unsigned long const* global = mesh_ask_global(m, dim);
+  owners_from_global(mesh_count(m, dim), global,
       &pm->own_ranks[dim], &pm->own_ids[dim]);
   return;
 }
