@@ -126,6 +126,7 @@ static void set_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
 
 unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
 {
+  assert(high_dim <= mesh_dim(m));
   assert(low_dim <= high_dim);
   if (m->down[high_dim][low_dim])
     return m->down[high_dim][low_dim];
