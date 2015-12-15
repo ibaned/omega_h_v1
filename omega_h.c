@@ -27,7 +27,7 @@ osh_t osh_build(unsigned dim, unsigned nelems, unsigned nverts,
 {
   struct mesh* m = new_mesh(dim);
   mesh_set_ents(m, 0, nverts, 0);
-  mesh_set_ents(m, 0, nelems, conn);
+  mesh_set_ents(m, dim, nelems, conn);
   return (osh_t) m;
 }
 
