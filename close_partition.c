@@ -141,38 +141,35 @@ void close_partition(
   *p_bcopy_own_ids = bcopy_own_ids;
 }
 
-/* for each element in the mesh, for each vertex it uses,
-   return the owner of that vertex.
-   the result is of size (nelems * verts_per_elem) */
+/* for each high enitty in the mesh, for each low entity it uses,
+   return the owner of that used entity.
+   the result is of size (nhighs * nlows_per_high) */
 
-void get_vert_use_owners_of_elems(
+void get_down_use_owners(
     struct mesh* m,
-    /* own rank of vertex uses of elements */
+    unsigned high_dim,
+    unsigned low_dim,
     unsigned** p_use_own_ranks,
     unsigned** p_use_own_ids,
-    unsigned** p_uses_of_elems_offsets)
+    unsigned** p_uses_of_highs_offsets)
 {
-  unsigned dim = mesh_dim(m);
-  unsigned nelems = mesh_count(m, dim);
-  unsigned nverts_per_elem = the_down_degrees[dim][0];
-  unsigned const* verts_of_elems = mesh_ask_down(m, dim, 0);
-  unsigned const* vert_own_ranks = mesh_ask_own_ranks(m, 0);
-  unsigned const* vert_own_ids = mesh_ask_own_ids(m, 0);
-  unsigned* use_own_ranks = LOOP_MALLOC(unsigned,
-      nelems * nverts_per_elem);
-  unsigned* use_own_ids = LOOP_MALLOC(unsigned,
-      nelems * nverts_per_elem);
-  for (unsigned i = 0; i < nelems; ++i) {
-    for (unsigned j = 0; j < nverts_per_elem; ++j) {
-      unsigned vert = verts_of_elems[i * nverts_per_elem + j];
-      use_own_ranks[i * nverts_per_elem + j] = vert_own_ranks[vert];
-      use_own_ids[i * nverts_per_elem + j] = vert_own_ids[vert];
+  unsigned nhighs = mesh_count(m, high_dim);
+  unsigned nlows_per_high = the_down_degrees[high_dim][low_dim];
+  unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
+  unsigned const* low_own_ranks = mesh_ask_own_ranks(m, low_dim);
+  unsigned const* low_own_ids = mesh_ask_own_ids(m, low_dim);
+  unsigned* use_own_ranks = LOOP_MALLOC(unsigned, nhighs * nlows_per_high);
+  unsigned* use_own_ids = LOOP_MALLOC(unsigned, nhighs * nlows_per_high);
+  for (unsigned i = 0; i < nhighs; ++i) {
+    for (unsigned j = 0; j < nlows_per_high; ++j) {
+      unsigned low = lows_of_highs[i * nlows_per_high + j];
+      use_own_ranks[i * nlows_per_high + j] = low_own_ranks[low];
+      use_own_ids[i * nlows_per_high + j] = low_own_ids[low];
     }
   }
   *p_use_own_ranks = use_own_ranks;
   *p_use_own_ids = use_own_ids;
-  unsigned* uses_of_elems_offsets = uints_linear(nelems, nverts_per_elem);
-  *p_uses_of_elems_offsets = uses_of_elems_offsets;
+  *p_uses_of_highs_offsets = uints_linear(nhighs, nlows_per_high);
 }
 
 /* this is supposed to be a simple operation.

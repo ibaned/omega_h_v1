@@ -67,7 +67,7 @@ static struct mesh* migrate_element_topology(
   unsigned* use_own_rank_sent;
   unsigned* use_own_id_sent;
   unsigned* elem_use_offsets_sent;
-  get_vert_use_owners_of_elems(m, &use_own_rank_sent, &use_own_id_sent,
+  get_down_use_owners(m, dim, 0, &use_own_rank_sent, &use_own_id_sent,
       &elem_use_offsets_sent);
   struct exchanger* elem_pull = new_exchanger(nelems_recvd, recvd_elem_ranks);
   set_exchanger_dests(elem_pull, nelems, recvd_elem_ids);

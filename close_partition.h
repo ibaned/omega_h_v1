@@ -23,11 +23,13 @@ void close_partition(
     unsigned** p_bcopy_own_ranks,
     unsigned** p_bcopy_own_ids);
 
-void get_vert_use_owners_of_elems(
+void get_down_use_owners(
     struct mesh* m,
+    unsigned high_dim,
+    unsigned low_dim,
     unsigned** p_use_own_ranks,
     unsigned** p_use_own_ids,
-    unsigned** p_uses_of_elems_offsets);
+    unsigned** p_uses_of_highs_offsets);
 
 void pull_use_owners(
     struct exchanger* pull,

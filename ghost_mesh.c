@@ -140,7 +140,8 @@ static void init_ghost_uses(struct ghost_state* s,
           &s->own_uses[t].ids,
           &s->own_uses[t].offsets);
       break;
-    case ELEM: get_vert_use_owners_of_elems(m,
+    case ELEM: get_down_use_owners(m,
+          mesh_dim(m), 0,
           &s->own_uses[t].ranks,
           &s->own_uses[t].ids,
           &s->own_uses[t].offsets);
