@@ -39,6 +39,9 @@ unsigned* osh_get_label(osh_t m, char const* name);
 
 void osh_set_global(osh_t m, unsigned long* data);
 
+void osh_accumulate_to_owner(osh_t m, char const* name);
+void osh_conform(osh_t m, char const* name);
+
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     unsigned* marked);
 

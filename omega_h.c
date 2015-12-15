@@ -121,6 +121,16 @@ void osh_set_global(osh_t m, unsigned long* data)
   mesh_add_tag((struct mesh*)m, 0, TAG_U64, "global_number", 1, data);
 }
 
+void osh_accumulate_to_owner(osh_t m, char const* name)
+{
+  mesh_accumulate_tag((struct mesh*)m, 0, name);
+}
+
+void osh_conform(osh_t m, char const* name)
+{
+  mesh_conform_tag((struct mesh*)m, 0, name);
+}
+
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     unsigned* marked)
 {
