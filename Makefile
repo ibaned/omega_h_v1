@@ -43,7 +43,8 @@ test_conform.c \
 test_mesh_rib.c \
 test_ghost.c \
 test_memory.c \
-test_ask_up.c
+test_ask_up.c \
+test_ask_down.c
 
 lib_sources := \
 star.c \
