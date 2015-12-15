@@ -10,7 +10,7 @@
 
 static void bcast_tag(struct const_tag* t, struct tags* into)
 {
-  enum tag_type type = 0;
+  enum tag_type type = TAG_U8;
   if (!comm_rank())
     type = t->type;
   type = (enum tag_type) (comm_bcast_uint((unsigned) type));
