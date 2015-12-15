@@ -51,16 +51,13 @@ static unsigned* use_lids_from_copy_lids(
   return use_lids;
 }
 
-static struct mesh* migrate_element_topology(
-    struct mesh* m,
+void migrate_mesh(
+    struct mesh** p_m,
     unsigned nelems_recvd,
     unsigned const* recvd_elem_ranks,
-    unsigned const* recvd_elem_ids,
-    /* this exchanger sends from new elements to old elements */
-    struct exchanger** p_elem_pull,
-    /* this exchanger sends from old vertex owners to new vertex copies */
-    struct exchanger** p_vert_push)
+    unsigned const* recvd_elem_ids)
 {
+  struct mesh* m = *p_m;
   unsigned dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, dim);
   unsigned nverts_per_elem = the_down_degrees[dim][0];
@@ -105,27 +102,10 @@ static struct mesh* migrate_element_topology(
   struct mesh* m_out = new_mesh(dim);
   mesh_set_ents(m_out, 0, nverts_recvd, 0);
   mesh_set_ents(m_out, dim, nelems_recvd, verts_of_elems);
-  *p_elem_pull = elem_pull;
-  *p_vert_push = vert_push;
-  return m_out;
-}
-
-void migrate_mesh(struct mesh** p_m,
-    unsigned nelems_recvd,
-    unsigned const* recvd_elem_ranks,
-    unsigned const* recvd_elem_ids)
-{
-  struct exchanger* elem_pull;
-  struct exchanger* vert_push;
-  struct mesh* m_in = *p_m;
-  struct mesh* m_out = migrate_element_topology(m_in,
-      nelems_recvd, recvd_elem_ranks, recvd_elem_ids,
-      &elem_pull, &vert_push);
-  exchange_tags(vert_push, mesh_tags(m_in, 0), mesh_tags(m_out, 0),
+  exchange_tags(vert_push, mesh_tags(m, 0), mesh_tags(m_out, 0),
       EX_FOR, EX_ROOT);
   free_exchanger(vert_push);
-  unsigned dim = mesh_dim(m_in);
-  exchange_tags(elem_pull, mesh_tags(m_in, dim), mesh_tags(m_out, dim),
+  exchange_tags(elem_pull, mesh_tags(m, dim), mesh_tags(m_out, dim),
       EX_REV, EX_ROOT);
   free_exchanger(elem_pull);
   free_mesh(*p_m);
