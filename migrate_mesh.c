@@ -51,6 +51,24 @@ static unsigned* use_lids_from_copy_lids(
   return use_lids;
 }
 
+static unsigned* push_connectivity(
+    /* exhanger from vertex uses of entities in new mesh
+       to vertex owners in the old mesh */
+    struct exchanger* use_to_own,
+    /* exchanger from entity owners in old mesh to entity copies in new mesh */
+    struct exchanger* ent_push,
+    /* local IDs in the new mesh of copies of vertices, organized
+       by their old mesh owners on this part */
+    unsigned const* lid_of_copies)
+{
+  unsigned* lid_of_uses = use_lids_from_copy_lids(
+      use_to_own, ent_push, lid_of_copies);
+  unsigned* verts_of_ents = exchange_uints(use_to_own, 1, lid_of_uses,
+      EX_REV, EX_ITEM);
+  loop_free(lid_of_uses);
+  return verts_of_ents;
+}
+
 void migrate_mesh(
     struct mesh** p_m,
     unsigned nelems_recvd,
@@ -92,12 +110,9 @@ void migrate_mesh(
   unsigned* lid_of_copies = exchange_uints(vert_push, 1, lids,
       EX_REV, EX_ITEM);
   loop_free(lids);
-  unsigned* lid_of_rvus = use_lids_from_copy_lids(
+  unsigned* verts_of_elems = push_connectivity(
       use_to_own, vert_push, lid_of_copies);
   loop_free(lid_of_copies);
-  unsigned* verts_of_elems = exchange_uints(use_to_own, 1, lid_of_rvus,
-      EX_REV, EX_ITEM);
-  loop_free(lid_of_rvus);
   free_exchanger(use_to_own);
   struct mesh* m_out = new_mesh(dim);
   mesh_set_ents(m_out, 0, nverts_recvd, 0);
