@@ -177,7 +177,7 @@ T* exchange_##name(struct exchanger* ex, unsigned width, \
   enum exch_dir odir = opp_dir(dir); \
   T const* current = data; \
   T* last = 0; \
-  if (start == EX_ROOT) { \
+  if (start == EX_ROOT && ex->items_of_roots_offsets[dir]) { \
     T* expanded = name##_expand(ex->nroots[dir], current, width, \
         ex->items_of_roots_offsets[dir]); \
     current = last = expanded; \
@@ -221,21 +221,50 @@ void free_exchanger(struct exchanger* ex)
   loop_host_free(ex);
 }
 
-void exchange_tag(struct exchanger* ex, struct const_tag* t,
-    struct tags* into, enum exch_dir dir, enum exch_start start)
+#define SWAP(T,a) \
+do { \
+  T tmp = (a)[0]; \
+  (a)[0] = (a)[1]; \
+  (a)[1] = tmp; \
+} while (0);
+
+void reverse_exchanger(struct exchanger* ex)
+{
+  SWAP(struct comm*, ex->comms);
+  SWAP(unsigned, ex->nitems);
+  SWAP(unsigned, ex->nroots);
+  SWAP(unsigned, ex->nmsgs);
+  SWAP(unsigned*, ex->ranks);
+  SWAP(unsigned*, ex->msg_counts);
+  SWAP(unsigned*, ex->msg_offsets);
+  SWAP(unsigned*, ex->shuffles);
+  SWAP(unsigned*, ex->msg_of_items);
+  SWAP(unsigned*, ex->items_of_roots_offsets);
+}
+
+struct exchanger* make_reverse_exchanger(unsigned nsent, unsigned nrecvd,
+    unsigned const* recvd_ranks, unsigned const* recvd_ids)
+{
+  struct exchanger* ex = new_exchanger(nrecvd, recvd_ranks);
+  set_exchanger_dests(ex, nsent, recvd_ids);
+  reverse_exchanger(ex);
+  return ex;
+}
+
+void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into)
 {
   void* data_out = 0;
   switch (t->type) {
     case TAG_U8:
       break;
     case TAG_U32:
-      data_out = exchange_uints(ex, t->ncomps, t->d.u32, dir, start);
+      data_out = exchange_uints(ex, t->ncomps, t->d.u32, EX_FOR, EX_ROOT);
       break;
     case TAG_U64:
-      data_out = exchange_ulongs(ex, t->ncomps, t->d.u64, dir, start);
+      data_out = exchange_ulongs(ex, t->ncomps, t->d.u64, EX_FOR, EX_ROOT);
       break;
     case TAG_F64:
-      data_out = exchange_doubles(ex, t->ncomps, t->d.f64, dir, start);
+      data_out = exchange_doubles(ex, t->ncomps, t->d.f64, EX_FOR, EX_ROOT);
       break;
   }
   if (find_tag(into, t->name))
@@ -244,9 +273,8 @@ void exchange_tag(struct exchanger* ex, struct const_tag* t,
     add_tag(into, t->type, t->name, t->ncomps, data_out);
 }
 
-void exchange_tags(struct exchanger* ex, struct tags* from,
-    struct tags* into, enum exch_dir dir, enum exch_start start)
+void push_tags(struct exchanger* ex, struct tags* from, struct tags* into)
 {
   for (unsigned i = 0; i < count_tags(from); ++i)
-    exchange_tag(ex, get_tag(from, i), into, dir, start);
+    push_tag(ex, get_tag(from, i), into);
 }

@@ -31,8 +31,8 @@ void get_down_use_owners(
     unsigned** p_use_own_ids,
     unsigned** p_uses_of_highs_offsets);
 
-void pull_use_owners(
-    struct exchanger* pull,
+void push_use_owners(
+    struct exchanger* push,
     unsigned const* use_own_ranks_in,
     unsigned const* use_own_ids_in,
     unsigned const* offsets_in,

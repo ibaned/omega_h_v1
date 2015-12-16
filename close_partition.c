@@ -184,8 +184,8 @@ void get_down_use_owners(
    possibly-variable-sized data.
    this also involves making another exchanger */
 
-void pull_use_owners(
-    struct exchanger* pull,
+void push_use_owners(
+    struct exchanger* push,
     unsigned const* use_own_ranks_in,
     unsigned const* use_own_ids_in,
     unsigned const* offsets_in,
@@ -193,9 +193,9 @@ void pull_use_owners(
     unsigned** p_use_own_ids_out,
     unsigned** p_offsets_out)
 {
-  unsigned nents_out = pull->nitems[EX_FOR];
-  unsigned nents_in = pull->nroots[EX_REV];
-  unsigned const* out_of_in_offsets = pull->items_of_roots_offsets[EX_REV];
+  unsigned nents_out = push->nitems[EX_REV];
+  unsigned nents_in = push->nroots[EX_FOR];
+  unsigned const* out_of_in_offsets = push->items_of_roots_offsets[EX_FOR];
   unsigned* nout_of_in = uints_unscan(out_of_in_offsets, nents_in);
   unsigned* nuses_of_in = uints_unscan(offsets_in, nents_in);
   unsigned* prod_counts = LOOP_MALLOC(unsigned, nents_in);
@@ -206,7 +206,7 @@ void pull_use_owners(
   unsigned* prod_offsets = uints_exscan(prod_counts, nents_in);
   loop_free(prod_counts);
   unsigned* lids_out = uints_linear(nents_out, 1);
-  unsigned* lids_in = exchange_uints(pull, 1, lids_out, EX_FOR, EX_ITEM);
+  unsigned* lids_in = exchange_uints(push, 1, lids_out, EX_REV, EX_ITEM);
   loop_free(lids_out);
   unsigned nprod = prod_offsets[nents_in];
   unsigned* prod_dest_ranks = LOOP_MALLOC(unsigned, nprod);
@@ -221,8 +221,8 @@ void pull_use_owners(
     unsigned l = prod_offsets[i];
     for (unsigned j = fu; j < eu; ++j)
       for (unsigned k = fo; k < eo; ++k) {
-        prod_dest_ranks[l] = pull->ranks[EX_REV][
-          pull->msg_of_items[EX_REV][k]];
+        prod_dest_ranks[l] = push->ranks[EX_FOR][
+          push->msg_of_items[EX_FOR][k]];
         prod_dest_ids[l] = lids_in[k];
         prod_use_ranks[l] = use_own_ranks_in[j];
         prod_use_ids[l] = use_own_ids_in[j];
