@@ -6,14 +6,11 @@
 #include "loop.h"
 #include "tables.h"
 
-static unsigned copy(
-    unsigned const* a,
-    unsigned* b,
-    unsigned n)
-{
-  for (unsigned i = 0; i < n; ++i)
-    b[i] = a[i];
-  return n;
+LOOP_KERNEL( copy ,
+	unsigned const* a,
+	unsigned* b)
+
+  b[i] = a[i];
 }
 
 static unsigned copy_except(
@@ -66,7 +63,8 @@ static unsigned* reflect_down_general(
     unsigned* lows_of_high = lows_of_highs + i * lows_per_high;
     for (unsigned j = 0; j < lows_per_high; ++j) {
       unsigned const* high_verts_of_low = high_verts_of_lows[j];
-      unsigned high_buf[MAX_UP];
+      //unsigned high_buf[MAX_UP];
+      unsigned* high_buf = LOOP_MALLOC(unsigned, MAX_UP);
       unsigned high_buf_size = 0;
       for (unsigned k = 0; k < verts_per_low; ++k) {
         unsigned vert = verts_of_high[high_verts_of_low[k]];
@@ -87,10 +85,11 @@ static unsigned* reflect_down_general(
               i);
         } else {
           assert(end_use - first_use <= MAX_UP);
-          high_buf_size = copy(
-              lows_of_verts + first_use,
-              high_buf,
-              end_use - first_use);
+          high_buf_size = end_use - first_use;
+          LOOP_EXEC(copy,
+              high_buf_size,
+              lows_of_verts +first_use,
+              high_buf);
         }
       }
       assert(high_buf_size <= 1);
