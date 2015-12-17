@@ -106,6 +106,7 @@ static unsigned* reflect_down_general(
       }
       assert(high_buf_size <= 1);
       lows_of_high[j] = ((high_buf_size) ? high_buf[0] : INVALID);
+      loop_free(high_buf);
     }
   }
   return lows_of_highs;
