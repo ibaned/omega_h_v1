@@ -80,8 +80,7 @@ struct exchanger* mesh_ask_exchanger(struct mesh* m, unsigned dim)
     unsigned const* own_ranks = mesh_ask_own_ranks(m, dim);
     unsigned const* own_ids = mesh_ask_own_ids(m, dim);
     unsigned n = mesh_count(m, dim);
-    pm->ex[dim] = new_exchanger(n, own_ranks);
-    set_exchanger_dests(pm->ex[dim], n, own_ids);
+    pm->ex[dim] = make_reverse_exchanger(n, n, own_ranks, own_ids);
   }
   return pm->ex[dim];
 }
@@ -90,7 +89,7 @@ static unsigned long* global_from_owners(
     struct exchanger* ex,
     unsigned const* own_ranks)
 {
-  unsigned nowners = ex->nroots[EX_REV];
+  unsigned nowners = ex->nroots[EX_FOR];
   unsigned* owned = LOOP_MALLOC(unsigned, nowners);
   unsigned rank = comm_rank();
   for (unsigned i = 0; i < nowners; ++i)
@@ -100,7 +99,7 @@ static unsigned long* global_from_owners(
   unsigned long* local_globals = globalize_offsets(offsets, nowners);
   loop_free(offsets);
   unsigned long* globals = exchange_ulongs(ex, 1, local_globals,
-      EX_REV, EX_ROOT);
+      EX_FOR, EX_ROOT);
   loop_free(local_globals);
   return globals;
 }
@@ -119,7 +118,7 @@ void mesh_conform_tag(struct mesh* m, unsigned dim, const char* name)
 {
   struct const_tag* t = mesh_find_tag(m, dim, name);
   struct exchanger* ex = mesh_ask_exchanger(m, dim);
-  exchange_tag(ex, t, mesh_tags(m, dim), EX_REV, EX_ROOT);
+  push_tag(ex, t, mesh_tags(m, dim));
 }
 
 void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
@@ -127,10 +126,10 @@ void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
   struct const_tag* t = mesh_find_tag(m, dim, name);
   assert(t->type == TAG_F64);
   struct exchanger* ex = mesh_ask_exchanger(m, dim);
-  double* in = exchange_doubles(ex, t->ncomps, t->d.f64, EX_FOR, EX_ITEM);
+  double* in = exchange_doubles(ex, t->ncomps, t->d.f64, EX_REV, EX_ITEM);
   unsigned nowners = mesh_count(m, dim);
   unsigned const* copies_of_owners_offsets =
-    ex->items_of_roots_offsets[EX_REV];
+    ex->items_of_roots_offsets[EX_FOR];
   double* out = doubles_filled(nowners * t->ncomps, 0.0);
   for (unsigned i = 0; i < nowners; ++i) {
     unsigned f = copies_of_owners_offsets[i];

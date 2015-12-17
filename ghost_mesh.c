@@ -178,13 +178,13 @@ static void init_ghosts(struct ghost_state* s, struct mesh* m)
 
 static void pull_ghosts(struct ghost_state* s, enum ghost_type t)
 {
-  struct exchanger* ex = new_exchanger(s->resident[t].n, s->resident[t].ranks);
-  set_exchanger_dests(ex, s->nown[t], s->resident[t].ids);
+  struct exchanger* push = make_reverse_exchanger(s->nown[t],
+      s->resident[t].n, s->resident[t].ranks, s->resident[t].ids);
   free_uses(&s->res_uses[t]);
-  pull_use_owners(ex,
+  push_use_owners(push,
       s->own_uses[t].ranks, s->own_uses[t].ids, s->own_uses[t].offsets,
       &s->res_uses[t].ranks, &s->res_uses[t].ids, &s->res_uses[t].offsets);
-  free_exchanger(ex);
+  free_exchanger(push);
 }
 
 /* figure out the resident entities of type B

@@ -51,83 +51,92 @@ static unsigned* use_lids_from_copy_lids(
   return use_lids;
 }
 
-static struct mesh* migrate_element_topology(
-    struct mesh* m,
-    unsigned nelems_recvd,
-    unsigned const* recvd_elem_ranks,
-    unsigned const* recvd_elem_ids,
-    /* this exchanger sends from new elements to old elements */
-    struct exchanger** p_elem_pull,
-    /* this exchanger sends from old vertex owners to new vertex copies */
-    struct exchanger** p_vert_push)
+static unsigned* push_connectivity(
+    /* exhanger from vertex uses of entities in new mesh
+       to vertex owners in the old mesh */
+    struct exchanger* use_to_own,
+    /* exchanger from entity owners in old mesh to entity copies in new mesh */
+    struct exchanger* ent_push,
+    /* local IDs in the new mesh of copies of vertices, organized
+       by their old mesh owners on this part */
+    unsigned const* lid_of_copies)
 {
-  unsigned dim = mesh_dim(m);
-  unsigned nelems = mesh_count(m, dim);
-  unsigned nverts_per_elem = the_down_degrees[dim][0];
+  unsigned* lid_of_uses = use_lids_from_copy_lids(
+      use_to_own, ent_push, lid_of_copies);
+  unsigned* verts_of_ents = exchange_uints(use_to_own, 1, lid_of_uses,
+      EX_REV, EX_ITEM);
+  loop_free(lid_of_uses);
+  return verts_of_ents;
+}
+
+static void close_exchangers_from_above(
+    struct mesh* m,
+    unsigned high_dim,
+    unsigned low_dim,
+    struct exchanger* high_push,
+    struct exchanger** p_use_to_own,
+    struct exchanger** p_low_push)
+{
   unsigned* use_own_rank_sent;
   unsigned* use_own_id_sent;
-  unsigned* elem_use_offsets_sent;
-  get_down_use_owners(m, dim, 0, &use_own_rank_sent, &use_own_id_sent,
-      &elem_use_offsets_sent);
-  struct exchanger* elem_pull = new_exchanger(nelems_recvd, recvd_elem_ranks);
-  set_exchanger_dests(elem_pull, nelems, recvd_elem_ids);
+  unsigned* high_use_offsets_sent;
+  get_down_use_owners(m, high_dim, low_dim,
+      &use_own_rank_sent, &use_own_id_sent, &high_use_offsets_sent);
   unsigned* use_own_rank_recvd;
   unsigned* use_own_id_recvd;
-  unsigned* elem_use_offsets_recvd;
-  pull_use_owners(elem_pull,
-      use_own_rank_sent, use_own_id_sent, elem_use_offsets_sent,
-      &use_own_rank_recvd, &use_own_id_recvd, &elem_use_offsets_recvd);
+  unsigned* high_use_offsets_recvd;
+  push_use_owners(high_push,
+      use_own_rank_sent, use_own_id_sent, high_use_offsets_sent,
+      &use_own_rank_recvd, &use_own_id_recvd, &high_use_offsets_recvd);
   loop_free(use_own_rank_sent);
   loop_free(use_own_id_sent);
-  loop_free(elem_use_offsets_sent);
-  loop_free(elem_use_offsets_recvd);
-  unsigned nverts = mesh_count(m, 0);
+  loop_free(high_use_offsets_sent);
+  loop_free(high_use_offsets_recvd);
+  unsigned nhighs_recvd = high_push->nitems[EX_REV];
+  unsigned nlows = mesh_count(m, low_dim);
+  unsigned nlows_per_high = the_down_degrees[high_dim][low_dim];
   struct exchanger* use_to_own;
-  struct exchanger* vert_push;
-  unsigned* uses_by_copies_offsets = uints_linear(nelems_recvd, nverts_per_elem);
-  close_partition_exchangers(nelems_recvd, nverts, uses_by_copies_offsets,
-      use_own_rank_recvd, use_own_id_recvd, &use_to_own, &vert_push);
+  struct exchanger* low_push;
+  unsigned* uses_by_copies_offsets = uints_linear(nhighs_recvd, nlows_per_high);
+  close_partition_exchangers(nhighs_recvd, nlows, uses_by_copies_offsets,
+      use_own_rank_recvd, use_own_id_recvd, &use_to_own, &low_push);
+  loop_free(uses_by_copies_offsets);
   loop_free(use_own_rank_recvd);
   loop_free(use_own_id_recvd);
-  loop_free(uses_by_copies_offsets);
+  *p_use_to_own = use_to_own;
+  *p_low_push = low_push;
+}
+
+void migrate_mesh(
+    struct mesh** p_m,
+    unsigned nelems_recvd,
+    unsigned const* recvd_elem_ranks,
+    unsigned const* recvd_elem_ids)
+{
+  struct mesh* m = *p_m;
+  unsigned dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, dim);
+  struct exchanger* elem_push = make_reverse_exchanger(nelems,
+      nelems_recvd, recvd_elem_ranks, recvd_elem_ids);
+  struct exchanger* use_to_own;
+  struct exchanger* vert_push;
+  close_exchangers_from_above(m, dim, 0, elem_push, &use_to_own, &vert_push);
   unsigned nverts_recvd = vert_push->nitems[EX_REV];
   unsigned* lids = uints_linear(nverts_recvd, 1);
   unsigned* lid_of_copies = exchange_uints(vert_push, 1, lids,
       EX_REV, EX_ITEM);
   loop_free(lids);
-  unsigned* lid_of_rvus = use_lids_from_copy_lids(
+  unsigned* verts_of_elems = push_connectivity(
       use_to_own, vert_push, lid_of_copies);
   loop_free(lid_of_copies);
-  unsigned* verts_of_elems = exchange_uints(use_to_own, 1, lid_of_rvus,
-      EX_REV, EX_ITEM);
-  loop_free(lid_of_rvus);
   free_exchanger(use_to_own);
   struct mesh* m_out = new_mesh(dim);
   mesh_set_ents(m_out, 0, nverts_recvd, 0);
   mesh_set_ents(m_out, dim, nelems_recvd, verts_of_elems);
-  *p_elem_pull = elem_pull;
-  *p_vert_push = vert_push;
-  return m_out;
-}
-
-void migrate_mesh(struct mesh** p_m,
-    unsigned nelems_recvd,
-    unsigned const* recvd_elem_ranks,
-    unsigned const* recvd_elem_ids)
-{
-  struct exchanger* elem_pull;
-  struct exchanger* vert_push;
-  struct mesh* m_in = *p_m;
-  struct mesh* m_out = migrate_element_topology(m_in,
-      nelems_recvd, recvd_elem_ranks, recvd_elem_ids,
-      &elem_pull, &vert_push);
-  exchange_tags(vert_push, mesh_tags(m_in, 0), mesh_tags(m_out, 0),
-      EX_FOR, EX_ROOT);
+  push_tags(vert_push, mesh_tags(m, 0), mesh_tags(m_out, 0));
   free_exchanger(vert_push);
-  unsigned dim = mesh_dim(m_in);
-  exchange_tags(elem_pull, mesh_tags(m_in, dim), mesh_tags(m_out, dim),
-      EX_REV, EX_ROOT);
-  free_exchanger(elem_pull);
+  push_tags(elem_push, mesh_tags(m, dim), mesh_tags(m_out, dim));
+  free_exchanger(elem_push);
   free_mesh(*p_m);
   *p_m = m_out;
 }
