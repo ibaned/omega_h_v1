@@ -26,16 +26,28 @@ static unsigned copy_except(
   return j;
 }
 
+LOOP_KERNEL(intersecter,
+	unsigned* a,
+	unsigned* o,
+	unsigned const* b,
+	unsigned nb)
+
+   o[i] = has(b, nb , a[i]);
+}
+
 static unsigned intersect(
     unsigned* a,
     unsigned na,
     unsigned const* b,
     unsigned nb)
 {
+  unsigned *o = LOOP_MALLOC( unsigned , na);
+  LOOP_EXEC(intersecter, na, a, o, b, nb);
   unsigned j = 0;
   for (unsigned i = 0; i < na; ++i)
-    if (has(b, nb, a[i]))
+    if (o[i])
       a[j++] = a[i];
+  loop_free(o);
   return j;
 }
 
