@@ -81,18 +81,10 @@ static void get_unique_ranks_of_owners(
      given where elements go, determine where vertices go
      given where vertices go, determine where elements go (ghosting) */
 
-void close_partition_exchangers(
-    unsigned nacopies,
-    unsigned nbowners,
-    unsigned const* buses_by_acopies_offsets,
-    unsigned const* buse_own_ranks,
-    unsigned const* buse_own_ids,
-    struct exchanger** p_buse_to_own,
-    struct exchanger** p_bown_to_copy)
+struct exchanger* close_partition_exchanger(
+    struct exchanger* buse_to_own)
 {
-  unsigned nbuses = buses_by_acopies_offsets[nacopies];
-  struct exchanger* buse_to_own = new_exchanger(nbuses, buse_own_ranks);
-  set_exchanger_dests(buse_to_own, nbowners, buse_own_ids);
+  unsigned nbowners = buse_to_own->nroots[EX_REV];
   unsigned* copies_of_owners_offsets;
   unsigned* rank_of_copies;
   get_unique_ranks_of_owners(nbowners,
@@ -107,8 +99,7 @@ void close_partition_exchangers(
   loop_free(rank_of_copies);
   set_exchanger_srcs(bown_to_copy, nbowners, copies_of_owners_offsets);
   loop_free(copies_of_owners_offsets);
-  *p_buse_to_own = buse_to_own;
-  *p_bown_to_copy = bown_to_copy;
+  return bown_to_copy;
 }
 
 void close_partition(
@@ -121,10 +112,10 @@ void close_partition(
     unsigned** p_bcopy_own_ranks,
     unsigned** p_bcopy_own_ids)
 {
-  struct exchanger* buse_to_own;
-  struct exchanger* bown_to_copy;
-  close_partition_exchangers(nacopies, nbowners, buses_by_acopies_offsets,
-      buse_own_ranks, buse_own_ids, &buse_to_own, &bown_to_copy);
+  unsigned nuses = buses_by_acopies_offsets[nacopies];
+  struct exchanger* buse_to_own = new_exchanger(nuses, buse_own_ranks);
+  set_exchanger_dests(buse_to_own, nbowners, buse_own_ids);
+  struct exchanger* bown_to_copy = close_partition_exchanger(buse_to_own);
   free_exchanger(buse_to_own);
   unsigned nbcopies = bown_to_copy->nitems[EX_REV];
   unsigned* bcopy_own_ranks = LOOP_MALLOC(unsigned, nbcopies);

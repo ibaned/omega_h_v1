@@ -4,14 +4,8 @@
 struct exchanger;
 struct mesh;
 
-void close_partition_exchangers(
-    unsigned nacopies,
-    unsigned nbowners,
-    unsigned const* buses_by_acopies_offsets,
-    unsigned const* buse_own_ranks,
-    unsigned const* buse_own_ids,
-    struct exchanger** p_buse_to_own,
-    struct exchanger** p_bown_to_copy);
+struct exchanger* close_partition_exchanger(
+    struct exchanger* buse_to_own);
 
 void close_partition(
     unsigned nacopies,
