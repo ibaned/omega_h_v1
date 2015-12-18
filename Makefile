@@ -9,15 +9,12 @@ include config.mk
 test_sources := \
 test_coarsen_3d.c \
 test_coarsen_by_size.c \
-test_eigenval.c \
 test_form_cloud.c \
 test_grad.c \
 test_inertia.c \
 test_node_ele.c \
-test_quality.c \
 test_read_vtk.c \
 test_refine_by_size.c \
-test_refine_topology.c \
 test_up_from_down.c \
 test_vtk.c \
 test_warp.c \
@@ -30,7 +27,6 @@ test_box.c \
 test_pvtu.c \
 test_split.c \
 test_loop.c \
-test_base64.c \
 test_global.c \
 test_vtk_ascii.c \
 test_from_gmsh.c \
