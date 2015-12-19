@@ -12,8 +12,8 @@ void osh_free(osh_t m);
 osh_t osh_read_vtk(char const* filename);
 void osh_write_vtk(osh_t m, char const* filename);
 
-osh_t osh_build(unsigned dim, unsigned nelems, unsigned nverts,
-    unsigned* conn);
+osh_t osh_new(unsigned elem_dim);
+unsigned* osh_build_ents(osh_t m, unsigned ent_dim, unsigned nents);
 
 unsigned osh_dim(osh_t m);
 unsigned osh_nelems(osh_t m);

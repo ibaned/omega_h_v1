@@ -5,6 +5,7 @@
 #include "mesh.h"
 #include "parallel_mesh.h"
 #include "tag.h"
+#include "tables.h"
 #include "vtk.h"
 
 void osh_free(osh_t m)
@@ -22,13 +23,21 @@ void osh_write_vtk(osh_t m, char const* filename)
   write_vtu((struct mesh*)m, filename);
 }
 
-osh_t osh_build(unsigned dim, unsigned nelems, unsigned nverts,
-    unsigned* conn)
+osh_t osh_new(unsigned elem_dim)
 {
-  struct mesh* m = new_mesh(dim);
-  mesh_set_ents(m, 0, nverts, 0);
-  mesh_set_ents(m, dim, nelems, conn);
-  return (osh_t) m;
+  return (osh_t) new_mesh(elem_dim);
+}
+
+unsigned* osh_build_ents(osh_t m, unsigned ent_dim, unsigned nents)
+{
+  unsigned nverts_per_ent = 0; 
+  if (ent_dim)
+    nverts_per_ent = the_down_degrees[ent_dim][0];
+  unsigned* conn = LOOP_MALLOC(unsigned, nents * nverts_per_ent);
+  /* this relies on the fact that mesh_set_ents doesn't expect
+     the contents of "conn" to be filled in yet */
+  mesh_set_ents((struct mesh*)m, ent_dim, nents, conn);
+  return conn;
 }
 
 unsigned osh_dim(osh_t m)
