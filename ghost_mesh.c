@@ -99,7 +99,7 @@ struct ghost_state {
   /* the "opposite" entities adjacent to the resident entities */
   struct uses res_uses[2];
   /* the opposite entities adjacent to the old owners
-     (used by pull_use_owners to set up res_uses) */
+     (used by push_use_owners to set up res_uses) */
   struct uses own_uses[2];
 };
 
@@ -176,7 +176,7 @@ static void init_ghosts(struct ghost_state* s, struct mesh* m)
 /* figure out the adjacencies of resident entities based
    on the adjacencies of their owners */
 
-static void pull_ghosts(struct ghost_state* s, enum ghost_type t)
+static void push_ghosts(struct ghost_state* s, enum ghost_type t)
 {
   struct exchanger* push = make_reverse_exchanger(s->nown[t],
       s->resident[t].n, s->resident[t].ranks, s->resident[t].ids);
@@ -222,14 +222,14 @@ void ghost_mesh(struct mesh** p_m, unsigned nlayers)
   struct ghost_state s;
   memset(&s, 0, sizeof(s));
   init_ghosts(&s, *p_m);
-  pull_ghosts(&s, VERT);
+  push_ghosts(&s, VERT);
   close_ghosts(&s, VERT);
   /* now we have the resident elements for 1 layer of ghosting */
   for (unsigned i = 1; i < nlayers; ++i) {
-    pull_ghosts(&s, ELEM);
+    push_ghosts(&s, ELEM);
     close_ghosts(&s, ELEM);
     /* now we have the resident vertices for (i) layers of ghosting */
-    pull_ghosts(&s, VERT);
+    push_ghosts(&s, VERT);
     close_ghosts(&s, VERT);
     /* now we have the resident vertices for (i + 1) layers of ghosting */
   }
