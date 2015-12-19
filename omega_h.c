@@ -112,22 +112,26 @@ double* osh_get_field(osh_t m, char const* name)
   return mesh_find_tag((struct mesh*)m, 0, name)->d.f64;
 }
 
-void osh_new_label(osh_t m, char const* name, unsigned ncomps)
+unsigned* osh_new_label(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
-  if (mesh_find_tag((struct mesh*)m, 0, name))
-    return;
-  unsigned* data = LOOP_MALLOC(unsigned, ncomps * mesh_count((struct mesh*)m, 0));
-  mesh_add_tag((struct mesh*)m, 0, TAG_U32, name, ncomps, data);
+  if (mesh_find_tag((struct mesh*)m, dim, name))
+    return osh_get_label(m, dim, name);
+  unsigned* data = LOOP_MALLOC(unsigned, ncomps * mesh_count((struct mesh*)m, dim));
+  mesh_add_tag((struct mesh*)m, dim, TAG_U32, name, ncomps, data);
+  return data;
 }
 
-unsigned* osh_get_label(osh_t m, char const* name)
+unsigned* osh_get_label(osh_t m, unsigned dim, char const* name)
 {
-  return mesh_find_tag((struct mesh*)m, 0, name)->d.u32;
+  return mesh_find_tag((struct mesh*)m, dim, name)->d.u32;
 }
 
-void osh_set_global(osh_t m, unsigned long* data)
+unsigned long* osh_new_global(osh_t m, unsigned dim)
 {
-  mesh_add_tag((struct mesh*)m, 0, TAG_U64, "global_number", 1, data);
+  unsigned nents = mesh_count((struct mesh*)m, dim);
+  unsigned long* global = LOOP_MALLOC(unsigned long, nents);
+  mesh_add_tag((struct mesh*)m, dim, TAG_U64, "global_number", 1, global);
+  return global;
 }
 
 void osh_accumulate_to_owner(osh_t m, char const* name)
