@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include "arrays.h"
 #include "algebra.h"
 #include "comm.h"
 #include "doubles.h"
@@ -154,4 +155,17 @@ void mesh_number_simply(struct mesh* m, unsigned dim)
   unsigned long* out = globalize_offsets(in, n);
   loop_free(in);
   mesh_add_tag(m, dim, TAG_U64, "global_number", 1, out);
+}
+
+void mesh_set_own_ranks(struct mesh* m, unsigned dim, unsigned const* own_ranks)
+{
+  struct parallel_mesh* pm = mesh_parallel(m);
+  if (pm->own_ranks[dim]) {
+    loop_free(pm->own_ranks[dim]);
+    loop_free(pm->own_ids[dim]);
+  }
+  unsigned n = mesh_count(m, dim);
+  unsigned long const* global = mesh_ask_global(m, dim);
+  own_idxs_from_global(n, global, own_ranks, &pm->own_ids[dim]);
+  pm->own_ranks[dim] = uints_copy(own_ranks, n);
 }
