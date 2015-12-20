@@ -56,6 +56,11 @@ unsigned osh_nverts(osh_t m)
   return mesh_count((struct mesh*)m, 0);
 }
 
+unsigned osh_count(osh_t m, unsigned dim)
+{
+  return mesh_count((struct mesh*)m, dim);
+}
+
 unsigned const* osh_down(osh_t m, unsigned high_dim, unsigned low_dim)
 {
   return mesh_ask_down((struct mesh*)m, high_dim, low_dim);

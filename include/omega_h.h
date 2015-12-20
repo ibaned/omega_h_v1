@@ -18,6 +18,7 @@ unsigned* osh_build_ents(osh_t m, unsigned ent_dim, unsigned nents);
 unsigned osh_dim(osh_t m);
 unsigned osh_nelems(osh_t m);
 unsigned osh_nverts(osh_t m);
+unsigned osh_count(osh_t m, unsigned dim);
 
 unsigned const* osh_down(osh_t m, unsigned high_dim, unsigned low_dim);
 unsigned const* osh_up(osh_t m, unsigned low_dim, unsigned high_dim);
