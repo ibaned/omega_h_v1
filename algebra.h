@@ -90,6 +90,24 @@ static inline double vector_distance(
   return sqrt(vector_squared_distance(a, b, n));
 }
 
+static inline void scale_vector(
+    double const* a,
+    double s,
+    double* b,
+    unsigned n)
+{
+  for (unsigned i = 0; i < n; ++i)
+    b[i] = a[i] * s;
+}
+
+static inline void normalize_vector(
+    double const* a,
+    double* b,
+    unsigned n)
+{
+  scale_vector(a, 1.0 / vector_norm(a, n), b, n);
+}
+
 static inline void scale_3x3(double m[3][3], double s, double o[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
