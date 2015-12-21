@@ -22,7 +22,6 @@ test_warp_3d.c \
 test_vtk_surfer.c \
 test_vtkdiff.c \
 test_push_cloud.c \
-test_qr.c \
 test_box.c \
 test_pvtu.c \
 test_split.c \
