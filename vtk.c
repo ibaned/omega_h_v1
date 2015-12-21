@@ -459,22 +459,46 @@ static void read_verts(FILE* f, struct mesh* m)
   read_points(f, mesh_tags(m, 0), mesh_count(m, 0));
 }
 
-static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
+static char const* get_dim_name(struct mesh* m, unsigned ent_dim)
 {
+  if (mesh_dim(m) == ent_dim)
+    return "Cell";
+  else
+    switch (ent_dim) {
+      case 0:
+        return "Point";
+      case 1:
+        return "Edge";
+      case 2:
+        return "Face";
+      default:
+        return 0;
+    }
+}
+
+static void read_ents(FILE* f, struct mesh* m, unsigned nents,
+    unsigned ent_dim)
+{
+  line_t tag;
+  sprintf(tag, "<%s", get_dim_name(m, ent_dim));
   line_t line;
-  seek_prefix(f, line, sizeof(line), "<Cells");
+  seek_prefix(f, line, sizeof(line), tag);
   seek_prefix(f, line, sizeof(line), "<DataArray");
-  unsigned dim = mesh_dim(m);
-  unsigned verts_per_elem = the_down_degrees[dim][0];
+  unsigned verts_per_elem = the_down_degrees[ent_dim][0];
   enum tag_type type;
   line_t name;
   unsigned ncomps;
   void* data;
-  read_array(f, line, &type, name, nelems * verts_per_elem, &ncomps, &data); 
+  read_array(f, line, &type, name, nents * verts_per_elem, &ncomps, &data);
   assert(type == TAG_U32);
   assert(!strcmp("connectivity", name));
   assert(ncomps == 1);
-  mesh_set_ents(m, dim, nelems, (unsigned*) data);
+  mesh_set_ents(m, ent_dim, nents, (unsigned*) data);
+}
+
+static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
+{
+  read_ents(f, m, nelems, mesh_dim(m));
 }
 
 static struct mesh* read_vtk_mesh(FILE* f)
