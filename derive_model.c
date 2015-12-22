@@ -8,6 +8,7 @@
 #include "loop.h"
 #include "mark.h"
 #include "mesh.h"
+#include "tables.h"
 
 /* a mesh will have these dimensions:
 
@@ -217,4 +218,103 @@ void mesh_derive_class_dim(struct mesh* m, double crease_angle)
       hinge_class_dim);
   loop_free(corner_verts);
   mesh_add_tag(m, 0, TAG_U32, "class_dim", 1, vert_class_dim);
+}
+
+/* This algorithm amounts to finding connected components of a graph.
+   It uses an iterative (non-recursive) depth-first search.
+   It seems difficult to parallelize via "loop", and the use case
+   is for serial pre-processing of under-specified meshes. */
+
+static void set_equal_order_class_id(struct mesh* m, unsigned dim)
+{
+  assert(loop_size() == 1);
+  unsigned n = mesh_count(m, dim);
+  unsigned const* class_dim = mesh_find_tag(m, dim, "class_dim")->d.u32;
+  unsigned const* down_class_dim = mesh_find_tag(m, dim - 1, "class_dim")->d.u32;
+  unsigned const* down = mesh_ask_down(m, dim, dim - 1);
+  unsigned degree = the_down_degrees[dim][dim - 1];
+  unsigned const* up = mesh_ask_up(m, dim - 1, dim)->adj;
+  unsigned const* up_offsets = mesh_ask_up(m, dim - 1, dim)->offsets;
+  unsigned* class_id = uints_filled(n, INVALID);
+  unsigned* stack = LOOP_MALLOC(unsigned, n);
+  enum { WHITE, GRAY, BLACK };
+  unsigned* state = uints_filled(n, WHITE);
+  unsigned stack_n = 0;
+  unsigned component = 0;
+  for (unsigned i = 0; i < n; ++i)
+    if (class_dim[i] != dim)
+      state[i] = BLACK;
+  for (unsigned i = 0; i < n; ++i) {
+    if (state[i] != WHITE)
+      continue;
+    stack_n = 1;
+    stack[0] = i;
+    while (stack_n) {
+      unsigned ent = stack[stack_n - 1];
+      --stack_n;
+      class_id[i] = component;
+      state[i] = BLACK;
+      for (unsigned j = 0; j < degree; ++j) {
+        unsigned d = down[ent * degree + j];
+        if (down_class_dim[d] != dim)
+          continue;
+        unsigned fu = up_offsets[d];
+        unsigned eu = up_offsets[d + 1];
+        for (unsigned k = fu; k < eu; ++k) {
+          unsigned adj = up[k];
+          if (state[adj] != WHITE)
+            continue;
+          state[adj] = GRAY;
+          stack[stack_n] = adj;
+          ++stack_n;
+        }
+      }
+    }
+    ++component;
+  }
+  mesh_add_tag(m, dim, TAG_U32, "class_id", 1, class_id);
+}
+
+static void project_class_id_onto(struct mesh* m, unsigned low_dim)
+{
+  unsigned nlows = mesh_count(m, low_dim);
+  unsigned const* high_class_dim = mesh_find_tag(m, low_dim + 1, "class_dim")->d.u32;
+  unsigned const* high_class_id = mesh_find_tag(m, low_dim + 1, "class_id")->d.u32;
+  unsigned const* low_class_dim = mesh_find_tag(m, low_dim, "class_dim")->d.u32;
+  unsigned* low_class_id = mesh_find_tag(m, low_dim, "class_id")->d.u32;
+  unsigned const* up = mesh_ask_up(m, low_dim, low_dim + 1)->adj;
+  unsigned const* up_offsets = mesh_ask_up(m, low_dim, low_dim + 1)->offsets;
+  for (unsigned i = 0; i < nlows; ++i) {
+    unsigned f = up_offsets[i];
+    unsigned e = up_offsets[i + 1];
+    for (unsigned j = f; j < e; ++j) {
+      unsigned high = up[j];
+      if (high_class_dim[high] == low_class_dim[i])
+        low_class_id[i] = high_class_id[high];
+    }
+  }
+}
+
+void mesh_derive_class_id(struct mesh* m)
+{
+  unsigned nverts = mesh_count(m, 0);
+  unsigned const* vert_class_dim = mesh_find_tag(m, 0, "class_dim")->d.u32;
+  unsigned* vert_class_id = LOOP_MALLOC(unsigned, nverts);
+  unsigned nmodel_verts = 0;
+  for (unsigned i = 0; i < nverts; ++i)
+    if (vert_class_dim[i] == 0)
+      vert_class_id[i] = nmodel_verts++;
+  unsigned dim = mesh_dim(m);
+  for (unsigned d = 1; d <= dim; ++d)
+    set_equal_order_class_id(m, d);
+  for (unsigned dd = 1; dd <= dim; ++dd) {
+    unsigned d = dim - dd;
+    project_class_id_onto(m, d);
+  }
+}
+
+void mesh_derive_model(struct mesh* m, double crease_angle)
+{
+  mesh_derive_class_dim(m, crease_angle);
+  mesh_derive_class_id(m);
 }
