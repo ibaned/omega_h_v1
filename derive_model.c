@@ -199,7 +199,7 @@ void mesh_derive_class_dim(struct mesh* m, double crease_angle)
   unsigned* crease_hinges = mark_creases(nhinges, hinge_angles, crease_angle);
   loop_free(hinge_angles);
   unsigned* hinge_class_dim = LOOP_MALLOC(unsigned, nhinges);
-  for (unsigned i = 0; i < nsides; ++i)
+  for (unsigned i = 0; i < nhinges; ++i)
     hinge_class_dim[i] = (dim - boundary_hinges[i] - crease_hinges[i]);
   loop_free(boundary_hinges);
   mesh_add_tag(m, dim - 2, TAG_U32, "class_dim", 1, hinge_class_dim);
