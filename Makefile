@@ -128,8 +128,8 @@ LOOP_MODE ?= serial
 #comm.c is compiled with -DUSE_MPI
 objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
 objs/loop_host.o : CFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
+lib_sources += loop_$(LOOP_MODE).c
 ifeq "$(LOOP_MODE)" "cuda"
-lib_sources += loop_cuda.c
 objs/loop_cuda.o : CFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
 endif
 

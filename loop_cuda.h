@@ -56,4 +56,6 @@ do { \
 fname<<< loop_ceildiv((n), LOOP_BLOCK_SIZE), LOOP_BLOCK_SIZE >>>(n,__VA_ARGS__);\
 CUDACALL(cudaDeviceSynchronize());
 
+unsigned loop_size(void);
+
 #endif

@@ -19,4 +19,6 @@ static void fname(__VA_ARGS__, unsigned i) \
 for (unsigned i = 0; i < n; ++i) \
   fname(__VA_ARGS__, i);
 
+unsigned loop_size(void);
+
 #endif
