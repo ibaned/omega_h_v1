@@ -19,7 +19,7 @@ int main(int argc, char** argv)
   assert(1 <= out_dim);
   assert(out_dim <= 3);
   struct mesh* m = new_box_mesh(mesh_dim);
-  mesh_derive_class_dim(m, PI / 4);
+  mesh_derive_model(m, PI / 4);
   unsigned* offsets = uints_linear(mesh_count(m, out_dim) + 1, 1);
   struct mesh* sm = subset_mesh(m, out_dim, offsets);
   loop_free(offsets);

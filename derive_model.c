@@ -272,6 +272,8 @@ static void set_equal_order_class_id(struct mesh* m, unsigned dim)
     }
     ++component;
   }
+  loop_free(stack);
+  loop_free(state);
   mesh_add_tag(m, dim, TAG_U32, "class_id", 1, class_id);
 }
 
@@ -304,6 +306,7 @@ void mesh_derive_class_id(struct mesh* m)
   for (unsigned i = 0; i < nverts; ++i)
     if (vert_class_dim[i] == 0)
       vert_class_id[i] = nmodel_verts++;
+  mesh_add_tag(m, 0, TAG_U32, "class_id", 1, vert_class_id);
   unsigned dim = mesh_dim(m);
   for (unsigned d = 1; d <= dim; ++d)
     set_equal_order_class_id(m, d);
