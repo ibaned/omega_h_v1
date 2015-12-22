@@ -104,17 +104,17 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
   mesh_add_tag((struct mesh*)m, 0, TAG_F64, name, ncomps, data);
 }
 
-void osh_new_field(osh_t m, char const* name, unsigned ncomps)
+void osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
   if (mesh_find_tag((struct mesh*)m, 0, name))
     return;
-  double* data = LOOP_MALLOC(double, ncomps * mesh_count((struct mesh*)m, 0));
-  mesh_add_tag((struct mesh*)m, 0, TAG_F64, name, ncomps, data);
+  double* data = LOOP_MALLOC(double, ncomps * mesh_count((struct mesh*)m, dim));
+  mesh_add_tag((struct mesh*)m, dim, TAG_F64, name, ncomps, data);
 }
 
-double* osh_get_field(osh_t m, char const* name)
+double* osh_get_field(osh_t m, unsigned dim, char const* name)
 {
-  return mesh_find_tag((struct mesh*)m, 0, name)->d.f64;
+  return mesh_find_tag((struct mesh*)m, dim, name)->d.f64;
 }
 
 unsigned* osh_new_label(osh_t m, unsigned dim, char const* name, unsigned ncomps)

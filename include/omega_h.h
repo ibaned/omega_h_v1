@@ -32,8 +32,8 @@ unsigned const* osh_own_id(osh_t m, unsigned dim);
 
 void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data);
 
-void osh_new_field(osh_t m, char const* name, unsigned ncomps);
-double* osh_get_field(osh_t m, char const* name);
+void osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps);
+double* osh_get_field(osh_t m, unsigned dim, char const* name);
 
 unsigned* osh_new_label(osh_t m, unsigned dim, char const* name, unsigned ncomps);
 unsigned* osh_get_label(osh_t m, unsigned dim, char const* name);
