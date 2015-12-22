@@ -116,7 +116,8 @@ arrays.c \
 migrate_mesh.c \
 bcast.c \
 close_partition.c \
-ghost_mesh.c
+ghost_mesh.c \
+derive_model.c
 
 #handle optional features:
 USE_MPI ?= 0
