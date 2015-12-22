@@ -252,8 +252,8 @@ static void set_equal_order_class_id(struct mesh* m, unsigned dim)
     while (stack_n) {
       unsigned ent = stack[stack_n - 1];
       --stack_n;
-      class_id[i] = component;
-      state[i] = BLACK;
+      class_id[ent] = component;
+      state[ent] = BLACK;
       for (unsigned j = 0; j < degree; ++j) {
         unsigned d = down[ent * degree + j];
         if (down_class_dim[d] != dim)
