@@ -46,12 +46,12 @@ static double* get_boundary_tri_normals(
     if (!boundary_tris[i])
       continue;
     double basis[2][3];
-    subtract_vectors(coords + verts_of_tris[i * 2 + 1] * 3,
-                     coords + verts_of_tris[i * 2 + 0] * 3,
+    subtract_vectors(coords + verts_of_tris[i * 3 + 1] * 3,
+                     coords + verts_of_tris[i * 3 + 0] * 3,
                      basis[0],
                      3);
-    subtract_vectors(coords + verts_of_tris[i * 2 + 2] * 3,
-                     coords + verts_of_tris[i * 2 + 0] * 3,
+    subtract_vectors(coords + verts_of_tris[i * 3 + 2] * 3,
+                     coords + verts_of_tris[i * 3 + 0] * 3,
                      basis[1],
                      3);
     cross_product(basis[0], basis[1], normals + i * 3);
