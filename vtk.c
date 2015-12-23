@@ -355,6 +355,16 @@ static void write_cell_arrays(FILE* file, struct mesh* m, enum vtk_format fmt)
   loop_host_free(types);
 }
 
+static void write_tags(FILE* file, struct mesh* m, unsigned dim,
+    enum vtk_format fmt, struct const_tag* except)
+{
+  for (unsigned i = 0; i < mesh_count_tags(m, dim); ++i) {
+    struct const_tag* tag = mesh_get_tag(m, dim, i);
+    if (tag != except)
+      write_tag(file, mesh_count(m, dim), tag, fmt);
+  }
+}
+
 void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
 {
   unsigned elem_dim = mesh_dim(m);
@@ -372,17 +382,10 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
   write_cell_arrays(file, m, fmt);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
-  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
-    struct const_tag* tag = mesh_get_tag(m, 0, i);
-    if (tag != coord_tag)
-      write_tag(file, nverts, tag, fmt);
-  }
+  write_tags(file, m, 0, fmt, coord_tag);
   fprintf(file, "</PointData>\n");
   fprintf(file, "<CellData>\n");
-  for (unsigned i = 0; i < mesh_count_tags(m, mesh_dim(m)); ++i) {
-    struct const_tag* tag = mesh_get_tag(m, mesh_dim(m), i);
-    write_tag(file, nelems, tag, fmt);
-  }
+  write_tags(file, m, elem_dim, fmt, 0);
   fprintf(file, "</CellData>\n");
   fprintf(file, "</Piece>\n");
   fprintf(file, "</UnstructuredGrid>\n");
