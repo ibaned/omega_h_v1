@@ -66,15 +66,15 @@ void bridge_dual_graph(
     unsigned elem_dim,
     unsigned nelems,
     unsigned const* elems_of_elems,
-    unsigned* nfaces_out,
-    unsigned** elems_of_faces_out,
-    unsigned** elem_face_of_faces_out)
+    unsigned* nsides_out,
+    unsigned** elems_of_sides_out,
+    unsigned** elem_side_of_sides_out)
 {
-  unsigned faces_per_elem = the_down_degrees[elem_dim][elem_dim - 1];
-  unsigned* degrees = uints_filled(nelems, faces_per_elem);
+  unsigned sides_per_elem = the_down_degrees[elem_dim][elem_dim - 1];
+  unsigned* degrees = uints_filled(nelems, sides_per_elem);
   unsigned* offsets = uints_exscan(degrees, nelems);
   loop_free(degrees);
   bridge_graph_general(nelems, offsets, elems_of_elems,
-      nfaces_out, elems_of_faces_out, elem_face_of_faces_out);
+      nsides_out, elems_of_sides_out, elem_side_of_sides_out);
   loop_free(offsets);
 }
