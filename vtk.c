@@ -327,12 +327,20 @@ static void write_tag(FILE* file, unsigned nents, struct const_tag* tag,
       fmt);
 }
 
+static void write_connectivity(FILE* file, struct mesh* m, unsigned dim, enum vtk_format fmt)
+{
+  unsigned nents = mesh_count(m, dim);
+  unsigned nverts_per_ent = the_down_degrees[dim][0];
+  unsigned const* verts_of_elems = mesh_ask_down(m, dim, 0);
+  write_array(file, TAG_U32, "connectivity", nents * nverts_per_ent, 1, verts_of_elems,
+      fmt);
+}
+
 void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
 {
   unsigned elem_dim = mesh_dim(m);
   unsigned nverts = mesh_count(m, 0);
   unsigned nelems = mesh_count(m, elem_dim);
-  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   FILE* file = fopen(filename, "w");
   fprintf(file, "<VTKFile type=\"UnstructuredGrid\">\n");
   fprintf(file, "<UnstructuredGrid>\n");
@@ -342,12 +350,11 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
   write_tag(file, nverts, coord_tag, fmt);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
-  unsigned down_degree = the_down_degrees[elem_dim][0];
-  write_array(file, TAG_U32, "connectivity", nelems * down_degree, 1, verts_of_elems,
-      fmt);
+  write_connectivity(file, m, elem_dim, fmt);
   unsigned* off = LOOP_HOST_MALLOC(unsigned, nelems);
+  unsigned nverts_per_elem = the_down_degrees[elem_dim][0];
   for (unsigned i = 0; i < nelems; ++i)
-    off[i] = (i + 1) * down_degree;
+    off[i] = (i + 1) * nverts_per_elem;
   write_array(file, TAG_U32, "offsets", nelems, 1, off, fmt);
   loop_host_free(off);
   unsigned char* types = LOOP_HOST_MALLOC(unsigned char, nelems);
