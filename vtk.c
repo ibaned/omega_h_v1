@@ -385,12 +385,32 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
   struct const_tag* coord_tag = mesh_find_tag(m, 0, "coordinates");
   write_tag(file, nverts, coord_tag, fmt);
   fprintf(file, "</Points>\n");
+  if (do_edges) {
+    fprintf(file, "<Edges>\n");
+    write_connectivity(file, m, 1, fmt);
+    fprintf(file, "</Edges>\n");
+  }
+  if (do_faces) {
+    fprintf(file, "<Faces>\n");
+    write_connectivity(file, m, 2, fmt);
+    fprintf(file, "</Faces>\n");
+  }
   fprintf(file, "<Cells>\n");
   write_cell_arrays(file, m, fmt);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
   write_tags(file, m, 0, fmt, coord_tag);
   fprintf(file, "</PointData>\n");
+  if (do_edges) {
+    fprintf(file, "<EdgeData>\n");
+    write_tags(file, m, 1, fmt, 0);
+    fprintf(file, "</EdgeData>\n");
+  }
+  if (do_faces) {
+    fprintf(file, "<FaceData>\n");
+    write_tags(file, m, 2, fmt, 0);
+    fprintf(file, "</FaceData>\n");
+  }
   fprintf(file, "<CellData>\n");
   write_tags(file, m, elem_dim, fmt, 0);
   fprintf(file, "</CellData>\n");
