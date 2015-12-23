@@ -49,7 +49,7 @@ void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
 void osh_add_label(osh_t m, char const* name, unsigned* data);
 void osh_free_label(osh_t m, char const* name);
 
-void osh_ghost(osh_t& m, unsigned nlayers);
+void osh_ghost(osh_t* m, unsigned nlayers);
 
 #ifdef __cplusplus
 } // extern "C"

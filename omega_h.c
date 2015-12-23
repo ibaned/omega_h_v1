@@ -172,7 +172,7 @@ void osh_free_label(osh_t m, char const* name)
   mesh_free_tag((struct mesh*)m, 0, name);
 }
 
-void osh_ghost(osh_t& m, unsigned nlayers)
+void osh_ghost(osh_t* m, unsigned nlayers)
 {
   ghost_mesh((struct mesh**)m, nlayers);
 }
