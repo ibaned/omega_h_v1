@@ -89,7 +89,7 @@ edge_ring.c \
 edge_swap.c \
 loop_host.c \
 inertia.c \
-derive_faces.c \
+derive_sides.c \
 node_ele_io.c \
 cloud.c \
 tag.c \
