@@ -336,6 +336,25 @@ static void write_connectivity(FILE* file, struct mesh* m, unsigned dim, enum vt
       fmt);
 }
 
+static void write_cell_arrays(FILE* file, struct mesh* m, enum vtk_format fmt)
+{
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, elem_dim);
+  write_connectivity(file, m, elem_dim, fmt);
+  unsigned* off = LOOP_HOST_MALLOC(unsigned, nelems);
+  unsigned nverts_per_elem = the_down_degrees[elem_dim][0];
+  for (unsigned i = 0; i < nelems; ++i)
+    off[i] = (i + 1) * nverts_per_elem;
+  write_array(file, TAG_U32, "offsets", nelems, 1, off, fmt);
+  loop_host_free(off);
+  unsigned char* types = LOOP_HOST_MALLOC(unsigned char, nelems);
+  unsigned char type = (unsigned char) simplex_types[elem_dim];
+  for (unsigned i = 0; i < nelems; ++i)
+    types[i] = type;
+  write_array(file, TAG_U8, "types", nelems, 1, types, fmt);
+  loop_host_free(types);
+}
+
 void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
 {
   unsigned elem_dim = mesh_dim(m);
@@ -350,19 +369,7 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
   write_tag(file, nverts, coord_tag, fmt);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
-  write_connectivity(file, m, elem_dim, fmt);
-  unsigned* off = LOOP_HOST_MALLOC(unsigned, nelems);
-  unsigned nverts_per_elem = the_down_degrees[elem_dim][0];
-  for (unsigned i = 0; i < nelems; ++i)
-    off[i] = (i + 1) * nverts_per_elem;
-  write_array(file, TAG_U32, "offsets", nelems, 1, off, fmt);
-  loop_host_free(off);
-  unsigned char* types = LOOP_HOST_MALLOC(unsigned char, nelems);
-  unsigned char type = (unsigned char) simplex_types[elem_dim];
-  for (unsigned i = 0; i < nelems; ++i)
-    types[i] = type;
-  write_array(file, TAG_U8, "types", nelems, 1, types, fmt);
-  loop_host_free(types);
+  write_cell_arrays(file, m, fmt);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
   for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
