@@ -14,8 +14,6 @@ static void bridge_graph_general(
     unsigned** verts_of_edges_out,
     unsigned** directions_out)
 {
-  unsigned nhalf_edges = adj_offsets[nverts];
-  assert(nhalf_edges % 2 == 0);
   unsigned* degree_of_verts = LOOP_MALLOC(unsigned, nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_adj = adj_offsets[i];
