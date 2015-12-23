@@ -370,10 +370,17 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
   unsigned elem_dim = mesh_dim(m);
   unsigned nverts = mesh_count(m, 0);
   unsigned nelems = mesh_count(m, elem_dim);
+  unsigned do_edges = ((elem_dim > 1) && mesh_has_dim(m, 1));
+  unsigned do_faces = ((elem_dim > 2) && mesh_has_dim(m, 2));
   FILE* file = fopen(filename, "w");
   fprintf(file, "<VTKFile type=\"UnstructuredGrid\">\n");
   fprintf(file, "<UnstructuredGrid>\n");
-  fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\">\n", nverts, nelems);
+  fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\"", nverts, nelems);
+  if (do_edges)
+    fprintf(file, " NumberOfEdges=\"%u\"", mesh_count(m, 1));
+  if (do_faces)
+    fprintf(file, " NumberOfFaces=\"%u\"", mesh_count(m, 2));
+  fprintf(file, ">\n");
   fprintf(file, "<Points>\n");
   struct const_tag* coord_tag = mesh_find_tag(m, 0, "coordinates");
   write_tag(file, nverts, coord_tag, fmt);
