@@ -122,7 +122,8 @@ static unsigned read_int_attrib(char const* header, char const* attrib)
   return (unsigned) atoi(val);
 }
 
-static unsigned try_read_int_attrib(char const* header, char const* attrib, unsigned* val)
+static unsigned try_read_int_attrib(char const* header, char const* attrib,
+    unsigned* val)
 {
   line_t val_text;
   unsigned ok = try_read_attrib(header, attrib, val_text);
@@ -442,12 +443,22 @@ void write_vtk_step(struct mesh* m)
   ++the_step;
 }
 
-static void read_size(FILE* f, unsigned* nverts, unsigned* nelems)
+static void read_ent_counts(FILE* f, unsigned* nverts, unsigned* nelems,
+    unsigned* do_edges, unsigned* do_faces,
+    unsigned* nedges, unsigned* nfaces)
 {
   line_t line;
   seek_prefix(f, line, sizeof(line), "<Piece");
   *nverts = read_int_attrib(line, "NumberOfPoints");
   *nelems = read_int_attrib(line, "NumberOfCells");
+  *do_edges = try_read_int_attrib(line, "NumberOfEdges", nedges);
+  *do_faces = try_read_int_attrib(line, "NumberOfFaces", nfaces);
+}
+
+static void read_nverts(FILE* f, unsigned* nverts)
+{
+  unsigned ignore;
+  read_ent_counts(f, nverts, &ignore, &ignore, &ignore, &ignore, &ignore);
 }
 
 static unsigned read_dimension(FILE* f, unsigned nelems)
@@ -540,22 +551,24 @@ static void read_ents(FILE* f, struct mesh* m, unsigned nents,
   mesh_set_ents(m, ent_dim, nents, (unsigned*) data);
 }
 
-static void read_elems(FILE* f, struct mesh* m, unsigned nelems)
-{
-  read_ents(f, m, nelems, mesh_dim(m));
-}
-
 static struct mesh* read_vtk_mesh(FILE* f)
 {
   unsigned nverts, nelems;
-  read_size(f, &nverts, &nelems);
+  unsigned do_edges, do_faces;
+  unsigned nedges, nfaces;
+  read_ent_counts(f, &nverts, &nelems,
+      &do_edges, &do_faces, &nedges, &nfaces);
   assert(nelems);
   unsigned dim = read_dimension(f, nelems);
   struct mesh* m = new_mesh(dim);
   mesh_set_ents(m, 0, nverts, 0);
   rewind(f);
   read_verts(f, m);
-  read_elems(f, m, nelems);
+  if (do_edges)
+    read_ents(f, m, nedges, 1);
+  if (do_faces)
+    read_ents(f, m, nfaces, 2);
+  read_ents(f, m, nelems, dim);
   return m;
 }
 
@@ -563,6 +576,10 @@ static void read_vtk_fields(FILE* f, struct mesh* m)
 {
   unsigned dim = mesh_dim(m);
   read_tags(f, "<PointData", mesh_tags(m, 0), mesh_count(m, 0));
+  if ((dim > 1) && mesh_has_dim(m, 1))
+    read_tags(f, "<EdgeData", mesh_tags(m, 1), mesh_count(m, 1));
+  if ((dim > 2) && mesh_has_dim(m, 2))
+    read_tags(f, "<FaceData", mesh_tags(m, 2), mesh_count(m, 2));
   read_tags(f, "<CellData", mesh_tags(m, dim), mesh_count(m, dim));
 }
 
@@ -624,8 +641,8 @@ struct cloud* read_vtu_cloud(char const* filename)
 {
   FILE* f = fopen(filename, "r");
   assert(f);
-  unsigned npts, nelems;
-  read_size(f, &npts, &nelems);
+  unsigned npts;
+  read_nverts(f, &npts);
   assert(npts);
   struct cloud* c = new_cloud(npts);
   read_points(f, cloud_tags(c), npts);
