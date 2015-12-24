@@ -43,19 +43,15 @@ unsigned refine_common(
   for (unsigned i = 0; i < nsrcs; ++i)
     if (gen_offset_of_srcs[i] != gen_offset_of_srcs[i + 1])
       gen_vert_of_srcs[i] = nverts + gen_offset_of_srcs[i];
-  unsigned nelems = mesh_count(m, elem_dim);
-  unsigned const* srcs_of_elems = mesh_ask_down(m, elem_dim, src_dim);
-  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned* gen_offset_of_elems;
   unsigned* gen_direction_of_elems;
   unsigned* gen_vert_of_elems;
-  project_splits_to_elements(elem_dim, src_dim, nelems,
-      srcs_of_elems, gen_offset_of_srcs, gen_vert_of_srcs,
+  mesh_splits_to_elements(m, src_dim, gen_offset_of_srcs, gen_vert_of_srcs,
       &gen_offset_of_elems, &gen_direction_of_elems, &gen_vert_of_elems);
   loop_free(gen_vert_of_srcs);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
-  refine_topology(elem_dim, src_dim, elem_dim, nelems, verts_of_elems,
+  mesh_refine_topology(m, src_dim, elem_dim,
       gen_offset_of_elems, gen_vert_of_elems, gen_direction_of_elems,
       &ngen_elems, &verts_of_gen_elems);
   loop_free(gen_vert_of_elems);
@@ -77,9 +73,11 @@ unsigned refine_common(
   }
   refine_class(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);
+  unsigned nelems = mesh_count(m, elem_dim);
   unsigned* offset_of_same_elems = uints_negate_offsets(
       gen_offset_of_elems, nelems);
   loop_free(gen_offset_of_elems);
+  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned nelems_out;
   unsigned* verts_of_elems_out;
   concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,

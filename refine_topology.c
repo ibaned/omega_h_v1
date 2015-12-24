@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "loop.h"
+#include "mesh.h"
 #include "tables.h"
 
 /* two more dimensions are introduced in the implementation:
@@ -78,4 +79,21 @@ void refine_topology(
   }
   *nprods_out = nprods;
   *verts_of_prods_out = verts_of_prods;
+}
+
+void mesh_refine_topology(struct mesh* m,
+    unsigned src_dim,
+    unsigned prod_dim,
+    unsigned const* gen_offset_of_elems,
+    unsigned const* gen_vert_of_elems,
+    unsigned const* gen_direction_of_elems,
+    unsigned* nprods_out,
+    unsigned** verts_of_prods_out)
+{
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, elem_dim);
+  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
+  refine_topology(elem_dim, src_dim, prod_dim, nelems, verts_of_elems,
+      gen_offset_of_elems, gen_vert_of_elems, gen_direction_of_elems,
+      nprods_out, verts_of_prods_out);
 }

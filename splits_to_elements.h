@@ -31,4 +31,15 @@ void project_splits_to_elements(
     unsigned** gen_direction_of_elems_out,
     unsigned** gen_vert_of_elems_out);
 
+struct mesh;
+
+void mesh_splits_to_elements(
+  struct mesh* m,
+  unsigned src_dim,
+  unsigned const* gen_offset_of_srcs,
+  unsigned const* gen_vert_of_srcs,
+  unsigned** p_gen_offset_of_elems,
+  unsigned** p_gen_direction_of_elems,
+  unsigned** p_gen_vert_of_elems);
+
 #endif

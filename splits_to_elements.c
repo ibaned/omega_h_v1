@@ -4,6 +4,7 @@
 
 #include "ints.h"
 #include "loop.h"
+#include "mesh.h"
 #include "tables.h"
 
 void project_splits_to_elements(
@@ -38,4 +39,21 @@ void project_splits_to_elements(
   *gen_direction_of_elems_out = gen_direction_of_elems;
   *gen_vert_of_elems_out = gen_vert_of_elems;
   loop_free(elem_will_split);
+}
+
+void mesh_splits_to_elements(
+  struct mesh* m,
+  unsigned src_dim,
+  unsigned const* gen_offset_of_srcs,
+  unsigned const* gen_vert_of_srcs,
+  unsigned** p_gen_offset_of_elems,
+  unsigned** p_gen_direction_of_elems,
+  unsigned** p_gen_vert_of_elems)
+{
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, elem_dim);
+  unsigned const* srcs_of_elems = mesh_ask_down(m, elem_dim, src_dim);
+  project_splits_to_elements(elem_dim, src_dim, nelems,
+      srcs_of_elems, gen_offset_of_srcs, gen_vert_of_srcs,
+      p_gen_offset_of_elems, p_gen_direction_of_elems, p_gen_vert_of_elems);
 }

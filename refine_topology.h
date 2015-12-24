@@ -34,4 +34,15 @@ void refine_topology(
     unsigned* nprods_out,
     unsigned** verts_of_prods_out);
 
+struct mesh;
+
+void mesh_refine_topology(struct mesh* m,
+    unsigned src_dim,
+    unsigned prod_dim,
+    unsigned const* gen_offset_of_elems,
+    unsigned const* gen_vert_of_elems,
+    unsigned const* gen_direction_of_elems,
+    unsigned* nprods_out,
+    unsigned** verts_of_prods_out);
+
 #endif
