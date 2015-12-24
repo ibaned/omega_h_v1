@@ -34,12 +34,7 @@ unsigned refine_common(
     loop_free(src_quals);
     return 0;
   }
-  unsigned const* srcs_of_srcs_offsets =
-    mesh_ask_star(m, src_dim, elem_dim)->offsets;
-  unsigned const* srcs_of_srcs =
-    mesh_ask_star(m, src_dim, elem_dim)->adj;
-  unsigned* indset = find_indset(nsrcs, srcs_of_srcs_offsets, srcs_of_srcs,
-      candidates, src_quals);
+  unsigned* indset = mesh_find_indset(m, src_dim, candidates, src_quals);
   loop_free(src_quals);
   unsigned* gen_offset_of_srcs = uints_exscan(indset, nsrcs);
   loop_free(indset);

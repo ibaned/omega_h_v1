@@ -2,6 +2,7 @@
 #define MESH_H
 
 #include "tag.h"
+#include "graph.h"
 
 struct mesh;
 
