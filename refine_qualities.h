@@ -11,7 +11,9 @@ double* refine_qualities(
     unsigned const* elems_of_srcs,
     unsigned const* elems_of_srcs_directions,
     /* candidates are rejected whose output qualities
-       would be worse than (qual_floor) */
+       would be worse than (qual_floor),
+       and in the case of (require_better), output qualities
+       worse than input qualities */
     unsigned* candidate_srcs,
     double const* coords,
     double qual_floor,
