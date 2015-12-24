@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-#include "concat.h"
+#include "concat_topology.h"
 #include "copy_mesh.h"
 #include "doubles.h"
 #include "graph.h"

@@ -7,7 +7,7 @@
 #include "collapse_codes.h"
 #include "collapses_to_elements.h"
 #include "collapses_to_verts.h"
-#include "concat.h"
+#include "concat_topology.h"
 #include "graph.h"
 #include "indset.h"
 #include "ints.h"

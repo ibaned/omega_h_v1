@@ -3,7 +3,6 @@
 #include <assert.h>
 
 #include "arrays.h"
-#include "concat.h"
 #include "infer_class.h"
 #include "loop.h"
 #include "mesh.h"
