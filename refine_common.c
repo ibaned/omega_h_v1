@@ -34,10 +34,9 @@ unsigned refine_common(
     loop_free(src_quals);
     return 0;
   }
-  unsigned* indset = mesh_find_indset(m, src_dim, candidates, src_quals);
+  unsigned* gen_offset_of_srcs = mesh_indset_offsets(m, src_dim, candidates,
+      src_quals);
   loop_free(src_quals);
-  unsigned* gen_offset_of_srcs = uints_exscan(indset, nsrcs);
-  loop_free(indset);
   unsigned nsplit_srcs = gen_offset_of_srcs[nsrcs];
   unsigned nverts = mesh_count(m, 0);
   unsigned* gen_vert_of_srcs = LOOP_MALLOC(unsigned, nsrcs);

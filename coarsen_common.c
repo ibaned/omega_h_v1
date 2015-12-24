@@ -70,12 +70,10 @@ unsigned coarsen_common(
       edges_of_verts, edges_of_verts_directions, col_codes, quals_of_edges,
       &candidates, &gen_vert_of_verts, &qual_of_verts);
   loop_free(quals_of_edges);
-  unsigned* indset = find_indset(nverts, verts_of_verts_offsets, verts_of_verts,
-      candidates, qual_of_verts);
+  unsigned* gen_offset_of_verts = mesh_indset_offsets(m, 0, candidates,
+      qual_of_verts);
   loop_free(candidates);
   loop_free(qual_of_verts);
-  unsigned* gen_offset_of_verts = uints_exscan(indset, nverts);
-  loop_free(indset);
   unsigned* gen_offset_of_elems;
   unsigned* gen_vert_of_elems;
   unsigned* gen_direction_of_elems;
