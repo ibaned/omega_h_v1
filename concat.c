@@ -43,24 +43,24 @@ double* concat_doubles(
   return (double*) generic_concat(sizeof(double), width, a, na, b, nb);
 }
 
-void concat_verts_of_elems(
-    unsigned elem_dim,
-    unsigned nelems,
-    unsigned ngen_elems,
-    unsigned const* verts_of_elems,
-    unsigned const* offset_of_same_elems,
-    unsigned const* verts_of_gen_elems,
-    unsigned* nelems_out,
-    unsigned** verts_of_elems_out)
+void concat_verts_of_ents(
+    unsigned ent_dim,
+    unsigned nents,
+    unsigned ngen_ents,
+    unsigned const* verts_of_ents,
+    unsigned const* offset_of_same_ents,
+    unsigned const* verts_of_gen_ents,
+    unsigned* nents_out,
+    unsigned** verts_of_ents_out)
 {
-  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned nsame_elems = offset_of_same_elems[nelems];
-  unsigned* verts_of_same_elems = uints_subset(nelems, verts_per_elem,
-      verts_of_elems, offset_of_same_elems);
-  unsigned* out = concat_uints(verts_per_elem,
-      verts_of_same_elems, nsame_elems,
-      verts_of_gen_elems, ngen_elems);
-  loop_free(verts_of_same_elems);
-  *nelems_out = nsame_elems + ngen_elems;
-  *verts_of_elems_out = out;
+  unsigned verts_per_ent = the_down_degrees[ent_dim][0];
+  unsigned nsame_ents = offset_of_same_ents[nents];
+  unsigned* verts_of_same_ents = uints_subset(nents, verts_per_ent,
+      verts_of_ents, offset_of_same_ents);
+  unsigned* out = concat_uints(verts_per_ent,
+      verts_of_same_ents, nsame_ents,
+      verts_of_gen_ents, ngen_ents);
+  loop_free(verts_of_same_ents);
+  *nents_out = nsame_ents + ngen_ents;
+  *verts_of_ents_out = out;
 }
