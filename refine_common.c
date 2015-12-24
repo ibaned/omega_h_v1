@@ -58,7 +58,7 @@ static void refine_elems(struct mesh* m, struct mesh* m_out,
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
   mesh_refine_topology(m, src_dim, elem_dim,
-      gen_offset_of_elems, gen_vert_of_elems, gen_direction_of_elems,
+      gen_offset_of_elems, gen_direction_of_elems, gen_vert_of_elems,
       &ngen_elems, &verts_of_gen_elems);
   loop_free(gen_vert_of_elems);
   loop_free(gen_direction_of_elems);

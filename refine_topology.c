@@ -27,8 +27,8 @@ void refine_topology(
     unsigned nelems,
     unsigned const* verts_of_elems,
     unsigned const* gen_offset_of_elems,
-    unsigned const* gen_vert_of_elems,
     unsigned const* gen_direction_of_elems,
+    unsigned const* gen_vert_of_elems,
     unsigned* nprods_out,
     unsigned** verts_of_prods_out)
 {

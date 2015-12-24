@@ -21,8 +21,8 @@ void project_splits_to_elements(
   assert(elem_dim >= src_dim);
   unsigned srcs_per_elem = the_down_degrees[elem_dim][src_dim];
   unsigned* elem_will_split = uints_filled(nelems, 0);
-  unsigned* gen_vert_of_elems = LOOP_MALLOC(unsigned, nelems);
   unsigned* gen_direction_of_elems = LOOP_MALLOC(unsigned, nelems);
+  unsigned* gen_vert_of_elems = LOOP_MALLOC(unsigned, nelems);
   for (unsigned i = 0; i < nelems; ++i) {
     unsigned const* srcs_of_elem = srcs_of_elems + i * srcs_per_elem;
     for (unsigned j = 0; j < srcs_per_elem; ++j) {
@@ -30,8 +30,8 @@ void project_splits_to_elements(
       if (gen_offset_of_srcs[src] == gen_offset_of_srcs[src + 1])
         continue;
       elem_will_split[i] = 1;
-      gen_vert_of_elems[i] = gen_vert_of_srcs[src];
       gen_direction_of_elems[i] = j;
+      gen_vert_of_elems[i] = gen_vert_of_srcs[src];
       break;
     }
   }
