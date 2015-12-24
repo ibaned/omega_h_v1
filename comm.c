@@ -237,7 +237,7 @@ void comm_add_doubles(double* p, unsigned n)
 
 double comm_max_double(double x)
 {
-  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_SUM, using->c));
+  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_MAX, using->c));
   return x;
 }
 
