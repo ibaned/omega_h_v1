@@ -37,6 +37,7 @@ void refine_topology(
 struct mesh;
 
 void mesh_refine_topology(struct mesh* m,
+    unsigned elem_dim,
     unsigned src_dim,
     unsigned prod_dim,
     unsigned const* gen_offset_of_elems,

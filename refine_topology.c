@@ -82,6 +82,7 @@ void refine_topology(
 }
 
 void mesh_refine_topology(struct mesh* m,
+    unsigned elem_dim,
     unsigned src_dim,
     unsigned prod_dim,
     unsigned const* gen_offset_of_elems,
@@ -90,7 +91,6 @@ void mesh_refine_topology(struct mesh* m,
     unsigned* nprods_out,
     unsigned** verts_of_prods_out)
 {
-  unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   refine_topology(elem_dim, src_dim, prod_dim, nelems, verts_of_elems,
