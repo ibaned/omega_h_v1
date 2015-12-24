@@ -35,6 +35,11 @@ void* loop_cuda_to_device(void const* p, unsigned long n)
   return out;
 }
 
+void loop_cuda_memcpy(void* dst, void const* src, unsigned long n)
+{
+  CUDACALL(cudaMemcpy(dst, src, n, cudaMemcpyDeviceToDevice));
+}
+
 unsigned loop_size(void)
 {
   int device;

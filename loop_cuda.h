@@ -12,6 +12,8 @@ void loop_cuda_free(void* p);
 void* loop_cuda_to_host(void const* p, unsigned long n);
 void* loop_cuda_to_device(void const* p, unsigned long n);
 
+void loop_cuda_memcpy(void* dst, void const* src, unsigned long n);
+
 static inline __device__ unsigned loop_cuda_atomic_increment(unsigned* p)
 {
   return atomicAdd(p, 1);
@@ -19,6 +21,7 @@ static inline __device__ unsigned loop_cuda_atomic_increment(unsigned* p)
 
 #define loop_to_host loop_cuda_to_host
 #define loop_to_device loop_cuda_to_device
+#define loop_memcpy loop_cuda_memcpy
 
 #define loop_atomic_increment loop_cuda_atomic_increment
 

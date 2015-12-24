@@ -8,6 +8,7 @@
 
 #define loop_to_host loop_host_copy
 #define loop_to_device loop_host_copy
+#define loop_memcpy loop_host_memcpy
 
 #define loop_atomic_increment loop_host_atomic_increment
 

@@ -12,6 +12,7 @@ void loop_host_free(void* p);
 unsigned loop_host_atomic_increment( unsigned *p);
 
 void* loop_host_copy(void const* p, unsigned long n);
+void loop_host_memcpy(void* dst, void const* src, unsigned long n);
 
 unsigned long loop_host_memory(void);
 
