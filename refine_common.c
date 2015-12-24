@@ -65,12 +65,15 @@ unsigned refine_common(
   for (unsigned i = 0; i < nsrcs; ++i)
     if (gen_offset_of_srcs[i] != gen_offset_of_srcs[i + 1])
       gen_vert_of_srcs[i] = nverts + gen_offset_of_srcs[i];
+  struct mesh* m_out = new_mesh(elem_dim);
+  refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
   unsigned* gen_offset_of_elems;
   unsigned* gen_direction_of_elems;
   unsigned* gen_vert_of_elems;
   mesh_splits_to_elements(m, src_dim, gen_offset_of_srcs, gen_vert_of_srcs,
       &gen_offset_of_elems, &gen_direction_of_elems, &gen_vert_of_elems);
   loop_free(gen_vert_of_srcs);
+  loop_free(gen_offset_of_srcs);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
   mesh_refine_topology(m, src_dim, elem_dim,
@@ -78,9 +81,6 @@ unsigned refine_common(
       &ngen_elems, &verts_of_gen_elems);
   loop_free(gen_vert_of_elems);
   loop_free(gen_direction_of_elems);
-  struct mesh* m_out = new_mesh(elem_dim);
-  refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
-  loop_free(gen_offset_of_srcs);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned* offset_of_same_elems = uints_negate_offsets(
       gen_offset_of_elems, nelems);

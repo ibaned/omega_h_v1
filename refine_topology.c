@@ -16,7 +16,7 @@
  *
  * for example, when splitting an edge of a tet, the two vertices
  * of the edge cause the two new tets to be generated from
- * two base triangles, each base triangle being opp from
+ * two base triangles, each base triangle being opposite from
  * an edge vertex.
  */
 
