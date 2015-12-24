@@ -71,3 +71,17 @@ T* name##_expand(unsigned n, T const* a, \
 GENERIC_EXPAND(unsigned, uints)
 GENERIC_EXPAND(unsigned long, ulongs)
 GENERIC_EXPAND(double, doubles)
+
+#define GENERIC_CONCAT(T, name) \
+T* concat_##name(unsigned width, \
+    T const* a, unsigned na, \
+    T const* b, unsigned nb) \
+{ \
+  T* out = LOOP_MALLOC(T, (na + nb) * width); \
+  loop_memcpy(out, a, na * width * sizeof(T)); \
+  loop_memcpy(out + (na * width), b, nb * width * sizeof(T)); \
+  return out; \
+}
+
+GENERIC_CONCAT(unsigned, uints)
+GENERIC_CONCAT(double, doubles)

@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "arrays.h"
 #include "concat.h"
 #include "graph.h"
 #include "indset.h"

@@ -1,5 +1,6 @@
 #include "coarsen_common.h"
 
+#include "arrays.h"
 #include "check_collapse_class.h"
 #include "coarsen_qualities.h"
 #include "coarsen_topology.h"

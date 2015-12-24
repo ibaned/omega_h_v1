@@ -26,4 +26,11 @@ unsigned long* ulongs_expand(unsigned n, unsigned long const* a,
 double* doubles_expand(unsigned n, double const* a,
     unsigned width, unsigned const* offsets);
 
+unsigned* concat_uints(unsigned width,
+    unsigned const* a, unsigned na,
+    unsigned const* b, unsigned nb);
+double* concat_doubles(unsigned width,
+    double const* a, unsigned na,
+    double const* b, unsigned nb);
+
 #endif

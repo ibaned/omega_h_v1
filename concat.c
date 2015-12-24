@@ -2,46 +2,10 @@
 
 #include <string.h>
 
+#include "arrays.h"
 #include "loop.h"
 #include "subset.h"
 #include "tables.h"
-
-static void* generic_concat(
-    unsigned typesize,
-    unsigned width,
-    void const* a,
-    unsigned na,
-    void const* b,
-    unsigned nb)
-{
-  unsigned a_bytes = na * width * typesize;
-  unsigned b_bytes = nb * width * typesize;
-  unsigned total_bytes = a_bytes + b_bytes;
-  char* out = LOOP_MALLOC(char, total_bytes);
-  memcpy(out, a, a_bytes);
-  memcpy(out + a_bytes, b, b_bytes);
-  return out;
-}
-
-unsigned* concat_uints(
-    unsigned width,
-    unsigned const* a,
-    unsigned na,
-    unsigned const* b,
-    unsigned nb)
-{
-  return (unsigned*) generic_concat(sizeof(unsigned), width, a, na, b, nb);
-}
-
-double* concat_doubles(
-    unsigned width,
-    double const* a,
-    unsigned na,
-    double const* b,
-    unsigned nb)
-{
-  return (double*) generic_concat(sizeof(double), width, a, na, b, nb);
-}
 
 void concat_verts_of_ents(
     unsigned ent_dim,
