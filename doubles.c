@@ -1,5 +1,7 @@
 #include "doubles.h"
 
+#include <float.h>
+
 #include "loop.h"
 
 #ifdef __CUDACC__
@@ -14,7 +16,9 @@ double doubles_max(double const* a, unsigned n)
 {
   double max = 0;
   thrust::device_ptr<double const> p(a);
-  max = thrust::reduce(p, p + n, 2.22507e-308, thrust::maximum<double>());
+  /* DBL_MIN is the smallest positive value, for dealing
+     with negatives we should actually initialize to -DBL_MAX */
+  max = thrust::reduce(p, p + n, -DBL_MAX, thrust::maximum<double>());
   return max;
 }
 
@@ -22,7 +26,7 @@ double doubles_min(double const* a, unsigned n)
 {
   double min = 0;
   thrust::device_ptr<double const> p(a);
-  min = thrust::reduce(p, p + n, 0x1.fffffffffffffp+1023 , thrust::minimum<double>());
+  min = thrust::reduce(p, p + n, DBL_MAX, thrust::minimum<double>());
   return min;
 }
 
@@ -50,7 +54,9 @@ double* doubles_exscan(double const* a, unsigned n)
 
 double doubles_max(double const* a, unsigned n)
 {
-  double max = a[0];
+  /* DBL_MIN is the smallest positive value, for dealing
+     with negatives we should actually initialize to -DBL_MAX */
+  double max = -DBL_MAX;
   for (unsigned i = 1; i < n; ++i)
     if (a[i] > max)
       max = a[i];
@@ -59,7 +65,7 @@ double doubles_max(double const* a, unsigned n)
 
 double doubles_min(double const* a, unsigned n)
 {
-  double min = a[0];
+  double min = DBL_MAX;
   for (unsigned i = 1; i < n; ++i)
     if (a[i] < min)
       min = a[i];

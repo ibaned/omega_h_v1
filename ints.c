@@ -19,7 +19,7 @@ unsigned uints_max(unsigned const* a, unsigned n)
 {
   unsigned max = 0;
   thrust::device_ptr<unsigned const> p(a);
-  max = thrust::reduce(p, p + n, INT_MIN, thrust::maximum<unsigned>());
+  max = thrust::reduce(p, p + n, 0, thrust::maximum<unsigned>());
   return max;
 }
 

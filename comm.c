@@ -235,6 +235,12 @@ void comm_add_doubles(double* p, unsigned n)
   CALL(MPI_Allreduce(MPI_IN_PLACE, p, (int) n, MPI_DOUBLE, MPI_SUM, using->c));
 }
 
+double comm_max_double(double x)
+{
+  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_MAX, using->c));
+  return x;
+}
+
 unsigned long comm_add_ulong(unsigned long x)
 {
   CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED_LONG, MPI_SUM,
@@ -428,6 +434,11 @@ void comm_add_doubles(double* p, unsigned n)
 {
   (void)p;
   (void)n;
+}
+
+double comm_max_double(double x)
+{
+  return x;
 }
 
 unsigned long comm_add_ulong(unsigned long x)

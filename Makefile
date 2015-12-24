@@ -38,7 +38,8 @@ test_conform.c \
 test_mesh_rib.c \
 test_ghost.c \
 test_memory.c \
-test_derive_model.c
+test_derive_model.c \
+test_fusion_part.c
 
 lib_sources := \
 star.c \

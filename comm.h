@@ -45,6 +45,7 @@ unsigned comm_size(void);
 
 void comm_add_doubles(double* p, unsigned n);
 double comm_add_double(double x);
+double comm_max_double(double x);
 unsigned long comm_add_ulong(unsigned long x);
 unsigned long comm_exscan_ulong(unsigned long x);
 unsigned long comm_max_ulong(unsigned long x);

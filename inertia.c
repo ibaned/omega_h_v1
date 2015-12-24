@@ -196,6 +196,8 @@ static void find_median_radius(
 {
   double r = 0;
   double dr = doubles_max(radii, n) / 2;
+  if (is_global)
+    dr = comm_max_double(dr);
   double hm = total_mass / 2;
   unsigned const fraction_bits = 52;
   for (unsigned i = 0; 1; ++i) {
