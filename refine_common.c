@@ -16,6 +16,29 @@
 #include "splits_to_elements.h"
 #include "tag.h"
 
+static void refine_verts(struct mesh* m, struct mesh* m_out,
+    unsigned src_dim, unsigned const* gen_offset_of_srcs)
+{
+  unsigned nverts = mesh_count(m, 0);
+  unsigned nsrcs = mesh_count(m, src_dim);
+  unsigned nsplit_srcs = gen_offset_of_srcs[nsrcs];
+  unsigned nverts_out = nverts + nsplit_srcs;
+  mesh_set_ents(m_out, 0, nverts_out, 0);
+  unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
+  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
+    struct const_tag* t = mesh_get_tag(m, 0, i);
+    if (t->type != TAG_F64)
+      continue;
+    double* gen_vals = refine_nodal(src_dim, nsrcs, verts_of_srcs,
+        gen_offset_of_srcs, t->ncomps, t->d.f64);
+    double* vals_out = concat_doubles(t->ncomps, t->d.f64, nverts,
+        gen_vals, nsplit_srcs);
+    loop_free(gen_vals);
+    mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
+  }
+  refine_class(m, m_out, src_dim, gen_offset_of_srcs);
+}
+
 unsigned refine_common(
     struct mesh** p_m,
     unsigned src_dim,
@@ -37,7 +60,6 @@ unsigned refine_common(
   unsigned* gen_offset_of_srcs = mesh_indset_offsets(m, src_dim, candidates,
       src_quals);
   loop_free(src_quals);
-  unsigned nsplit_srcs = gen_offset_of_srcs[nsrcs];
   unsigned nverts = mesh_count(m, 0);
   unsigned* gen_vert_of_srcs = LOOP_MALLOC(unsigned, nsrcs);
   for (unsigned i = 0; i < nsrcs; ++i)
@@ -57,21 +79,7 @@ unsigned refine_common(
   loop_free(gen_vert_of_elems);
   loop_free(gen_direction_of_elems);
   struct mesh* m_out = new_mesh(elem_dim);
-  unsigned nverts_out = nverts + nsplit_srcs;
-  mesh_set_ents(m_out, 0, nverts_out, 0);
-  unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
-  for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
-    struct const_tag* t = mesh_get_tag(m, 0, i);
-    if (t->type != TAG_F64)
-      continue;
-    double* gen_vals = refine_nodal(src_dim, nsrcs, verts_of_srcs,
-        gen_offset_of_srcs, t->ncomps, t->d.f64);
-    double* vals_out = concat_doubles(t->ncomps, t->d.f64, nverts,
-        gen_vals, nsplit_srcs);
-    loop_free(gen_vals);
-    mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
-  }
-  refine_class(m, m_out, src_dim, gen_offset_of_srcs);
+  refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned* offset_of_same_elems = uints_negate_offsets(
