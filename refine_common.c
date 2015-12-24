@@ -28,23 +28,8 @@ unsigned refine_common(
   unsigned nsrcs = mesh_count(m, src_dim);
   if (!uints_max(candidates, nsrcs))
     return 0;
-  unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
-  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  unsigned const* elems_of_srcs_offsets =
-    mesh_ask_up(m, src_dim, elem_dim)->offsets;
-  unsigned const* elems_of_srcs =
-    mesh_ask_up(m, src_dim, elem_dim)->adj;
-  unsigned const* elems_of_srcs_directions =
-    mesh_ask_up(m, src_dim, elem_dim)->directions;
-  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
-  double* elem_quals = 0;
-  if (require_better)
-    elem_quals = mesh_qualities(m);
-  double* src_quals = refine_qualities(elem_dim, src_dim, nsrcs, verts_of_srcs,
-      verts_of_elems, elems_of_srcs_offsets, elems_of_srcs,
-      elems_of_srcs_directions, candidates, coords, qual_floor,
-      elem_quals, require_better);
-  loop_free(elem_quals);
+  double* src_quals = mesh_refine_qualities(m, src_dim, candidates,
+      qual_floor, require_better);
   if (!uints_max(candidates, nsrcs)) {
     loop_free(src_quals);
     return 0;
@@ -66,6 +51,7 @@ unsigned refine_common(
       gen_vert_of_srcs[i] = nverts + gen_offset_of_srcs[i];
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned const* srcs_of_elems = mesh_ask_down(m, elem_dim, src_dim);
+  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned* gen_offset_of_elems;
   unsigned* gen_direction_of_elems;
   unsigned* gen_vert_of_elems;
@@ -83,6 +69,7 @@ unsigned refine_common(
   struct mesh* m_out = new_mesh(elem_dim);
   unsigned nverts_out = nverts + nsplit_srcs;
   mesh_set_ents(m_out, 0, nverts_out, 0);
+  unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
   for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
     struct const_tag* t = mesh_get_tag(m, 0, i);
     if (t->type != TAG_F64)
