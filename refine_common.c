@@ -14,7 +14,7 @@
 #include "refine_nodal.h"
 #include "refine_qualities.h"
 #include "refine_topology.h"
-#include "splits_to_elements.h"
+#include "splits_to_domains.h"
 #include "tag.h"
 
 static void refine_verts(struct mesh* m, struct mesh* m_out,

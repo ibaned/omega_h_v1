@@ -48,7 +48,7 @@ up_from_down.c \
 ints.c \
 vtk.c \
 refine_topology.c \
-splits_to_elements.c \
+splits_to_domains.c \
 quality.c \
 size.c \
 bridge_graph.c \
