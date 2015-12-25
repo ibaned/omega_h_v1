@@ -22,7 +22,7 @@ void concat_verts_of_ents(
     unsigned const* verts_of_ents,
     unsigned const* offset_of_same_ents,
     unsigned const ngen_ents[4],
-    unsigned const* const verts_of_gen_ents[4],
+    unsigned* verts_of_gen_ents[4],
     unsigned* p_nents_out,
     unsigned** p_verts_of_ents_out)
 {
@@ -52,12 +52,12 @@ void concat_verts_of_elems(
     unsigned ngen_elems,
     unsigned const* verts_of_elems,
     unsigned const* offset_of_same_elems,
-    unsigned const* verts_of_gen_elems,
+    unsigned* verts_of_gen_elems,
     unsigned* nelems_out,
     unsigned** verts_of_elems_out)
 {
   unsigned ngen_ents[4] = {0,0,0,ngen_elems};
-  unsigned const* verts_of_gen_ents[4] =
+  unsigned* verts_of_gen_ents[4] =
   {0,0,0,verts_of_gen_elems};
   concat_verts_of_ents(elem_dim, nelems, verts_of_elems,
       offset_of_same_elems, ngen_ents, verts_of_gen_ents,
