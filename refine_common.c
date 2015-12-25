@@ -70,7 +70,7 @@ static void refine_elems(struct mesh* m, struct mesh* m_out,
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned nelems_out;
   unsigned* verts_of_elems_out;
-  concat_verts_of_ents(elem_dim, nelems, ngen_elems, verts_of_elems,
+  concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,
       offset_of_same_elems, verts_of_gen_elems,
       &nelems_out, &verts_of_elems_out);
   loop_free(offset_of_same_elems);
