@@ -7,53 +7,53 @@
 #include "mesh.h"
 #include "tables.h"
 
-void project_splits_to_elements(
-    unsigned elem_dim,
+void project_splits_to_domains(
+    unsigned dom_dim,
     unsigned src_dim,
-    unsigned nelems,
-    unsigned const* srcs_of_elems,
-    unsigned const* gen_offset_of_srcs,
-    unsigned const* gen_vert_of_srcs,
-    unsigned** gen_offset_of_elems_out,
-    unsigned** gen_direction_of_elems_out,
-    unsigned** gen_vert_of_elems_out)
+    unsigned ndoms,
+    unsigned const* srcs_of_doms,
+    unsigned const* offset_of_srcs,
+    unsigned const* vert_of_srcs,
+    unsigned** p_offset_of_doms,
+    unsigned** p_direction_of_doms,
+    unsigned** p_vert_of_doms)
 {
-  assert(elem_dim >= src_dim);
-  unsigned srcs_per_elem = the_down_degrees[elem_dim][src_dim];
-  unsigned* elem_will_split = uints_filled(nelems, 0);
-  unsigned* gen_direction_of_elems = LOOP_MALLOC(unsigned, nelems);
-  unsigned* gen_vert_of_elems = LOOP_MALLOC(unsigned, nelems);
-  for (unsigned i = 0; i < nelems; ++i) {
-    unsigned const* srcs_of_elem = srcs_of_elems + i * srcs_per_elem;
-    for (unsigned j = 0; j < srcs_per_elem; ++j) {
-      unsigned src = srcs_of_elem[j];
-      if (gen_offset_of_srcs[src] == gen_offset_of_srcs[src + 1])
+  assert(dom_dim >= src_dim);
+  unsigned srcs_per_dom = the_down_degrees[dom_dim][src_dim];
+  unsigned* dom_will_split = uints_filled(ndoms, 0);
+  unsigned* direction_of_doms = LOOP_MALLOC(unsigned, ndoms);
+  unsigned* vert_of_doms = LOOP_MALLOC(unsigned, ndoms);
+  for (unsigned i = 0; i < ndoms; ++i) {
+    unsigned const* srcs_of_dom = srcs_of_doms + i * srcs_per_dom;
+    for (unsigned j = 0; j < srcs_per_dom; ++j) {
+      unsigned src = srcs_of_dom[j];
+      if (offset_of_srcs[src] == offset_of_srcs[src + 1])
         continue;
-      elem_will_split[i] = 1;
-      gen_direction_of_elems[i] = j;
-      gen_vert_of_elems[i] = gen_vert_of_srcs[src];
+      dom_will_split[i] = 1;
+      direction_of_doms[i] = j;
+      vert_of_doms[i] = vert_of_srcs[src];
       break;
     }
   }
-  *gen_offset_of_elems_out = uints_exscan(elem_will_split, nelems);
-  *gen_direction_of_elems_out = gen_direction_of_elems;
-  *gen_vert_of_elems_out = gen_vert_of_elems;
-  loop_free(elem_will_split);
+  *p_offset_of_doms = uints_exscan(dom_will_split, ndoms);
+  loop_free(dom_will_split);
+  *p_direction_of_doms = direction_of_doms;
+  *p_vert_of_doms = vert_of_doms;
 }
 
-void mesh_splits_to_elements(
+void mesh_splits_to_domains(
   struct mesh* m,
+  unsigned dom_dim,
   unsigned src_dim,
-  unsigned const* gen_offset_of_srcs,
-  unsigned const* gen_vert_of_srcs,
-  unsigned** p_gen_offset_of_elems,
-  unsigned** p_gen_direction_of_elems,
-  unsigned** p_gen_vert_of_elems)
+  unsigned const* offset_of_srcs,
+  unsigned const* vert_of_srcs,
+  unsigned** p_offset_of_doms,
+  unsigned** p_direction_of_doms,
+  unsigned** p_vert_of_doms)
 {
-  unsigned elem_dim = mesh_dim(m);
-  unsigned nelems = mesh_count(m, elem_dim);
-  unsigned const* srcs_of_elems = mesh_ask_down(m, elem_dim, src_dim);
-  project_splits_to_elements(elem_dim, src_dim, nelems,
-      srcs_of_elems, gen_offset_of_srcs, gen_vert_of_srcs,
-      p_gen_offset_of_elems, p_gen_direction_of_elems, p_gen_vert_of_elems);
+  unsigned ndoms = mesh_count(m, dom_dim);
+  unsigned const* srcs_of_doms = mesh_ask_down(m, dom_dim, src_dim);
+  project_splits_to_domains(dom_dim, src_dim, ndoms,
+      srcs_of_doms, offset_of_srcs, vert_of_srcs,
+      p_offset_of_doms, p_direction_of_doms, p_vert_of_doms);
 }

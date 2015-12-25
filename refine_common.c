@@ -53,7 +53,8 @@ static void refine_elems(struct mesh* m, struct mesh* m_out,
   unsigned* gen_offset_of_elems;
   unsigned* gen_direction_of_elems;
   unsigned* gen_vert_of_elems;
-  mesh_splits_to_elements(m, src_dim, gen_offset_of_srcs, gen_vert_of_srcs,
+  mesh_splits_to_domains(m, elem_dim, src_dim,
+      gen_offset_of_srcs, gen_vert_of_srcs,
       &gen_offset_of_elems, &gen_direction_of_elems, &gen_vert_of_elems);
   loop_free(gen_vert_of_srcs);
   unsigned ngen_elems;
