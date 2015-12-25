@@ -14,7 +14,7 @@
 static void size_fun(double const* x, double* s)
 {
   double coarse = 0.5;
-  double fine = 0.025;
+  double fine = 0.05;
   double radius = vector_norm(x, 3);
   double d = fabs(radius - 0.5);
   s[0] = coarse * d + fine * (1 - d);
