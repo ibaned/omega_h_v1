@@ -1,5 +1,6 @@
 #include "ghost_mesh.h"
 
+#include <assert.h>
 #include <string.h>
 
 #include "arrays.h"
@@ -241,6 +242,7 @@ static void restore_own_ranks(struct mesh* m)
 
 void ghost_mesh(struct mesh** p_m, unsigned nlayers)
 {
+  assert(mesh_ghost_layers(*p_m) == 0);
   if (nlayers == 0)
     return;
   /* we assume the input mesh has no ghosts, so we can
@@ -267,4 +269,5 @@ void ghost_mesh(struct mesh** p_m, unsigned nlayers)
       s.resident[ELEM].ranks, s.resident[ELEM].ids);
   restore_own_ranks(*p_m);
   free_resident(&s.resident[ELEM]);
+  mesh_set_ghost_layers(*p_m, nlayers);
 }
