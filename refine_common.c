@@ -54,7 +54,7 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
   unsigned ngen_ents[4][4] = {{0}};
   unsigned* verts_of_gen_ents[4][4] = {{0}};
   for (unsigned dom_dim = src_dim; dom_dim <= elem_dim; ++dom_dim) {
-    if (dom_dim != elem_dim) /* reduced testing, fixme */
+    if (mesh_get_rep(m) == MESH_REDUCED && dom_dim != elem_dim)
       continue;
     unsigned* offset_of_doms;
     unsigned* direction_of_doms;
@@ -77,7 +77,7 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
   }
   loop_free(gen_vert_of_srcs);
   for (unsigned ent_dim = 1; ent_dim <= elem_dim; ++ent_dim) {
-    if (ent_dim != elem_dim) /* reduced testing, fixme */
+    if (mesh_get_rep(m) == MESH_REDUCED && ent_dim != elem_dim)
       continue;
     unsigned nents = mesh_count(m, ent_dim);
     unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
