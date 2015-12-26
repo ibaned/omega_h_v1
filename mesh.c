@@ -23,7 +23,7 @@ struct up {
 
 struct mesh {
   unsigned elem_dim;
-  int padding__;
+  enum mesh_rep rep;
   unsigned counts[4];
   unsigned* down[4][4];
   struct up* up[4][4];
@@ -300,4 +300,29 @@ unsigned mesh_has_dim(struct mesh* m, unsigned dim)
 struct parallel_mesh* mesh_parallel(struct mesh* m)
 {
   return m->parallel;
+}
+
+enum mesh_rep mesh_get_rep(struct mesh* m)
+{
+  return m->rep;
+}
+
+void mesh_set_rep(struct mesh* m, enum mesh_rep r)
+{
+  m->rep = r;
+}
+
+unsigned mesh_is_parallel(struct mesh* m)
+{
+  return m->parallel != 0;
+}
+
+void mesh_set_parallel(struct mesh* m, unsigned yn)
+{
+  if (yn && !m->parallel)
+    m->parallel = new_parallel_mesh(m);
+  else if (!yn && !m->parallel) {
+    free_parallel_mesh(m->parallel);
+    m->parallel = 0;
+  }
 }
