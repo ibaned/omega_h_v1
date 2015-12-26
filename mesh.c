@@ -137,14 +137,15 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
     unsigned* lows_of_highs = uints_linear(n, 1);
     set_down(m, high_dim, low_dim, lows_of_highs);
   } else {
-    if (low_dim) {/* deriving intermediate downward adjacency */
+    if (low_dim > 0) {/* deriving intermediate downward adjacency */
       unsigned nhighs = m->counts[high_dim];
       unsigned const* verts_of_highs = mesh_ask_down(m, high_dim, 0);
       struct const_up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
       unsigned* lows_of_highs = reflect_down(high_dim, low_dim, nhighs,
           verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
       set_down(m, high_dim, low_dim, lows_of_highs);
-    } else {/* deriving intermediate entities (entity to vertex connectivity) */
+    } else {/* deriving implicit entity to vertex connectivity */
+      assert(mesh_get_rep(m) == MESH_REDUCED);
       if (high_dim == 1 && m->elem_dim == 3) { /* deriving edges in 3D */
         struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
         unsigned nverts = m->counts[0];
