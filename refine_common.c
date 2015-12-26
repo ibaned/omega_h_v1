@@ -15,7 +15,6 @@
 #include "refine_qualities.h"
 #include "refine_topology.h"
 #include "splits_to_domains.h"
-#include "tag.h"
 
 static void refine_verts(struct mesh* m, struct mesh* m_out,
     unsigned src_dim, unsigned const* gen_offset_of_srcs)
@@ -63,7 +62,7 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
         gen_offset_of_srcs, gen_vert_of_srcs,
         &offset_of_doms, &direction_of_doms, &vert_of_doms);
     for (unsigned prod_dim = 1; prod_dim <= dom_dim; ++prod_dim) {
-      if (prod_dim != elem_dim) /* reduced testing, fixme */
+      if (mesh_get_rep(m) == MESH_REDUCED && prod_dim != elem_dim)
         continue;
       mesh_refine_topology(m, dom_dim, src_dim, prod_dim,
           offset_of_doms, direction_of_doms, vert_of_doms,
