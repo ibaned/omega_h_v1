@@ -1,6 +1,7 @@
 #include "refine_common.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "arrays.h"
 #include "concat_topology.h"
@@ -15,6 +16,8 @@
 #include "refine_qualities.h"
 #include "refine_topology.h"
 #include "splits_to_domains.h"
+#include "subset.h"
+#include "tables.h"
 
 static void refine_verts(struct mesh* m, struct mesh* m_out,
     unsigned src_dim, unsigned const* gen_offset_of_srcs)
@@ -49,47 +52,57 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
   for (unsigned i = 0; i < nsrcs; ++i)
     if (gen_offset_of_srcs[i] != gen_offset_of_srcs[i + 1])
       gen_vert_of_srcs[i] = nverts + gen_offset_of_srcs[i];
-  unsigned* offset_of_same_ents[4] = {0};
-  unsigned ngen_ents[4][4] = {{0}};
-  unsigned* verts_of_gen_ents[4][4] = {{0}};
-  for (unsigned dom_dim = src_dim; dom_dim <= elem_dim; ++dom_dim) {
+  unsigned* offset_of_doms[4] = {0};
+  unsigned* direction_of_doms[4] = {0};
+  unsigned* vert_of_doms[4] = {0};
+  for (unsigned dom_dim = 1; dom_dim <= elem_dim; ++dom_dim) {
     if (mesh_get_rep(m) == MESH_REDUCED && dom_dim != elem_dim)
       continue;
-    unsigned* offset_of_doms;
-    unsigned* direction_of_doms;
-    unsigned* vert_of_doms;
-    mesh_splits_to_domains(m, dom_dim, src_dim,
-        gen_offset_of_srcs, gen_vert_of_srcs,
-        &offset_of_doms, &direction_of_doms, &vert_of_doms);
-    for (unsigned prod_dim = 1; prod_dim <= dom_dim; ++prod_dim) {
-      if (mesh_get_rep(m) == MESH_REDUCED && prod_dim != elem_dim)
-        continue;
-      mesh_refine_topology(m, dom_dim, src_dim, prod_dim,
-          offset_of_doms, direction_of_doms, vert_of_doms,
-          &ngen_ents[prod_dim][dom_dim], &verts_of_gen_ents[prod_dim][dom_dim]);
-    }
-    loop_free(direction_of_doms);
-    loop_free(vert_of_doms);
-    unsigned ndoms = mesh_count(m, dom_dim);
-    offset_of_same_ents[dom_dim] = uints_negate_offsets(offset_of_doms, ndoms);
-    loop_free(offset_of_doms);
+    if (dom_dim >= src_dim)
+      mesh_splits_to_domains(m, dom_dim, src_dim,
+          gen_offset_of_srcs, gen_vert_of_srcs,
+          &offset_of_doms[dom_dim], &direction_of_doms[dom_dim],
+          &vert_of_doms[dom_dim]);
+    else
+      offset_of_doms[dom_dim] = uints_filled(mesh_count(m, dom_dim) + 1, 0);
   }
   loop_free(gen_vert_of_srcs);
-  for (unsigned ent_dim = 1; ent_dim <= elem_dim; ++ent_dim) {
-    if (mesh_get_rep(m) == MESH_REDUCED && ent_dim != elem_dim)
+  unsigned ngen_ents[4][4] = {{0}};
+  refined_prod_counts(m, src_dim, offset_of_doms, ngen_ents);
+  unsigned gen_offsets[4][5] = {{0}};
+  for (unsigned prod_dim = 1; prod_dim <= elem_dim; ++prod_dim) {
+    unsigned nsplit_eqs = offset_of_doms[prod_dim][mesh_count(m, prod_dim)];
+    unsigned nsame_eqs = mesh_count(m, prod_dim) - nsplit_eqs;
+    gen_offsets[prod_dim][0] = nsame_eqs;
+    for (unsigned dom_dim = 0; dom_dim < 4; ++dom_dim)
+      gen_offsets[prod_dim][dom_dim + 1] =
+        gen_offsets[prod_dim][dom_dim] +
+        ngen_ents[prod_dim][dom_dim];
+  }
+  for (unsigned prod_dim = 1; prod_dim <= elem_dim; ++prod_dim) {
+    if (mesh_get_rep(m) == MESH_REDUCED && prod_dim != elem_dim)
       continue;
-    unsigned nents = mesh_count(m, ent_dim);
-    unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
-    unsigned nents_out;
-    unsigned* verts_of_ents_out;
-    concat_verts_of_ents(ent_dim,
-        nents, verts_of_ents, offset_of_same_ents[ent_dim],
-        ngen_ents[ent_dim], verts_of_gen_ents[ent_dim],
-        &nents_out, &verts_of_ents_out);
-    loop_free(offset_of_same_ents[ent_dim]);
-    for (unsigned dom_dim = ent_dim; dom_dim <= elem_dim; ++dom_dim)
-      loop_free(verts_of_gen_ents[ent_dim][dom_dim]);
-    mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
+    unsigned nprods = gen_offsets[prod_dim][4];
+    unsigned verts_per_prod = the_down_degrees[prod_dim][0];
+    unsigned* verts_of_prods = LOOP_MALLOC(unsigned, nprods * verts_per_prod);
+    subset_verts_of_doms(m, prod_dim, offset_of_doms[prod_dim], verts_of_prods);
+    for (unsigned dom_dim = prod_dim; dom_dim <= elem_dim; ++dom_dim) {
+      if (dom_dim < src_dim)
+        continue;
+      if (mesh_get_rep(m) == MESH_REDUCED && dom_dim != elem_dim)
+        continue;
+      mesh_refine_topology(m, dom_dim, src_dim, prod_dim,
+          offset_of_doms[dom_dim], direction_of_doms[dom_dim],
+          vert_of_doms[dom_dim],
+          verts_of_prods + 
+              (gen_offsets[prod_dim][dom_dim] * verts_per_prod));
+    }
+    mesh_set_ents(m_out, prod_dim, gen_offsets[prod_dim][4], verts_of_prods);
+  }
+  for (unsigned dom_dim = 1; dom_dim <= elem_dim; ++dom_dim) {
+    loop_free(offset_of_doms[dom_dim]);
+    loop_free(direction_of_doms[dom_dim]);
+    loop_free(vert_of_doms[dom_dim]);
   }
 }
 

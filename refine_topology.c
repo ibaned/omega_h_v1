@@ -29,15 +29,12 @@ void refine_topology(
     unsigned const* offset_of_doms,
     unsigned const* direction_of_doms,
     unsigned const* vert_of_doms,
-    unsigned* p_nprods,
-    unsigned** p_verts_of_prods)
+    unsigned* verts_of_prods)
 {
   assert(dom_dim <= 3);
   assert(dom_dim >= src_dim);
   assert(dom_dim >= prod_dim);
   assert(prod_dim > 0);
-  *p_nprods = 0;
-  *p_verts_of_prods = 0;
   unsigned base_dim = prod_dim - 1;
   unsigned opp_dim = get_opposite_dim(dom_dim, base_dim);
   if (src_dim < opp_dim)
@@ -47,12 +44,9 @@ void refine_topology(
   unsigned nsplit_doms = offset_of_doms[ndoms];
   if (!nsplit_doms)
     return;
-  unsigned nprods = nsplit_doms * opps_per_src;
   unsigned verts_per_prod = the_down_degrees[prod_dim][0];
   unsigned verts_per_base = verts_per_prod - 1;
   unsigned verts_per_dom = the_down_degrees[dom_dim][0];
-  unsigned* verts_of_prods = LOOP_MALLOC(unsigned,
-      nsplit_doms * opps_per_src * verts_per_prod);
   unsigned const* const* dom_opps_of_srcs =
     the_canonical_orders[dom_dim][src_dim][opp_dim];
   unsigned const* const* dom_verts_of_bases =
@@ -77,8 +71,42 @@ void refine_topology(
       verts_of_prod += verts_per_prod;
     }
   }
-  *p_nprods = nprods;
-  *p_verts_of_prods = verts_of_prods;
+}
+
+static unsigned refined_prod_count(
+    struct mesh* m,
+    unsigned dom_dim,
+    unsigned src_dim,
+    unsigned prod_dim,
+    unsigned const* offset_of_doms)
+{
+  unsigned ndoms = mesh_count(m, dom_dim);
+  unsigned base_dim = prod_dim - 1;
+  unsigned opp_dim = get_opposite_dim(dom_dim, base_dim);
+  if (src_dim < opp_dim)
+    return 0;
+  unsigned opps_per_src = the_down_degrees[src_dim][opp_dim];
+  unsigned nsplit_doms = offset_of_doms[ndoms];
+  return nsplit_doms * opps_per_src;
+}
+
+void refined_prod_counts(
+    struct mesh* m,
+    unsigned src_dim,
+    unsigned* offset_of_doms[4],
+    unsigned ngen_ents[4][4])
+{
+  unsigned elem_dim = mesh_dim(m);
+  for (unsigned dom_dim = src_dim; dom_dim <= elem_dim; ++dom_dim) {
+    if (mesh_get_rep(m) == MESH_REDUCED && dom_dim != elem_dim)
+      continue;
+    for (unsigned prod_dim = 1; prod_dim <= dom_dim; ++prod_dim) {
+      if (mesh_get_rep(m) == MESH_REDUCED && prod_dim != elem_dim)
+        continue;
+      ngen_ents[prod_dim][dom_dim] = refined_prod_count(
+          m, dom_dim, src_dim, prod_dim, offset_of_doms[dom_dim]);
+    }
+  }
 }
 
 void mesh_refine_topology(struct mesh* m,
@@ -88,12 +116,11 @@ void mesh_refine_topology(struct mesh* m,
     unsigned const* offset_of_doms,
     unsigned const* vert_of_doms,
     unsigned const* direction_of_doms,
-    unsigned* p_nprods,
-    unsigned** p_verts_of_prods)
+    unsigned* verts_of_prods)
 {
   unsigned ndoms = mesh_count(m, dom_dim);
   unsigned const* verts_of_doms = mesh_ask_down(m, dom_dim, 0);
   refine_topology(dom_dim, src_dim, prod_dim, ndoms, verts_of_doms,
       offset_of_doms, vert_of_doms, direction_of_doms,
-      p_nprods, p_verts_of_prods);
+      verts_of_prods);
 }

@@ -35,4 +35,10 @@ struct mesh* subset_mesh(
     unsigned elem_dim,
     unsigned const* offsets);
 
+void subset_verts_of_doms(
+    struct mesh* m,
+    unsigned dom_dim,
+    unsigned const* offset_of_doms,
+    unsigned* verts_of_prods);
+
 #endif

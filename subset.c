@@ -10,6 +10,19 @@
 #include "tag.h"
 
 #define GENERIC_SUBSET(T,name) \
+static void name##_subset_into( \
+    unsigned n, \
+    unsigned width, \
+    T const* a, \
+    unsigned const* offsets, \
+    T* out) \
+{ \
+  for (unsigned i = 0; i < n; ++i) { \
+    if (offsets[i] != offsets[i + 1]) \
+      for (unsigned j = 0; j < width; ++j) \
+        out[offsets[i] * width + j] = a[i * width + j]; \
+  } \
+} \
 T* name##_subset( \
     unsigned n, \
     unsigned width, \
@@ -18,11 +31,7 @@ T* name##_subset( \
 { \
   unsigned nsub = offsets[n]; \
   T* out = LOOP_MALLOC(T, nsub * width); \
-  for (unsigned i = 0; i < n; ++i) { \
-    if (offsets[i] != offsets[i + 1]) \
-      for (unsigned j = 0; j < width; ++j) \
-        out[offsets[i] * width + j] = a[i * width + j]; \
-  } \
+  name##_subset_into(n, width, a, offsets, out); \
   return out; \
 }
 
@@ -89,4 +98,18 @@ struct mesh* subset_mesh(
   tags_subset(m, out, elem_dim, offsets);
   loop_free(vert_offsets);
   return out;
+}
+
+void subset_verts_of_doms(
+    struct mesh* m,
+    unsigned dom_dim,
+    unsigned const* offset_of_doms,
+    unsigned* verts_of_prods)
+{
+  unsigned const* verts_of_doms = mesh_ask_down(m, dom_dim, 0);
+  unsigned* offset_of_same = uints_negate_offsets(offset_of_doms,
+      mesh_count(m, dom_dim));
+  uints_subset_into(mesh_count(m, dom_dim), the_down_degrees[dom_dim][0],
+      verts_of_doms, offset_of_same, verts_of_prods);
+  loop_free(offset_of_same);
 }

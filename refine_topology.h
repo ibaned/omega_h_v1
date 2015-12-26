@@ -25,10 +25,15 @@ void refine_topology(
     unsigned const* offset_of_doms,
     unsigned const* direction_of_doms,
     unsigned const* vert_of_doms,
-    unsigned* p_nprods,
-    unsigned** p_verts_of_prods);
+    unsigned* verts_of_prods);
 
 struct mesh;
+
+void refined_prod_counts(
+    struct mesh* m,
+    unsigned src_dim,
+    unsigned* offset_of_doms[4],
+    unsigned ngen_ents[4][4]);
 
 void mesh_refine_topology(struct mesh* m,
     unsigned dom_dim,
@@ -37,7 +42,6 @@ void mesh_refine_topology(struct mesh* m,
     unsigned const* offset_of_doms,
     unsigned const* vert_of_doms,
     unsigned const* direction_of_doms,
-    unsigned* p_nprods,
-    unsigned** p_verts_of_prods);
+    unsigned* verts_of_prods);
 
 #endif
