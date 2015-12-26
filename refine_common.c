@@ -71,6 +71,8 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
   refined_prod_counts(m, src_dim, offset_of_doms, ngen_ents);
   unsigned gen_offsets[4][5] = {{0}};
   for (unsigned prod_dim = 1; prod_dim <= elem_dim; ++prod_dim) {
+    if (mesh_get_rep(m) == MESH_REDUCED && prod_dim != elem_dim)
+      continue;
     unsigned nsplit_eqs = offset_of_doms[prod_dim][mesh_count(m, prod_dim)];
     unsigned nsame_eqs = mesh_count(m, prod_dim) - nsplit_eqs;
     gen_offsets[prod_dim][0] = nsame_eqs;
