@@ -36,9 +36,9 @@ static void inherit_uint_tag(
         prod_tag->d.u32, offset_of_same, prod_data);
     loop_free(offset_of_same);
     for (unsigned dom_dim = prod_dim; dom_dim <= elem_dim; ++dom_dim) {
-      if (dom_dim < src_dim)
+      if (mesh_get_rep(m) == MESH_REDUCED && dom_dim != src_dim)
         continue;
-      if (mesh_get_rep(m) == MESH_REDUCED && dom_dim != elem_dim)
+      if (dom_dim < src_dim)
         continue;
       unsigned ndoms = mesh_count(m, dom_dim);
       unsigned nsplit_doms = offset_of_doms[dom_dim][ndoms];
