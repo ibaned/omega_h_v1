@@ -12,6 +12,7 @@ void infer_class(
 
 struct mesh;
 
+void mesh_ask_class(struct mesh* m, unsigned dim);
 unsigned const* mesh_ask_class_dim(struct mesh* m, unsigned dim);
 unsigned const* mesh_ask_class_id(struct mesh* m, unsigned dim);
 

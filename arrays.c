@@ -52,20 +52,26 @@ GENERIC_SHUFFLE(double, doubles)
 
 #define GENERIC_EXPAND(T, name) \
 LOOP_KERNEL(expand_##name##_kern, T const* a, unsigned width, \
-    unsigned const* offsets, T* o) \
+    unsigned const* offsets, T* out) \
   unsigned first = offsets[i]; \
   unsigned end = offsets[i + 1]; \
   for (unsigned j = first; j < end; ++j) \
     for (unsigned k = 0; k < width; ++k) \
-      o[j * width + k] = a[i * width + k]; \
+      out[j * width + k] = a[i * width + k]; \
+} \
+void name##_expand_into(unsigned n, T const* a, \
+    unsigned width, unsigned const* offsets, \
+    T* out) \
+{ \
+  LOOP_EXEC(expand_##name##_kern, n, a, width, offsets, out); \
 } \
 T* name##_expand(unsigned n, T const* a, \
     unsigned width, unsigned const* offsets) \
 { \
   unsigned nout = offsets[n]; \
-  T* o = LOOP_MALLOC(T, nout * width); \
-  LOOP_EXEC(expand_##name##_kern, n, a, width, offsets, o); \
-  return o; \
+  T* out = LOOP_MALLOC(T, nout * width); \
+  name##_expand_into(n, a, width, offsets, out); \
+  return out; \
 }
 
 GENERIC_EXPAND(unsigned, uints)

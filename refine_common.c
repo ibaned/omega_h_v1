@@ -39,7 +39,6 @@ static void refine_verts(struct mesh* m, struct mesh* m_out,
     loop_free(gen_vals);
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
   }
-  refine_class(m, m_out, src_dim, gen_offset_of_srcs);
 }
 
 static void refine_ents(struct mesh* m, struct mesh* m_out,
@@ -55,6 +54,7 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
   unsigned* offset_of_doms[4] = {0};
   unsigned* direction_of_doms[4] = {0};
   unsigned* vert_of_doms[4] = {0};
+  offset_of_doms[0] = uints_filled(nverts + 1, 0);
   for (unsigned dom_dim = 1; dom_dim <= elem_dim; ++dom_dim) {
     if (mesh_get_rep(m) == MESH_REDUCED && dom_dim != elem_dim)
       continue;
@@ -76,6 +76,9 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
     unsigned nsplit_eqs = offset_of_doms[prod_dim][mesh_count(m, prod_dim)];
     unsigned nsame_eqs = mesh_count(m, prod_dim) - nsplit_eqs;
     gen_offsets[prod_dim][0] = nsame_eqs;
+  }
+  gen_offsets[0][0] = nverts;
+  for (unsigned prod_dim = 0; prod_dim < 4; ++prod_dim) {
     for (unsigned dom_dim = 0; dom_dim < 4; ++dom_dim)
       gen_offsets[prod_dim][dom_dim + 1] =
         gen_offsets[prod_dim][dom_dim] +
@@ -101,7 +104,8 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
     }
     mesh_set_ents(m_out, prod_dim, gen_offsets[prod_dim][4], verts_of_prods);
   }
-  for (unsigned dom_dim = 1; dom_dim <= elem_dim; ++dom_dim) {
+  refine_class(m, m_out, src_dim, offset_of_doms, ngen_ents, gen_offsets);
+  for (unsigned dom_dim = 0; dom_dim <= elem_dim; ++dom_dim) {
     loop_free(offset_of_doms[dom_dim]);
     loop_free(direction_of_doms[dom_dim]);
     loop_free(vert_of_doms[dom_dim]);

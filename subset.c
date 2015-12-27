@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "arrays.h"
 #include "ints.h"
 #include "loop.h"
 #include "mark.h"
@@ -9,8 +10,10 @@
 #include "tables.h"
 #include "tag.h"
 
+/* TODO: this is a special case of _expand.
+   replace all _subset calls with _expand calls */
 #define GENERIC_SUBSET(T,name) \
-static void name##_subset_into( \
+void name##_subset_into( \
     unsigned n, \
     unsigned width, \
     T const* a, \

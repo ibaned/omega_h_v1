@@ -28,7 +28,8 @@ int main()
   mesh_set_rep(m, MESH_FULL);
   char fname[64];
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
-  for (unsigned it = 0; 1; ++it) {
+  write_vtu(m, "out_0.vtu");
+  for (unsigned it = 1; 1; ++it) {
     if (!refine_by_size(&m, 0))
       break;
     printf("%u elements, %u vertices\n", mesh_count(m, mesh_dim(m)), mesh_count(m, 0));

@@ -19,6 +19,13 @@ double* doubles_shuffle(unsigned n, double const* a,
 double* doubles_unshuffle(unsigned n, double const* a,
     unsigned width, unsigned const* out_of_in);
 
+void uints_expand_into(unsigned n, unsigned const* a,
+    unsigned width, unsigned const* offsets, unsigned* out);
+void ulongs_expand_into(unsigned n, unsigned long const* a,
+    unsigned width, unsigned const* offsets, unsigned long* out);
+void doubles_expand_into(unsigned n, double const* a,
+    unsigned width, unsigned const* offsets, double* out);
+
 unsigned* uints_expand(unsigned n, unsigned const* a,
     unsigned width, unsigned const* offsets);
 unsigned long* ulongs_expand(unsigned n, unsigned long const* a,

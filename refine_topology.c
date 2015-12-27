@@ -107,6 +107,8 @@ void refined_prod_counts(
           m, dom_dim, src_dim, prod_dim, offset_of_doms[dom_dim]);
     }
   }
+  unsigned nsrcs = mesh_count(m, src_dim);
+  ngen_ents[0][src_dim] = offset_of_doms[src_dim][nsrcs];
 }
 
 void mesh_refine_topology(struct mesh* m,
