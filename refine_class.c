@@ -70,7 +70,8 @@ void refine_class(
     unsigned ngen_ents[4][4],
     unsigned gen_offsets[4][5])
 {
-  if (mesh_get_rep(m_in) == MESH_REDUCED)
+  if (mesh_get_rep(m_in) == MESH_REDUCED &&
+      mesh_find_tag(m_in, 0, "class_dim"))
     mesh_ask_class(m_in, src_dim);
   inherit_uint_tag(m_in, m_out, src_dim, offset_of_doms, ngen_ents,
       gen_offsets, "class_dim");

@@ -56,7 +56,7 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
   unsigned* vert_of_doms[4] = {0};
   offset_of_doms[0] = uints_filled(nverts + 1, 0);
   for (unsigned dom_dim = 1; dom_dim <= elem_dim; ++dom_dim) {
-    if (mesh_get_rep(m) == MESH_REDUCED && dom_dim != elem_dim)
+    if (!mesh_has_dim(m, dom_dim))
       continue;
     if (dom_dim >= src_dim)
       mesh_splits_to_domains(m, dom_dim, src_dim,
