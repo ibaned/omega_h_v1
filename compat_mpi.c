@@ -23,6 +23,19 @@ int compat_Neighbor_alltoallv(
       recvbuf, recvcounts, rdispls, recvtype, comm);
 }
 
+int compat_Neighbor_allgather(
+    const void *sendbuf,
+    int sendcount,
+    MPI_Datatype sendtype,
+    void *recvbuf,
+    int recvcount,
+    MPI_Datatype recvtype,
+    MPI_Comm comm)
+{
+  return MPI_Neighbor_allgather(sendbuf, sendcount, sendtype,
+      recvbuf, recvcount, recvtype, comm);
+}
+
 #else
 
 #define MY_TAG 42
@@ -67,6 +80,47 @@ int compat_Neighbor_alltoallv(
   for (int i = 0; i < outdegree; ++i)
     CALL(MPI_Isend(((char const*)sendbuf) + sdispls[i] * sendwidth,
           sendcounts[i], sendtype, destinations[i], MY_TAG, comm,
+          sendreqs + i));
+  loop_host_free(destinations);
+  CALL(MPI_Waitall(outdegree, sendreqs, MPI_STATUSES_IGNORE));
+  loop_host_free(sendreqs);
+  CALL(MPI_Waitall(indegree, recvreqs, MPI_STATUSES_IGNORE));
+  loop_host_free(recvreqs);
+  return MPI_SUCCESS;
+}
+
+int compat_Neighbor_allgather(
+    const void *sendbuf,
+    int sendcount,
+    MPI_Datatype sendtype,
+    void *recvbuf,
+    int recvcount,
+    MPI_Datatype recvtype,
+    MPI_Comm comm)
+{
+  int indegree, outdegree, weighted;
+  CALL(MPI_Dist_graph_neighbors_count(comm, &indegree, &outdegree, &weighted));
+  int* sources = LOOP_HOST_MALLOC(int, (unsigned) indegree);
+  int* sourceweights = LOOP_HOST_MALLOC(int, (unsigned) indegree);
+  int* destinations = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
+  int* destweights = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
+  CALL(MPI_Dist_graph_neighbors(comm, indegree, sources, sourceweights,
+        outdegree, destinations, destweights));
+  loop_host_free(sourceweights);
+  loop_host_free(destweights);
+  int recvwidth;
+  CALL(MPI_Type_size(sendtype, &recvwidth));
+  MPI_Request* recvreqs = LOOP_HOST_MALLOC(MPI_Request, (unsigned) indegree);
+  MPI_Request* sendreqs = LOOP_HOST_MALLOC(MPI_Request, (unsigned) outdegree);
+  for (int i = 0; i < indegree; ++i)
+    CALL(MPI_Irecv(((char*)recvbuf) + i * recvcount * recvwidth,
+          recvcount, recvtype, sources[i], MY_TAG, comm,
+          recvreqs + i));
+  loop_host_free(sources);
+  CALL(MPI_Barrier(comm));
+  for (int i = 0; i < outdegree; ++i)
+    CALL(MPI_Isend(sendbuf,
+          sendcount, sendtype, destinations[i], MY_TAG, comm,
           sendreqs + i));
   loop_host_free(destinations);
   CALL(MPI_Waitall(outdegree, sendreqs, MPI_STATUSES_IGNORE));

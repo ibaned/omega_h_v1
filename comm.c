@@ -184,7 +184,7 @@ void comm_exch_ulongs(struct comm* c,
 
 static void comm_sync_any(struct comm* c, void const* out, void* in, MPI_Datatype type)
 {
-  CALL(MPI_Neighbor_allgather(out, 1, type, in, 1, type, c->c));
+  CALL(compat_Neighbor_allgather(out, 1, type, in, 1, type, c->c));
 }
 
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
