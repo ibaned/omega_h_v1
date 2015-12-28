@@ -123,15 +123,22 @@ derive_model.c
 
 #handle optional features:
 USE_MPI ?= 0
+USE_MPI3 ?= 0
 USE_CUDA_MALLOC_MANAGED ?= 1
 MEASURE_MEMORY ?= 0
 LOOP_MODE ?= serial
-#comm.c is compiled with -DUSE_MPI
-objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
-objs/loop_host.o : CFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
+#comm.c is compiled with -DUSE_MPI=
+objs/comm.o : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
+deps/comm.dep : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
+ifeq "$(USE_MPI)" "1"
+lib_sources += compat_mpi.c
+objs/compat_mpi.o : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
+deps/compat_mpi.dep : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
+endif
+objs/loop_host.o : CPPFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
 lib_sources += loop_$(LOOP_MODE).c
 ifeq "$(LOOP_MODE)" "cuda"
-objs/loop_cuda.o : CFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
+objs/loop_cuda.o : CPPFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
 endif
 
 #generated file names are derived from source

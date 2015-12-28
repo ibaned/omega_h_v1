@@ -5,13 +5,8 @@
 #include "loop.h"
 
 #if USE_MPI
-#include <mpi.h>
 
-struct comm {
-  MPI_Comm c;
-};
-
-#define CALL(f) do { int err = (f); assert(err == MPI_SUCCESS); } while(0)
+#include "compat_mpi.h"
 
 static struct comm world = { MPI_COMM_WORLD };
 static struct comm self = { MPI_COMM_SELF };
@@ -152,7 +147,7 @@ static void comm_exch_any(struct comm* c,
     recvcounts[i] = (int) (incounts[i] * width);
     rdispls[i] = (int) (inoffsets[i] * width);
   }
-  CALL(MPI_Neighbor_alltoallv(out, sendcounts, sdispls, type,
+  CALL(compat_Neighbor_alltoallv(out, sendcounts, sdispls, type,
         in, recvcounts, rdispls, type, c->c));
   loop_host_free(sendcounts);
   loop_host_free(sdispls);
