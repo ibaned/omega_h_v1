@@ -4,5 +4,5 @@ CPP = mpicc
 CFLAGS = -O2 -Wall -Wextra -pedantic -std=c99
 LDFLAGS = -flto -O2
 LDLIBS = -lm
-# CCI's MPI library is older than MPI3. not good.
+# CCI's MPI library is older than MPI3.
 USE_MPI = 0
