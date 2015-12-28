@@ -19,7 +19,7 @@ int compat_Neighbor_alltoallv(
     MPI_Datatype recvtype,
     MPI_Comm comm)
 {
-  return MPI_Neighbor_alltoallv(sendbug, sendcounts, sdispls, sendtype,
+  return MPI_Neighbor_alltoallv(sendbuf, sendcounts, sdispls, sendtype,
       recvbuf, recvcounts, rdispls, recvtype, comm);
 }
 
