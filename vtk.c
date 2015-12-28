@@ -664,11 +664,11 @@ static void write_pieces(FILE* file, char const* pathname, unsigned npieces)
 }
 
 void write_pvtu(struct mesh* m, char const* filename,
-    unsigned npieces, unsigned nghost_levels)
+    unsigned npieces)
 {
   FILE* file = fopen(filename, "w");
   fprintf(file, "<VTKFile type=\"PUnstructuredGrid\">\n");
-  fprintf(file, "<PUnstructuredGrid GhostLevel=\"%u\">\n", nghost_levels);
+  fprintf(file, "<PUnstructuredGrid GhostLevel=\"%u\">\n", mesh_ghost_layers(m));
   struct const_tag* coord_tag = mesh_find_tag(m, 0, "coordinates");
   fprintf(file, "<PPointData>\n");
   for (unsigned i = 0; i < mesh_count_tags(m, 0); ++i) {
@@ -754,7 +754,7 @@ void write_parallel_vtu(struct mesh* m, char const* outpath)
   mesh_add_tag(m, mesh_dim(m), TAG_U32, "piece", 1, piece);
   write_vtu(m, piecepath);
   if (!comm_rank() && !strcmp(suffix, "pvtu"))
-    write_pvtu(m, outpath, comm_size(), 0);
+    write_pvtu(m, outpath, comm_size());
   mesh_free_tag(m, mesh_dim(m), "piece");
 }
 

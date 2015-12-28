@@ -19,7 +19,7 @@ static void split(struct mesh* m, char const* outpath, unsigned npieces,
 {
   if (depth == 0) {
     if (piece == 0)
-      write_pvtu(m, outpath, npieces, 0);
+      write_pvtu(m, outpath, npieces);
     char prefix[1024];
     split_pathname(outpath, prefix, sizeof(prefix), 0, 0);
     char vtupath[1024];
