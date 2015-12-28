@@ -22,6 +22,7 @@ int main()
   m = bcast_mesh_metadata(m);
   mesh_number_simply(m, 0);
   mesh_number_simply(m, 1);
+  mesh_number_simply(m, 2);
   write_parallel_vtu(m, "before.pvtu");
   if (comm_rank() == 0) {
     unsigned n = 1;
