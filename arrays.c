@@ -59,21 +59,22 @@ LOOP_KERNEL(expand_##name##_kern, T const* a, unsigned width, \
     for (unsigned k = 0; k < width; ++k) \
       out[j * width + k] = a[i * width + k]; \
 } \
-void name##_expand_into(unsigned n, T const* a, \
-    unsigned width, unsigned const* offsets, \
+void name##_expand_into(unsigned n, unsigned width, \
+    T const* a, unsigned const* offsets, \
     T* out) \
 { \
   LOOP_EXEC(expand_##name##_kern, n, a, width, offsets, out); \
 } \
-T* name##_expand(unsigned n, T const* a, \
-    unsigned width, unsigned const* offsets) \
+T* name##_expand(unsigned n, unsigned width, \
+    T const* a, unsigned const* offsets) \
 { \
   unsigned nout = offsets[n]; \
   T* out = LOOP_MALLOC(T, nout * width); \
-  name##_expand_into(n, a, width, offsets, out); \
+  name##_expand_into(n, width, a, offsets, out); \
   return out; \
 }
 
+GENERIC_EXPAND(unsigned char, uchars)
 GENERIC_EXPAND(unsigned, uints)
 GENERIC_EXPAND(unsigned long, ulongs)
 GENERIC_EXPAND(double, doubles)

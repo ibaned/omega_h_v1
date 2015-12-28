@@ -52,10 +52,10 @@ static void get_elem_use_owners_of_verts(
   }
   unsigned const* vert_own_ranks = mesh_ask_own_ranks(m, 0);
   unsigned const* vert_own_ids = mesh_ask_own_ids(m, 0);
-  unsigned* dest_ranks = uints_expand(nverts,
-      vert_own_ranks, 1, elems_of_verts_offsets);
-  unsigned* dest_ids = uints_expand(nverts,
-      vert_own_ids, 1, elems_of_verts_offsets);
+  unsigned* dest_ranks = uints_expand(nverts, 1,
+      vert_own_ranks, elems_of_verts_offsets);
+  unsigned* dest_ids = uints_expand(nverts, 1,
+      vert_own_ids, elems_of_verts_offsets);
   struct exchanger* ex = new_exchanger(nuses_in, dest_ranks);
   loop_free(dest_ranks);
   set_exchanger_dests(ex, nverts, dest_ids);

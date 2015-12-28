@@ -32,7 +32,7 @@ static void inherit_uint_tag(
     unsigned* offset_of_same = uints_negate_offsets(offset_of_doms[prod_dim],
         nold);
     assert(offset_of_same[nold] == gen_offsets[prod_dim][0]);
-    uints_subset_into(nold, prod_tag->ncomps,
+    uints_expand_into(nold, prod_tag->ncomps,
         prod_tag->d.u32, offset_of_same, prod_data);
     loop_free(offset_of_same);
     for (unsigned dom_dim = prod_dim; dom_dim <= elem_dim; ++dom_dim) {
@@ -53,7 +53,7 @@ static void inherit_uint_tag(
       for (unsigned i = 0; i <= ndoms; ++i)
         offsets[i] = (offset_of_doms[dom_dim][i] * prods_per_dom) +
           gen_offsets[prod_dim][dom_dim];
-      uints_expand_into(ndoms, dom_tag->d.u32, dom_tag->ncomps,
+      uints_expand_into(ndoms, dom_tag->ncomps, dom_tag->d.u32,
           offsets, prod_data);
       loop_free(offsets);
     }

@@ -12,6 +12,8 @@ void check_reduced_collapse_class(
     unsigned* col_codes)
 {
   unsigned elem_dim = mesh_dim(m);
+  /* TODO: it may actually be possible to run this code in 1D.
+     Try that sometime... */
   assert(elem_dim >= 2);
   unsigned nedges = mesh_count(m, 1);
   unsigned const* class_dim_of_verts = mesh_find_tag(

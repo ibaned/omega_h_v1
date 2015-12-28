@@ -10,39 +10,6 @@
 #include "tables.h"
 #include "tag.h"
 
-/* TODO: this is a special case of _expand.
-   replace all _subset calls with _expand calls */
-#define GENERIC_SUBSET(T,name) \
-void name##_subset_into( \
-    unsigned n, \
-    unsigned width, \
-    T const* a, \
-    unsigned const* offsets, \
-    T* out) \
-{ \
-  for (unsigned i = 0; i < n; ++i) { \
-    if (offsets[i] != offsets[i + 1]) \
-      for (unsigned j = 0; j < width; ++j) \
-        out[offsets[i] * width + j] = a[i * width + j]; \
-  } \
-} \
-T* name##_subset( \
-    unsigned n, \
-    unsigned width, \
-    T const* a, \
-    unsigned const* offsets) \
-{ \
-  unsigned nsub = offsets[n]; \
-  T* out = LOOP_MALLOC(T, nsub * width); \
-  name##_subset_into(n, width, a, offsets, out); \
-  return out; \
-}
-
-GENERIC_SUBSET(unsigned char, uchars)
-GENERIC_SUBSET(unsigned, uints)
-GENERIC_SUBSET(unsigned long, ulongs)
-GENERIC_SUBSET(double, doubles)
-
 void tags_subset(struct mesh* in, struct mesh* out,
     unsigned dim, unsigned const* offsets)
 {
@@ -52,19 +19,19 @@ void tags_subset(struct mesh* in, struct mesh* out,
     void* vals_out = 0;
     switch (t->type) {
       case TAG_U8:
-        vals_out = uchars_subset(nverts, t->ncomps, t->d.u8,
+        vals_out = uchars_expand(nverts, t->ncomps, t->d.u8,
             offsets);
         break;
       case TAG_U32:
-        vals_out = uints_subset(nverts, t->ncomps, t->d.u32,
+        vals_out = uints_expand(nverts, t->ncomps, t->d.u32,
             offsets);
         break;
       case TAG_U64:
-        vals_out = ulongs_subset(nverts, t->ncomps, t->d.u64,
+        vals_out = ulongs_expand(nverts, t->ncomps, t->d.u64,
             offsets);
         break;
       case TAG_F64:
-        vals_out = doubles_subset(nverts, t->ncomps, t->d.f64,
+        vals_out = doubles_expand(nverts, t->ncomps, t->d.f64,
             offsets);
         break;
     }
@@ -81,7 +48,7 @@ struct mesh* subset_mesh(
   unsigned nelems_out = offsets[nelems];
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned* verts_of_elems_out = uints_subset(nelems, verts_per_elem,
+  unsigned* verts_of_elems_out = uints_expand(nelems, verts_per_elem,
       verts_of_elems, offsets);
   unsigned nverts = mesh_count(m, 0);
   unsigned* marked_elems = uints_unscan(offsets, nelems);
@@ -112,7 +79,7 @@ void subset_verts_of_doms(
   unsigned const* verts_of_doms = mesh_ask_down(m, dom_dim, 0);
   unsigned* offset_of_same = uints_negate_offsets(offset_of_doms,
       mesh_count(m, dom_dim));
-  uints_subset_into(mesh_count(m, dom_dim), the_down_degrees[dom_dim][0],
+  uints_expand_into(mesh_count(m, dom_dim), the_down_degrees[dom_dim][0],
       verts_of_doms, offset_of_same, verts_of_prods);
   loop_free(offset_of_same);
 }

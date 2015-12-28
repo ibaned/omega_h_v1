@@ -28,7 +28,7 @@ void concat_verts_of_ents(
 {
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned nsame_ents = offset_of_same_ents[nents];
-  unsigned* verts_of_same_ents = uints_subset(nents, verts_per_ent,
+  unsigned* verts_of_same_ents = uints_expand(nents, verts_per_ent,
       verts_of_ents, offset_of_same_ents);
   unsigned nents_out = nsame_ents;
   for (unsigned i = 0; i < 4; ++i)

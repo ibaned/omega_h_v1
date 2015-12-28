@@ -19,19 +19,23 @@ double* doubles_shuffle(unsigned n, double const* a,
 double* doubles_unshuffle(unsigned n, double const* a,
     unsigned width, unsigned const* out_of_in);
 
-void uints_expand_into(unsigned n, unsigned const* a,
-    unsigned width, unsigned const* offsets, unsigned* out);
-void ulongs_expand_into(unsigned n, unsigned long const* a,
-    unsigned width, unsigned const* offsets, unsigned long* out);
-void doubles_expand_into(unsigned n, double const* a,
-    unsigned width, unsigned const* offsets, double* out);
+void uchars_expand_into(unsigned n, unsigned width,
+    unsigned char const* a, unsigned const* offsets, unsigned char* out);
+void uints_expand_into(unsigned n, unsigned width,
+    unsigned const* a, unsigned const* offsets, unsigned* out);
+void ulongs_expand_into(unsigned n, unsigned width,
+    unsigned long const* a, unsigned const* offsets, unsigned long* out);
+void doubles_expand_into(unsigned n, unsigned width,
+    double const* a, unsigned const* offsets, double* out);
 
-unsigned* uints_expand(unsigned n, unsigned const* a,
-    unsigned width, unsigned const* offsets);
-unsigned long* ulongs_expand(unsigned n, unsigned long const* a,
-    unsigned width, unsigned const* offsets);
-double* doubles_expand(unsigned n, double const* a,
-    unsigned width, unsigned const* offsets);
+unsigned char* uchars_expand(unsigned n, unsigned width,
+    unsigned char const* a, unsigned const* offsets);
+unsigned* uints_expand(unsigned n, unsigned width,
+    unsigned const* a, unsigned const* offsets);
+unsigned long* ulongs_expand(unsigned n, unsigned width,
+    unsigned long const* a, unsigned const* offsets);
+double* doubles_expand(unsigned n, unsigned width,
+    double const* a, unsigned const* offsets);
 
 unsigned* concat_uints(unsigned width,
     unsigned const* a, unsigned na,
