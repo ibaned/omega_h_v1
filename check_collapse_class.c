@@ -4,22 +4,30 @@
 
 #include "collapse_codes.h"
 #include "ints.h"
+#include "mesh.h"
 #include "tables.h"
 
-void check_collapse_class(
-    unsigned elem_dim,
-    unsigned nedges,
-    unsigned* col_codes,
-    unsigned const* class_dim_of_verts,
-    unsigned const* verts_of_elems,
-    unsigned const* verts_of_edges,
-    unsigned const* verts_of_verts_offsets,
-    unsigned const* verts_of_verts,
-    unsigned const* elems_of_edges_offsets,
-    unsigned const* elems_of_edges,
-    unsigned const* elems_of_edges_directions)
+void check_reduced_collapse_class(
+    struct mesh* m,
+    unsigned* col_codes)
 {
+  unsigned elem_dim = mesh_dim(m);
   assert(elem_dim >= 2);
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* class_dim_of_verts = mesh_find_tag(
+      m, 0, "class_dim")->d.u32;
+  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
+  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
+  unsigned const* verts_of_verts_offsets =
+      mesh_ask_star(m, 0, elem_dim)->offsets;
+  unsigned const* verts_of_verts =
+      mesh_ask_star(m, 0, elem_dim)->adj;
+  unsigned const* elems_of_edges_offsets =
+      mesh_ask_up(m, 1, elem_dim)->offsets;
+  unsigned const* elems_of_edges =
+      mesh_ask_up(m, 1, elem_dim)->adj;
+  unsigned const* elems_of_edges_directions =
+      mesh_ask_up(m, 1, elem_dim)->directions;
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned opp_dim = get_opposite_dim(elem_dim, 1);
   unsigned verts_per_opp = the_down_degrees[opp_dim][0];

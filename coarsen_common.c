@@ -33,17 +33,8 @@ unsigned coarsen_common(
   unsigned nverts = mesh_count(m, 0);
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
-  unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->d.u32;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  unsigned const* verts_of_verts_offsets = mesh_ask_star(m, 0, elem_dim)->offsets;
-  unsigned const* verts_of_verts = mesh_ask_star(m, 0, elem_dim)->adj;
-  unsigned const* elems_of_edges_offsets = mesh_ask_up(m, 1, elem_dim)->offsets;
-  unsigned const* elems_of_edges = mesh_ask_up(m, 1, elem_dim)->adj;
-  unsigned const* elems_of_edges_directions =
-    mesh_ask_up(m, 1, elem_dim)->directions;
-  check_collapse_class(elem_dim, nedges, col_codes, class_dim,
-      verts_of_elems, verts_of_edges, verts_of_verts_offsets, verts_of_verts,
-      elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions);
+  check_reduced_collapse_class(m, col_codes);
   unsigned const* elems_of_verts_offsets = mesh_ask_up(m, 0, elem_dim)->offsets;
   unsigned const* elems_of_verts = mesh_ask_up(m, 0, elem_dim)->adj;
   unsigned const* elems_of_verts_directions = mesh_ask_up(m, 0, elem_dim)->directions;
