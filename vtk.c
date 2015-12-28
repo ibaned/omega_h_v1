@@ -367,6 +367,16 @@ static void write_tags(FILE* file, struct mesh* m, unsigned dim,
   }
 }
 
+static void write_unstructured_header(FILE* file)
+{
+  fprintf(file, "<VTKFile type=\"UnstructuredGrid\" byte_order=\"");
+  if (endianness() == MY_LITTLE_ENDIAN)
+    fprintf(file, "LittleEndian");
+  else
+    fprintf(file, "BigEndian");
+  fprintf(file, "\">\n");
+}
+
 void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
 {
   unsigned elem_dim = mesh_dim(m);
@@ -375,7 +385,7 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
   unsigned do_edges = ((elem_dim > 1) && mesh_has_dim(m, 1));
   unsigned do_faces = ((elem_dim > 2) && mesh_has_dim(m, 2));
   FILE* file = fopen(filename, "w");
-  fprintf(file, "<VTKFile type=\"UnstructuredGrid\">\n");
+  write_unstructured_header(file);
   fprintf(file, "<UnstructuredGrid>\n");
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\"", nverts, nelems);
   if (do_edges)
@@ -599,7 +609,7 @@ void write_vtu_cloud_opts(struct cloud* c, char const* filename,
 {
   unsigned npts = cloud_count(c);
   FILE* file = fopen(filename, "w");
-  fprintf(file, "<VTKFile type=\"UnstructuredGrid\">\n");
+  write_unstructured_header(file);
   fprintf(file, "<UnstructuredGrid>\n");
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"1\">\n", npts);
   fprintf(file, "<Points>\n");
