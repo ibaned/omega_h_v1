@@ -4,7 +4,6 @@
 
 #include "arrays.h"
 #include "loop.h"
-#include "subset.h"
 #include "tables.h"
 
 static void append(unsigned* out, unsigned* offset,

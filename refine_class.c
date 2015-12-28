@@ -7,7 +7,6 @@
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
-#include "subset.h"
 
 static void inherit_uint_tag(
     struct mesh* m,
