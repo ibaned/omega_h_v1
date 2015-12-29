@@ -2,7 +2,8 @@
 #define LOOP_CUDA_H
 
 #include "loop_host.h"
-#include "stdio.h"
+
+#include <assert.h>
 
 void* loop_cuda_malloc(unsigned long n);
 #define LOOP_CUDA_MALLOC(T, n) \
@@ -46,18 +47,15 @@ static inline unsigned loop_ceildiv(unsigned a, unsigned b)
 
 #define CUDACALL(f) \
 do { \
-  cudaError_t err = f; \
-  if (err != cudaSuccess) { \
-    const char* errs = cudaGetErrorString(err); \
-    fprintf(stderr, "call %s failed at %s:%d : %s\n", \
-                    #f, __FILE__, __LINE__, errs); \
-    abort(); \
-  } \
+  cudaError_t ret = (f); \
+  assert(ret == cudaSuccess); \
 } while (0)
 
 #define LOOP_EXEC(fname, n, ...) \
+do { \
 fname<<< loop_ceildiv((n), LOOP_BLOCK_SIZE), LOOP_BLOCK_SIZE >>>(n,__VA_ARGS__);\
-CUDACALL(cudaDeviceSynchronize());
+CUDACALL(cudaGetLastError()); \
+} while(0)
 
 unsigned loop_size(void);
 
