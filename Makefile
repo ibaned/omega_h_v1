@@ -119,9 +119,11 @@ migrate_mesh.c \
 bcast.c \
 close_partition.c \
 ghost_mesh.c \
-derive_model.c
+derive_model.c \
+compress.c
 
 #handle optional features:
+USE_ZLIB ?= 0
 USE_MPI ?= 0
 USE_MPI3 ?= 0
 USE_CUDA_MALLOC_MANAGED ?= 1
@@ -139,6 +141,10 @@ objs/loop_host.o : CPPFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
 lib_sources += loop_$(LOOP_MODE).c
 ifeq "$(LOOP_MODE)" "cuda"
 objs/loop_cuda.o : CPPFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
+endif
+objs/compress.o : CPPFLAGS += -DUSE_ZLIB=$(USE_ZLIB)
+ifeq "$(USE_ZLIB)" "1"
+objs/compress.o : CPPFLAGS += -I$(ZLIB_INCLUDE)
 endif
 
 #generated file names are derived from source
