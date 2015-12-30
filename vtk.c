@@ -9,6 +9,7 @@
 #include "base64.h"
 #include "cloud.h"
 #include "comm.h"
+#include "compress.h"
 #include "files.h"
 #include "ints.h"
 #include "loop.h"
@@ -141,33 +142,70 @@ static unsigned read_array_ncomps(char const* header)
   return 1;
 }
 
+static void write_binary_uints(FILE* file, unsigned const* x, unsigned n)
+{
+  char* s = base64_encode(x, n * sizeof(unsigned));
+  fputs(s, file);
+  loop_host_free(s);
+}
+
 static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
     unsigned ncomps, void const* data)
 {
   unsigned tsize = tag_size(t);
   unsigned size = tsize * ncomps * nents;
-  char* s = base64_encode(&size, sizeof(size));
-  fputs(s, file);
-  loop_host_free(s);
-  s = base64_encode(data, size);
+  unsigned long comp_size;
+  void* comp = my_compress(data, size, &comp_size);
+  if (can_compress) {
+    unsigned comp_header[4] = {1, size, size, (unsigned) comp_size};
+    write_binary_uints(file, comp_header, 4);
+  } else
+    write_binary_uints(file, &size, 1);
+  char* s = base64_encode(comp, comp_size);
+  loop_host_free(comp);
   fputs(s, file);
   loop_host_free(s);
   fputc('\n', file);
 }
 
-static void* read_binary_array(FILE* file, enum endian end, enum tag_type t,
-    unsigned nents, unsigned ncomps)
+static void read_binary_uints(char const** p, unsigned* x, unsigned n)
 {
+  unsigned* dec = (unsigned*) base64_decode(p, n * sizeof(unsigned));
+  for (unsigned i = 0; i < n; ++i)
+    x[i] = dec[i];
+  loop_host_free(dec);
+}
+
+static void* read_binary_array(FILE* file, enum endian end, unsigned do_com,
+    enum tag_type t, unsigned nents, unsigned ncomps)
+{
+  unsigned tsize = tag_size(t);
   unsigned long enc_nchars;
   char* enc = base64_fread(file, &enc_nchars);
   char const* p = enc;
-  void* dec = base64_decode(&p, sizeof(unsigned));
-  loop_host_free(dec);
-  unsigned tsize = tag_size(t);
-  dec = base64_decode(&p, nents * ncomps * tsize);
+  unsigned long decomp_size = nents * ncomps * tsize;
+  unsigned long comp_size;
+  if (do_com) {
+    unsigned comp_header[4];
+    read_binary_uints(&p, comp_header, 4);
+    if (end != endianness())
+      swap_one(&comp_header[3], sizeof(unsigned));
+    comp_size = comp_header[3];
+  } else {
+    unsigned ignore;
+    read_binary_uints(&p, &ignore, 1);
+    comp_size = decomp_size;
+  }
+  void* decod = base64_decode(&p, comp_size);
   loop_host_free(enc);
-  void* swapped = generic_swap_if_needed(end, nents * ncomps, tsize, dec);
-  loop_host_free(dec);
+  void* decomp;
+  if (do_com) {
+    decomp = my_decompress(decod, comp_size, decomp_size);
+    loop_host_free(decod);
+  } else
+    decomp = decod;
+  void* swapped = generic_swap_if_needed(end, nents * ncomps, tsize, decomp);
+  loop_host_free(decomp);
   return swapped;
 }
 
@@ -287,8 +325,10 @@ static unsigned seek_prefix_next(FILE* f,
   return !strncmp(line, prefix, pl);
 }
 
-static void read_array(FILE* f, char const* line, enum endian end,
-    enum tag_type* type, char* name, unsigned nents,
+static void read_array(FILE* f, char const* line,
+    enum endian end, unsigned do_com,
+    enum tag_type* type, char* name,
+    unsigned nents,
     unsigned* ncomps, void** data)
 {
   *type = read_array_type(line);
@@ -300,7 +340,7 @@ static void read_array(FILE* f, char const* line, enum endian end,
       *data = read_ascii_array(f, *type, nents, *ncomps);
       break;
     case VTK_BINARY:
-      *data = read_binary_array(f, end, *type, nents, *ncomps);
+      *data = read_binary_array(f, end, do_com, *type, nents, *ncomps);
       break;
   }
   line_t tmpline;
@@ -308,7 +348,7 @@ static void read_array(FILE* f, char const* line, enum endian end,
 }
 
 static unsigned read_tag(FILE* f, struct tags* ts, unsigned n,
-    enum endian end)
+    enum endian end, unsigned do_com)
 {
   line_t line;
   if (!seek_prefix_next(f, line, sizeof(line), "<DataArray"))
@@ -317,7 +357,7 @@ static unsigned read_tag(FILE* f, struct tags* ts, unsigned n,
   line_t name;
   unsigned ncomps;
   void* data;
-  read_array(f, line, end, &type, name, n, &ncomps, &data);
+  read_array(f, line, end, do_com, &type, name, n, &ncomps, &data);
   add_tag(ts, type, name, ncomps, data);
   return 1;
 }
@@ -367,28 +407,36 @@ static void write_tags(FILE* file, struct mesh* m, unsigned dim,
   }
 }
 
-static void write_unstructured_header(FILE* file)
+static void write_unstructured_header(FILE* file, enum vtk_format fmt)
 {
-  fprintf(file, "<VTKFile type=\"UnstructuredGrid\" byte_order=\"");
-  if (endianness() == MY_LITTLE_ENDIAN)
-    fprintf(file, "LittleEndian");
-  else
-    fprintf(file, "BigEndian");
-  fprintf(file, "\">\n");
+  fprintf(file, "<VTKFile type=\"UnstructuredGrid\"");
+  if (fmt == VTK_BINARY) {
+    if (endianness() == MY_LITTLE_ENDIAN)
+      fprintf(file, " byte_order=\"LittleEndian\"");
+    else
+      fprintf(file, " byte_order=\"BigEndian\"");
+    fprintf(file, " header_type=\"UInt32\"");
+    if (can_compress)
+      fprintf(file, " compressor=\"vtkZLibDataCompressor\"");
+  }
+  fprintf(file, ">\n");
 }
 
-static enum endian read_unstructured_header(FILE* file)
+static void read_unstructured_header(FILE* file,
+    enum endian* end, unsigned* do_com)
 {
   line_t line;
   seek_prefix(file, line, sizeof(line), "<VTKFile");
   line_t byte_order;
   if (try_read_attrib(line, "byte_order", byte_order)) {
     if (!strcmp(byte_order, "LittleEndian"))
-      return MY_LITTLE_ENDIAN;
-    if (!strcmp(byte_order, "BigEndian"))
-      return MY_BIG_ENDIAN;
-  }
-  return endianness();
+      *end = MY_LITTLE_ENDIAN;
+    else
+      *end = MY_BIG_ENDIAN;
+  } else
+    *end = endianness();
+  line_t compressor;
+  *do_com = try_read_attrib(line, "compressor", compressor);
 }
 
 void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
@@ -399,7 +447,7 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
   unsigned do_edges = ((elem_dim > 1) && mesh_has_dim(m, 1));
   unsigned do_faces = ((elem_dim > 2) && mesh_has_dim(m, 2));
   FILE* file = fopen(filename, "w");
-  write_unstructured_header(file);
+  write_unstructured_header(file, fmt);
   fprintf(file, "<UnstructuredGrid>\n");
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\"", nverts, nelems);
   if (do_edges)
@@ -486,7 +534,8 @@ static void read_nverts(FILE* f, unsigned* nverts)
   read_ent_counts(f, nverts, &ignore, &ignore, &ignore, &ignore, &ignore);
 }
 
-static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end)
+static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
+    unsigned do_com)
 {
   assert(nelems);
   line_t line;
@@ -501,7 +550,7 @@ static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end)
   enum tag_type type;
   unsigned ncomps;
   void* data;
-  read_array(f, line, end, &type, name, nelems, &ncomps, &data);
+  read_array(f, line, end, do_com, &type, name, nelems, &ncomps, &data);
   assert(type == TAG_U8);
   assert(!strcmp(name, "types"));
   assert(ncomps == 1);
@@ -518,25 +567,27 @@ static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end)
 }
 
 static unsigned read_tags(FILE* f, char const* prefix, struct tags* ts,
-    unsigned n, enum endian end)
+    unsigned n, enum endian end, unsigned do_com)
 {
   line_t line;
   seek_prefix(f, line, sizeof(line), prefix);
   unsigned nt = 0;
-  while(read_tag(f, ts, n, end))
+  while(read_tag(f, ts, n, end, do_com))
     ++nt;
   return nt;
 }
 
-static void read_points(FILE* f, struct tags* ts, unsigned n, enum endian end)
+static void read_points(FILE* f, struct tags* ts, unsigned n, enum endian end,
+    unsigned do_com)
 {
-  unsigned nt = read_tags(f, "<Points", ts, n, end);
+  unsigned nt = read_tags(f, "<Points", ts, n, end, do_com);
   assert(nt == 1);
 }
 
-static void read_verts(FILE* f, struct mesh* m, enum endian end)
+static void read_verts(FILE* f, struct mesh* m, enum endian end,
+    unsigned do_com)
 {
-  read_points(f, mesh_tags(m, 0), mesh_count(m, 0), end);
+  read_points(f, mesh_tags(m, 0), mesh_count(m, 0), end, do_com);
 }
 
 static char const* get_dim_name(struct mesh* m, unsigned ent_dim)
@@ -557,7 +608,7 @@ static char const* get_dim_name(struct mesh* m, unsigned ent_dim)
 }
 
 static void read_ents(FILE* f, struct mesh* m, unsigned nents,
-    unsigned ent_dim, enum endian end)
+    unsigned ent_dim, enum endian end, unsigned do_com)
 {
   line_t tag;
   sprintf(tag, "<%s", get_dim_name(m, ent_dim));
@@ -569,14 +620,16 @@ static void read_ents(FILE* f, struct mesh* m, unsigned nents,
   line_t name;
   unsigned ncomps;
   void* data;
-  read_array(f, line, end, &type, name, nents * verts_per_elem, &ncomps, &data);
+  read_array(f, line, end, do_com,
+      &type, name, nents * verts_per_elem, &ncomps, &data);
   assert(type == TAG_U32);
   assert(!strcmp("connectivity", name));
   assert(ncomps == 1);
   mesh_set_ents(m, ent_dim, nents, (unsigned*) data);
 }
 
-static struct mesh* read_vtk_mesh(FILE* f, enum endian end)
+static struct mesh* read_vtk_mesh(FILE* f, enum endian end,
+    unsigned do_com)
 {
   unsigned nverts, nelems;
   unsigned do_edges, do_faces;
@@ -584,37 +637,46 @@ static struct mesh* read_vtk_mesh(FILE* f, enum endian end)
   read_ent_counts(f, &nverts, &nelems,
       &do_edges, &do_faces, &nedges, &nfaces);
   assert(nelems);
-  unsigned dim = read_dimension(f, nelems, end);
+  unsigned dim = read_dimension(f, nelems, end, do_com);
   struct mesh* m = new_mesh(dim);
   mesh_set_ents(m, 0, nverts, 0);
   rewind(f);
-  read_verts(f, m, end);
+  read_verts(f, m, end, do_com);
   if (do_edges)
-    read_ents(f, m, nedges, 1, end);
+    read_ents(f, m, nedges, 1, end, do_com);
   if (do_faces)
-    read_ents(f, m, nfaces, 2, end);
-  read_ents(f, m, nelems, dim, end);
+    read_ents(f, m, nfaces, 2, end, do_com);
+  read_ents(f, m, nelems, dim, end, do_com);
   return m;
 }
 
-static void read_vtk_fields(FILE* f, struct mesh* m, enum endian end)
+static void read_vtk_fields(FILE* f, struct mesh* m, enum endian end,
+    unsigned do_com)
 {
   unsigned dim = mesh_dim(m);
-  read_tags(f, "<PointData", mesh_tags(m, 0), mesh_count(m, 0), end);
+  read_tags(f, "<PointData", mesh_tags(m, 0), mesh_count(m, 0),
+      end, do_com);
   if ((dim > 1) && mesh_has_dim(m, 1))
-    read_tags(f, "<EdgeData", mesh_tags(m, 1), mesh_count(m, 1), end);
+    read_tags(f, "<EdgeData", mesh_tags(m, 1), mesh_count(m, 1),
+        end, do_com);
   if ((dim > 2) && mesh_has_dim(m, 2))
-    read_tags(f, "<FaceData", mesh_tags(m, 2), mesh_count(m, 2), end);
-  read_tags(f, "<CellData", mesh_tags(m, dim), mesh_count(m, dim), end);
+    read_tags(f, "<FaceData", mesh_tags(m, 2), mesh_count(m, 2),
+        end, do_com);
+  read_tags(f, "<CellData", mesh_tags(m, dim), mesh_count(m, dim),
+      end, do_com);
 }
 
 struct mesh* read_vtu(char const* filename)
 {
   FILE* file = fopen(filename, "r");
   assert(file != NULL);
-  enum endian end = read_unstructured_header(file);
-  struct mesh* m = read_vtk_mesh(file, end);
-  read_vtk_fields(file, m, end);
+  enum endian end;
+  unsigned do_com;
+  read_unstructured_header(file, &end, &do_com);
+  if (do_com)
+    assert(can_compress);
+  struct mesh* m = read_vtk_mesh(file, end, do_com);
+  read_vtk_fields(file, m, end, do_com);
   fclose(file);
   return m;
 }
@@ -624,7 +686,7 @@ void write_vtu_cloud_opts(struct cloud* c, char const* filename,
 {
   unsigned npts = cloud_count(c);
   FILE* file = fopen(filename, "w");
-  write_unstructured_header(file);
+  write_unstructured_header(file, fmt);
   fprintf(file, "<UnstructuredGrid>\n");
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"1\">\n", npts);
   fprintf(file, "<Points>\n");
@@ -667,13 +729,15 @@ struct cloud* read_vtu_cloud(char const* filename)
 {
   FILE* file = fopen(filename, "r");
   assert(file != NULL);
-  enum endian end = read_unstructured_header(file);
+  enum endian end;
+  unsigned do_com;
+  read_unstructured_header(file, &end, &do_com);
   unsigned npts;
   read_nverts(file, &npts);
   assert(npts);
   struct cloud* c = new_cloud(npts);
-  read_points(file, cloud_tags(c), npts, end);
-  read_tags(file, "<PointData", cloud_tags(c), npts, end);
+  read_points(file, cloud_tags(c), npts, end, do_com);
+  read_tags(file, "<PointData", cloud_tags(c), npts, end, do_com);
   fclose(file);
   return c;
 }

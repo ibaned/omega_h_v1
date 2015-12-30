@@ -108,11 +108,7 @@ enum endian endianness(void)
 }
 
 LOOP_KERNEL(swap_kern, unsigned width, unsigned char* b)
-  for (unsigned j = 0; j < width/2; ++j) {
-    unsigned char tmp = b[i * width + j];
-    b[i * width + j] = b[i * width + (width - j - 1)];
-    b[i * width + (width - j - 1)] = tmp;
-  }
+  swap_one(b + i * width, width);
 }
 
 void* generic_swap_if_needed(enum endian e, unsigned n, unsigned width,
