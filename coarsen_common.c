@@ -143,8 +143,12 @@ unsigned coarsen_common(
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts_out, 0);
   tags_subset(m, m_out, 0, offset_of_same_verts);
-  coarsen_reduced_ents(m, m_out, gen_offset_of_verts, gen_vert_of_verts,
-      offset_of_same_verts);
+  if (mesh_get_rep(m) == MESH_REDUCED)
+    coarsen_reduced_ents(m, m_out, gen_offset_of_verts, gen_vert_of_verts,
+        offset_of_same_verts);
+  else
+    coarsen_full_ents(m, m_out, gen_offset_of_verts, gen_vert_of_verts,
+        offset_of_same_verts);
   loop_free(gen_vert_of_verts);
   loop_free(gen_offset_of_verts);
   loop_free(offset_of_same_verts);
