@@ -34,7 +34,7 @@ unsigned coarsen_common(
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  check_reduced_collapse_class(m, col_codes);
+  check_collapse_class(m, col_codes);
   unsigned const* elems_of_verts_offsets = mesh_ask_up(m, 0, elem_dim)->offsets;
   unsigned const* elems_of_verts = mesh_ask_up(m, 0, elem_dim)->adj;
   unsigned const* elems_of_verts_directions = mesh_ask_up(m, 0, elem_dim)->directions;
