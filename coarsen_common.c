@@ -5,7 +5,7 @@
 #include "coarsen_qualities.h"
 #include "coarsen_topology.h"
 #include "collapse_codes.h"
-#include "collapses_to_elements.h"
+#include "collapses_to_ents.h"
 #include "collapses_to_verts.h"
 #include "concat_topology.h"
 #include "graph.h"
@@ -33,7 +33,7 @@ static void coarsen_elems(
   unsigned* gen_vert_of_elems;
   unsigned* gen_direction_of_elems;
   unsigned* offset_of_same_elems;
-  collapses_to_elements(m, elem_dim,
+  collapses_to_ents(m, elem_dim,
       gen_offset_of_verts, gen_vert_of_verts,
       &gen_offset_of_elems, &gen_vert_of_elems,
       &gen_direction_of_elems, &offset_of_same_elems, 0);
