@@ -110,7 +110,7 @@ static void check_full_collapse_class(struct mesh* m, unsigned* col_codes)
   unsigned const* class_dim_of_verts = mesh_find_tag(
       m, 0, "class_dim")->d.u32;
   unsigned const* class_dim_of_edges = mesh_find_tag(
-      m, 0, "class_dim")->d.u32;
+      m, 1, "class_dim")->d.u32;
   for (unsigned i = 0; i < nedges; ++i) {
     if (col_codes[i] == DONT_COLLAPSE)
       continue;
