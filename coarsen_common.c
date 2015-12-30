@@ -20,12 +20,11 @@
 
 static void coarsen_ents(
     struct mesh* m,
+    struct mesh* m_out,
     unsigned ent_dim,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
-    unsigned const* offset_of_same_verts,
-    unsigned* p_nents_out,
-    unsigned** p_verts_of_ents_out)
+    unsigned const* offset_of_same_verts)
 {
   unsigned nents = mesh_count(m, ent_dim);
   unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
@@ -56,8 +55,7 @@ static void coarsen_ents(
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   for (unsigned i = 0; i < nents_out * verts_per_ent; ++i)
     verts_of_ents_out[i] = offset_of_same_verts[verts_of_ents_out[i]];
-  *p_nents_out = nents_out;
-  *p_verts_of_ents_out = verts_of_ents_out;
+  mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
 }
 
 unsigned coarsen_common(
@@ -111,16 +109,13 @@ unsigned coarsen_common(
   unsigned* offset_of_same_verts = uints_negate_offsets(
       gen_offset_of_verts, nverts);
   unsigned nverts_out = offset_of_same_verts[nverts];
-  unsigned nelems_out;
-  unsigned* verts_of_elems_out;
-  coarsen_ents(m, elem_dim, gen_offset_of_verts, gen_vert_of_verts,
-      offset_of_same_verts, &nelems_out, &verts_of_elems_out);
-  loop_free(gen_vert_of_verts);
-  loop_free(gen_offset_of_verts);
   struct mesh* m_out = new_mesh(elem_dim);
   mesh_set_ents(m_out, 0, nverts_out, 0);
-  mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
   tags_subset(m, m_out, 0, offset_of_same_verts);
+  coarsen_ents(m, m_out, elem_dim, gen_offset_of_verts, gen_vert_of_verts,
+      offset_of_same_verts);
+  loop_free(gen_vert_of_verts);
+  loop_free(gen_offset_of_verts);
   loop_free(offset_of_same_verts);
   free_mesh(m);
   *p_m = m_out;
