@@ -8,6 +8,7 @@ void collapses_to_ents(
     unsigned ent_dim,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
+    unsigned const* dead_ents,
     unsigned** gen_offset_of_ents_out,
     unsigned** gen_vert_of_ents_out,
     unsigned** gen_direction_of_ents_out,

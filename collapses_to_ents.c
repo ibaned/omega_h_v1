@@ -10,6 +10,7 @@ void collapses_to_ents(
     unsigned ent_dim,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
+    unsigned const* dead_ents,
     unsigned** p_gen_offset_of_ents,
     unsigned** p_gen_vert_of_ents,
     unsigned** p_gen_direction_of_ents,
@@ -63,9 +64,12 @@ void collapses_to_ents(
       }
       continue;
     }
-    ent_will_gen[i] = 1;
-    gen_vert_of_ents[i] = gen_vert;
-    gen_direction_of_ents[i] = direction;
+    unsigned is_dead_side = (dead_ents && dead_ents[i]);
+    if (!is_dead_side) {
+      ent_will_gen[i] = 1;
+      gen_vert_of_ents[i] = gen_vert;
+      gen_direction_of_ents[i] = direction;
+    }
   }
   *p_gen_offset_of_ents = uints_exscan(ent_will_gen, nents);
   loop_free(ent_will_gen);

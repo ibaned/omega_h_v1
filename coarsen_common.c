@@ -25,6 +25,7 @@ static void coarsen_ents(
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
     unsigned const* offset_of_same_verts,
+    unsigned const* dead_ents,
     unsigned** p_dead_sides)
 {
   unsigned nents = mesh_count(m, ent_dim);
@@ -34,7 +35,7 @@ static void coarsen_ents(
   unsigned* gen_direction_of_ents;
   unsigned* offset_of_same_ents;
   collapses_to_ents(m, ent_dim,
-      gen_offset_of_verts, gen_vert_of_verts,
+      gen_offset_of_verts, gen_vert_of_verts, dead_ents,
       &gen_offset_of_ents, &gen_vert_of_ents,
       &gen_direction_of_ents, &offset_of_same_ents, p_dead_sides);
   unsigned ngen_ents;
@@ -67,7 +68,25 @@ static void coarsen_reduced_ents(
     unsigned const* offset_of_same_verts)
 {
   coarsen_ents(m, m_out, mesh_dim(m), gen_offset_of_verts,
-      gen_vert_of_verts, offset_of_same_verts, 0);
+      gen_vert_of_verts, offset_of_same_verts, 0, 0);
+}
+
+static void coarsen_full_ents(
+    struct mesh* m,
+    struct mesh* m_out,
+    unsigned const* gen_offset_of_verts,
+    unsigned const* gen_vert_of_verts,
+    unsigned const* offset_of_same_verts)
+{
+  unsigned* dead_sides[4] = {0};
+  for (unsigned dd = 0; dd < mesh_dim(m); ++dd) {
+    unsigned d = mesh_dim(m) - dd;
+    coarsen_ents(m, m_out, d, gen_offset_of_verts,
+        gen_vert_of_verts, offset_of_same_verts,
+        dead_sides[d], &dead_sides[d - 1]);
+  }
+  for (unsigned d = 0; d <= mesh_dim(m); ++d)
+    loop_free(dead_sides[d]);
 }
 
 unsigned coarsen_common(
