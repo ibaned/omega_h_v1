@@ -10,10 +10,10 @@ void collapses_to_elements(
     unsigned elem_dim,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
-    unsigned** gen_offset_of_elems_out,
-    unsigned** gen_vert_of_elems_out,
-    unsigned** gen_direction_of_elems_out,
-    unsigned** offset_of_same_elems_out)
+    unsigned** p_gen_offset_of_elems,
+    unsigned** p_gen_vert_of_elems,
+    unsigned** p_gen_direction_of_elems,
+    unsigned** p_offset_of_same_elems)
 {
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
@@ -50,10 +50,10 @@ void collapses_to_elements(
     gen_vert_of_elems[i] = gen_vert;
     gen_direction_of_elems[i] = direction;
   }
-  *gen_offset_of_elems_out = uints_exscan(elem_will_gen, nelems);
+  *p_gen_offset_of_elems = uints_exscan(elem_will_gen, nelems);
   loop_free(elem_will_gen);
-  *gen_vert_of_elems_out = gen_vert_of_elems;
-  *gen_direction_of_elems_out = gen_direction_of_elems;
-  *offset_of_same_elems_out = uints_exscan(elem_is_same, nelems);
+  *p_gen_vert_of_elems = gen_vert_of_elems;
+  *p_gen_direction_of_elems = gen_direction_of_elems;
+  *p_offset_of_same_elems = uints_exscan(elem_is_same, nelems);
   loop_free(elem_is_same);
 }
