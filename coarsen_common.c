@@ -18,46 +18,46 @@
 #include "tables.h"
 #include "tag.h"
 
-static void coarsen_elems(
+static void coarsen_ents(
     struct mesh* m,
+    unsigned ent_dim,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
     unsigned const* offset_of_same_verts,
-    unsigned* p_nelems_out,
-    unsigned** p_verts_of_elems_out)
+    unsigned* p_nents_out,
+    unsigned** p_verts_of_ents_out)
 {
-  unsigned elem_dim = mesh_dim(m);
-  unsigned nelems = mesh_count(m, elem_dim);
-  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  unsigned* gen_offset_of_elems;
-  unsigned* gen_vert_of_elems;
-  unsigned* gen_direction_of_elems;
-  unsigned* offset_of_same_elems;
-  collapses_to_ents(m, elem_dim,
+  unsigned nents = mesh_count(m, ent_dim);
+  unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
+  unsigned* gen_offset_of_ents;
+  unsigned* gen_vert_of_ents;
+  unsigned* gen_direction_of_ents;
+  unsigned* offset_of_same_ents;
+  collapses_to_ents(m, ent_dim,
       gen_offset_of_verts, gen_vert_of_verts,
-      &gen_offset_of_elems, &gen_vert_of_elems,
-      &gen_direction_of_elems, &offset_of_same_elems, 0);
-  unsigned ngen_elems;
-  unsigned* verts_of_gen_elems;
-  coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,
-      gen_vert_of_elems, gen_direction_of_elems, &ngen_elems,
-      &verts_of_gen_elems);
-  loop_free(gen_offset_of_elems);
-  loop_free(gen_vert_of_elems);
-  loop_free(gen_direction_of_elems);
-  unsigned nelems_out;
-  unsigned* verts_of_elems_out;
-  concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,
-      offset_of_same_elems, verts_of_gen_elems,
-      &nelems_out, &verts_of_elems_out);
-  loop_free(offset_of_same_elems);
-  loop_free(verts_of_gen_elems);
-  /* remap element vertices to account for vertex removal */
-  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i)
-    verts_of_elems_out[i] = offset_of_same_verts[verts_of_elems_out[i]];
-  *p_nelems_out = nelems_out;
-  *p_verts_of_elems_out = verts_of_elems_out;
+      &gen_offset_of_ents, &gen_vert_of_ents,
+      &gen_direction_of_ents, &offset_of_same_ents, 0);
+  unsigned ngen_ents;
+  unsigned* verts_of_gen_ents;
+  coarsen_topology(ent_dim, nents, verts_of_ents, gen_offset_of_ents,
+      gen_vert_of_ents, gen_direction_of_ents, &ngen_ents,
+      &verts_of_gen_ents);
+  loop_free(gen_offset_of_ents);
+  loop_free(gen_vert_of_ents);
+  loop_free(gen_direction_of_ents);
+  unsigned nents_out;
+  unsigned* verts_of_ents_out;
+  concat_verts_of_elems(ent_dim, nents, ngen_ents, verts_of_ents,
+      offset_of_same_ents, verts_of_gen_ents,
+      &nents_out, &verts_of_ents_out);
+  loop_free(offset_of_same_ents);
+  loop_free(verts_of_gen_ents);
+  /* remap new connectivity to account for vertex removal */
+  unsigned verts_per_ent = the_down_degrees[ent_dim][0];
+  for (unsigned i = 0; i < nents_out * verts_per_ent; ++i)
+    verts_of_ents_out[i] = offset_of_same_verts[verts_of_ents_out[i]];
+  *p_nents_out = nents_out;
+  *p_verts_of_ents_out = verts_of_ents_out;
 }
 
 unsigned coarsen_common(
@@ -113,8 +113,8 @@ unsigned coarsen_common(
   unsigned nverts_out = offset_of_same_verts[nverts];
   unsigned nelems_out;
   unsigned* verts_of_elems_out;
-  coarsen_elems(m, gen_offset_of_verts, gen_vert_of_verts, offset_of_same_verts,
-      &nelems_out, &verts_of_elems_out);
+  coarsen_ents(m, elem_dim, gen_offset_of_verts, gen_vert_of_verts,
+      offset_of_same_verts, &nelems_out, &verts_of_elems_out);
   loop_free(gen_vert_of_verts);
   loop_free(gen_offset_of_verts);
   struct mesh* m_out = new_mesh(elem_dim);
