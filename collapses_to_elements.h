@@ -1,10 +1,11 @@
 #ifndef COLLAPSES_TO_ELEMENTS_H
 #define COLLAPSES_TO_ELEMENTS_H
 
+struct mesh;
+
 void collapses_to_elements(
+    struct mesh* m,
     unsigned elem_dim,
-    unsigned nelems,
-    unsigned const* verts_of_elems,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
     unsigned** gen_offset_of_elems_out,

@@ -2,12 +2,12 @@
 
 #include "ints.h"
 #include "loop.h"
+#include "mesh.h"
 #include "tables.h"
 
 void collapses_to_elements(
+    struct mesh* m,
     unsigned elem_dim,
-    unsigned nelems,
-    unsigned const* verts_of_elems,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
     unsigned** gen_offset_of_elems_out,
@@ -15,6 +15,8 @@ void collapses_to_elements(
     unsigned** gen_direction_of_elems_out,
     unsigned** offset_of_same_elems_out)
 {
+  unsigned nelems = mesh_count(m, elem_dim);
+  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned* elem_will_gen = uints_filled(nelems, 0);
   unsigned* gen_vert_of_elems = LOOP_MALLOC(unsigned, nelems);

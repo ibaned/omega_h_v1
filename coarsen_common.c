@@ -33,7 +33,7 @@ static void coarsen_elems(
   unsigned* gen_vert_of_elems;
   unsigned* gen_direction_of_elems;
   unsigned* offset_of_same_elems;
-  collapses_to_elements(elem_dim, nelems, verts_of_elems,
+  collapses_to_elements(m, elem_dim,
       gen_offset_of_verts, gen_vert_of_verts,
       &gen_offset_of_elems, &gen_vert_of_elems,
       &gen_direction_of_elems, &offset_of_same_elems);
