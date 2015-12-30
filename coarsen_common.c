@@ -36,7 +36,7 @@ static void coarsen_elems(
   collapses_to_elements(m, elem_dim,
       gen_offset_of_verts, gen_vert_of_verts,
       &gen_offset_of_elems, &gen_vert_of_elems,
-      &gen_direction_of_elems, &offset_of_same_elems);
+      &gen_direction_of_elems, &offset_of_same_elems, 0);
   unsigned ngen_elems;
   unsigned* verts_of_gen_elems;
   coarsen_topology(elem_dim, nelems, verts_of_elems, gen_offset_of_elems,

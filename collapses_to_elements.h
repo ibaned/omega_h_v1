@@ -11,6 +11,7 @@ void collapses_to_elements(
     unsigned** gen_offset_of_elems_out,
     unsigned** gen_vert_of_elems_out,
     unsigned** gen_direction_of_elems_out,
-    unsigned** offset_of_same_elems_out);
+    unsigned** offset_of_same_elems_out,
+    unsigned** p_dead_sides);
 
 #endif
