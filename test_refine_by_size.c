@@ -24,8 +24,8 @@ static void size_fun(double const* x, double* s)
 int main()
 {
   struct mesh* m = new_box_mesh(2);
-//mesh_derive_model(m, PI / 4);
-//mesh_set_rep(m, MESH_FULL);
+  mesh_derive_model(m, PI / 4);
+  mesh_set_rep(m, MESH_FULL);
   char fname[64];
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
   write_vtu(m, "out_0.vtu");

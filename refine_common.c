@@ -1,12 +1,12 @@
 #include "refine_common.h"
 
 #include <assert.h>
-#include <stdio.h>
 
 #include "arrays.h"
 #include "concat_topology.h"
 #include "graph.h"
 #include "indset.h"
+#include "inherit.h"
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
@@ -67,44 +67,33 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
       offset_of_doms[dom_dim] = uints_filled(mesh_count(m, dom_dim) + 1, 0);
   }
   loop_free(gen_vert_of_srcs);
-  unsigned ngen_ents[4][4] = {{0}};
-  refined_prod_counts(m, src_dim, offset_of_doms, ngen_ents);
-  unsigned gen_offsets[4][5] = {{0}};
-  for (unsigned prod_dim = 1; prod_dim <= elem_dim; ++prod_dim) {
-    if (mesh_get_rep(m) == MESH_REDUCED && prod_dim != elem_dim)
+  for (unsigned prod_dim = 0; prod_dim <= elem_dim; ++prod_dim) {
+    if (mesh_get_rep(m) == MESH_REDUCED &&
+        (0 < prod_dim && prod_dim < elem_dim))
       continue;
-    unsigned nsplit_eqs = offset_of_doms[prod_dim][mesh_count(m, prod_dim)];
-    unsigned nsame_eqs = mesh_count(m, prod_dim) - nsplit_eqs;
-    gen_offsets[prod_dim][0] = nsame_eqs;
-  }
-  gen_offsets[0][0] = nverts;
-  for (unsigned prod_dim = 0; prod_dim < 4; ++prod_dim) {
-    for (unsigned dom_dim = 0; dom_dim < 4; ++dom_dim)
-      gen_offsets[prod_dim][dom_dim + 1] =
-        gen_offsets[prod_dim][dom_dim] +
-        ngen_ents[prod_dim][dom_dim];
-  }
-  for (unsigned prod_dim = 1; prod_dim <= elem_dim; ++prod_dim) {
-    if (mesh_get_rep(m) == MESH_REDUCED && prod_dim != elem_dim)
-      continue;
-    unsigned nprods = gen_offsets[prod_dim][4];
-    unsigned verts_per_prod = the_down_degrees[prod_dim][0];
-    unsigned* verts_of_prods = LOOP_MALLOC(unsigned, nprods * verts_per_prod);
-    subset_verts_of_doms(m, prod_dim, offset_of_doms[prod_dim], verts_of_prods);
-    for (unsigned dom_dim = prod_dim; dom_dim <= elem_dim; ++dom_dim) {
-      if (dom_dim < src_dim)
-        continue;
-      if (mesh_get_rep(m) == MESH_REDUCED && dom_dim != elem_dim)
-        continue;
-      mesh_refine_topology(m, dom_dim, src_dim, prod_dim,
-          offset_of_doms[dom_dim], direction_of_doms[dom_dim],
-          vert_of_doms[dom_dim],
-          verts_of_prods + 
-              (gen_offsets[prod_dim][dom_dim] * verts_per_prod));
+    unsigned ndoms[4];
+    unsigned* prods_of_doms_offsets[4];
+    unsigned ngen_offsets[5];
+    setup_refine(m, src_dim, prod_dim, offset_of_doms,
+        ndoms, prods_of_doms_offsets, ngen_offsets);
+    if (prod_dim) {
+      unsigned nprods_out = ngen_offsets[4];
+      unsigned verts_per_prod = the_down_degrees[prod_dim][0];
+      unsigned* verts_of_prods_out = LOOP_MALLOC(unsigned, nprods_out * verts_per_prod);
+      uints_expand_into(ndoms[0], verts_per_prod, mesh_ask_down(m, prod_dim, 0),
+          prods_of_doms_offsets[0], verts_of_prods_out);
+      for (unsigned dom_dim = 1; dom_dim <= elem_dim; ++dom_dim)
+        if (ndoms[dom_dim] && prods_of_doms_offsets[dom_dim])
+          mesh_refine_topology(m, dom_dim, src_dim, prod_dim,
+              offset_of_doms[dom_dim], direction_of_doms[dom_dim],
+              vert_of_doms[dom_dim],
+              verts_of_prods_out + (ngen_offsets[dom_dim] * verts_per_prod));
+      mesh_set_ents(m_out, prod_dim, nprods_out, verts_of_prods_out);
     }
-    mesh_set_ents(m_out, prod_dim, gen_offsets[prod_dim][4], verts_of_prods);
+    refine_class(m, m_out, src_dim, prod_dim, ndoms, prods_of_doms_offsets);
+    for (unsigned i = 0; i < 4; ++i)
+      loop_free(prods_of_doms_offsets[i]);
   }
-  refine_class(m, m_out, src_dim, offset_of_doms);
   for (unsigned dom_dim = 0; dom_dim <= elem_dim; ++dom_dim) {
     loop_free(offset_of_doms[dom_dim]);
     loop_free(direction_of_doms[dom_dim]);

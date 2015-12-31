@@ -94,28 +94,33 @@ void setup_refine(
     unsigned* gen_dom_offsets[4],
     /* out: */
     unsigned ndoms[4],
-    unsigned* prods_of_doms_offsets[4])
+    unsigned* prods_of_doms_offsets[4],
+    unsigned ngen_offsets[5])
 {
   unsigned nprods = mesh_count(m, prod_dim);
   ndoms[0] = nprods;
   prods_of_doms_offsets[0] = uints_negate_offsets(
       gen_dom_offsets[prod_dim], nprods);
   if (mesh_get_rep(m) == MESH_FULL) {
-    for (unsigned d = 1; d < prod_dim; ++d)
+    unsigned start = (src_dim > prod_dim) ? src_dim : prod_dim;
+    for (unsigned d = 1; d < start; ++d)
       set_zero(d, ndoms, prods_of_doms_offsets);
-    unsigned start = (1 > prod_dim) ? 1 : prod_dim;
     for (unsigned d = start; d <= mesh_dim(m); ++d)
       set_expanded_offsets(m, src_dim, prod_dim, d, gen_dom_offsets,
           ndoms, prods_of_doms_offsets);
   } else {
+    unsigned dom_dim = (prod_dim == 0) ? src_dim : mesh_dim(m);
     for (unsigned d = 1; d <= mesh_dim(m); ++d)
-      if (d != src_dim)
+      if (d != dom_dim)
         set_zero(d, ndoms, prods_of_doms_offsets);
-    set_expanded_offsets(m, src_dim, prod_dim, src_dim, gen_dom_offsets,
+    set_expanded_offsets(m, src_dim, prod_dim, dom_dim, gen_dom_offsets,
         ndoms, prods_of_doms_offsets);
   }
   for (unsigned d = mesh_dim(m) + 1; d < 4; ++d)
     set_zero(d, ndoms, prods_of_doms_offsets);
+  unsigned ngen[4];
+  make_ngen_from_doms(ndoms, prods_of_doms_offsets, ngen);
+  make_ngen_offsets(ngen, ngen_offsets);
 }
 
 static struct const_tag* setup_uint_tag(
