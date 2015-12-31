@@ -90,4 +90,5 @@ T* concat_##name(unsigned width, \
   return out; \
 }
 
+GENERIC_CONCAT(unsigned, uints)
 GENERIC_CONCAT(double, doubles)

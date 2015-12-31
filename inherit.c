@@ -6,6 +6,7 @@
 #include "loop.h"
 #include "mesh.h"
 #include "refine_topology.h"
+#include "tables.h"
 
 static void make_ngen_from_doms(
     unsigned const ndoms[4],
@@ -186,3 +187,25 @@ void refine_class(
     inherit_uint_tag(m_in, m_out, prod_dim, ndoms, prods_of_doms_offsets,
         "class_id");
 }
+
+void concat_verts_of_elems(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned ngen_elems,
+    unsigned const* verts_of_elems,
+    unsigned const* offset_of_same_elems,
+    unsigned* verts_of_gen_elems,
+    unsigned* nelems_out,
+    unsigned** verts_of_elems_out)
+{
+  *nelems_out = nelems + ngen_elems;
+  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
+  unsigned nsame_elems = offset_of_same_elems[nelems];
+  unsigned* verts_of_same_elems = uints_expand(nelems, verts_per_elem,
+      verts_of_elems, offset_of_same_elems);
+  *verts_of_elems_out = concat_uints(verts_per_elem,
+      verts_of_same_elems, nsame_elems,
+      verts_of_gen_elems, ngen_elems);
+  loop_free(verts_of_same_elems);
+}
+

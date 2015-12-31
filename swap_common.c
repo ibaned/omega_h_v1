@@ -2,11 +2,11 @@
 
 #include <assert.h>
 
-#include "concat_topology.h"
 #include "copy_mesh.h"
 #include "doubles.h"
 #include "graph.h"
 #include "indset.h"
+#include "inherit.h"
 #include "ints.h"
 #include "loop.h"
 #include "mark.h"
