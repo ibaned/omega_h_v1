@@ -43,21 +43,28 @@ static void coarsen_ents(
   coarsen_topology(ent_dim, nents, verts_of_ents, gen_offset_of_ents,
       gen_vert_of_ents, gen_direction_of_ents, &ngen_ents,
       &verts_of_gen_ents);
-  loop_free(gen_offset_of_ents);
-  loop_free(gen_vert_of_ents);
   loop_free(gen_direction_of_ents);
+  loop_free(gen_vert_of_ents);
   unsigned nents_out;
   unsigned* verts_of_ents_out;
   concat_verts_of_elems(ent_dim, nents, ngen_ents, verts_of_ents,
       offset_of_same_ents, verts_of_gen_ents,
       &nents_out, &verts_of_ents_out);
-  loop_free(offset_of_same_ents);
   loop_free(verts_of_gen_ents);
   /* remap new connectivity to account for vertex removal */
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   for (unsigned i = 0; i < nents_out * verts_per_ent; ++i)
     verts_of_ents_out[i] = offset_of_same_verts[verts_of_ents_out[i]];
   mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
+  if (mesh_get_rep(m) == MESH_FULL) {
+    unsigned ndoms[4];
+    unsigned* prods_of_doms_offsets[4];
+    setup_coarsen(m, ent_dim, gen_offset_of_ents, offset_of_same_ents,
+        ndoms, prods_of_doms_offsets);
+    coarsen_class(m, m_out, ent_dim, ndoms, prods_of_doms_offsets);
+  }
+  loop_free(gen_offset_of_ents);
+  loop_free(offset_of_same_ents);
 }
 
 static void coarsen_reduced_ents(
@@ -118,7 +125,7 @@ unsigned coarsen_common(
       elem_quals, require_better);
   loop_free(elem_quals);
   if (uints_max(col_codes, nedges) == DONT_COLLAPSE) {
-    /* early return #2: all small edges failed their classif/quality checks */
+    /* early return #2: all candidate edges failed their classif/quality checks */
     loop_free(quals_of_edges);
     return 0;
   }
@@ -141,6 +148,7 @@ unsigned coarsen_common(
       gen_offset_of_verts, nverts);
   unsigned nverts_out = offset_of_same_verts[nverts];
   struct mesh* m_out = new_mesh(elem_dim);
+  mesh_set_rep(m_out, mesh_get_rep(m));
   mesh_set_ents(m_out, 0, nverts_out, 0);
   tags_subset(m, m_out, 0, offset_of_same_verts);
   if (mesh_get_rep(m) == MESH_REDUCED)

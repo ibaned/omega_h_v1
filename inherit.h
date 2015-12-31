@@ -21,6 +21,22 @@ void refine_class(
     unsigned ndoms[4],
     unsigned* prods_of_doms_offsets[4]);
 
+void setup_coarsen(
+    struct mesh* m,
+    unsigned ent_dim,
+    unsigned* gen_offset_of_ents,
+    unsigned* offset_of_same_ents,
+    /* out: */
+    unsigned ndoms[4],
+    unsigned* prods_of_doms_offsets[4]);
+
+void coarsen_class(
+    struct mesh* m_in,
+    struct mesh* m_out,
+    unsigned ent_dim,
+    unsigned ndoms[4],
+    unsigned* prods_of_doms_offsets[4]);
+
 void concat_verts_of_elems(
     unsigned elem_dim,
     unsigned nelems,

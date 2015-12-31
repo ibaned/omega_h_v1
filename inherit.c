@@ -56,10 +56,10 @@ static void inherit_uints_direct(
     unsigned* gen_data[4])
 {
   for (unsigned i = 0; i < 4; ++i) {
-    if (ndoms[i] && dom_data[i] && prods_of_doms_offsets[i])
+    if (ndoms[i] && dom_data[i] && prods_of_doms_offsets[i]) {
       gen_data[i] = uints_expand(ndoms[i], width,
           dom_data[i], prods_of_doms_offsets[i]);
-    else {
+    } else {
       gen_data[i] = 0;
     }
   }
@@ -125,6 +125,25 @@ void setup_refine(
   make_ngen_offsets(ngen, ngen_offsets);
 }
 
+void setup_coarsen(
+    struct mesh* m,
+    unsigned ent_dim,
+    unsigned* gen_offset_of_ents,
+    unsigned* offset_of_same_ents,
+    /* out: */
+    unsigned ndoms[4],
+    unsigned* prods_of_doms_offsets[4])
+{
+  unsigned nents = mesh_count(m, ent_dim);
+  ndoms[0] = nents;
+  prods_of_doms_offsets[0] = offset_of_same_ents;
+  for (unsigned d = 1; d < 4; ++d)
+    if (d != ent_dim)
+      set_zero(d, ndoms, prods_of_doms_offsets);
+  ndoms[ent_dim] = nents;
+  prods_of_doms_offsets[ent_dim] = gen_offset_of_ents;
+}
+
 static struct const_tag* setup_uint_tag(
     struct mesh* m,
     char const* name,
@@ -185,6 +204,22 @@ void refine_class(
       "class_dim");
   if (mesh_find_tag(m_in, 0, "class_id"))
     inherit_uint_tag(m_in, m_out, prod_dim, ndoms, prods_of_doms_offsets,
+        "class_id");
+}
+
+void coarsen_class(
+    struct mesh* m_in,
+    struct mesh* m_out,
+    unsigned ent_dim,
+    unsigned ndoms[4],
+    unsigned* prods_of_doms_offsets[4])
+{
+  if (!mesh_find_tag(m_in, 0, "class_dim"))
+    return;
+  inherit_uint_tag(m_in, m_out, ent_dim, ndoms, prods_of_doms_offsets,
+      "class_dim");
+  if (mesh_find_tag(m_in, 0, "class_id"))
+    inherit_uint_tag(m_in, m_out, ent_dim, ndoms, prods_of_doms_offsets,
         "class_id");
 }
 
