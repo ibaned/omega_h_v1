@@ -5,6 +5,9 @@
 
 #include <assert.h>
 
+#define LOOP_IN __device__
+#define LOOP_INOUT __device__ __host__
+
 void* loop_cuda_malloc(unsigned long n);
 #define LOOP_CUDA_MALLOC(T, n) \
   ((T*)loop_cuda_malloc(sizeof(T) * (n)))
@@ -15,7 +18,8 @@ void* loop_cuda_to_device(void const* p, unsigned long n);
 
 void loop_cuda_memcpy(void* dst, void const* src, unsigned long n);
 
-static inline __device__ unsigned loop_cuda_atomic_increment(unsigned* p)
+static inline LOOP_IN unsigned
+loop_cuda_atomic_increment(unsigned* p)
 {
   return atomicAdd(p, 1);
 }
@@ -58,8 +62,5 @@ CUDACALL(cudaGetLastError()); \
 } while(0)
 
 unsigned loop_size(void);
-
-#define LOOP_IN __device__
-#define LOOP_INOUT __device__ __host__
 
 #endif
