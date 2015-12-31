@@ -22,4 +22,7 @@ for (unsigned i = 0; i < n; ++i) \
 
 unsigned loop_size(void);
 
+#define LOOP_IN
+#define LOOP_INOUT
+
 #endif

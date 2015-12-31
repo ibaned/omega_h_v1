@@ -59,4 +59,7 @@ CUDACALL(cudaGetLastError()); \
 
 unsigned loop_size(void);
 
+#define LOOP_IN __device__
+#define LOOP_INOUT __device__ __host__
+
 #endif
