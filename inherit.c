@@ -144,7 +144,7 @@ static struct const_tag* setup_uint_tag(
   return t;
 }
 
-void inherit_uint_tag(
+static void inherit_uint_tag(
     struct mesh* m,
     struct mesh* m_out,
     unsigned prod_dim,
@@ -208,4 +208,3 @@ void concat_verts_of_elems(
       verts_of_gen_elems, ngen_elems);
   loop_free(verts_of_same_elems);
 }
-
