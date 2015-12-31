@@ -1,5 +1,5 @@
-#ifndef MODIFY_H
-#define MODIFY_H
+#ifndef INHERIT_H
+#define INHERIT_H
 
 struct mesh;
 
@@ -20,5 +20,13 @@ void inherit_uint_tag(
     unsigned ndoms[4],
     unsigned* prods_of_doms_offsets[4],
     char const* name);
+
+void refine_class(
+    struct mesh* m_in,
+    struct mesh* m_out,
+    unsigned src_dim,
+    unsigned prod_dim,
+    unsigned ndoms[4],
+    unsigned* prods_of_doms_offsets[4]);
 
 #endif

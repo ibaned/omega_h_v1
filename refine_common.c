@@ -11,7 +11,6 @@
 #include "loop.h"
 #include "mesh.h"
 #include "quality.h"
-#include "refine_class.h"
 #include "refine_nodal.h"
 #include "refine_qualities.h"
 #include "refine_topology.h"

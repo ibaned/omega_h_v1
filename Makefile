@@ -68,7 +68,6 @@ coarsen_qualities.c \
 coarsen_topology.c \
 collapses_to_verts.c \
 collapses_to_ents.c \
-refine_class.c \
 mesh.c \
 graph.c \
 warp_to_limit.c \
