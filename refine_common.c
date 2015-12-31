@@ -3,7 +3,6 @@
 #include <assert.h>
 
 #include "arrays.h"
-#include "concat_topology.h"
 #include "graph.h"
 #include "indset.h"
 #include "inherit.h"
