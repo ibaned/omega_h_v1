@@ -198,9 +198,9 @@ void concat_verts_of_elems(
     unsigned* nelems_out,
     unsigned** verts_of_elems_out)
 {
-  *nelems_out = nelems + ngen_elems;
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned nsame_elems = offset_of_same_elems[nelems];
+  *nelems_out = nsame_elems + ngen_elems;
   unsigned* verts_of_same_elems = uints_expand(nelems, verts_per_elem,
       verts_of_elems, offset_of_same_elems);
   *verts_of_elems_out = concat_uints(verts_per_elem,
