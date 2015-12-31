@@ -27,6 +27,11 @@ void refine_topology(
     unsigned const* vert_of_doms,
     unsigned* verts_of_prods);
 
+unsigned get_prods_per_dom(
+    unsigned dom_dim,
+    unsigned src_dim,
+    unsigned prod_dim);
+
 struct mesh;
 
 void refined_prod_counts(

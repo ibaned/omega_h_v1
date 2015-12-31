@@ -104,7 +104,7 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
     }
     mesh_set_ents(m_out, prod_dim, gen_offsets[prod_dim][4], verts_of_prods);
   }
-  refine_class(m, m_out, src_dim, offset_of_doms, ngen_ents, gen_offsets);
+  refine_class(m, m_out, src_dim, offset_of_doms);
   for (unsigned dom_dim = 0; dom_dim <= elem_dim; ++dom_dim) {
     loop_free(offset_of_doms[dom_dim]);
     loop_free(direction_of_doms[dom_dim]);

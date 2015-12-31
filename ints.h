@@ -10,6 +10,7 @@ unsigned* uints_filled(unsigned n, unsigned v);
 unsigned* uints_linear(unsigned n, unsigned stride);
 unsigned uints_sum(unsigned const* a, unsigned n);
 unsigned long ulongs_max(unsigned long const* a, unsigned n);
+unsigned* uints_scale(unsigned const* a, unsigned n, unsigned s);
 
 #ifdef __CUDACC__
 __device__ __host__

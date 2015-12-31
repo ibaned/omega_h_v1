@@ -120,7 +120,8 @@ bcast.c \
 close_partition.c \
 ghost_mesh.c \
 derive_model.c \
-compress.c
+compress.c \
+inherit.c
 
 #handle optional features:
 USE_ZLIB ?= 0

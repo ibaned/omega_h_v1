@@ -143,3 +143,14 @@ unsigned* uints_filled(unsigned n, unsigned v)
   LOOP_EXEC(fill_kern, n, a, v);
   return a;
 }
+
+LOOP_KERNEL(scale_kern, unsigned const* a, unsigned s, unsigned* o)
+  o[i] = s * a[i];
+}
+
+unsigned* uints_scale(unsigned const* a, unsigned n, unsigned s)
+{
+  unsigned* o = LOOP_MALLOC(unsigned, n);
+  LOOP_EXEC(scale_kern, n, a, s, o);
+  return o;
+}

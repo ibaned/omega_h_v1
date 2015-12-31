@@ -73,6 +73,20 @@ void refine_topology(
   }
 }
 
+unsigned get_prods_per_dom(
+    unsigned dom_dim,
+    unsigned src_dim,
+    unsigned prod_dim)
+{
+  if (prod_dim == 0)
+    return (dom_dim == src_dim) ? 1 : 0;
+  unsigned base_dim = prod_dim - 1;
+  unsigned opp_dim = get_opposite_dim(dom_dim, base_dim);
+  if (src_dim < opp_dim)
+    return 0;
+  return the_down_degrees[src_dim][opp_dim];
+}
+
 static unsigned refined_prod_count(
     struct mesh* m,
     unsigned dom_dim,
@@ -81,13 +95,8 @@ static unsigned refined_prod_count(
     unsigned const* offset_of_doms)
 {
   unsigned ndoms = mesh_count(m, dom_dim);
-  unsigned base_dim = prod_dim - 1;
-  unsigned opp_dim = get_opposite_dim(dom_dim, base_dim);
-  if (src_dim < opp_dim)
-    return 0;
-  unsigned opps_per_src = the_down_degrees[src_dim][opp_dim];
   unsigned nsplit_doms = offset_of_doms[ndoms];
-  return nsplit_doms * opps_per_src;
+  return nsplit_doms * get_prods_per_dom(dom_dim, src_dim, prod_dim);
 }
 
 void refined_prod_counts(
