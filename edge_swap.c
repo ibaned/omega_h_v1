@@ -6,6 +6,16 @@
 #include "quality.h"
 #include "tables.h"
 
+/* tables hardcoding all possible 2D meshes (triangulations) of
+   an N-sided polygon, where N ranges from 3 to 7.
+
+   for a given polygon, many possible triangulations may share
+   the same triangle, so the list of unique triangles is stored
+   separately.
+   this is useful because it allows cachine of quality metrics
+   computed based on the unique triangle which can then be
+   reused when evaluating the quality of triangulations. */
+
 unsigned const swap_mesh_sizes[MAX_EDGE_SWAP+1] =
 {0 //0
 ,0 //1
@@ -17,7 +27,7 @@ unsigned const swap_mesh_sizes[MAX_EDGE_SWAP+1] =
 ,5 //7
 };
 
-static unsigned const mesh_counts[MAX_EDGE_SWAP+1] =
+unsigned const swap_mesh_counts[MAX_EDGE_SWAP+1] =
 {0  //0
 ,0  //1
 ,0  //2
@@ -193,8 +203,7 @@ static unsigned const meshes_7[42 * 5] =
 };
 
 /* array [8] of pointer to array [3] of unsigned const */
-typedef unsigned const tri_t[3];
-static tri_t const* const triangles[MAX_EDGE_SWAP+1] =
+swap_tri_t const* const swap_triangles[MAX_EDGE_SWAP+1] =
 {0
 ,0
 ,0
@@ -205,7 +214,7 @@ static tri_t const* const triangles[MAX_EDGE_SWAP+1] =
 ,triangles_7
 };
 
-static unsigned const* const meshes[MAX_EDGE_SWAP+1] =
+unsigned const* const swap_meshes[MAX_EDGE_SWAP+1] =
 {0
 ,0
 ,0
@@ -222,9 +231,9 @@ struct swap_choice choose_edge_swap(
     double (*ring_x)[3])
 {
   unsigned tris_per_mesh = swap_mesh_sizes[ring_size];
-  unsigned nmeshes = mesh_counts[ring_size];
-  unsigned const* mesh = meshes[ring_size];
-  tri_t const* tris = triangles[ring_size];
+  unsigned nmeshes = swap_mesh_counts[ring_size];
+  unsigned const* mesh = swap_meshes[ring_size];
+  swap_tri_t const* tris = swap_triangles[ring_size];
   unsigned char cached[MAX_UNIQUE_TRIS] = {0};
   double cache[MAX_UNIQUE_TRIS] = {0};
   struct swap_choice out;
@@ -278,8 +287,8 @@ void get_swap_tets(
 {
   unsigned* p = out;
   unsigned tris_per_mesh = swap_mesh_sizes[ring_size];
-  unsigned const* mesh = meshes[ring_size] + code * tris_per_mesh;
-  tri_t const* tris = triangles[ring_size];
+  unsigned const* mesh = swap_meshes[ring_size] + code * tris_per_mesh;
+  swap_tri_t const* tris = swap_triangles[ring_size];
   for (unsigned i = 0; i < tris_per_mesh; ++i) {
     unsigned tet_verts[4];
     unsigned tri = mesh[i];
