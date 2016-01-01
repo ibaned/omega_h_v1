@@ -30,4 +30,17 @@ void get_swap_tets(
     unsigned const* ring_v,
     unsigned* out);
 
+void get_swap_edges(
+    unsigned ring_size,
+    unsigned code,
+    unsigned const* ring_v,
+    unsigned* out);
+
+void get_swap_tris(
+    unsigned ring_size,
+    unsigned code,
+    unsigned const edge_v[2],
+    unsigned const* ring_v,
+    unsigned* out);
+
 #endif

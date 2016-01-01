@@ -308,3 +308,33 @@ void get_swap_tets(
   assert(out - p == ntets * 4);
 }
 
+void get_swap_edges(
+    unsigned ring_size,
+    unsigned code,
+    unsigned const* ring_v,
+    unsigned* out)
+{
+  unsigned nint_edges = swap_nint_edges[ring_size];
+  unsigned const* edges = swap_int_edges[ring_size][code];
+  for (unsigned i = 0; i < nint_edges; ++i)
+    for (unsigned j = 0; j < 2; ++j)
+      out[i * 2 + j] = ring_v[edges[i * 2 + j]];
+}
+
+void get_swap_tris(
+    unsigned ring_size,
+    unsigned code,
+    unsigned const edge_v[2],
+    unsigned const* ring_v,
+    unsigned* out)
+{
+  unsigned nint_edges = swap_nint_edges[ring_size];
+  unsigned const* edges = swap_int_edges[ring_size][code];
+  for (unsigned i = 0; i < nint_edges; ++i)
+    for (unsigned j = 0; j < 2; ++j) {
+      for (unsigned k = 0; k < 2; ++k)
+        out[i * 6 + j * 3 + k] = ring_v[edges[i * 2 + k]];
+      out[i * 6 + j * 3 + 2] = edge_v[j];
+    }
+}
+
