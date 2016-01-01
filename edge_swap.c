@@ -307,3 +307,4 @@ void get_swap_tets(
   unsigned ntets = tris_per_mesh * 2;
   assert(out - p == ntets * 4);
 }
+

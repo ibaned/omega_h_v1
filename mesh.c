@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "arrays.h"
 #include "bridge_graph.h"
@@ -148,7 +147,6 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
     } else {/* deriving implicit entity to vertex connectivity */
       assert(mesh_get_rep(m) == MESH_REDUCED);
       if (high_dim == 1 && m->elem_dim == 3) { /* deriving edges in 3D */
-        printf("deriving edges in 3D!\n");
         struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
         unsigned nverts = m->counts[0];
         unsigned nedges;
@@ -158,7 +156,6 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
         mesh_set_ents(m, 1, nedges, verts_of_edges);
       } else { /* deriving sides (2D edges, 3D faces) */
         assert(high_dim == m->elem_dim - 1);
-        printf("deriving sides in %uD!\n", m->elem_dim);
         unsigned const* elems_of_elems = mesh_ask_dual(m);
         unsigned nelems = m->counts[m->elem_dim];
         unsigned const* verts_of_elems = m->down[m->elem_dim][0];

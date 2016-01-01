@@ -39,7 +39,8 @@ test_mesh_rib.c \
 test_ghost.c \
 test_memory.c \
 test_derive_model.c \
-test_fusion_part.c
+test_fusion_part.c \
+test_print_swap_edges.c
 
 lib_sources := \
 star.c \
@@ -86,6 +87,7 @@ swap_qualities.c \
 swap_topology.c \
 edge_ring.c \
 edge_swap.c \
+edge_swap_edges.c \
 loop_host.c \
 inertia.c \
 derive_sides.c \
