@@ -16,10 +16,10 @@ struct swap_choice choose_edge_swap(
     double (*edge_x)[3],
     double (*ring_x)[3]);
 
-void apply_edge_swap(
+void get_swap_tets(
     unsigned ring_size,
     unsigned code,
-    unsigned const* edge_v,
+    unsigned const edge_v[2],
     unsigned const* ring_v,
     unsigned* out);
 

@@ -269,7 +269,7 @@ struct swap_choice choose_edge_swap(
   return out;
 }
 
-void apply_edge_swap(
+void get_swap_tets(
     unsigned ring_size,
     unsigned code,
     unsigned const edge_v[2],
