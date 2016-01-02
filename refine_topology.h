@@ -4,34 +4,49 @@
 /* this is the central function involved in
  * mesh refinement.
  * there are three variable dimensions:
- *   the "element" dimension (entities creating the products)
- *   the "source" dimension (entities being split down the middle)
- *   the "product" dimension (entities being created)
+ *   the "domain" dimension (interiors are being filled)
+ *   the "source" dimension (new vertices at the center)
+ *   the "product" dimension (filler for domain interior)
  * this function generates the "product" entities
- * which fill the open domain of the "element" entities
+ * which fill the open domain of the "domain" entities
  * as a result of certain "source" entities being
- * split in the middle.
+ * split in the middle by a new vertex.
  *
- * to separate concerns, it relies on splits_to_elements
- * to preprocess some information about which elements
- * are splitting, which generated vertices to use when
- * making product entities, and the relative directions
- * from elements to source entities
- *
- * both elements and products are represented in terms
+ * both domains and products are represented in terms
  * of their vertices
  */
 
 void refine_topology(
-    unsigned elem_dim,
+    unsigned dom_dim,
     unsigned src_dim,
     unsigned prod_dim,
-    unsigned nelems,
-    unsigned const* verts_of_elems,
-    unsigned const* gen_offset_of_elems,
-    unsigned const* gen_vert_of_elems,
-    unsigned const* gen_direction_of_elems,
-    unsigned* nprods_out,
-    unsigned** verts_of_prods_out);
+    unsigned ndoms,
+    unsigned const* verts_of_doms,
+    unsigned const* offset_of_doms,
+    unsigned const* direction_of_doms,
+    unsigned const* vert_of_doms,
+    unsigned* verts_of_prods);
+
+unsigned get_prods_per_dom(
+    unsigned dom_dim,
+    unsigned src_dim,
+    unsigned prod_dim);
+
+struct mesh;
+
+void refined_prod_counts(
+    struct mesh* m,
+    unsigned src_dim,
+    unsigned* offset_of_doms[4],
+    unsigned ngen_ents[4][4]);
+
+void mesh_refine_topology(struct mesh* m,
+    unsigned dom_dim,
+    unsigned src_dim,
+    unsigned prod_dim,
+    unsigned const* offset_of_doms,
+    unsigned const* vert_of_doms,
+    unsigned const* direction_of_doms,
+    unsigned* verts_of_prods);
 
 #endif

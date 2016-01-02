@@ -13,7 +13,6 @@
 #include "loop.h"
 #include "mesh.h"
 #include "migrate_mesh.h"
-#include "subset.h"
 
 void parallel_inertial_bisect(
     unsigned* p_n,
@@ -60,20 +59,20 @@ void parallel_inertial_bisect(
     loop_free(lin_ranks);
     if (in_subgroup)
       n_out = ex->nitems[EX_REV];
-    double* sub_coords = doubles_subset(n, 3, coords, offsets);
+    double* sub_coords = doubles_expand(n, 3, coords, offsets);
     double* coords_recvd = exchange_doubles(ex, 3, sub_coords, EX_FOR, EX_ITEM);
     loop_free(sub_coords);
     double* masses_recvd = 0;
     if (masses) {
-      double* sub_masses = doubles_subset(n, 1, masses, offsets);
+      double* sub_masses = doubles_expand(n, 1, masses, offsets);
       masses_recvd = exchange_doubles(ex, 1, sub_masses, EX_FOR, EX_ITEM);
       loop_free(sub_masses);
     }
-    unsigned* sub_orig_ranks = uints_subset(n, 1, orig_ranks, offsets);
+    unsigned* sub_orig_ranks = uints_expand(n, 1, orig_ranks, offsets);
     unsigned* orig_ranks_recvd = exchange_uints(ex, 1, sub_orig_ranks,
         EX_FOR, EX_ITEM);
     loop_free(sub_orig_ranks);
-    unsigned* sub_orig_ids = uints_subset(n, 1, orig_ids, offsets);
+    unsigned* sub_orig_ids = uints_expand(n, 1, orig_ids, offsets);
     unsigned* orig_ids_recvd = exchange_uints(ex, 1, sub_orig_ids,
         EX_FOR, EX_ITEM);
     loop_free(sub_orig_ids);

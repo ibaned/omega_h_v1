@@ -2,11 +2,11 @@
 
 #include <assert.h>
 
-#include "concat.h"
 #include "copy_mesh.h"
 #include "doubles.h"
 #include "graph.h"
 #include "indset.h"
+#include "inherit.h"
 #include "ints.h"
 #include "loop.h"
 #include "mark.h"
@@ -54,10 +54,7 @@ unsigned swap_common(
     loop_free(gen_elems_per_edge);
     return 0;
   }
-  unsigned const* edges_of_edges_offsets = mesh_ask_star(m, 1, elem_dim)->offsets;
-  unsigned const* edges_of_edges = mesh_ask_star(m, 1, elem_dim)->adj;
-  unsigned* indset = find_indset(nedges, edges_of_edges_offsets, edges_of_edges,
-      candidates, edge_quals);
+  unsigned* indset = mesh_find_indset(m, 1, candidates, edge_quals);
   loop_free(edge_quals);
   for (unsigned i = 0; i < nedges; ++i)
     if (!indset[i])

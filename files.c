@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "loop.h"
+
 static unsigned count_digits(unsigned x)
 {
   unsigned l = 0;
@@ -94,4 +96,28 @@ void seek_prefix(FILE* f,
     if (!strncmp(line, prefix, pl))
       return;
   assert(0);
+}
+
+enum endian endianness(void)
+{
+  static unsigned short canary = 0x1;
+  unsigned char* p = (unsigned char*) (&canary);
+  if (*p == 0x1)
+    return MY_LITTLE_ENDIAN;
+  return MY_BIG_ENDIAN;
+}
+
+LOOP_KERNEL(swap_kern, unsigned width, unsigned char* b)
+  swap_one(b + i * width, width);
+}
+
+void* generic_swap_if_needed(enum endian e, unsigned n, unsigned width,
+    void const* a)
+{
+  unsigned char* b = (unsigned char*) loop_to_device(a, n * width);
+  if (e != endianness() && width > 1) {
+    assert(width % 2 == 0);
+    LOOP_EXEC(swap_kern, n, width, b);
+  }
+  return b;
 }

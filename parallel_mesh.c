@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include "arrays.h"
 #include "algebra.h"
 #include "comm.h"
 #include "doubles.h"
@@ -18,6 +19,8 @@ struct parallel_mesh {
   unsigned* own_ranks[4];
   unsigned* own_ids[4];
   struct exchanger* ex[4];
+  unsigned nghost_layers;
+  int padding__;
 };
 
 struct parallel_mesh* new_parallel_mesh(struct mesh* m)
@@ -154,4 +157,27 @@ void mesh_number_simply(struct mesh* m, unsigned dim)
   unsigned long* out = globalize_offsets(in, n);
   loop_free(in);
   mesh_add_tag(m, dim, TAG_U64, "global_number", 1, out);
+}
+
+void mesh_set_own_ranks(struct mesh* m, unsigned dim, unsigned const* own_ranks)
+{
+  struct parallel_mesh* pm = mesh_parallel(m);
+  if (pm->own_ranks[dim]) {
+    loop_free(pm->own_ranks[dim]);
+    loop_free(pm->own_ids[dim]);
+  }
+  unsigned n = mesh_count(m, dim);
+  unsigned long const* global = mesh_ask_global(m, dim);
+  own_idxs_from_global(n, global, own_ranks, &pm->own_ids[dim]);
+  pm->own_ranks[dim] = uints_copy(own_ranks, n);
+}
+
+unsigned mesh_ghost_layers(struct mesh* m)
+{
+  return mesh_parallel(m)->nghost_layers;
+}
+
+void mesh_set_ghost_layers(struct mesh* m, unsigned n)
+{
+  mesh_parallel(m)->nghost_layers = n;
 }

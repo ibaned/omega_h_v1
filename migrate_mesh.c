@@ -128,21 +128,24 @@ void migrate_mesh(
   free_exchanger(vert_use_to_own);
   mesh_set_ents(m_out, dim, nelems_recvd, verts_of_elems);
   push_tags(elem_push, mesh_tags(m, dim), mesh_tags(m_out, dim));
-  free_exchanger(elem_push);
   for (unsigned d = 1; d < dim; ++d) {
     if (!mesh_has_dim(m, d))
       continue;
     struct exchanger* ent_use_to_own = close_uses_from_above(
         m, dim, d, elem_push);
     struct exchanger* ent_push = close_partition_exchanger(ent_use_to_own);
+    free_exchanger(ent_use_to_own);
     vert_use_to_own = close_uses_from_above(
         m, d, 0, ent_push);
     unsigned* verts_of_ents = push_connectivity(
         vert_use_to_own, vert_push, lid_of_copies);
+    free_exchanger(vert_use_to_own);
     unsigned nents_recvd = ent_push->nitems[EX_REV];
     mesh_set_ents(m_out, d, nents_recvd, verts_of_ents);
     push_tags(ent_push, mesh_tags(m, d), mesh_tags(m_out, d));
+    free_exchanger(ent_push);
   }
+  free_exchanger(elem_push);
   loop_free(lid_of_copies);
   free_exchanger(vert_push);
   free_mesh(*p_m);

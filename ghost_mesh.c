@@ -1,5 +1,6 @@
 #include "ghost_mesh.h"
 
+#include <assert.h>
 #include <string.h>
 
 #include "arrays.h"
@@ -51,10 +52,10 @@ static void get_elem_use_owners_of_verts(
   }
   unsigned const* vert_own_ranks = mesh_ask_own_ranks(m, 0);
   unsigned const* vert_own_ids = mesh_ask_own_ids(m, 0);
-  unsigned* dest_ranks = uints_expand(nverts,
-      vert_own_ranks, 1, elems_of_verts_offsets);
-  unsigned* dest_ids = uints_expand(nverts,
-      vert_own_ids, 1, elems_of_verts_offsets);
+  unsigned* dest_ranks = uints_expand(nverts, 1,
+      vert_own_ranks, elems_of_verts_offsets);
+  unsigned* dest_ids = uints_expand(nverts, 1,
+      vert_own_ids, elems_of_verts_offsets);
   struct exchanger* ex = new_exchanger(nuses_in, dest_ranks);
   loop_free(dest_ranks);
   set_exchanger_dests(ex, nverts, dest_ids);
@@ -99,7 +100,7 @@ struct ghost_state {
   /* the "opposite" entities adjacent to the resident entities */
   struct uses res_uses[2];
   /* the opposite entities adjacent to the old owners
-     (used by pull_use_owners to set up res_uses) */
+     (used by push_use_owners to set up res_uses) */
   struct uses own_uses[2];
 };
 
@@ -176,7 +177,7 @@ static void init_ghosts(struct ghost_state* s, struct mesh* m)
 /* figure out the adjacencies of resident entities based
    on the adjacencies of their owners */
 
-static void pull_ghosts(struct ghost_state* s, enum ghost_type t)
+static void push_ghosts(struct ghost_state* s, enum ghost_type t)
 {
   struct exchanger* push = make_reverse_exchanger(s->nown[t],
       s->resident[t].n, s->resident[t].ranks, s->resident[t].ids);
@@ -211,8 +212,37 @@ static void free_ghosts(struct ghost_state* s)
      that gets input to mesh_migrate */
 }
 
+/* if we let the owners be generated based on global numbers,
+   then the ghost layers would not be guaranteed to be un-owned.
+   since we are using element ownership to identify ghost layers,
+   we need to strictly preserve the same owner rank for entities
+   as we increase their copies through ghosting */
+static void save_own_ranks(struct mesh* m)
+{
+  for (unsigned d = 0; d <= mesh_dim(m); ++d) {
+    if (!mesh_has_dim(m, d))
+      continue;
+    unsigned const* own_ranks = mesh_ask_own_ranks(m, d);
+    mesh_add_tag(m, d, TAG_U32, "own_rank", 1,
+        uints_copy(own_ranks, mesh_count(m, d)));
+  }
+}
+
+static void restore_own_ranks(struct mesh* m)
+{
+  for (unsigned d = 0; d <= mesh_dim(m); ++d) {
+    if (!mesh_has_dim(m, d))
+      continue;
+    unsigned const* own_ranks = mesh_find_tag(
+        m, d, "own_rank")->d.u32;
+    mesh_set_own_ranks(m, d, own_ranks);
+    mesh_free_tag(m, d, "own_rank");
+  }
+}
+
 void ghost_mesh(struct mesh** p_m, unsigned nlayers)
 {
+  assert(mesh_ghost_layers(*p_m) == 0);
   if (nlayers == 0)
     return;
   /* we assume the input mesh has no ghosts, so we can
@@ -222,19 +252,22 @@ void ghost_mesh(struct mesh** p_m, unsigned nlayers)
   struct ghost_state s;
   memset(&s, 0, sizeof(s));
   init_ghosts(&s, *p_m);
-  pull_ghosts(&s, VERT);
+  push_ghosts(&s, VERT);
   close_ghosts(&s, VERT);
   /* now we have the resident elements for 1 layer of ghosting */
   for (unsigned i = 1; i < nlayers; ++i) {
-    pull_ghosts(&s, ELEM);
+    push_ghosts(&s, ELEM);
     close_ghosts(&s, ELEM);
     /* now we have the resident vertices for (i) layers of ghosting */
-    pull_ghosts(&s, VERT);
+    push_ghosts(&s, VERT);
     close_ghosts(&s, VERT);
     /* now we have the resident vertices for (i + 1) layers of ghosting */
   }
   free_ghosts(&s); /* deletes all but resident elements */
+  save_own_ranks(*p_m);
   migrate_mesh(p_m, s.resident[ELEM].n,
       s.resident[ELEM].ranks, s.resident[ELEM].ids);
+  restore_own_ranks(*p_m);
   free_resident(&s.resident[ELEM]);
+  mesh_set_ghost_layers(*p_m, nlayers);
 }

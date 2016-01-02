@@ -70,10 +70,11 @@ double* coarsen_qualities(
           minq = q;
       }
       if ((minq < quality_floor) ||
-          (require_better && (minq <= old_minq)))
+          (require_better && (minq <= old_minq))) {
         col_codes[i] &= ~(1<<j);
-      else
+      } else {
         out[i * 2 + j] = minq;
+      }
     }
   }
   return out;

@@ -1,10 +1,12 @@
 #include "include/omega_h.h"
 
+#include "ghost_mesh.h"
 #include "loop.h"
 #include "mark.h"
 #include "mesh.h"
 #include "parallel_mesh.h"
 #include "tag.h"
+#include "tables.h"
 #include "vtk.h"
 
 void osh_free(osh_t m)
@@ -22,13 +24,21 @@ void osh_write_vtk(osh_t m, char const* filename)
   write_vtu((struct mesh*)m, filename);
 }
 
-osh_t osh_build(unsigned dim, unsigned nelems, unsigned nverts,
-    unsigned* conn)
+osh_t osh_new(unsigned elem_dim)
 {
-  struct mesh* m = new_mesh(dim);
-  mesh_set_ents(m, 0, nverts, 0);
-  mesh_set_ents(m, dim, nelems, conn);
-  return (osh_t) m;
+  return (osh_t) new_mesh(elem_dim);
+}
+
+unsigned* osh_build_ents(osh_t m, unsigned ent_dim, unsigned nents)
+{
+  unsigned nverts_per_ent = 0; 
+  if (ent_dim)
+    nverts_per_ent = the_down_degrees[ent_dim][0];
+  unsigned* conn = LOOP_MALLOC(unsigned, nents * nverts_per_ent);
+  /* this relies on the fact that mesh_set_ents doesn't expect
+     the contents of "conn" to be filled in yet */
+  mesh_set_ents((struct mesh*)m, ent_dim, nents, conn);
+  return conn;
 }
 
 unsigned osh_dim(osh_t m)
@@ -45,6 +55,11 @@ unsigned osh_nelems(osh_t m)
 unsigned osh_nverts(osh_t m)
 {
   return mesh_count((struct mesh*)m, 0);
+}
+
+unsigned osh_count(osh_t m, unsigned dim)
+{
+  return mesh_count((struct mesh*)m, dim);
 }
 
 unsigned const* osh_down(osh_t m, unsigned high_dim, unsigned low_dim)
@@ -90,35 +105,39 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
   mesh_add_tag((struct mesh*)m, 0, TAG_F64, name, ncomps, data);
 }
 
-void osh_new_field(osh_t m, char const* name, unsigned ncomps)
+void osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
   if (mesh_find_tag((struct mesh*)m, 0, name))
     return;
-  double* data = LOOP_MALLOC(double, ncomps * mesh_count((struct mesh*)m, 0));
-  mesh_add_tag((struct mesh*)m, 0, TAG_F64, name, ncomps, data);
+  double* data = LOOP_MALLOC(double, ncomps * mesh_count((struct mesh*)m, dim));
+  mesh_add_tag((struct mesh*)m, dim, TAG_F64, name, ncomps, data);
 }
 
-double* osh_get_field(osh_t m, char const* name)
+double* osh_get_field(osh_t m, unsigned dim, char const* name)
 {
-  return mesh_find_tag((struct mesh*)m, 0, name)->d.f64;
+  return mesh_find_tag((struct mesh*)m, dim, name)->d.f64;
 }
 
-void osh_new_label(osh_t m, char const* name, unsigned ncomps)
+unsigned* osh_new_label(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
-  if (mesh_find_tag((struct mesh*)m, 0, name))
-    return;
-  unsigned* data = LOOP_MALLOC(unsigned, ncomps * mesh_count((struct mesh*)m, 0));
-  mesh_add_tag((struct mesh*)m, 0, TAG_U32, name, ncomps, data);
+  if (mesh_find_tag((struct mesh*)m, dim, name))
+    return osh_get_label(m, dim, name);
+  unsigned* data = LOOP_MALLOC(unsigned, ncomps * mesh_count((struct mesh*)m, dim));
+  mesh_add_tag((struct mesh*)m, dim, TAG_U32, name, ncomps, data);
+  return data;
 }
 
-unsigned* osh_get_label(osh_t m, char const* name)
+unsigned* osh_get_label(osh_t m, unsigned dim, char const* name)
 {
-  return mesh_find_tag((struct mesh*)m, 0, name)->d.u32;
+  return mesh_find_tag((struct mesh*)m, dim, name)->d.u32;
 }
 
-void osh_set_global(osh_t m, unsigned long* data)
+unsigned long* osh_new_global(osh_t m, unsigned dim)
 {
-  mesh_add_tag((struct mesh*)m, 0, TAG_U64, "global_number", 1, data);
+  unsigned nents = mesh_count((struct mesh*)m, dim);
+  unsigned long* global = LOOP_MALLOC(unsigned long, nents);
+  mesh_add_tag((struct mesh*)m, dim, TAG_U64, "global_number", 1, global);
+  return global;
 }
 
 void osh_accumulate_to_owner(osh_t m, char const* name)
@@ -151,4 +170,9 @@ void osh_add_label(osh_t m, char const* name, unsigned* data)
 void osh_free_label(osh_t m, char const* name)
 {
   mesh_free_tag((struct mesh*)m, 0, name);
+}
+
+void osh_ghost(osh_t* m, unsigned nlayers)
+{
+  ghost_mesh((struct mesh**)m, nlayers);
 }

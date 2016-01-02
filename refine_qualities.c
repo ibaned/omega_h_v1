@@ -5,6 +5,7 @@
 #include "algebra.h"
 #include "element_field.h"
 #include "loop.h"
+#include "mesh.h"
 #include "quality.h"
 #include "tables.h"
 
@@ -81,4 +82,30 @@ double* refine_qualities(
       out[i] = minq;
   }
   return out;
+}
+
+double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
+    unsigned* candidates, double qual_floor, unsigned require_better)
+{
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nsrcs = mesh_count(m, src_dim);
+  unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
+  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
+  unsigned const* elems_of_srcs_offsets =
+    mesh_ask_up(m, src_dim, elem_dim)->offsets;
+  unsigned const* elems_of_srcs =
+    mesh_ask_up(m, src_dim, elem_dim)->adj;
+  unsigned const* elems_of_srcs_directions =
+    mesh_ask_up(m, src_dim, elem_dim)->directions;
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
+  double* elem_quals = 0;
+  if (require_better)
+    elem_quals = mesh_qualities(m);
+  double* src_quals = refine_qualities(elem_dim, src_dim, nsrcs,
+      verts_of_srcs, verts_of_elems,
+      elems_of_srcs_offsets, elems_of_srcs, elems_of_srcs_directions,
+      candidates, coords, qual_floor,
+      elem_quals, require_better);
+  loop_free(elem_quals);
+  return src_quals;
 }

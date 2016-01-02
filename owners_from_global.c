@@ -1,17 +1,20 @@
 #include "owners_from_global.h"
 
+#include <assert.h>
+
 #include "comm.h"
 #include "exchanger.h"
 #include "global.h"
 #include "ints.h"
 #include "invert_map.h"
 #include "loop.h"
+#include "tables.h"
 
-void owners_from_global(
+static void setup_linpart(
     unsigned n,
     unsigned long const* global_in,
-    unsigned** p_own_ranks,
-    unsigned** p_own_idxs)
+    struct exchanger** p_ex,
+    unsigned** p_orig_idxs_recvd)
 {
   unsigned long total = comm_max_ulong(ulongs_max(global_in, n)) + 1;
   unsigned nranks = comm_size();
@@ -23,12 +26,26 @@ void owners_from_global(
   loop_free(lin_ranks);
   set_exchanger_dests(ex, linsize, lin_idxs);
   loop_free(lin_idxs);
-  unsigned const* recv_of_recvd = ex->msg_of_items[EX_REV];
-  unsigned const* recvd_of_lin_offsets =
-    ex->items_of_roots_offsets[EX_REV];
   unsigned* orig_idxs = uints_linear(n, 1);
   unsigned* orig_idxs_recvd = exchange_uints(ex, 1, orig_idxs, EX_FOR, EX_ITEM);
   loop_free(orig_idxs);
+  *p_ex = ex;
+  *p_orig_idxs_recvd = orig_idxs_recvd;
+}
+
+void owners_from_global(
+    unsigned n,
+    unsigned long const* global_in,
+    unsigned** p_own_ranks,
+    unsigned** p_own_idxs)
+{
+  struct exchanger* ex;
+  unsigned* orig_idxs_recvd;
+  setup_linpart(n, global_in, &ex, &orig_idxs_recvd);
+  unsigned linsize = ex->nroots[EX_REV];
+  unsigned const* recvd_of_lin_offsets =
+    ex->items_of_roots_offsets[EX_REV];
+  unsigned const* recv_of_recvd = ex->msg_of_items[EX_REV];
   unsigned nrecvd = ex->nitems[EX_REV];
   unsigned nrecvs = ex->nmsgs[EX_REV];
   unsigned* own_rank_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
@@ -61,6 +78,48 @@ void owners_from_global(
   *p_own_ranks = exchange_uints(ex, 1, own_rank_of_recvd, EX_REV, EX_ITEM);
   *p_own_idxs = exchange_uints(ex, 1, own_idx_of_recvd, EX_REV, EX_ITEM);
   loop_free(own_rank_of_recvd);
+  loop_free(own_idx_of_recvd);
+  free_exchanger(ex);
+}
+
+void own_idxs_from_global(
+    unsigned n,
+    unsigned long const* global_in,
+    unsigned const* own_ranks_in,
+    unsigned** p_own_idxs)
+{
+  struct exchanger* ex;
+  unsigned* orig_idxs_recvd;
+  setup_linpart(n, global_in, &ex, &orig_idxs_recvd);
+  unsigned linsize = ex->nroots[EX_REV];
+  unsigned const* recvd_of_lin_offsets =
+    ex->items_of_roots_offsets[EX_REV];
+  unsigned const* recv_of_recvd = ex->msg_of_items[EX_REV];
+  unsigned* own_rank_of_recvd = exchange_uints(ex, 1, own_ranks_in,
+      EX_FOR, EX_ITEM);
+  unsigned nrecvd = ex->nitems[EX_REV];
+  unsigned* own_idx_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
+  unsigned const* recv_ranks = ex->ranks[EX_REV];
+  for (unsigned i = 0; i < linsize; ++i) {
+    unsigned first = recvd_of_lin_offsets[i];
+    unsigned end = recvd_of_lin_offsets[i + 1];
+    unsigned own_rank = own_rank_of_recvd[first];
+    unsigned own_idx = INVALID;
+    for (unsigned j = first; j < end; ++j) {
+      assert(own_rank_of_recvd[j] == own_rank);
+      if (recv_ranks[recv_of_recvd[j]] == own_rank) {
+        own_idx = orig_idxs_recvd[j];
+        break;
+      }
+    }
+    assert(own_idx != INVALID);
+    for (unsigned j = first; j < end; ++j) {
+      own_idx_of_recvd[j] = own_idx;
+    }
+  }
+  loop_free(own_rank_of_recvd);
+  loop_free(orig_idxs_recvd);
+  *p_own_idxs = exchange_uints(ex, 1, own_idx_of_recvd, EX_REV, EX_ITEM);
   loop_free(own_idx_of_recvd);
   free_exchanger(ex);
 }

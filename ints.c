@@ -19,7 +19,7 @@ unsigned uints_max(unsigned const* a, unsigned n)
 {
   unsigned max = 0;
   thrust::device_ptr<unsigned const> p(a);
-  max = thrust::reduce(p, p + n, INT_MIN, thrust::maximum<unsigned>());
+  max = thrust::reduce(p, p + n, 0, thrust::maximum<unsigned>());
   return max;
 }
 
@@ -142,4 +142,15 @@ unsigned* uints_filled(unsigned n, unsigned v)
   unsigned* a = LOOP_MALLOC(unsigned, n);
   LOOP_EXEC(fill_kern, n, a, v);
   return a;
+}
+
+LOOP_KERNEL(scale_kern, unsigned const* a, unsigned s, unsigned* o)
+  o[i] = s * a[i];
+}
+
+unsigned* uints_scale(unsigned const* a, unsigned n, unsigned s)
+{
+  unsigned* o = LOOP_MALLOC(unsigned, n);
+  LOOP_EXEC(scale_kern, n, a, s, o);
+  return o;
 }

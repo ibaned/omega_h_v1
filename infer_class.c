@@ -42,7 +42,7 @@ void infer_class(
     *p_class_id_of_ents = id_of_ents;
 }
 
-static void ask_class(struct mesh* m, unsigned dim)
+void mesh_ask_class(struct mesh* m, unsigned dim)
 {
   if (mesh_find_tag(m, dim, "class_dim"))
     return;
@@ -64,13 +64,13 @@ static void ask_class(struct mesh* m, unsigned dim)
 
 unsigned const* mesh_ask_class_dim(struct mesh* m, unsigned dim)
 {
-  ask_class(m, dim);
+  mesh_ask_class(m, dim);
   return mesh_find_tag(m, dim, "class_dim")->d.u32;
 }
 
 unsigned const* mesh_ask_class_id(struct mesh* m, unsigned dim)
 {
-  ask_class(m, dim);
+  mesh_ask_class(m, dim);
   if (!mesh_find_tag(m, dim, "class_id"))
     return 0;
   return mesh_find_tag(m, dim, "class_id")->d.u32;

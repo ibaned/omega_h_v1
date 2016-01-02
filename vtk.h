@@ -25,7 +25,7 @@ void write_vtu_cloud(struct cloud* c, char const* filename);
 struct cloud* read_vtu_cloud(char const* filename);
 
 void write_pvtu(struct mesh* m, char const* filename,
-    unsigned npieces, unsigned nghost_levels);
+    unsigned npieces);
 void write_pvtu_cloud(struct cloud* c, char const* filename,
     unsigned npieces);
 

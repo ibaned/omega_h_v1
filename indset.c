@@ -5,6 +5,7 @@
 #include "arrays.h"
 #include "ints.h"
 #include "loop.h"
+#include "mesh.h"
 
 /* the runtime of the independent set algorithm
  * as written below is O(iterations * vertices).
@@ -73,4 +74,26 @@ unsigned* find_indset(
       return state;
   }
   abort();
+}
+
+unsigned* mesh_find_indset(struct mesh* m, unsigned ent_dim,
+    unsigned const* candidates, double const* qualities)
+{
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nents = mesh_count(m, ent_dim);
+  unsigned const* star_offsets =
+    mesh_ask_star(m, ent_dim, elem_dim)->offsets;
+  unsigned const* star =
+    mesh_ask_star(m, ent_dim, elem_dim)->adj;
+  return find_indset(nents, star_offsets, star, candidates, qualities);
+}
+
+unsigned* mesh_indset_offsets(struct mesh* m, unsigned ent_dim,
+    unsigned const* candidates, double const* qualities)
+{
+  unsigned nents = mesh_count(m, ent_dim);
+  unsigned* indset = mesh_find_indset(m, ent_dim, candidates, qualities);
+  unsigned* offsets = uints_exscan(indset, nents);
+  loop_free(indset);
+  return offsets;
 }

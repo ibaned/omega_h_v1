@@ -11,10 +11,7 @@
    If you are going to optimize, optimize here !
  */
 
-#ifdef __CUDACC__
-__device__
-#endif
-static unsigned get_ent_star(
+static LOOP_IN unsigned get_ent_star(
     unsigned const* highs_of_lows_offsets,
     unsigned const* highs_of_lows,
     unsigned const* lows_of_highs,

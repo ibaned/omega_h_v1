@@ -9,15 +9,12 @@ include config.mk
 test_sources := \
 test_coarsen_3d.c \
 test_coarsen_by_size.c \
-test_eigenval.c \
 test_form_cloud.c \
 test_grad.c \
 test_inertia.c \
 test_node_ele.c \
-test_quality.c \
 test_read_vtk.c \
 test_refine_by_size.c \
-test_refine_topology.c \
 test_up_from_down.c \
 test_vtk.c \
 test_warp.c \
@@ -25,12 +22,10 @@ test_warp_3d.c \
 test_vtk_surfer.c \
 test_vtkdiff.c \
 test_push_cloud.c \
-test_qr.c \
 test_box.c \
 test_pvtu.c \
 test_split.c \
 test_loop.c \
-test_base64.c \
 test_global.c \
 test_vtk_ascii.c \
 test_from_gmsh.c \
@@ -44,7 +39,10 @@ test_mesh_rib.c \
 test_ghost.c \
 test_memory.c \
 test_ask_up.c \
-test_ask_down.c
+test_ask_down.c \
+test_derive_model.c \
+test_fusion_part.c \
+test_print_swap_edges.c
 
 lib_sources := \
 star.c \
@@ -53,13 +51,12 @@ up_from_down.c \
 ints.c \
 vtk.c \
 refine_topology.c \
-splits_to_elements.c \
+splits_to_domains.c \
 quality.c \
 size.c \
 bridge_graph.c \
 refine_common.c \
 refine_by_size.c \
-concat.c \
 indset.c \
 measure_edges.c \
 reflect_down.c \
@@ -72,8 +69,7 @@ check_collapse_class.c \
 coarsen_qualities.c \
 coarsen_topology.c \
 collapses_to_verts.c \
-collapses_to_elements.c \
-refine_class.c \
+collapses_to_ents.c \
 mesh.c \
 graph.c \
 warp_to_limit.c \
@@ -93,9 +89,10 @@ swap_qualities.c \
 swap_topology.c \
 edge_ring.c \
 edge_swap.c \
+edge_swap_edges.c \
 loop_host.c \
 inertia.c \
-derive_faces.c \
+derive_sides.c \
 node_ele_io.c \
 cloud.c \
 tag.c \
@@ -111,7 +108,6 @@ global.c \
 base64.c \
 invert_map.c \
 owners_from_global.c \
-owners_from_verts.c \
 gmsh_io.c \
 exchanger.c \
 infer_class.c \
@@ -124,19 +120,34 @@ arrays.c \
 migrate_mesh.c \
 bcast.c \
 close_partition.c \
-ghost_mesh.c
+ghost_mesh.c \
+derive_model.c \
+compress.c \
+inherit.c
 
 #handle optional features:
+USE_ZLIB ?= 0
 USE_MPI ?= 0
+USE_MPI3 ?= 0
 USE_CUDA_MALLOC_MANAGED ?= 1
 MEASURE_MEMORY ?= 0
 LOOP_MODE ?= serial
-#comm.c is compiled with -DUSE_MPI
-objs/comm.o : CFLAGS += -DUSE_MPI=$(USE_MPI)
-objs/loop_host.o : CFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
+#comm.c is compiled with -DUSE_MPI=
+objs/comm.o : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
+deps/comm.dep : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
+ifeq "$(USE_MPI)" "1"
+lib_sources += compat_mpi.c
+objs/compat_mpi.o : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
+deps/compat_mpi.dep : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
+endif
+objs/loop_host.o : CPPFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
+lib_sources += loop_$(LOOP_MODE).c
 ifeq "$(LOOP_MODE)" "cuda"
-lib_sources += loop_cuda.c
-objs/loop_cuda.o : CFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
+objs/loop_cuda.o : CPPFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
+endif
+objs/compress.o : CPPFLAGS += -DUSE_ZLIB=$(USE_ZLIB)
+ifeq "$(USE_ZLIB)" "1"
+objs/compress.o : CPPFLAGS += -I$(ZLIB_INCLUDE)
 endif
 
 #generated file names are derived from source

@@ -5,13 +5,8 @@
 #include "loop.h"
 
 #if USE_MPI
-#include <mpi.h>
 
-struct comm {
-  MPI_Comm c;
-};
-
-#define CALL(f) do { int err = (f); assert(err == MPI_SUCCESS); } while(0)
+#include "compat_mpi.h"
 
 static struct comm world = { MPI_COMM_WORLD };
 static struct comm self = { MPI_COMM_SELF };
@@ -152,7 +147,7 @@ static void comm_exch_any(struct comm* c,
     recvcounts[i] = (int) (incounts[i] * width);
     rdispls[i] = (int) (inoffsets[i] * width);
   }
-  CALL(MPI_Neighbor_alltoallv(out, sendcounts, sdispls, type,
+  CALL(compat_Neighbor_alltoallv(out, sendcounts, sdispls, type,
         in, recvcounts, rdispls, type, c->c));
   loop_host_free(sendcounts);
   loop_host_free(sdispls);
@@ -189,7 +184,7 @@ void comm_exch_ulongs(struct comm* c,
 
 static void comm_sync_any(struct comm* c, void const* out, void* in, MPI_Datatype type)
 {
-  CALL(MPI_Neighbor_allgather(out, 1, type, in, 1, type, c->c));
+  CALL(compat_Neighbor_allgather(out, 1, type, in, 1, type, c->c));
 }
 
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
@@ -233,6 +228,12 @@ unsigned comm_size(void)
 void comm_add_doubles(double* p, unsigned n)
 {
   CALL(MPI_Allreduce(MPI_IN_PLACE, p, (int) n, MPI_DOUBLE, MPI_SUM, using->c));
+}
+
+double comm_max_double(double x)
+{
+  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_MAX, using->c));
+  return x;
 }
 
 unsigned long comm_add_ulong(unsigned long x)
@@ -428,6 +429,11 @@ void comm_add_doubles(double* p, unsigned n)
 {
   (void)p;
   (void)n;
+}
+
+double comm_max_double(double x)
+{
+  return x;
 }
 
 unsigned long comm_add_ulong(unsigned long x)

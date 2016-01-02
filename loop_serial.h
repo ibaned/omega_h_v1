@@ -8,6 +8,7 @@
 
 #define loop_to_host loop_host_copy
 #define loop_to_device loop_host_copy
+#define loop_memcpy loop_host_memcpy
 
 #define loop_atomic_increment loop_host_atomic_increment
 
@@ -18,5 +19,10 @@ static void fname(__VA_ARGS__, unsigned i) \
 #define LOOP_EXEC(fname, n, ...) \
 for (unsigned i = 0; i < n; ++i) \
   fname(__VA_ARGS__, i);
+
+unsigned loop_size(void);
+
+#define LOOP_IN
+#define LOOP_INOUT
 
 #endif

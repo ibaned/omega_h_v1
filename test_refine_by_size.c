@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "algebra.h"
+#include "derive_model.h"
 #include "doubles.h"
 #include "eval_field.h"
 #include "loop.h"
@@ -14,7 +15,7 @@
 static void size_fun(double const* x, double* s)
 {
   double coarse = 0.5;
-  double fine = 0.025;
+  double fine = 0.1;
   double radius = vector_norm(x, 3);
   double d = fabs(radius - 0.5);
   s[0] = coarse * d + fine * (1 - d);
@@ -22,10 +23,13 @@ static void size_fun(double const* x, double* s)
 
 int main()
 {
-  struct mesh* m = new_box_mesh(3);
+  struct mesh* m = new_box_mesh(2);
+  mesh_derive_model(m, PI / 4);
+  mesh_set_rep(m, MESH_FULL);
   char fname[64];
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
-  for (unsigned it = 0; 1; ++it) {
+  write_vtu(m, "out_0.vtu");
+  for (unsigned it = 1; 1; ++it) {
     if (!refine_by_size(&m, 0))
       break;
     printf("%u elements, %u vertices\n", mesh_count(m, mesh_dim(m)), mesh_count(m, 0));

@@ -20,4 +20,10 @@ void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name);
 
 void mesh_number_simply(struct mesh* m, unsigned dim);
 
+void mesh_set_own_ranks(struct mesh* m, unsigned dim, unsigned const* own_ranks);
+
+unsigned mesh_ghost_layers(struct mesh* m);
+
+void mesh_set_ghost_layers(struct mesh* m, unsigned n);
+
 #endif

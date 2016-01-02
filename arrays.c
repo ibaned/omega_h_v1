@@ -52,22 +52,43 @@ GENERIC_SHUFFLE(double, doubles)
 
 #define GENERIC_EXPAND(T, name) \
 LOOP_KERNEL(expand_##name##_kern, T const* a, unsigned width, \
-    unsigned const* offsets, T* o) \
+    unsigned const* offsets, T* out) \
   unsigned first = offsets[i]; \
   unsigned end = offsets[i + 1]; \
   for (unsigned j = first; j < end; ++j) \
     for (unsigned k = 0; k < width; ++k) \
-      o[j * width + k] = a[i * width + k]; \
+      out[j * width + k] = a[i * width + k]; \
 } \
-T* name##_expand(unsigned n, T const* a, \
-    unsigned width, unsigned const* offsets) \
+void name##_expand_into(unsigned n, unsigned width, \
+    T const* a, unsigned const* offsets, \
+    T* out) \
+{ \
+  LOOP_EXEC(expand_##name##_kern, n, a, width, offsets, out); \
+} \
+T* name##_expand(unsigned n, unsigned width, \
+    T const* a, unsigned const* offsets) \
 { \
   unsigned nout = offsets[n]; \
-  T* o = LOOP_MALLOC(T, nout * width); \
-  LOOP_EXEC(expand_##name##_kern, n, a, width, offsets, o); \
-  return o; \
+  T* out = LOOP_MALLOC(T, nout * width); \
+  name##_expand_into(n, width, a, offsets, out); \
+  return out; \
 }
 
+GENERIC_EXPAND(unsigned char, uchars)
 GENERIC_EXPAND(unsigned, uints)
 GENERIC_EXPAND(unsigned long, ulongs)
 GENERIC_EXPAND(double, doubles)
+
+#define GENERIC_CONCAT(T, name) \
+T* concat_##name(unsigned width, \
+    T const* a, unsigned na, \
+    T const* b, unsigned nb) \
+{ \
+  T* out = LOOP_MALLOC(T, (na + nb) * width); \
+  loop_memcpy(out, a, na * width * sizeof(T)); \
+  loop_memcpy(out + (na * width), b, nb * width * sizeof(T)); \
+  return out; \
+}
+
+GENERIC_CONCAT(unsigned, uints)
+GENERIC_CONCAT(double, doubles)

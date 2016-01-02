@@ -2,6 +2,12 @@
 #define MESH_H
 
 #include "tag.h"
+#include "graph.h"
+
+enum mesh_rep {
+  MESH_REDUCED,
+  MESH_FULL
+};
 
 struct mesh;
 
@@ -42,5 +48,11 @@ unsigned mesh_has_dim(struct mesh* m, unsigned dim);
 struct parallel_mesh;
 
 struct parallel_mesh* mesh_parallel(struct mesh* m);
+
+enum mesh_rep mesh_get_rep(struct mesh* m);
+void mesh_set_rep(struct mesh* m, enum mesh_rep r);
+
+unsigned mesh_is_parallel(struct mesh* m);
+void mesh_set_parallel(struct mesh* m, unsigned yn);
 
 #endif

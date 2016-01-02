@@ -4,22 +4,27 @@
 
 #include "collapse_codes.h"
 #include "ints.h"
+#include "mesh.h"
 #include "tables.h"
 
-void check_collapse_class(
-    unsigned elem_dim,
-    unsigned nedges,
-    unsigned* col_codes,
-    unsigned const* class_dim_of_verts,
-    unsigned const* verts_of_elems,
-    unsigned const* verts_of_edges,
-    unsigned const* verts_of_verts_offsets,
-    unsigned const* verts_of_verts,
-    unsigned const* elems_of_edges_offsets,
-    unsigned const* elems_of_edges,
-    unsigned const* elems_of_edges_directions)
+static void check_reduced_collapse_class(struct mesh* m, unsigned* col_codes)
 {
-  assert(elem_dim >= 2);
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* class_dim_of_verts = mesh_find_tag(
+      m, 0, "class_dim")->d.u32;
+  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
+  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
+  unsigned const* verts_of_verts_offsets =
+      mesh_ask_star(m, 0, elem_dim)->offsets;
+  unsigned const* verts_of_verts =
+      mesh_ask_star(m, 0, elem_dim)->adj;
+  unsigned const* elems_of_edges_offsets =
+      mesh_ask_up(m, 1, elem_dim)->offsets;
+  unsigned const* elems_of_edges =
+      mesh_ask_up(m, 1, elem_dim)->adj;
+  unsigned const* elems_of_edges_directions =
+      mesh_ask_up(m, 1, elem_dim)->directions;
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned opp_dim = get_opposite_dim(elem_dim, 1);
   unsigned verts_per_opp = the_down_degrees[opp_dim][0];
@@ -87,4 +92,52 @@ void check_collapse_class(
         col_codes[i] &= ~(1<<j);
     }
   }
+}
+
+/* for now we'll just do the simple check and skip
+   things like rings and exposed curved faces */
+/* TODO: at least check the exposed face issue:
+
+   |\ R1
+   |R\
+   |0/
+   |/<-collapse */
+
+static void check_full_collapse_class(struct mesh* m, unsigned* col_codes)
+{
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
+  unsigned const* class_dim_of_verts = mesh_find_tag(
+      m, 0, "class_dim")->d.u32;
+  unsigned const* class_dim_of_edges = mesh_find_tag(
+      m, 1, "class_dim")->d.u32;
+  for (unsigned i = 0; i < nedges; ++i) {
+    if (col_codes[i] == DONT_COLLAPSE)
+      continue;
+    unsigned const* verts_of_edge = verts_of_edges + i * 2;
+    unsigned class_dims[3];
+    enum { V0, V1, E };
+    class_dims[V0] = class_dim_of_verts[verts_of_edge[0]];
+    class_dims[V1] = class_dim_of_verts[verts_of_edge[1]];
+    class_dims[E] = class_dim_of_edges[i];
+    if (class_dims[V0] == class_dims[V1]) {
+      if (class_dims[V0] != class_dims[E])
+        col_codes[i] = DONT_COLLAPSE;
+      continue;
+    }
+    for (unsigned j = 0; j < 2; ++j) {
+      if (!(col_codes[i] & (1<<j)))
+        continue;
+      if (class_dims[j] != class_dims[E])
+        col_codes[i] &= ~(1<<j);
+    }
+  }
+}
+
+void check_collapse_class(struct mesh* m, unsigned* col_codes)
+{
+  if (mesh_get_rep(m) == MESH_REDUCED)
+    check_reduced_collapse_class(m, col_codes);
+  else
+    check_full_collapse_class(m, col_codes);
 }
