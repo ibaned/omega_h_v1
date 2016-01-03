@@ -54,6 +54,12 @@ unsigned swap_common(
     loop_free(gen_elems_per_edge);
     return 0;
   }
+  /* vertex handling */
+  unsigned nverts = mesh_count(m, 0);
+  struct mesh* m_out = new_mesh(elem_dim);
+  mesh_set_ents(m_out, 0, nverts, 0);
+  copy_tags(mesh_tags(m, 0), mesh_tags(m_out, 0), nverts);
+  /* end vertex handling */
   unsigned* indset = mesh_find_indset(m, 1, candidates, edge_quals);
   loop_free(edge_quals);
   for (unsigned i = 0; i < nedges; ++i)
@@ -82,11 +88,7 @@ unsigned swap_common(
       &nelems_out, &verts_of_elems_out);
   loop_free(same_elem_offsets);
   loop_free(verts_of_gen_elems);
-  unsigned nverts = mesh_count(m, 0);
-  struct mesh* m_out = new_mesh(elem_dim);
-  mesh_set_ents(m_out, 0, nverts, 0);
   mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
-  copy_tags(mesh_tags(m, 0), mesh_tags(m_out, 0), nverts);
   free_mesh(m);
   *p_m = m_out;
   return 1;
