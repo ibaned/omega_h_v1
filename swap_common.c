@@ -14,7 +14,6 @@
 #include "quality.h"
 #include "swap_qualities.h"
 #include "swap_topology.h"
-#include "tag.h"
 
 unsigned swap_common(
     struct mesh** p_m,
