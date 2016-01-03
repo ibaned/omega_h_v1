@@ -18,7 +18,7 @@ unsigned* get_swap_topology_offsets(
     nents_of_edge[i] = candidates[i] ?
       count_swap_ents(ring_sizes[i], ent_dim) : 0;
   unsigned* offsets = uints_exscan(nents_of_edge, nedges);
-  loop_free(offsets);
+  loop_free(nents_of_edge);
   return offsets;
 }
 
