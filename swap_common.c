@@ -35,7 +35,7 @@ static void swap_ents(
     mesh_ask_up(m, 1, 3)->directions;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   unsigned const* verts_of_tets = mesh_ask_down(m, 3, 0);
-  unsigned* verts_of_gen_ents = swap_topology(nedges, indset,
+  unsigned* verts_of_gen_ents = swap_topology(ent_dim, nedges, indset,
       gen_offset_of_edges, edge_codes,
       tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
       verts_of_edges, verts_of_tets);

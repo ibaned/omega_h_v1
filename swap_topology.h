@@ -8,6 +8,7 @@ unsigned* get_swap_topology_offsets(
     unsigned const* ring_sizes);
 
 unsigned* swap_topology(
+    unsigned ent_dim,
     unsigned nedges,
     unsigned const* candidates,
     unsigned const* gen_offset_of_edges,
