@@ -13,6 +13,6 @@ void swap_qualities(
     double const* elem_quals,
     double** p_qualities,
     unsigned** p_codes,
-    unsigned** p_gen_elems_per_edge);
+    unsigned** p_ring_sizes);
 
 #endif

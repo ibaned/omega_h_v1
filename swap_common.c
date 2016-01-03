@@ -41,16 +41,16 @@ unsigned swap_common(
   double* elem_quals = mesh_qualities(m);
   double* edge_quals;
   unsigned* edge_codes;
-  unsigned* gen_elems_per_edge;
+  unsigned* ring_sizes;
   swap_qualities(nedges, candidates,
       elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
       verts_of_edges, verts_of_elems, coords, elem_quals,
-      &edge_quals, &edge_codes, &gen_elems_per_edge);
+      &edge_quals, &edge_codes, &ring_sizes);
   loop_free(elem_quals);
   if (!uints_max(candidates, nedges)) {
     loop_free(edge_quals);
     loop_free(edge_codes);
-    loop_free(gen_elems_per_edge);
+    loop_free(ring_sizes);
     return 0;
   }
   /* vertex handling */
@@ -61,12 +61,10 @@ unsigned swap_common(
   /* end vertex handling */
   unsigned* indset = mesh_find_indset(m, 1, candidates, edge_quals);
   loop_free(edge_quals);
-  for (unsigned i = 0; i < nedges; ++i)
-    if (!indset[i])
-      gen_elems_per_edge[i] = 0;
-  unsigned* gen_offset_of_edges = uints_exscan(gen_elems_per_edge, nedges);
+  unsigned* gen_offset_of_edges = get_swap_topology_offsets(
+      elem_dim, nedges, indset, ring_sizes);
+  loop_free(ring_sizes);
   unsigned ngen_elems = gen_offset_of_edges[nedges];
-  loop_free(gen_elems_per_edge);
   unsigned* verts_of_gen_elems = swap_topology(nedges, indset,
       gen_offset_of_edges, edge_codes,
       elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,

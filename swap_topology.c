@@ -10,13 +10,21 @@
 unsigned* get_swap_topology_offsets(
     unsigned ent_dim,
     unsigned nedges,
-    unsigned const* candidates,
+    unsigned const* indset,
     unsigned const* ring_sizes)
 {
+  assert(ent_dim == 3);
   unsigned* nents_of_edge = LOOP_MALLOC(unsigned, nedges);
-  for (unsigned i = 0; i < nedges; ++i)
-    nents_of_edge[i] = candidates[i] ?
+  for (unsigned i = 0; i < nedges; ++i) {
+    nents_of_edge[i] = indset[i] ?
       count_swap_ents(ring_sizes[i], ent_dim) : 0;
+    if (indset[i]) {
+      assert(nents_of_edge[i] >= 2);
+      assert(nents_of_edge[i] <= 10);
+    } else {
+      assert(nents_of_edge[i] == 0);
+    }
+  }
   unsigned* offsets = uints_exscan(nents_of_edge, nedges);
   loop_free(nents_of_edge);
   return offsets;

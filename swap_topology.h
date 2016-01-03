@@ -4,7 +4,7 @@
 unsigned* get_swap_topology_offsets(
     unsigned ent_dim,
     unsigned nedges,
-    unsigned const* candidates,
+    unsigned const* indset,
     unsigned const* ring_sizes);
 
 unsigned* swap_topology(

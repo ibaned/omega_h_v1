@@ -17,11 +17,11 @@ void swap_qualities(
     double const* elem_quals,
     double** p_qualities,
     unsigned** p_codes,
-    unsigned** p_gen_elems_per_edge)
+    unsigned** p_ring_sizes)
 {
   double* out_quals = LOOP_MALLOC(double, nedges);
   unsigned* out_codes = LOOP_MALLOC(unsigned, nedges);
-  unsigned* gen_elems_per_edge = LOOP_MALLOC(unsigned, nedges);
+  unsigned* ring_sizes = LOOP_MALLOC(unsigned, nedges);
   for (unsigned i = 0; i < nedges; ++i) {
     if (!candidates[i])
       continue;
@@ -53,13 +53,12 @@ void swap_qualities(
     if (sc.quality > old_minq) {
       out_quals[i] = sc.quality;
       out_codes[i] = sc.code;
-      gen_elems_per_edge[i] = 2 * swap_mesh_sizes[ring_size];
+      ring_sizes[i] = ring_size;
     } else {
       candidates[i] = 0;
-      gen_elems_per_edge[i] = 0;
     }
   }
   *p_qualities = out_quals;
   *p_codes = out_codes;
-  *p_gen_elems_per_edge = gen_elems_per_edge;
+  *p_ring_sizes = ring_sizes;
 }
