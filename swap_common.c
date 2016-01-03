@@ -27,18 +27,8 @@ static void swap_ents(
   unsigned* gen_offset_of_edges = get_swap_topology_offsets(
       ent_dim, nedges, indset, ring_sizes);
   unsigned ngen_ents = gen_offset_of_edges[nedges];
-  unsigned const* tets_of_edges_offsets =
-    mesh_ask_up(m, 1, 3)->offsets;
-  unsigned const* tets_of_edges =
-    mesh_ask_up(m, 1, 3)->adj;
-  unsigned const* tets_of_edges_directions =
-    mesh_ask_up(m, 1, 3)->directions;
-  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  unsigned const* verts_of_tets = mesh_ask_down(m, 3, 0);
-  unsigned* verts_of_gen_ents = swap_topology(ent_dim, nedges, indset,
-      gen_offset_of_edges, edge_codes,
-      tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
-      verts_of_edges, verts_of_tets);
+  unsigned* verts_of_gen_ents = mesh_swap_topology(m, ent_dim,
+      indset, gen_offset_of_edges, edge_codes);
   loop_free(gen_offset_of_edges);
   unsigned* old_ents = mesh_mark_up(m, 1, ent_dim, indset);
   unsigned nents = mesh_count(m, ent_dim);

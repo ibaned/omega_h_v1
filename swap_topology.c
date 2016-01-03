@@ -6,6 +6,7 @@
 #include "edge_swap.h"
 #include "ints.h"
 #include "loop.h"
+#include "mesh.h"
 
 unsigned* get_swap_topology_offsets(
     unsigned ent_dim,
@@ -30,7 +31,7 @@ unsigned* get_swap_topology_offsets(
   return offsets;
 }
 
-unsigned* swap_topology(
+static unsigned* swap_topology(
     unsigned ent_dim,
     unsigned nedges,
     unsigned const* candidates,
@@ -59,4 +60,26 @@ unsigned* swap_topology(
     get_swap_ents(ring_size, edge_codes[i], ent_dim, edge_v, ring_v, edge_out);
   }
   return out;
+}
+
+unsigned* mesh_swap_topology(
+    struct mesh* m,
+    unsigned ent_dim,
+    unsigned const* candidates,
+    unsigned const* gen_offset_of_edges,
+    unsigned const* edge_codes)
+{
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* tets_of_edges_offsets =
+    mesh_ask_up(m, 1, 3)->offsets;
+  unsigned const* tets_of_edges =
+    mesh_ask_up(m, 1, 3)->adj;
+  unsigned const* tets_of_edges_directions =
+    mesh_ask_up(m, 1, 3)->directions;
+  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
+  unsigned const* verts_of_tets = mesh_ask_down(m, 3, 0);
+  return swap_topology(ent_dim, nedges,
+      candidates, gen_offset_of_edges, edge_codes,
+      tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
+      verts_of_edges, verts_of_tets);
 }
