@@ -4,8 +4,10 @@
 #include "edge_ring.h"
 #include "edge_swap.h"
 #include "loop.h"
+#include "mesh.h"
+#include "quality.h"
 
-void swap_qualities(
+static void swap_qualities(
     unsigned nedges,
     unsigned* candidates,
     unsigned const* tets_of_edges_offsets,
@@ -61,4 +63,30 @@ void swap_qualities(
   *p_qualities = out_quals;
   *p_codes = out_codes;
   *p_ring_sizes = ring_sizes;
+}
+
+void mesh_swap_qualities(
+    struct mesh* m,
+    unsigned* candidates,
+    double** p_qualities,
+    unsigned** p_codes,
+    unsigned** p_ring_sizes)
+{
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* tets_of_edges_offsets =
+    mesh_ask_up(m, 1, 3)->offsets;
+  unsigned const* tets_of_edges =
+    mesh_ask_up(m, 1, 3)->adj;
+  unsigned const* tets_of_edges_directions =
+    mesh_ask_up(m, 1, 3)->directions;
+  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
+  unsigned const* verts_of_tets = mesh_ask_down(m, 3, 0);
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
+  double* elem_quals = mesh_qualities(m);
+  swap_qualities(nedges, candidates,
+      tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
+      verts_of_edges, verts_of_tets,
+      coords, elem_quals,
+      p_qualities, p_codes, p_ring_sizes);
+  loop_free(elem_quals);
 }

@@ -62,23 +62,11 @@ unsigned swap_common(
   unmark_boundary(elem_dim, 1, nedges, verts_of_edges, class_dim, candidates);
   if (!uints_max(candidates, nedges))
     return 0;
-  unsigned const* elems_of_edges_offsets =
-    mesh_ask_up(m, 1, elem_dim)->offsets;
-  unsigned const* elems_of_edges =
-    mesh_ask_up(m, 1, elem_dim)->adj;
-  unsigned const* elems_of_edges_directions =
-    mesh_ask_up(m, 1, elem_dim)->directions;
-  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
-  double* elem_quals = mesh_qualities(m);
   double* edge_quals;
   unsigned* edge_codes;
   unsigned* ring_sizes;
-  swap_qualities(nedges, candidates,
-      elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
-      verts_of_edges, verts_of_elems, coords, elem_quals,
+  mesh_swap_qualities(m, candidates,
       &edge_quals, &edge_codes, &ring_sizes);
-  loop_free(elem_quals);
   if (!uints_max(candidates, nedges)) {
     loop_free(edge_quals);
     loop_free(edge_codes);
@@ -95,8 +83,8 @@ unsigned swap_common(
   loop_free(edge_quals);
   swap_ents(m, m_out, mesh_dim(m), indset, ring_sizes, edge_codes);
   loop_free(indset);
-  loop_free(ring_sizes);
   loop_free(edge_codes);
+  loop_free(ring_sizes);
   free_mesh(m);
   *p_m = m_out;
   return 1;
