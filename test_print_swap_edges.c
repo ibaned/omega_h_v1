@@ -79,7 +79,7 @@ int main()
     fprintf(f, ",edges_%u\n", i);
   fprintf(f, "};\n");
   fprintf(f, "unsigned const swap_nint_edges[MAX_EDGE_SWAP + 1] =\n{");
-  for (unsigned i = 0; i < 4; ++i) {
+  for (unsigned i = 0; i <= MAX_EDGE_SWAP; ++i) {
     if (i)
       fprintf(f, ",");
     fprintf(f, "%u\n", nint_edges[i]);
