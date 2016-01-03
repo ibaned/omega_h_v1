@@ -1,6 +1,12 @@
 #ifndef SWAP_TOPOLOGY_H
 #define SWAP_TOPOLOGY_H
 
+unsigned* get_swap_topology_offsets(
+    unsigned ent_dim,
+    unsigned nedges,
+    unsigned const* candidates,
+    unsigned const* ring_sizes);
+
 unsigned* swap_topology(
     unsigned nedges,
     unsigned const* candidates,

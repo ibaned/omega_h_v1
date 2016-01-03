@@ -4,7 +4,23 @@
 
 #include "edge_ring.h"
 #include "edge_swap.h"
+#include "ints.h"
 #include "loop.h"
+
+unsigned* get_swap_topology_offsets(
+    unsigned ent_dim,
+    unsigned nedges,
+    unsigned const* candidates,
+    unsigned const* ring_sizes)
+{
+  unsigned* nents_of_edge = LOOP_MALLOC(unsigned, nedges);
+  for (unsigned i = 0; i < nedges; ++i)
+    nents_of_edge[i] = candidates[i] ?
+      count_swap_ents(ring_sizes[i], ent_dim) : 0;
+  unsigned* offsets = uints_exscan(nents_of_edge, nedges);
+  loop_free(offsets);
+  return offsets;
+}
 
 unsigned* swap_topology(
     unsigned nedges,
@@ -31,7 +47,7 @@ unsigned* swap_topology(
     assert(ring_size <= MAX_EDGE_SWAP);
     unsigned ngen_elems_edge = 2 * swap_mesh_sizes[ring_size];
     assert(ngen_elems_edge == gen_offset_of_edges[i + 1] - gen_offset_of_edges[i]);
-    get_swap_tets(ring_size, edge_codes[i], edge_v, ring_v, edge_out);
+    get_swap_ents(ring_size, edge_codes[i], 3, edge_v, ring_v, edge_out);
   }
   return out;
 }

@@ -23,24 +23,16 @@ struct swap_choice choose_edge_swap(
     double (*edge_x)[3],
     double (*ring_x)[3]);
 
-void get_swap_tets(
+void get_swap_ents(
     unsigned ring_size,
     unsigned code,
+    unsigned ent_dim,
     unsigned const edge_v[2],
     unsigned const* ring_v,
     unsigned* out);
 
-void get_swap_edges(
+unsigned count_swap_ents(
     unsigned ring_size,
-    unsigned code,
-    unsigned const* ring_v,
-    unsigned* out);
-
-void get_swap_tris(
-    unsigned ring_size,
-    unsigned code,
-    unsigned const edge_v[2],
-    unsigned const* ring_v,
-    unsigned* out);
+    unsigned ent_dim);
 
 #endif
