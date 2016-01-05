@@ -5,6 +5,7 @@
 #include "adapt.h"
 #include "algebra.h"
 #include "classify_box.h"
+#include "derive_model.h"
 #include "element_gradients.h"
 #include "eval_field.h"
 #include "mesh.h"
@@ -99,9 +100,10 @@ static void warped_adapt(struct mesh** p_m)
 int main()
 {
   struct mesh* m = new_box_mesh(2);
+  mesh_derive_model(m, PI / 4);
+  mesh_set_rep(m, MESH_FULL);
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
   while (refine_by_size(&m, 0));
-  mesh_classify_box(m);
   start_vtk_steps("warp");
   mesh_eval_field(m, 0, "dye", 1, dye_fun);
   set_size_field(m);
