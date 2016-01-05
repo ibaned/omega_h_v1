@@ -14,6 +14,7 @@
 #include "quality.h"
 #include "swap_qualities.h"
 #include "swap_topology.h"
+#include "tables.h"
 
 static void swap_ents(
     struct mesh* m,
@@ -29,7 +30,6 @@ static void swap_ents(
   unsigned ngen_ents = gen_offset_of_edges[nedges];
   unsigned* verts_of_gen_ents = mesh_swap_topology(m, ent_dim,
       indset, gen_offset_of_edges, edge_codes);
-  loop_free(gen_offset_of_edges);
   unsigned* old_ents = mesh_mark_up(m, 1, ent_dim, indset);
   unsigned nents = mesh_count(m, ent_dim);
   unsigned* same_ents = uints_negate(old_ents, nents);
@@ -42,9 +42,17 @@ static void swap_ents(
   concat_verts_of_elems(ent_dim, nents, ngen_ents, verts_of_ents,
       same_ent_offsets, verts_of_gen_ents,
       &nents_out, &verts_of_ents_out);
-  loop_free(same_ent_offsets);
   loop_free(verts_of_gen_ents);
   mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
+  if (mesh_get_rep(m) == MESH_FULL) {
+    unsigned ndoms[4];
+    unsigned* prods_of_doms_offsets[4];
+    setup_swap(m, ent_dim, gen_offset_of_edges, same_ent_offsets,
+        ndoms, prods_of_doms_offsets);
+    inherit_class(m, m_out, INVALID, ent_dim, ndoms, prods_of_doms_offsets);
+  }
+  loop_free(gen_offset_of_edges);
+  loop_free(same_ent_offsets);
 }
 
 unsigned swap_common(
