@@ -10,6 +10,7 @@ int main(int argc, char** argv)
 {
   assert(argc == 3);
   struct mesh* m = read_vtu(argv[1]);
+  mesh_set_rep(m, MESH_FULL);
   unsigned* candidates = uints_filled(mesh_count(m, 1), 1);
   unsigned did = swap_common(&m, candidates);
   if (did)
