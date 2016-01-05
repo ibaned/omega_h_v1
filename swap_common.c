@@ -89,7 +89,11 @@ unsigned swap_common(
   /* end vertex handling */
   unsigned* indset = mesh_find_indset(m, 1, candidates, edge_quals);
   loop_free(edge_quals);
-  swap_ents(m, m_out, mesh_dim(m), indset, ring_sizes, edge_codes);
+  if (mesh_get_rep(m) == MESH_REDUCED)
+    swap_ents(m, m_out, mesh_dim(m), indset, ring_sizes, edge_codes);
+  else
+    for (unsigned d = 1; d <= mesh_dim(m); ++d)
+      swap_ents(m, m_out, d, indset, ring_sizes, edge_codes);
   loop_free(indset);
   loop_free(edge_codes);
   loop_free(ring_sizes);
