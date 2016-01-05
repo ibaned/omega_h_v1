@@ -22,7 +22,7 @@ int main()
       "   we don't bother identifying unique edges because no caching\n"
       "   is necessary for these intermediate entities */\n");
   fprintf(f, "\n#include \"edge_swap.h\"\n\n");
-  unsigned nint_edges[MAX_EDGE_SWAP] = {0};
+  unsigned nint_edges[MAX_EDGE_SWAP + 1] = {0};
   for (unsigned i = 4; i <= MAX_EDGE_SWAP; ++i) {
     unsigned nmeshes = swap_mesh_counts[i];
     for (unsigned j = 0; j < nmeshes; ++j) {
