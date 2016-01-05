@@ -41,7 +41,8 @@ test_memory.c \
 test_derive_model.c \
 test_fusion_part.c \
 test_print_swap_edges.c \
-test_subdim.c
+test_subdim.c \
+test_swap.c
 
 lib_sources := \
 star.c \
