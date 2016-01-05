@@ -7,6 +7,7 @@
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
+#include "tables.h"
 
 unsigned* get_swap_topology_offsets(
     unsigned ent_dim,
@@ -36,12 +37,13 @@ static unsigned* swap_topology(
     unsigned const* verts_of_edges,
     unsigned const* verts_of_tets)
 {
-  unsigned ngen_elems = gen_offset_of_edges[nedges];
-  unsigned* out = LOOP_MALLOC(unsigned, ngen_elems * 4);
+  unsigned ngen_ents = gen_offset_of_edges[nedges];
+  unsigned verts_per_ent = the_down_degrees[ent_dim][0];
+  unsigned* out = LOOP_MALLOC(unsigned, ngen_ents * verts_per_ent);
   for (unsigned i = 0; i < nedges; ++i) {
     if (!candidates[i])
       continue;
-    unsigned* edge_out = out + gen_offset_of_edges[i] * 4;
+    unsigned* edge_out = out + gen_offset_of_edges[i] * verts_per_ent;
     unsigned edge_v[2];
     unsigned ring_v[MAX_EDGE_SWAP+1];
     unsigned ring_size = find_edge_ring(i,
