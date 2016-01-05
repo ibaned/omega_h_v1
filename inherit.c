@@ -144,6 +144,23 @@ void setup_coarsen(
   prods_of_doms_offsets[ent_dim] = gen_offset_of_ents;
 }
 
+void setup_swap(
+    struct mesh* m,
+    unsigned ent_dim,
+    unsigned* gen_offset_of_edges,
+    unsigned* offset_of_same_ents,
+    /* out: */
+    unsigned ndoms[4],
+    unsigned* prods_of_doms_offsets[4])
+{
+  ndoms[0] = mesh_count(m, ent_dim);
+  prods_of_doms_offsets[0] = offset_of_same_ents;
+  ndoms[1] = mesh_count(m, 1);
+  prods_of_doms_offsets[1] = gen_offset_of_edges;
+  for (unsigned d = 2; d < 4; ++d)
+    set_zero(d, ndoms, prods_of_doms_offsets);
+}
+
 static struct const_tag* setup_uint_tag(
     struct mesh* m,
     char const* name,

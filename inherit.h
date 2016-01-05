@@ -22,6 +22,15 @@ void setup_coarsen(
     unsigned ndoms[4],
     unsigned* prods_of_doms_offsets[4]);
 
+void setup_swap(
+    struct mesh* m,
+    unsigned ent_dim,
+    unsigned* gen_offset_of_edges,
+    unsigned* offset_of_same_ents,
+    /* out: */
+    unsigned ndoms[4],
+    unsigned* prods_of_doms_offsets[4]);
+
 void inherit_class(
     struct mesh* m_in,
     struct mesh* m_out,
