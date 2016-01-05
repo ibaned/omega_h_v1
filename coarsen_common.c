@@ -7,7 +7,6 @@
 #include "collapse_codes.h"
 #include "collapses_to_ents.h"
 #include "collapses_to_verts.h"
-#include "graph.h"
 #include "indset.h"
 #include "inherit.h"
 #include "ints.h"
@@ -16,7 +15,6 @@
 #include "quality.h"
 #include "subset.h"
 #include "tables.h"
-#include "tag.h"
 
 static void coarsen_ents(
     struct mesh* m,
@@ -61,7 +59,7 @@ static void coarsen_ents(
     unsigned* prods_of_doms_offsets[4];
     setup_coarsen(m, ent_dim, gen_offset_of_ents, offset_of_same_ents,
         ndoms, prods_of_doms_offsets);
-    coarsen_class(m, m_out, ent_dim, ndoms, prods_of_doms_offsets);
+    inherit_class(m, m_out, INVALID, ent_dim, ndoms, prods_of_doms_offsets);
   }
   loop_free(gen_offset_of_ents);
   loop_free(offset_of_same_ents);
