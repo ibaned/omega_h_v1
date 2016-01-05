@@ -41,7 +41,7 @@ int main()
     mesh_eval_field(m, 0, "adapt_size", 1, fine_fun);
   }
   mesh_derive_model(m, PI / 4);
-//mesh_set_rep(m, MESH_FULL);
+  mesh_set_rep(m, MESH_FULL);
   write_vtu(m, "class.vtu");
 //double minq = mesh_min_quality(m);
   double minq = 0.1;
@@ -51,12 +51,8 @@ int main()
   mesh_eval_field(m, 0, "adapt_size", 1, coarse_fun);
   while (coarsen_by_size(&m, minq, 0.5)) {
     printf("%u elements\n", mesh_count(m, mesh_dim(m)));
-    unsigned* offsets = uints_linear(mesh_count(m, 1) + 1, 1);
-    struct mesh* edges = subset_mesh(m, 1, offsets);
-    loop_free(offsets);
     sprintf(fname, "cor_%u.vtu", it++);
-    write_vtu(edges, fname);
-    free_mesh(edges);
+    write_vtu(m, fname);
   }
   free_mesh(m);
 }
