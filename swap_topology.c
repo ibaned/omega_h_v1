@@ -14,17 +14,10 @@ unsigned* get_swap_topology_offsets(
     unsigned const* indset,
     unsigned const* ring_sizes)
 {
-  assert(ent_dim == 3);
   unsigned* nents_of_edge = LOOP_MALLOC(unsigned, nedges);
   for (unsigned i = 0; i < nedges; ++i) {
     nents_of_edge[i] = indset[i] ?
       count_swap_ents(ring_sizes[i], ent_dim) : 0;
-    if (indset[i]) {
-      assert(nents_of_edge[i] >= 2);
-      assert(nents_of_edge[i] <= 10);
-    } else {
-      assert(nents_of_edge[i] == 0);
-    }
   }
   unsigned* offsets = uints_exscan(nents_of_edge, nedges);
   loop_free(nents_of_edge);
@@ -55,8 +48,6 @@ static unsigned* swap_topology(
         tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
         verts_of_edges, verts_of_tets, edge_v, ring_v);
     assert(ring_size <= MAX_EDGE_SWAP);
-    unsigned ngen_elems_edge = 2 * swap_mesh_sizes[ring_size];
-    assert(ngen_elems_edge == gen_offset_of_edges[i + 1] - gen_offset_of_edges[i]);
     get_swap_ents(ring_size, edge_codes[i], ent_dim, edge_v, ring_v, edge_out);
   }
   return out;
