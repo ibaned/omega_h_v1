@@ -68,7 +68,7 @@ struct mesh* new_box_mesh(unsigned elem_dim)
   unsigned nverts = the_box_nverts[elem_dim];
   mesh_set_ents(m, 0, nverts, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned nbytes = sizeof(unsigned) * verts_per_elem * nelems;
+  unsigned long nbytes = sizeof(unsigned) * verts_per_elem * nelems;
   unsigned* verts_of_elems = LOOP_MALLOC(unsigned, verts_per_elem * nelems);
   memcpy(verts_of_elems, the_box_conns[elem_dim], nbytes);
   double* coords = LOOP_MALLOC(double, 3 * nverts);

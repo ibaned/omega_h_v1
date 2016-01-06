@@ -83,9 +83,20 @@ static void decode_4(char const* in, unsigned char* out)
     val[i] = char_to_value[(unsigned) in[i]];
     assert(val[i] < 64);
   }
-  out[0] = ((val[0] << 2) & 0xFC) | ((val[1] >> 4) & 0x03);
-  out[1] = ((val[1] << 4) & 0xF0) | ((val[2] >> 2) & 0x0F);
-  out[2] = ((val[2] << 6) & 0xC0) | ((val[3] >> 0) & 0x3F);
+  /* cast it all !
+   * (technically this should all be run as
+   *  unsigned char, but apparently it gets pushed
+   *  up to int if we try that, so run it all as unsigned
+   *  and cast back which we know is safe) */
+  out[0] = (unsigned char)
+           (((((unsigned) val[0]) << ((unsigned)2)) & ((unsigned)0xFC)) |
+            ((((unsigned) val[1]) >> ((unsigned)4)) & ((unsigned)0x03)));
+  out[1] = (unsigned char)
+           (((((unsigned) val[1]) << ((unsigned)4)) & ((unsigned)0xF0)) |
+            ((((unsigned) val[2]) >> ((unsigned)2)) & ((unsigned)0x0F)));
+  out[2] = (unsigned char)
+           (((((unsigned) val[2]) << ((unsigned)6)) & ((unsigned)0xC0)) |
+            ((((unsigned) val[3]) >> ((unsigned)0)) & ((unsigned)0x3F)));
 }
 
 char* base64_encode(void const* data, unsigned long size)
