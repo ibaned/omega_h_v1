@@ -1,5 +1,6 @@
 #include "collapses_to_verts.h"
 
+#include "collapse_codes.h"
 #include "loop.h"
 #include "tables.h"
 
@@ -27,7 +28,7 @@ void collapses_to_verts(
     for (unsigned j = first_use; j < end_use; ++j) {
       unsigned edge = edges_of_verts[j];
       unsigned direction = edges_of_verts_directions[j];
-      if (!(col_codes[edge] & (1<<direction)))
+      if (!collapses(col_codes[edge], direction))
         continue;
       double q = col_quals_of_edges[edge * 2 + direction];
       unsigned other_vert = verts_of_edges[edge * 2 + (1 - direction)];

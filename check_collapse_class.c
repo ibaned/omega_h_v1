@@ -42,12 +42,12 @@ static void check_reduced_collapse_class(struct mesh* m, unsigned* col_codes)
     if (class_dims_of_edge[0] == class_dims_of_edge[1])
       continue; /* equal orders, rest doesn't matter ? */
     for (unsigned j = 0; j < 2; ++j) {
-      if (!(col_codes[i] & (1<<j)))
+      if (!collapses(col_codes[i], j))
         continue;
       unsigned col_dim = class_dims_of_edge[j];
       unsigned gen_dim = class_dims_of_edge[1 - j];
       if (col_dim < gen_dim)
-        col_codes[i] &= ~(1<<j);
+        col_codes[i] = dont_collapse(col_codes[i], j);
     }
     if (col_codes[i] == DONT_COLLAPSE)
       continue;
@@ -68,7 +68,7 @@ static void check_reduced_collapse_class(struct mesh* m, unsigned* col_codes)
     }
     assert(ring_buf_size);
     for (unsigned j = 0; j < 2; ++j) {
-      if (!(col_codes[i] & (1<<j)))
+      if (!collapses(col_codes[i], j))
         continue;
       unsigned col_vert = verts_of_edge[j];
       unsigned gen_vert = verts_of_edge[1 - j];
@@ -89,7 +89,7 @@ static void check_reduced_collapse_class(struct mesh* m, unsigned* col_codes)
       }
       unsigned is_ok = (has_equal && !has_lesser);
       if (!is_ok)
-        col_codes[i] &= ~(1<<j);
+        col_codes[i] = dont_collapse(col_codes[i], j);
     }
   }
 }
@@ -126,10 +126,10 @@ static void check_full_collapse_class(struct mesh* m, unsigned* col_codes)
       continue;
     }
     for (unsigned j = 0; j < 2; ++j) {
-      if (!(col_codes[i] & (1<<j)))
+      if (!collapses(col_codes[i], j))
         continue;
       if (class_dims[j] != class_dims[E])
-        col_codes[i] &= ~(1<<j);
+        col_codes[i] = dont_collapse(col_codes[i], j);
     }
   }
 }
