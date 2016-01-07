@@ -93,8 +93,13 @@ static unsigned* reflect_down_general(
               end_use - first_use);
         }
       }
-      assert(high_buf_size <= 1);
-      lows_of_high[j] = ((high_buf_size) ? high_buf[0] : INVALID);
+      if (dual_mode) {
+        assert(high_buf_size <= 1);
+        lows_of_high[j] = ((high_buf_size) ? high_buf[0] : INVALID);
+      } else {
+        assert(high_buf_size == 1);
+        lows_of_high[j] = high_buf[0];
+      }
     }
   }
   return lows_of_highs;

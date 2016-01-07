@@ -1,15 +1,21 @@
 #include "invert_map.h"
 
+#include <assert.h>
+
 #include "ints.h"
 #include "loop.h"
 
 LOOP_KERNEL(count,
+    unsigned nout,
     unsigned const* in,
     unsigned* counts)
-  loop_atomic_increment(&(counts[in[i]]));
+  unsigned d = in[i];
+  assert(d < nout);
+  loop_atomic_increment(&(counts[d]));
 }
 
-LOOP_KERNEL(fill, unsigned const* in,
+LOOP_KERNEL(fill,
+    unsigned const* in,
     unsigned* offsets,
     unsigned* counts,
     unsigned* out)
@@ -52,7 +58,7 @@ void invert_map(
     unsigned** p_offsets)
 {
   unsigned* counts = uints_filled(nout, 0);
-  LOOP_EXEC(count, nin, in, counts);
+  LOOP_EXEC(count, nin, nout, in, counts);
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   loop_free(counts);
