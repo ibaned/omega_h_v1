@@ -31,6 +31,12 @@ static unsigned doubles_diff(double const* a, double const* b, unsigned n,
   loop_free(diffs);
   if (maxdiff > tol) {
     printf("max relative difference %e\n", maxdiff);
+    for (unsigned i = 0; i < n; ++i) {
+      if (diffs[i] == maxdiff) {
+        printf("max difference pair is (%e, %e), #%u\n",
+            a[i], b[i], i);
+      }
+    }
     return 1;
   }
   return 0;
