@@ -28,6 +28,7 @@ void seek_prefix(FILE* f,
 enum endian endianness(void);
 void* generic_swap_if_needed(enum endian e, unsigned n, unsigned width,
     void const* a);
+FILE* safe_fopen(char const* filename, char const* mode);
 
 static inline LOOP_INOUT void swap_one(void* a, unsigned width)
 {

@@ -10,7 +10,7 @@
 
 struct mesh* read_dot_node(char const* filename)
 {
-  FILE* f = fopen(filename, "r");
+  FILE* f = safe_fopen(filename, "r");
   unsigned nnodes, dim, nattrib, nbdrys;
   safe_scanf(f, 4, "%u %u %u %u", &nnodes, &dim, &nattrib, &nbdrys);
   assert(nnodes < 100 * 1000 * 1000);
@@ -68,7 +68,7 @@ void write_dot_node(struct mesh* m, char const* filename)
     nbdrys = 1;
     bdry = bdryl->d.u32;
   }
-  FILE* f = fopen(filename, "w");
+  FILE* f = safe_fopen(filename, "w");
   fprintf(f, "%u %u %u %u\n", nnodes, dim, nattrib, nbdrys);
   for (unsigned i = 0; i < nnodes; ++i) {
     fprintf(f, " %u", i + 1);
@@ -86,7 +86,7 @@ void write_dot_node(struct mesh* m, char const* filename)
 void read_dot_ele(struct mesh* m, char const* filename)
 {
   unsigned nelems, verts_per_elem, nattrib;
-  FILE* f = fopen(filename, "r");
+  FILE* f = safe_fopen(filename, "r");
   safe_scanf(f, 3, "%u %u %u", &nelems, &verts_per_elem, &nattrib);
   assert(nelems < 100 * 1000 * 1000);
   assert(nattrib < 100);
@@ -128,7 +128,7 @@ void write_dot_ele(struct mesh* m, char const* filename)
     nattrib = attribf->ncomps;
     attrib = attribf->d.f64;
   }
-  FILE* f = fopen(filename, "w");
+  FILE* f = safe_fopen(filename, "w");
   fprintf(f, "%u %u %u\n", nelems, verts_per_elem, nattrib);
   for (unsigned i = 0; i < nelems; ++i) {
     fprintf(f, " %u", i + 1);

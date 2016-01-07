@@ -23,7 +23,7 @@ static unsigned get_gmsh_type_dim(unsigned type)
 
 struct mesh* read_msh(char const* filename)
 {
-  FILE* f = fopen(filename, "r");
+  FILE* f = safe_fopen(filename, "r");
   assert(f != NULL);
   line_t line;
   seek_prefix(f, line, sizeof(line), "$Nodes");

@@ -446,7 +446,7 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned do_edges = ((elem_dim > 1) && mesh_has_dim(m, 1));
   unsigned do_faces = ((elem_dim > 2) && mesh_has_dim(m, 2));
-  FILE* file = fopen(filename, "w");
+  FILE* file = safe_fopen(filename, "w");
   write_unstructured_header(file, fmt);
   fprintf(file, "<UnstructuredGrid>\n");
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\"", nverts, nelems);
@@ -668,8 +668,7 @@ static void read_vtk_fields(FILE* f, struct mesh* m, enum endian end,
 
 struct mesh* read_vtu(char const* filename)
 {
-  FILE* file = fopen(filename, "r");
-  assert(file != NULL);
+  FILE* file = safe_fopen(filename, "r");
   enum endian end;
   unsigned do_com;
   read_unstructured_header(file, &end, &do_com);
@@ -685,7 +684,7 @@ void write_vtu_cloud_opts(struct cloud* c, char const* filename,
     enum vtk_format fmt)
 {
   unsigned npts = cloud_count(c);
-  FILE* file = fopen(filename, "w");
+  FILE* file = safe_fopen(filename, "w");
   write_unstructured_header(file, fmt);
   fprintf(file, "<UnstructuredGrid>\n");
   fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"1\">\n", npts);
@@ -727,8 +726,7 @@ void write_vtu_cloud(struct cloud* c, char const* filename)
 
 struct cloud* read_vtu_cloud(char const* filename)
 {
-  FILE* file = fopen(filename, "r");
-  assert(file != NULL);
+  FILE* file = safe_fopen(filename, "r");
   enum endian end;
   unsigned do_com;
   read_unstructured_header(file, &end, &do_com);
@@ -757,7 +755,7 @@ static void write_pieces(FILE* file, char const* pathname, unsigned npieces)
 void write_pvtu(struct mesh* m, char const* filename,
     unsigned npieces)
 {
-  FILE* file = fopen(filename, "w");
+  FILE* file = safe_fopen(filename, "w");
   fprintf(file, "<VTKFile type=\"PUnstructuredGrid\">\n");
   fprintf(file, "<PUnstructuredGrid GhostLevel=\"%u\">\n", mesh_ghost_layers(m));
   struct const_tag* coord_tag = mesh_find_tag(m, 0, "coordinates");
@@ -792,7 +790,7 @@ void write_pvtu(struct mesh* m, char const* filename,
 void write_pvtu_cloud(struct cloud* c, char const* filename,
     unsigned npieces)
 {
-  FILE* file = fopen(filename, "w");
+  FILE* file = safe_fopen(filename, "w");
   fprintf(file, "<VTKFile type=\"PUnstructuredGrid\">\n");
   fprintf(file, "<PUnstructuredGrid>\n");
   struct const_tag* coord_tag = cloud_find_tag(c, "coordinates");
