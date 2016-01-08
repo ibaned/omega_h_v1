@@ -120,8 +120,7 @@ unsigned refine_common(
   unsigned* gen_offset_of_srcs = mesh_indset_offsets(m, src_dim, candidates,
       src_quals);
   loop_free(src_quals);
-  struct mesh* m_out = new_mesh(elem_dim);
-  mesh_set_rep(m_out, mesh_get_rep(m));
+  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m));
   refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
   refine_ents(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);

@@ -28,7 +28,7 @@ void copy_tags(struct tags* a, struct tags* b, unsigned n)
 struct mesh* copy_mesh(struct mesh* a)
 {
   unsigned dim = mesh_dim(a);
-  struct mesh* b = new_mesh(dim);
+  struct mesh* b = new_mesh(dim, mesh_get_rep(a));
   for (unsigned d = 0; d <= dim; ++d) {
     if (!mesh_has_dim(a, d))
       continue;

@@ -83,8 +83,7 @@ unsigned swap_common(
   }
   /* vertex handling */
   unsigned nverts = mesh_count(m, 0);
-  struct mesh* m_out = new_mesh(elem_dim);
-  mesh_set_rep(m_out, mesh_get_rep(m));
+  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m));
   mesh_set_ents(m_out, 0, nverts, 0);
   copy_tags(mesh_tags(m, 0), mesh_tags(m_out, 0), nverts);
   /* end vertex handling */

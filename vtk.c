@@ -657,8 +657,7 @@ static struct mesh* read_vtk_mesh(FILE* f, enum endian end,
       &rep);
   assert(nelems);
   unsigned dim = read_dimension(f, nelems, end, do_com);
-  struct mesh* m = new_mesh(dim);
-  mesh_set_rep(m, rep);
+  struct mesh* m = new_mesh(dim, rep);
   mesh_set_ents(m, 0, nverts, 0);
   rewind(f);
   read_verts(f, m, end, do_com);

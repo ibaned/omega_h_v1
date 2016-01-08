@@ -15,7 +15,7 @@ struct mesh* read_dot_node(char const* filename)
   safe_scanf(f, 4, "%u %u %u %u", &nnodes, &dim, &nattrib, &nbdrys);
   assert(nnodes < 100 * 1000 * 1000);
   assert(nattrib < 100);
-  struct mesh* m = new_mesh(dim);
+  struct mesh* m = new_mesh(dim, MESH_REDUCED);
   double* coords = LOOP_HOST_MALLOC(double, nnodes * 3);
   assert(nbdrys == 0 || nbdrys == 1);
   double* attrib = 0;

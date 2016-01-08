@@ -17,7 +17,7 @@ struct const_up {
   unsigned const* const directions;
 };
 
-struct mesh* new_mesh(unsigned elem_dim);
+struct mesh* new_mesh(unsigned elem_dim, enum mesh_rep rep);
 struct mesh* new_box_mesh(unsigned elem_dim);
 void free_mesh(struct mesh* m);
 
@@ -50,7 +50,7 @@ struct parallel_mesh;
 struct parallel_mesh* mesh_parallel(struct mesh* m);
 
 enum mesh_rep mesh_get_rep(struct mesh* m);
-void mesh_set_rep(struct mesh* m, enum mesh_rep r);
+void mesh_set_rep(struct mesh* m, enum mesh_rep rep);
 
 unsigned mesh_is_parallel(struct mesh* m);
 void mesh_set_parallel(struct mesh* m, unsigned yn);
