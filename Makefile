@@ -23,7 +23,6 @@ test_vtkdiff.c \
 test_push_cloud.c \
 test_box.c \
 test_pvtu.c \
-test_split.c \
 test_loop.c \
 test_global.c \
 test_vtk_ascii.c \
