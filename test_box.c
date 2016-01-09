@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "classify_box.h"
 #include "eval_field.h"
 #include "mesh.h"
 #include "refine_by_size.h"
@@ -46,7 +45,6 @@ int main(int argc, char** argv)
   struct mesh* m = new_box_mesh(dim);
   for (unsigned i = 0; i < nrefs; ++i)
     uniformly_refine(&m);
-  mesh_classify_box(m);
   write_vtu(m, file);
   free_mesh(m);
 }
