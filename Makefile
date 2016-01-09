@@ -112,7 +112,6 @@ gmsh_io.c \
 exchanger.c \
 infer_class.c \
 copy_mesh.c \
-refine_by_class.c \
 parallel_inertial_bisect.c \
 parallel_mesh.c \
 migrate_cloud.c \

@@ -2,7 +2,6 @@
 
 #include "gmsh_io.h"
 #include "mesh.h"
-#include "refine_by_class.h"
 #include "vtk.h"
 
 int main(int argc, char** argv)
