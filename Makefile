@@ -15,7 +15,6 @@ test_node_ele.c \
 test_read_vtk.c \
 test_refine_by_size.c \
 test_up_from_down.c \
-test_vtk.c \
 test_warp.c \
 test_warp_3d.c \
 test_vtk_surfer.c \
