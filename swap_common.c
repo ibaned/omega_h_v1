@@ -49,7 +49,7 @@ static void swap_ents(
     unsigned* prods_of_doms_offsets[4];
     setup_swap(m, ent_dim, gen_offset_of_edges, same_ent_offsets,
         ndoms, prods_of_doms_offsets);
-    inherit_class(m, m_out, INVALID, ent_dim, ndoms, prods_of_doms_offsets);
+    inherit_class(m, m_out, ent_dim, ndoms, prods_of_doms_offsets);
   }
   loop_free(gen_offset_of_edges);
   loop_free(same_ent_offsets);

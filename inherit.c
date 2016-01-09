@@ -205,19 +205,12 @@ static void inherit_uint_tag(
 void inherit_class(
     struct mesh* m_in,
     struct mesh* m_out,
-    unsigned src_dim,
     unsigned prod_dim,
     unsigned ndoms[4],
     unsigned* prods_of_doms_offsets[4])
 {
   if (!mesh_find_tag(m_in, 0, "class_dim"))
     return;
-  if (mesh_get_rep(m_in) == MESH_REDUCED) {
-    if (prod_dim == 0)
-      mesh_ask_class(m_in, src_dim);
-    else
-      return;
-  }
   inherit_uint_tag(m_in, m_out, prod_dim, ndoms, prods_of_doms_offsets,
       "class_dim");
   if (mesh_find_tag(m_in, 0, "class_id"))
