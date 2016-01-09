@@ -210,6 +210,7 @@ void inherit_class(
 {
   if (!mesh_find_tag(m_in, 0, "class_dim"))
     return;
+  assert(mesh_get_rep(m_in) == MESH_FULL);
   inherit_uint_tag(m_in, m_out, prod_dim, ndoms, prods_of_doms_offsets,
       "class_dim");
   if (mesh_find_tag(m_in, 0, "class_id"))
