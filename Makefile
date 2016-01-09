@@ -7,7 +7,6 @@
 include config.mk
 
 test_sources := \
-test_coarsen_3d.c \
 test_coarsen_by_size.c \
 test_form_cloud.c \
 test_grad.c \
