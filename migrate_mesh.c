@@ -101,6 +101,16 @@ static struct exchanger* close_uses_from_above(
   return use_to_own;
 }
 
+static void move_ents(struct mesh* m, struct mesh* m_out, unsigned dim,
+    unsigned nents, unsigned* verts_of_ents,
+    struct exchanger* push)
+{
+  mesh_set_ents(m_out, dim, nents, verts_of_ents);
+  mesh_tag_global(m, dim);
+  push_tags(push, mesh_tags(m, dim), mesh_tags(m_out, dim));
+  mesh_parallel_from_tags(m_out, dim);
+}
+
 void migrate_mesh(
     struct mesh** p_m,
     unsigned nelems_recvd,
@@ -117,8 +127,7 @@ void migrate_mesh(
   struct exchanger* vert_push = close_partition_exchanger(vert_use_to_own);
   unsigned nverts_recvd = vert_push->nitems[EX_REV];
   struct mesh* m_out = new_mesh(dim, mesh_get_rep(m));
-  mesh_set_ents(m_out, 0, nverts_recvd, 0);
-  push_tags(vert_push, mesh_tags(m, 0), mesh_tags(m_out, 0));
+  move_ents(m, m_out, 0, nverts_recvd, 0, vert_push);
   unsigned* lids = uints_linear(nverts_recvd, 1);
   unsigned* lid_of_copies = exchange_uints(vert_push, 1, lids,
       EX_REV, EX_ITEM);
@@ -126,8 +135,7 @@ void migrate_mesh(
   unsigned* verts_of_elems = push_connectivity(
       vert_use_to_own, vert_push, lid_of_copies);
   free_exchanger(vert_use_to_own);
-  mesh_set_ents(m_out, dim, nelems_recvd, verts_of_elems);
-  push_tags(elem_push, mesh_tags(m, dim), mesh_tags(m_out, dim));
+  move_ents(m, m_out, dim, nelems_recvd, verts_of_elems, elem_push);
   for (unsigned d = 1; d < dim; ++d) {
     if (!mesh_has_dim(m, d))
       continue;
@@ -141,13 +149,12 @@ void migrate_mesh(
         vert_use_to_own, vert_push, lid_of_copies);
     free_exchanger(vert_use_to_own);
     unsigned nents_recvd = ent_push->nitems[EX_REV];
-    mesh_set_ents(m_out, d, nents_recvd, verts_of_ents);
-    push_tags(ent_push, mesh_tags(m, d), mesh_tags(m_out, d));
+    move_ents(m, m_out, d, nents_recvd, verts_of_ents, ent_push);
     free_exchanger(ent_push);
   }
-  free_exchanger(elem_push);
   loop_free(lid_of_copies);
   free_exchanger(vert_push);
+  free_exchanger(elem_push);
   free_mesh(*p_m);
   *p_m = m_out;
 }

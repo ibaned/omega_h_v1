@@ -138,7 +138,7 @@ unsigned long* osh_new_global(osh_t m, unsigned dim)
 {
   unsigned nents = mesh_count((struct mesh*)m, dim);
   unsigned long* global = LOOP_MALLOC(unsigned long, nents);
-  mesh_add_tag((struct mesh*)m, dim, TAG_U64, "global_number", 1, global);
+  mesh_set_global((struct mesh*)m, dim, global);
   return global;
 }
 

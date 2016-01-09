@@ -212,34 +212,6 @@ static void free_ghosts(struct ghost_state* s)
      that gets input to mesh_migrate */
 }
 
-/* if we let the owners be generated based on global numbers,
-   then the ghost layers would not be guaranteed to be un-owned.
-   since we are using element ownership to identify ghost layers,
-   we need to strictly preserve the same owner rank for entities
-   as we increase their copies through ghosting */
-static void save_own_ranks(struct mesh* m)
-{
-  for (unsigned d = 0; d <= mesh_dim(m); ++d) {
-    if (!mesh_has_dim(m, d))
-      continue;
-    unsigned const* own_ranks = mesh_ask_own_ranks(m, d);
-    mesh_add_tag(m, d, TAG_U32, "own_rank", 1,
-        uints_copy(own_ranks, mesh_count(m, d)));
-  }
-}
-
-static void restore_own_ranks(struct mesh* m)
-{
-  for (unsigned d = 0; d <= mesh_dim(m); ++d) {
-    if (!mesh_has_dim(m, d))
-      continue;
-    unsigned const* own_ranks = mesh_find_tag(
-        m, d, "own_rank")->d.u32;
-    mesh_set_own_ranks(m, d, own_ranks);
-    mesh_free_tag(m, d, "own_rank");
-  }
-}
-
 void ghost_mesh(struct mesh** p_m, unsigned nlayers)
 {
   assert(mesh_ghost_layers(*p_m) == 0);
@@ -264,10 +236,16 @@ void ghost_mesh(struct mesh** p_m, unsigned nlayers)
     /* now we have the resident vertices for (i + 1) layers of ghosting */
   }
   free_ghosts(&s); /* deletes all but resident elements */
-  save_own_ranks(*p_m);
+/* if we let the owners be generated based on global numbers,
+   then the ghost layers would not be guaranteed to be un-owned.
+   since we are using element ownership to identify ghost layers,
+   we need to strictly preserve the same owner rank for entities
+   as we increase their copies through ghosting */
+  for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
+    if (mesh_has_dim(*p_m, d))
+      mesh_tag_own_rank(*p_m, d);
   migrate_mesh(p_m, s.resident[ELEM].n,
       s.resident[ELEM].ranks, s.resident[ELEM].ids);
-  restore_own_ranks(*p_m);
   free_resident(&s.resident[ELEM]);
   mesh_set_ghost_layers(*p_m, nlayers);
 }

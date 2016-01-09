@@ -35,11 +35,7 @@ int main()
     unsigned recvd_elem_ids[2] = {1,0};
     migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
   }
-  unsigned* offsets = uints_linear(mesh_count(m, 1) + 1, 1);
-  struct mesh* sm = subset_mesh(m, 1, offsets);
-  loop_free(offsets);
+  write_parallel_vtu(m, "after.pvtu");
   free_mesh(m);
-  write_parallel_vtu(sm, "after.pvtu");
-  free_mesh(sm);
   comm_fini();
 }

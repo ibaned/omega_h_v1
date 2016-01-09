@@ -397,14 +397,16 @@ static void write_cell_arrays(FILE* file, struct mesh* m, enum vtk_format fmt)
   loop_host_free(types);
 }
 
-static void write_tags(FILE* file, struct mesh* m, unsigned dim,
+static void write_mesh_tags(FILE* file, struct mesh* m, unsigned dim,
     enum vtk_format fmt, struct const_tag* except)
 {
+  mesh_parallel_to_tags(m, dim);
   for (unsigned i = 0; i < mesh_count_tags(m, dim); ++i) {
     struct const_tag* tag = mesh_get_tag(m, dim, i);
     if (tag != except)
       write_tag(file, mesh_count(m, dim), tag, fmt);
   }
+  mesh_parallel_untag(m, dim);
 }
 
 static void write_unstructured_header(FILE* file, enum vtk_format fmt)
@@ -500,20 +502,20 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
   write_cell_arrays(file, m, fmt);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
-  write_tags(file, m, 0, fmt, coord_tag);
+  write_mesh_tags(file, m, 0, fmt, coord_tag);
   fprintf(file, "</PointData>\n");
   if (do_edges) {
     fprintf(file, "<EdgeData>\n");
-    write_tags(file, m, 1, fmt, 0);
+    write_mesh_tags(file, m, 1, fmt, 0);
     fprintf(file, "</EdgeData>\n");
   }
   if (do_faces) {
     fprintf(file, "<FaceData>\n");
-    write_tags(file, m, 2, fmt, 0);
+    write_mesh_tags(file, m, 2, fmt, 0);
     fprintf(file, "</FaceData>\n");
   }
   fprintf(file, "<CellData>\n");
-  write_tags(file, m, elem_dim, fmt, 0);
+  write_mesh_tags(file, m, elem_dim, fmt, 0);
   fprintf(file, "</CellData>\n");
   fprintf(file, "</Piece>\n");
   fprintf(file, "</UnstructuredGrid>\n");
@@ -669,20 +671,23 @@ static struct mesh* read_vtk_mesh(FILE* f, enum endian end,
   return m;
 }
 
+static void read_mesh_tags(FILE* f, struct mesh* m, unsigned dim,
+    char const* prefix, enum endian end, unsigned do_com)
+{
+  read_tags(f, prefix, mesh_tags(m, dim), mesh_count(m, dim), end, do_com);
+  mesh_parallel_from_tags(m, dim);
+}
+
 static void read_vtk_fields(FILE* f, struct mesh* m, enum endian end,
     unsigned do_com)
 {
   unsigned dim = mesh_dim(m);
-  read_tags(f, "<PointData", mesh_tags(m, 0), mesh_count(m, 0),
-      end, do_com);
+  read_mesh_tags(f, m, 0, "<PointData", end, do_com);
   if ((dim > 1) && mesh_has_dim(m, 1))
-    read_tags(f, "<EdgeData", mesh_tags(m, 1), mesh_count(m, 1),
-        end, do_com);
+    read_mesh_tags(f, m, 1, "<EdgeData", end, do_com);
   if ((dim > 2) && mesh_has_dim(m, 2))
-    read_tags(f, "<FaceData", mesh_tags(m, 2), mesh_count(m, 2),
-        end, do_com);
-  read_tags(f, "<CellData", mesh_tags(m, dim), mesh_count(m, dim),
-      end, do_com);
+    read_mesh_tags(f, m, 2, "<FaceData", end, do_com);
+  read_mesh_tags(f, m, dim, "<CellData", end, do_com);
 }
 
 struct mesh* read_vtu(char const* filename)
@@ -843,8 +848,6 @@ struct mesh* read_parallel_vtu(char const* inpath)
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
   struct mesh* m = read_vtu(piecepath);
-  if (mesh_find_tag(m, mesh_dim(m), "piece"))
-    mesh_free_tag(m, mesh_dim(m), "piece");
   return m;
 }
 
@@ -856,14 +859,9 @@ void write_parallel_vtu(struct mesh* m, char const* outpath)
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
-  unsigned* piece = uints_copy(
-      mesh_ask_own_ranks(m, mesh_dim(m)),
-      mesh_count(m, mesh_dim(m)));
-  mesh_add_tag(m, mesh_dim(m), TAG_U32, "piece", 1, piece);
   write_vtu(m, piecepath);
   if (!comm_rank() && !strcmp(suffix, "pvtu"))
     write_pvtu(m, outpath, comm_size());
-  mesh_free_tag(m, mesh_dim(m), "piece");
 }
 
 struct cloud* read_parallel_vtu_cloud(char const* inpath)

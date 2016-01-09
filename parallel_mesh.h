@@ -20,10 +20,19 @@ void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name);
 
 void mesh_number_simply(struct mesh* m, unsigned dim);
 
-void mesh_set_own_ranks(struct mesh* m, unsigned dim, unsigned const* own_ranks);
-
 unsigned mesh_ghost_layers(struct mesh* m);
 
 void mesh_set_ghost_layers(struct mesh* m, unsigned n);
+
+void mesh_set_global(struct mesh* m, unsigned dim, unsigned long* new_globals);
+void mesh_set_own_ranks(struct mesh* m, unsigned dim, unsigned* new_owners);
+
+void mesh_tag_global(struct mesh* m, unsigned dim);
+void mesh_tag_own_rank(struct mesh* m, unsigned dim);
+void mesh_tag_own_id(struct mesh* m, unsigned dim);
+
+void mesh_parallel_to_tags(struct mesh* m, unsigned dim);
+void mesh_parallel_untag(struct mesh* m, unsigned dim);
+void mesh_parallel_from_tags(struct mesh* m, unsigned dim);
 
 #endif
