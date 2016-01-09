@@ -65,9 +65,7 @@ unsigned swap_common(
   unsigned nedges = mesh_count(m, 1);
   if (!uints_max(candidates, nedges))
     return 0;
-  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->d.u32;
-  unmark_boundary(elem_dim, 1, nedges, verts_of_edges, class_dim, candidates);
+  mesh_unmark_boundary(m, 1, candidates);
   if (!uints_max(candidates, nedges))
     return 0;
   double* edge_quals;

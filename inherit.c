@@ -1,7 +1,6 @@
 #include "inherit.h"
 
 #include "arrays.h"
-#include "infer_class.h"
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"

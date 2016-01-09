@@ -105,7 +105,6 @@ invert_map.c \
 owners_from_global.c \
 gmsh_io.c \
 exchanger.c \
-infer_class.c \
 copy_mesh.c \
 parallel_inertial_bisect.c \
 parallel_mesh.c \
