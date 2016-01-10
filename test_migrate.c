@@ -22,15 +22,14 @@ int main()
   m = bcast_mesh_metadata(m);
   mesh_make_parallel(m);
   write_parallel_vtu(m, "before.pvtu");
+  unsigned n = 1;
   if (comm_rank() == 0) {
-    unsigned n = 1;
     unsigned recvd_elem_ranks[1] = {0};
     unsigned recvd_elem_ids[1] = {0};
     migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
   } else {
-    unsigned n = 2;
-    unsigned recvd_elem_ranks[2] = {0,0};
-    unsigned recvd_elem_ids[2] = {1,0};
+    unsigned recvd_elem_ranks[1] = {0};
+    unsigned recvd_elem_ids[1] = {1};
     migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
   }
   write_parallel_vtu(m, "after.pvtu");
