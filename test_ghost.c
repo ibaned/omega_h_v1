@@ -15,11 +15,11 @@ int main(int argc, char** argv)
   comm_init();
   assert(argc == 4);
   struct mesh* m = 0;
-  if (comm_rank() == 0)
+  if (comm_rank() == 0) {
     m = read_vtu(argv[1]);
+    mesh_make_parallel(m);
+  }
   m = bcast_mesh_metadata(m);
-  mesh_number_simply(m, 0);
-  mesh_number_simply(m, mesh_dim(m));
   balance_mesh_inertial(&m);
   mesh_global_renumber(m, 0);
   unsigned nlayers = (unsigned) atoi(argv[2]);

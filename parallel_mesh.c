@@ -162,16 +162,6 @@ void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
   modify_tag(mesh_tags(m, dim), t->name, out);
 }
 
-void mesh_number_simply(struct mesh* m, unsigned dim)
-{
-  struct parallel_mesh* pm = mesh_parallel(m);
-  invalidate_globals(pm, dim);
-  unsigned n = mesh_count(m, dim);
-  unsigned* in = uints_linear(n, 1);
-  pm->globals[dim] = globalize_offsets(in, n);
-  loop_free(in);
-}
-
 unsigned mesh_ghost_layers(struct mesh* m)
 {
   return mesh_parallel(m)->nghost_layers;

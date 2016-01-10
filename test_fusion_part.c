@@ -11,11 +11,11 @@ int main()
 {
   comm_init();
   struct mesh* m = 0;
-  if (comm_rank() == 0)
+  if (comm_rank() == 0) {
     m = read_vtu("xgc.vtu");
+    mesh_make_parallel(m);
+  }
   m = bcast_mesh_metadata(m);
-  mesh_number_simply(m, 0);
-  mesh_number_simply(m, 2);
   mesh_interp_to_elems(m, "coordinates");
   double* elem_coords = mesh_find_tag(m, 2, "coordinates")->d.f64;
   unsigned nelems = mesh_count(m, 2);

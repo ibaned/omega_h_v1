@@ -18,11 +18,9 @@ int main()
   if (comm_rank() == 0) {
     m = new_box_mesh(2);
     mesh_count(m, 1); //trigger edge creation
+    mesh_make_parallel(m);
   }
   m = bcast_mesh_metadata(m);
-  mesh_number_simply(m, 0);
-  mesh_number_simply(m, 1);
-  mesh_number_simply(m, 2);
   write_parallel_vtu(m, "before.pvtu");
   if (comm_rank() == 0) {
     unsigned n = 1;
