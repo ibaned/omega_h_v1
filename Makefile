@@ -48,7 +48,6 @@ reflect_down.c \
 refine_nodal.c \
 refine_qualities.c \
 doubles.c \
-classify_box.c \
 coarsen_by_size.c \
 check_collapse_class.c \
 coarsen_qualities.c \

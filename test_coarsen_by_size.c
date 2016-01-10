@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include "algebra.h"
-#include "classify_box.h"
 #include "coarsen_by_size.h"
 #include "derive_model.h"
 #include "eval_field.h"
