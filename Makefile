@@ -7,34 +7,26 @@
 include config.mk
 
 test_sources := \
-test_coarsen_by_size.c \
-test_form_cloud.c \
-test_grad.c \
-test_inertia.c \
+test_print_swap_edges.c \
+test_box.c \
 test_node_ele.c \
-test_read_vtk.c \
-test_refine_by_size.c \
-test_up_from_down.c \
-test_warp.c \
-test_warp_3d.c \
+test_from_gmsh.c \
+test_vtk_ascii.c \
 test_vtk_surfer.c \
 test_vtkdiff.c \
-test_push_cloud.c \
-test_box.c \
-test_loop.c \
-test_global.c \
-test_vtk_ascii.c \
-test_from_gmsh.c \
-test_cuda_box.c \
-test_star.c \
-test_rib.c \
+test_coarsen_by_size.c \
+test_refine_by_size.c \
+test_grad.c \
+test_warp.c \
+test_warp_3d.c \
 test_migrate.c \
 test_conform.c \
 test_ghost.c \
+test_form_cloud.c \
+test_push_cloud.c \
+test_fusion_part.c \
 test_memory.c \
 test_derive_model.c \
-test_fusion_part.c \
-test_print_swap_edges.c \
 test_subdim.c
 
 lib_sources := \
