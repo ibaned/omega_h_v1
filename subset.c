@@ -62,7 +62,7 @@ struct mesh* subset_mesh(
   }
   unsigned nverts_out = vert_offsets[nverts];
   /* TODO: should subset_mesh preserve full topology ? */
-  struct mesh* out = new_mesh(elem_dim, MESH_REDUCED);
+  struct mesh* out = new_mesh(elem_dim, MESH_REDUCED, 0);
   mesh_set_ents(out, 0, nverts_out, 0);
   mesh_set_ents(out, elem_dim, nelems_out, verts_of_elems_out);
   tags_subset(m, out, 0, vert_offsets);

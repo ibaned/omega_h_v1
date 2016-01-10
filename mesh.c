@@ -52,18 +52,20 @@ static void free_up(struct up* u)
   loop_host_free(u);
 }
 
-struct mesh* new_mesh(unsigned elem_dim, enum mesh_rep rep)
+struct mesh* new_mesh(unsigned elem_dim, enum mesh_rep rep, unsigned is_parallel)
 {
   struct mesh* m = LOOP_HOST_MALLOC(struct mesh, 1);
   memset(m, 0, sizeof(*m));
   m->elem_dim = elem_dim;
   m->rep = rep;
+  if (is_parallel)
+    m->parallel = new_parallel_mesh();
   return m;
 }
 
 struct mesh* new_box_mesh(unsigned elem_dim)
 {
-  struct mesh* m = new_mesh(elem_dim, MESH_REDUCED);
+  struct mesh* m = new_mesh(elem_dim, MESH_REDUCED, 0);
   unsigned nelems = the_box_nelems[elem_dim];
   unsigned nverts = the_box_nverts[elem_dim];
   mesh_set_ents(m, 0, nverts, 0);

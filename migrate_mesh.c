@@ -126,7 +126,7 @@ void migrate_mesh(
       m, dim, 0, elem_push);
   struct exchanger* vert_push = close_partition_exchanger(vert_use_to_own);
   unsigned nverts_recvd = vert_push->nitems[EX_REV];
-  struct mesh* m_out = new_mesh(dim, mesh_get_rep(m));
+  struct mesh* m_out = new_mesh(dim, mesh_get_rep(m), 1);
   move_ents(m, m_out, 0, nverts_recvd, 0, vert_push);
   unsigned* lids = uints_linear(nverts_recvd, 1);
   unsigned* lid_of_copies = exchange_uints(vert_push, 1, lids,

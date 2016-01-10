@@ -132,7 +132,7 @@ unsigned coarsen_common(
   unsigned* offset_of_same_verts = uints_negate_offsets(
       gen_offset_of_verts, nverts);
   unsigned nverts_out = offset_of_same_verts[nverts];
-  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m));
+  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), 0);
   mesh_set_ents(m_out, 0, nverts_out, 0);
   tags_subset(m, m_out, 0, offset_of_same_verts);
   coarsen_all_ents(m, m_out, gen_offset_of_verts, gen_vert_of_verts,

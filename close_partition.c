@@ -160,7 +160,7 @@ void get_down_use_owners(
   }
   *p_use_own_ranks = use_own_ranks;
   *p_use_own_ids = use_own_ids;
-  *p_uses_of_highs_offsets = uints_linear(nhighs, nlows_per_high);
+  *p_uses_of_highs_offsets = uints_linear(nhighs + 1, nlows_per_high);
 }
 
 /* this is supposed to be a simple operation.

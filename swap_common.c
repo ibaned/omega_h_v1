@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-#include "copy_mesh.h"
+#include "copy_tags.h"
 #include "doubles.h"
 #include "graph.h"
 #include "indset.h"
@@ -81,7 +81,7 @@ unsigned swap_common(
   }
   /* vertex handling */
   unsigned nverts = mesh_count(m, 0);
-  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m));
+  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), 0);
   mesh_set_ents(m_out, 0, nverts, 0);
   copy_tags(mesh_tags(m, 0), mesh_tags(m_out, 0), nverts);
   /* end vertex handling */

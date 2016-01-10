@@ -27,8 +27,8 @@ void osh_write_vtk(osh_t m, char const* filename)
 osh_t osh_new(unsigned elem_dim)
 {
   /* TODO: right now only APF uses this function,
-     so its set to FULL for their convenience. */
-  return (osh_t) new_mesh(elem_dim, MESH_FULL);
+     so its set to FULL/parallel for their convenience. */
+  return (osh_t) new_mesh(elem_dim, MESH_FULL, 1);
 }
 
 unsigned* osh_build_ents(osh_t m, unsigned ent_dim, unsigned nents)

@@ -60,7 +60,7 @@ struct mesh* bcast_mesh_metadata(struct mesh* m)
     rep = mesh_get_rep(m);
   rep = (enum mesh_rep) (comm_bcast_uint((unsigned) rep));
   if (comm_rank())
-    m = new_mesh(dim, rep);
+    m = new_mesh(dim, rep, 0);
   for (unsigned i = 0; i <= dim; ++i) {
     unsigned has = 0;
     if (!comm_rank())
