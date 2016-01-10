@@ -74,7 +74,7 @@ struct mesh* read_msh(char const* filename)
   /* alright, we can tell the highest-dimensional entity
      and store the vertices at least */
   unsigned dim = uints_max(dim_of_eqs, neqs);
-  struct mesh* m = new_mesh(dim, MESH_FULL, 0);
+  struct mesh* m = new_mesh(dim, MESH_REDUCED, 0);
   mesh_set_ents(m, 0, nnodes, 0);
   mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, node_coords);
   /* we can also form the elements and derive all intermediate
@@ -137,5 +137,6 @@ struct mesh* read_msh(char const* filename)
     mesh_add_tag(m, i, TAG_U32, "class_dim", 1, class_dims[i]);
     mesh_add_tag(m, i, TAG_U32, "class_id", 1, class_ids[i]);
   }
+  mesh_set_rep(m, MESH_FULL);
   return m;
 }
