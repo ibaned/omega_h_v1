@@ -5,6 +5,7 @@
 
 #include "arrays.h"
 #include "algebra.h"
+#include "bcast.h"
 #include "comm.h"
 #include "doubles.h"
 #include "exchanger.h"
@@ -247,4 +248,31 @@ void mesh_parallel_from_tags(struct mesh* m, unsigned dim)
        mesh_find_tag(m, dim, "own_id")->d.u32,
        mesh_count(m, dim));
   mesh_free_tag(m, dim, "own_id");
+}
+
+void mesh_partition_out(struct mesh** p_m, unsigned factor)
+{
+  struct comm* oc = comm_using();
+  struct comm* bc = comm_split(oc, comm_rank() / factor, comm_rank() % factor);
+  comm_use(bc);
+  *p_m = bcast_mesh_metadata(*p_m);
+  comm_use(oc);
+  comm_free(bc);
+  if (comm_rank() % factor) {
+    mesh_make_parallel(*p_m);
+  } else {
+    for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
+      invalidate_ranks(mesh_parallel(*p_m), d);
+  }
+}
+
+void mesh_partition_in(struct mesh** p_m, unsigned factor)
+{
+  if (comm_rank() % factor) {
+    free_mesh(*p_m);
+    *p_m = 0;
+  } else {
+    for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
+      invalidate_ranks(mesh_parallel(*p_m), d);
+  }
 }
