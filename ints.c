@@ -93,13 +93,19 @@ unsigned long ulongs_max(unsigned long const* a, unsigned n)
 
 #endif
 
-unsigned* uints_linear(unsigned n, unsigned stride)
-{
-  unsigned* scrap = uints_filled(n, stride);
-  unsigned* linear = uints_exscan(scrap, n);
-  loop_free(scrap);
-  return linear;
+#define GENERAL_LINEAR(T, name) \
+LOOP_KERNEL(name##_linear_kern, T* out, T stride) \
+  out[i] = i * stride; \
+} \
+T* name##_linear(unsigned n, T stride) \
+{ \
+  T* out = LOOP_MALLOC(T, n); \
+  LOOP_EXEC(name##_linear_kern, n, out, stride); \
+  return out; \
 }
+
+GENERAL_LINEAR(unsigned, uints)
+GENERAL_LINEAR(unsigned long, ulongs)
 
 LOOP_KERNEL(unscan_kern, unsigned const* a, unsigned* o)
   o[i] = a[i + 1] - a[i];
