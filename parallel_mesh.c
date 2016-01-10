@@ -15,7 +15,6 @@
 #include "owners_from_global.h"
 
 struct parallel_mesh {
-  struct mesh* m;
   unsigned long* globals[4];
   unsigned* own_ranks[4];
   unsigned* own_ids[4];
@@ -24,11 +23,10 @@ struct parallel_mesh {
   int padding__;
 };
 
-struct parallel_mesh* new_parallel_mesh(struct mesh* m)
+struct parallel_mesh* new_parallel_mesh(void)
 {
   struct parallel_mesh* pm = LOOP_HOST_MALLOC(struct parallel_mesh, 1);
   memset(pm, 0, sizeof(*pm));
-  pm->m = m;
   return pm;
 }
 

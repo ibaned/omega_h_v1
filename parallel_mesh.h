@@ -5,7 +5,7 @@ struct mesh;
 struct parallel_mesh;
 struct exchanger;
 
-struct parallel_mesh* new_parallel_mesh(struct mesh* m);
+struct parallel_mesh* new_parallel_mesh(void);
 void free_parallel_mesh(struct parallel_mesh* m);
 
 unsigned long const* mesh_ask_global(struct mesh* m, unsigned dim);
