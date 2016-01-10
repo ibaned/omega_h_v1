@@ -45,6 +45,6 @@ int main(int argc, char** argv)
   struct mesh* m = new_box_mesh(dim);
   for (unsigned i = 0; i < nrefs; ++i)
     uniformly_refine(&m);
-  write_vtu(m, file);
+  write_mesh_vtk(m, file);
   free_mesh(m);
 }

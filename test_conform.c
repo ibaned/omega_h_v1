@@ -39,11 +39,11 @@ int main()
   struct mesh* m = make_2_tri_parallel();
   double* data = doubles_filled(3, (double) (comm_rank() + 1));
   mesh_add_tag(m, 0, TAG_F64, "field", 1, data);
-  write_parallel_vtu(m, "one.pvtu");
+  write_mesh_vtk(m, "one.pvtu");
   mesh_accumulate_tag(m, 0, "field");
-  write_parallel_vtu(m, "two.pvtu");
+  write_mesh_vtk(m, "two.pvtu");
   mesh_conform_tag(m, 0, "field");
-  write_parallel_vtu(m, "three.pvtu");
+  write_mesh_vtk(m, "three.pvtu");
   free_mesh(m);
   comm_fini();
 }

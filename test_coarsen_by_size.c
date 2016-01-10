@@ -38,7 +38,7 @@ int main()
   mesh_eval_field(m, 0, "adapt_size", 1, fine_fun);
   while (refine_by_size(&m, 0)) {
     sprintf(fname, "ref_%u.vtu", it++);
-    write_vtu(m, fname);
+    write_mesh_vtk(m, fname);
     mesh_free_tag(m, 0, "adapt_size");
     mesh_eval_field(m, 0, "adapt_size", 1, fine_fun);
   }
@@ -50,7 +50,7 @@ int main()
   while (coarsen_by_size(&m, minq, 0.5)) {
     printf("%u elements\n", mesh_count(m, mesh_dim(m)));
     sprintf(fname, "cor_%u.vtu", it++);
-    write_vtu(m, fname);
+    write_mesh_vtk(m, fname);
   }
   free_mesh(m);
 }

@@ -12,7 +12,7 @@ int main()
   comm_init();
   struct mesh* m = 0;
   if (comm_rank() == 0) {
-    m = read_vtu("xgc.vtu");
+    m = read_mesh_vtk("xgc.vtu");
     mesh_make_parallel(m);
   }
   m = bcast_mesh_metadata(m);
@@ -30,7 +30,7 @@ int main()
     elem_coords[i * 3 + 2] = 0;
   }
   balance_mesh_inertial(&m);
-  write_parallel_vtu(m, "split.pvtu");
+  write_mesh_vtk(m, "split.pvtu");
   free_mesh(m);
   comm_fini();
 }

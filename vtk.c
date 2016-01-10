@@ -476,7 +476,7 @@ static void read_piece_header(FILE* f, unsigned* nverts, unsigned* nelems,
     *rep = MESH_REDUCED;
 }
 
-void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
+static void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
 {
   unsigned elem_dim = mesh_dim(m);
   unsigned nverts = mesh_count(m, 0);
@@ -525,7 +525,7 @@ void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
   fclose(file);
 }
 
-void write_vtu(struct mesh* m, char const* filename)
+static void write_vtu(struct mesh* m, char const* filename)
 {
   write_vtu_opts(m, filename, VTK_BINARY);
 }
@@ -650,7 +650,7 @@ static void read_ents(FILE* f, struct mesh* m, unsigned nents,
 }
 
 static struct mesh* read_vtk_mesh(FILE* f, enum endian end,
-    unsigned do_com)
+    unsigned do_com, unsigned is_parallel)
 {
   unsigned nverts, nelems;
   unsigned do_edges, do_faces;
@@ -661,7 +661,7 @@ static struct mesh* read_vtk_mesh(FILE* f, enum endian end,
       &rep);
   assert(nelems);
   unsigned dim = read_dimension(f, nelems, end, do_com);
-  struct mesh* m = new_mesh(dim, rep, 0);
+  struct mesh* m = new_mesh(dim, rep, is_parallel);
   mesh_set_ents(m, 0, nverts, 0);
   rewind(f);
   read_verts(f, m, end, do_com);
@@ -674,25 +674,26 @@ static struct mesh* read_vtk_mesh(FILE* f, enum endian end,
 }
 
 static void read_mesh_tags(FILE* f, struct mesh* m, unsigned dim,
-    char const* prefix, enum endian end, unsigned do_com)
+    char const* prefix, enum endian end, unsigned do_com, unsigned is_parallel)
 {
   read_tags(f, prefix, mesh_tags(m, dim), mesh_count(m, dim), end, do_com);
-  mesh_parallel_from_tags(m, dim);
+  if (is_parallel)
+    mesh_parallel_from_tags(m, dim);
 }
 
 static void read_vtk_fields(FILE* f, struct mesh* m, enum endian end,
-    unsigned do_com)
+    unsigned do_com, unsigned is_parallel)
 {
   unsigned dim = mesh_dim(m);
-  read_mesh_tags(f, m, 0, "<PointData", end, do_com);
+  read_mesh_tags(f, m, 0, "<PointData", end, do_com, is_parallel);
   if ((dim > 1) && mesh_has_dim(m, 1))
-    read_mesh_tags(f, m, 1, "<EdgeData", end, do_com);
+    read_mesh_tags(f, m, 1, "<EdgeData", end, do_com, is_parallel);
   if ((dim > 2) && mesh_has_dim(m, 2))
-    read_mesh_tags(f, m, 2, "<FaceData", end, do_com);
-  read_mesh_tags(f, m, dim, "<CellData", end, do_com);
+    read_mesh_tags(f, m, 2, "<FaceData", end, do_com, is_parallel);
+  read_mesh_tags(f, m, dim, "<CellData", end, do_com, is_parallel);
 }
 
-struct mesh* read_vtu(char const* filename)
+static struct mesh* read_vtu_opts(char const* filename, unsigned is_parallel)
 {
   FILE* file = safe_fopen(filename, "r");
   enum endian end;
@@ -700,8 +701,8 @@ struct mesh* read_vtu(char const* filename)
   read_unstructured_header(file, &end, &do_com);
   if (do_com)
     assert(can_compress);
-  struct mesh* m = read_vtk_mesh(file, end, do_com);
-  read_vtk_fields(file, m, end, do_com);
+  struct mesh* m = read_vtk_mesh(file, end, do_com, is_parallel);
+  read_vtk_fields(file, m, end, do_com, is_parallel);
   fclose(file);
   return m;
 }
@@ -778,7 +779,7 @@ static void write_pieces(FILE* file, char const* pathname, unsigned npieces)
   }
 }
 
-void write_pvtu(struct mesh* m, char const* filename,
+static void write_pvtu(struct mesh* m, char const* filename,
     unsigned npieces)
 {
   FILE* file = safe_fopen(filename, "w");
@@ -841,19 +842,21 @@ void write_pvtu_cloud(struct cloud* c, char const* filename,
   fclose(file);
 }
 
-struct mesh* read_parallel_vtu(char const* inpath)
+struct mesh* read_mesh_vtk(char const* inpath)
 {
   char* suffix;
   line_t prefix;
   split_pathname(inpath, prefix, sizeof(prefix), 0, &suffix);
+  unsigned is_parallel = !(strcmp(suffix, "pvtu"));
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
-  struct mesh* m = read_vtu(piecepath);
+  struct mesh* m = read_vtu_opts(piecepath, is_parallel);
   return m;
 }
 
-void write_parallel_vtu(struct mesh* m, char const* outpath)
+void write_mesh_vtk_opts(struct mesh* m, char const* outpath,
+    enum vtk_format fmt)
 {
   char* suffix;
   line_t prefix;
@@ -861,9 +864,14 @@ void write_parallel_vtu(struct mesh* m, char const* outpath)
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
-  write_vtu(m, piecepath);
+  write_vtu_opts(m, piecepath, fmt);
   if (!comm_rank() && !strcmp(suffix, "pvtu"))
     write_pvtu(m, outpath, comm_size());
+}
+
+void write_mesh_vtk(struct mesh* m, char const* outpath)
+{
+  write_mesh_vtk_opts(m, outpath, VTK_BINARY);
 }
 
 struct cloud* read_parallel_vtu_cloud(char const* inpath)

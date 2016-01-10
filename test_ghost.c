@@ -16,7 +16,7 @@ int main(int argc, char** argv)
   assert(argc == 4);
   struct mesh* m = 0;
   if (comm_rank() == 0)
-    m = read_vtu(argv[1]);
+    m = read_mesh_vtk(argv[1]);
   m = bcast_mesh_metadata(m);
   mesh_make_parallel(m);
   balance_mesh_inertial(&m);
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
   unsigned nlayers = (unsigned) atoi(argv[2]);
   assert(nlayers <= 10);
   ghost_mesh(&m, nlayers);
-  write_parallel_vtu(m, argv[3]);
+  write_mesh_vtk(m, argv[3]);
   free_mesh(m);
   comm_fini();
 }

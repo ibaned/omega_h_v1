@@ -21,7 +21,6 @@ test_vtk_surfer.c \
 test_vtkdiff.c \
 test_push_cloud.c \
 test_box.c \
-test_pvtu.c \
 test_loop.c \
 test_global.c \
 test_vtk_ascii.c \
@@ -31,7 +30,6 @@ test_star.c \
 test_rib.c \
 test_migrate.c \
 test_conform.c \
-test_mesh_rib.c \
 test_ghost.c \
 test_memory.c \
 test_derive_model.c \

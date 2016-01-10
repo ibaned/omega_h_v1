@@ -25,7 +25,7 @@ static void new_coord_fun(double const* x, double* nx)
 
 int main()
 {
-  struct mesh* m = read_vtu("xgc.vtu");
+  struct mesh* m = read_mesh_vtk("xgc.vtu");
   /* assume first vertex is center vertex */
   cen = mesh_find_tag(m, 0, "coordinates")->d.f64;
   struct cloud* c = read_vtu_cloud("cloud.vtu");

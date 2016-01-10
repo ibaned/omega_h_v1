@@ -21,7 +21,7 @@ int main()
   }
   m = bcast_mesh_metadata(m);
   mesh_make_parallel(m);
-  write_parallel_vtu(m, "before.pvtu");
+  write_mesh_vtk(m, "before.pvtu");
   unsigned n = 1;
   if (comm_rank() == 0) {
     unsigned recvd_elem_ranks[1] = {0};
@@ -32,7 +32,7 @@ int main()
     unsigned recvd_elem_ids[1] = {1};
     migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
   }
-  write_parallel_vtu(m, "after.pvtu");
+  write_mesh_vtk(m, "after.pvtu");
   free_mesh(m);
   comm_fini();
 }
