@@ -16,9 +16,9 @@ static struct mesh* make_2_tri_parallel(void)
   assert(comm_size() == 2);
   if (comm_rank() == 0) {
     m = new_box_mesh(2);
-    mesh_make_parallel(m);
   }
   m = bcast_mesh_metadata(m);
+  mesh_make_parallel(m);
   if (comm_rank() == 0) {
     unsigned n = 1;
     unsigned recvd_elem_ranks[1] = {0};
