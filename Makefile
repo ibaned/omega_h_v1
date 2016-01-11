@@ -230,7 +230,7 @@ deps/%.dep: %.c loop.h | deps
 -include $(depfiles)
 
 check: data $(exes)
-	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) ./run_tests.sh
+	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) USE_MPI=$(USE_MPI) ./run_tests.sh
 
 data:
 	git clone https://github.com/ibaned/omega_h_data.git data
