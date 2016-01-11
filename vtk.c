@@ -400,15 +400,11 @@ static void write_cell_arrays(FILE* file, struct mesh* m, enum vtk_format fmt)
 static void write_mesh_tags(FILE* file, struct mesh* m, unsigned dim,
     enum vtk_format fmt, struct const_tag* except)
 {
-  if (mesh_is_parallel(m))
-    mesh_parallel_to_tags(m, dim);
   for (unsigned i = 0; i < mesh_count_tags(m, dim); ++i) {
     struct const_tag* tag = mesh_get_tag(m, dim, i);
     if (tag != except)
       write_tag(file, mesh_count(m, dim), tag, fmt);
   }
-  if (mesh_is_parallel(m))
-    mesh_parallel_untag(m, dim);
 }
 
 static void write_unstructured_header(FILE* file, enum vtk_format fmt)
@@ -864,9 +860,15 @@ void write_mesh_vtk_opts(struct mesh* m, char const* outpath,
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
+  if (mesh_is_parallel(m))
+    for (unsigned dim = 0; dim <= mesh_dim(m); ++dim)
+      mesh_parallel_to_tags(m, dim);
   write_vtu_opts(m, piecepath, fmt);
   if (!comm_rank() && !strcmp(suffix, "pvtu"))
     write_pvtu(m, outpath, comm_size());
+  if (mesh_is_parallel(m))
+    for (unsigned dim = 0; dim <= mesh_dim(m); ++dim)
+      mesh_parallel_untag(m, dim);
 }
 
 void write_mesh_vtk(struct mesh* m, char const* outpath)

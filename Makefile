@@ -7,6 +7,7 @@
 include config.mk
 
 test_sources := \
+test_partition.c \
 test_print_swap_edges.c \
 test_box.c \
 test_node_ele.c \
