@@ -439,22 +439,49 @@ static void read_unstructured_header(FILE* file,
   *do_com = try_read_attrib(line, "compressor", compressor);
 }
 
+static void write_piece_header(FILE* file, struct mesh* m)
+{
+  unsigned elem_dim = mesh_dim(m);
+  fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\"",
+      mesh_count(m, 0), mesh_count(m, elem_dim));
+  if ((elem_dim > 1) && mesh_has_dim(m, 1))
+    fprintf(file, " NumberOfEdges=\"%u\"", mesh_count(m, 1));
+  if ((elem_dim > 2) && mesh_has_dim(m, 2))
+    fprintf(file, " NumberOfFaces=\"%u\"", mesh_count(m, 2));
+  fprintf(file, " Rep=\"%s\"",
+      mesh_get_rep(m) == MESH_FULL ? "Full" : "Reduced");
+  fprintf(file, ">\n");
+}
+
+static void read_piece_header(FILE* f, unsigned* nverts, unsigned* nelems,
+    unsigned* do_edges, unsigned* do_faces,
+    unsigned* nedges, unsigned* nfaces,
+    enum mesh_rep* rep)
+{
+  line_t line;
+  seek_prefix(f, line, sizeof(line), "<Piece");
+  *nverts = read_int_attrib(line, "NumberOfPoints");
+  *nelems = read_int_attrib(line, "NumberOfCells");
+  *do_edges = try_read_int_attrib(line, "NumberOfEdges", nedges);
+  *do_faces = try_read_int_attrib(line, "NumberOfFaces", nfaces);
+  line_t rep_text;
+  if (try_read_attrib(line, "Rep", rep_text) &&
+      !strcmp(rep_text, "Full"))
+    *rep = MESH_FULL;
+  else
+    *rep = MESH_REDUCED;
+}
+
 void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt)
 {
   unsigned elem_dim = mesh_dim(m);
   unsigned nverts = mesh_count(m, 0);
-  unsigned nelems = mesh_count(m, elem_dim);
   unsigned do_edges = ((elem_dim > 1) && mesh_has_dim(m, 1));
   unsigned do_faces = ((elem_dim > 2) && mesh_has_dim(m, 2));
   FILE* file = safe_fopen(filename, "w");
   write_unstructured_header(file, fmt);
   fprintf(file, "<UnstructuredGrid>\n");
-  fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"%u\"", nverts, nelems);
-  if (do_edges)
-    fprintf(file, " NumberOfEdges=\"%u\"", mesh_count(m, 1));
-  if (do_faces)
-    fprintf(file, " NumberOfFaces=\"%u\"", mesh_count(m, 2));
-  fprintf(file, ">\n");
+  write_piece_header(file, m);
   fprintf(file, "<Points>\n");
   struct const_tag* coord_tag = mesh_find_tag(m, 0, "coordinates");
   write_tag(file, nverts, coord_tag, fmt);
@@ -516,22 +543,12 @@ void write_vtk_step(struct mesh* m)
   ++the_step;
 }
 
-static void read_ent_counts(FILE* f, unsigned* nverts, unsigned* nelems,
-    unsigned* do_edges, unsigned* do_faces,
-    unsigned* nedges, unsigned* nfaces)
-{
-  line_t line;
-  seek_prefix(f, line, sizeof(line), "<Piece");
-  *nverts = read_int_attrib(line, "NumberOfPoints");
-  *nelems = read_int_attrib(line, "NumberOfCells");
-  *do_edges = try_read_int_attrib(line, "NumberOfEdges", nedges);
-  *do_faces = try_read_int_attrib(line, "NumberOfFaces", nfaces);
-}
-
 static void read_nverts(FILE* f, unsigned* nverts)
 {
   unsigned ignore;
-  read_ent_counts(f, nverts, &ignore, &ignore, &ignore, &ignore, &ignore);
+  enum mesh_rep ignore2;
+  read_piece_header(f, nverts, &ignore, &ignore, &ignore, &ignore, &ignore,
+      &ignore2);
 }
 
 static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
@@ -634,11 +651,14 @@ static struct mesh* read_vtk_mesh(FILE* f, enum endian end,
   unsigned nverts, nelems;
   unsigned do_edges, do_faces;
   unsigned nedges, nfaces;
-  read_ent_counts(f, &nverts, &nelems,
-      &do_edges, &do_faces, &nedges, &nfaces);
+  enum mesh_rep rep;
+  read_piece_header(f, &nverts, &nelems,
+      &do_edges, &do_faces, &nedges, &nfaces,
+      &rep);
   assert(nelems);
   unsigned dim = read_dimension(f, nelems, end, do_com);
   struct mesh* m = new_mesh(dim);
+  mesh_set_rep(m, rep);
   mesh_set_ents(m, 0, nverts, 0);
   rewind(f);
   read_verts(f, m, end, do_com);
