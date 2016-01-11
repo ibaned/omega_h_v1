@@ -378,4 +378,7 @@ unsigned count_swap_ents(
     case 3: return 2 * swap_mesh_sizes[ring_size];
     default: assert(0);
   }
+#ifdef __CUDACC__
+  return 42;
+#endif
 }
