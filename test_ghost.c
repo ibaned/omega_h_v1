@@ -1,13 +1,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "bcast.h"
 #include "comm.h"
 #include "ghost_mesh.h"
 #include "mesh.h"
-#include "parallel_inertial_bisect.h"
-#include "parallel_mesh.h"
-#include "refine_by_size.h"
 #include "vtk.h"
 
 int main(int argc, char** argv)
@@ -15,12 +11,7 @@ int main(int argc, char** argv)
   comm_init();
   assert(argc == 4);
   struct mesh* m = 0;
-  if (comm_rank() == 0)
-    m = read_mesh_vtk(argv[1]);
-  m = bcast_mesh_metadata(m);
-  mesh_make_parallel(m);
-  balance_mesh_inertial(&m);
-  mesh_global_renumber(m, 0);
+  m = read_mesh_vtk(argv[1]);
   unsigned nlayers = (unsigned) atoi(argv[2]);
   assert(nlayers <= 10);
   ghost_mesh(&m, nlayers);
