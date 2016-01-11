@@ -134,6 +134,8 @@ void mesh_global_renumber(struct mesh* m, unsigned dim)
 
 void mesh_conform_tag(struct mesh* m, unsigned dim, const char* name)
 {
+  if (!mesh_is_parallel(m))
+    return;
   struct const_tag* t = mesh_find_tag(m, dim, name);
   struct exchanger* ex = mesh_ask_exchanger(m, dim);
   push_tag(ex, t, mesh_tags(m, dim));
@@ -141,6 +143,8 @@ void mesh_conform_tag(struct mesh* m, unsigned dim, const char* name)
 
 void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
 {
+  if (!mesh_is_parallel(m))
+    return;
   struct const_tag* t = mesh_find_tag(m, dim, name);
   assert(t->type == TAG_F64);
   struct exchanger* ex = mesh_ask_exchanger(m, dim);
