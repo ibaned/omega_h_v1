@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "comm.h"
 #include "eval_field.h"
 #include "mesh.h"
 #include "refine_by_size.h"
@@ -10,6 +11,7 @@
 
 int main(int argc, char** argv)
 {
+  comm_init();
   unsigned dim = 3;
   unsigned nrefs = 0;
   char const* file = "out.vtu";
@@ -47,4 +49,5 @@ int main(int argc, char** argv)
     uniformly_refine(&m);
   write_mesh_vtk(m, file);
   free_mesh(m);
+  comm_fini();
 }
