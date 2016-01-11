@@ -57,6 +57,8 @@ int main()
           ++l;
         }
       fprintf(f, "};\n");
+      loop_free(bdry_edges);
+      free_mesh(m);
     }
   }
   for (unsigned i = 4; i <= MAX_EDGE_SWAP; ++i) {
