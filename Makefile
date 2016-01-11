@@ -114,6 +114,8 @@ USE_MPI3 ?= 0
 USE_CUDA_MALLOC_MANAGED ?= 1
 MEASURE_MEMORY ?= 0
 LOOP_MODE ?= serial
+MPIRUN ?= mpirun
+VALGRIND ?= valgrind
 #comm.c is compiled with -DUSE_MPI=
 objs/comm.o : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
 deps/comm.dep : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
@@ -151,8 +153,8 @@ all: $(lib) $(exes)
 clean:
 	rm -rf deps/ objs/ bin/ lib/ loop.h
 
-#"all" and "clean" are targets, not files or directories
-.PHONY: all clean
+#just targets, not files or directories
+.PHONY: all clean check
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
@@ -226,3 +228,9 @@ deps/%.dep: %.c loop.h | deps
 #the minus sign silences warnings when the
 #depfiles don't exist yet.
 -include $(depfiles)
+
+check: data $(exes)
+	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) ./run_tests.sh
+
+data:
+	git clone https://github.com/ibaned/omega_h_data.git data
