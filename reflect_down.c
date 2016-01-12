@@ -6,7 +6,7 @@
 #include "loop.h"
 #include "tables.h"
 
-static unsigned copy(
+LOOP_INOUT static unsigned copy(
     unsigned const* a,
     unsigned* b,
     unsigned n)
@@ -16,7 +16,7 @@ static unsigned copy(
   return n;
 }
 
-static unsigned copy_except(
+LOOP_INOUT static unsigned copy_except(
     unsigned const* a,
     unsigned* b,
     unsigned n,
@@ -29,7 +29,7 @@ static unsigned copy_except(
   return j;
 }
 
-static unsigned intersect(
+LOOP_INOUT static unsigned intersect(
     unsigned* a,
     unsigned na,
     unsigned const* b,
@@ -40,6 +40,58 @@ static unsigned intersect(
     if (has(b, nb, a[i]))
       a[j++] = a[i];
   return j;
+}
+
+LOOP_KERNEL( local_method,
+	unsigned dual_mode,
+	unsigned const* verts_of_highs,
+	unsigned const* lows_of_verts_offsets,
+    unsigned const* lows_of_verts,
+    unsigned verts_per_high,
+    unsigned lows_per_high,
+    unsigned verts_per_low,
+    unsigned* lows_of_highs,
+    unsigned const* const* high_verts_of_lows)
+
+  unsigned const* verts_of_high = verts_of_highs + i * verts_per_high;
+  unsigned* lows_of_high = lows_of_highs + i * lows_per_high;
+  for (unsigned j = 0; j < lows_per_high; ++j) {
+    unsigned const* high_verts_of_low = high_verts_of_lows[j];
+    unsigned high_buf[MAX_UP];
+    unsigned high_buf_size = 0;
+    for (unsigned k = 0; k < verts_per_low; ++k) {
+      unsigned vert = verts_of_high[high_verts_of_low[k]];
+      unsigned first_use = lows_of_verts_offsets[vert];
+      unsigned end_use = lows_of_verts_offsets[vert + 1];
+      if (k) {
+        high_buf_size = intersect(
+            high_buf,
+            high_buf_size,
+            lows_of_verts + first_use,
+            end_use - first_use);
+      } else if (dual_mode) {
+        assert(end_use - first_use <= MAX_UP);
+        high_buf_size = copy_except(
+            lows_of_verts + first_use,
+            high_buf,
+            end_use - first_use,
+            i);
+      } else {
+        assert(end_use - first_use <= MAX_UP);
+        high_buf_size = copy(
+            lows_of_verts + first_use,
+            high_buf,
+            end_use - first_use);
+      }
+    }
+    if (dual_mode) {
+      assert(high_buf_size <= 1);
+      lows_of_high[j] = ((high_buf_size) ? high_buf[0] : INVALID);
+    } else {
+      assert(high_buf_size == 1);
+      lows_of_high[j] = high_buf[0];
+    }
+  }
 }
 
 /* This is the #1 most expensive function, takes up 50% of
@@ -61,47 +113,16 @@ static unsigned* reflect_down_general(
   unsigned* lows_of_highs = LOOP_MALLOC(unsigned, nhighs * lows_per_high);
   unsigned const* const* high_verts_of_lows =
     the_canonical_orders[high_dim][low_dim][0];
-  for (unsigned i = 0; i < nhighs; ++i) {
-    unsigned const* verts_of_high = verts_of_highs + i * verts_per_high;
-    unsigned* lows_of_high = lows_of_highs + i * lows_per_high;
-    for (unsigned j = 0; j < lows_per_high; ++j) {
-      unsigned const* high_verts_of_low = high_verts_of_lows[j];
-      unsigned high_buf[MAX_UP];
-      unsigned high_buf_size = 0;
-      for (unsigned k = 0; k < verts_per_low; ++k) {
-        unsigned vert = verts_of_high[high_verts_of_low[k]];
-        unsigned first_use = lows_of_verts_offsets[vert];
-        unsigned end_use = lows_of_verts_offsets[vert + 1];
-        if (k) {
-          high_buf_size = intersect(
-              high_buf,
-              high_buf_size,
-              lows_of_verts + first_use,
-              end_use - first_use);
-        } else if (dual_mode) {
-          assert(end_use - first_use <= MAX_UP);
-          high_buf_size = copy_except(
-              lows_of_verts + first_use,
-              high_buf,
-              end_use - first_use,
-              i);
-        } else {
-          assert(end_use - first_use <= MAX_UP);
-          high_buf_size = copy(
-              lows_of_verts + first_use,
-              high_buf,
-              end_use - first_use);
-        }
-      }
-      if (dual_mode) {
-        assert(high_buf_size <= 1);
-        lows_of_high[j] = ((high_buf_size) ? high_buf[0] : INVALID);
-      } else {
-        assert(high_buf_size == 1);
-        lows_of_high[j] = high_buf[0];
-      }
-    }
-  }
+  LOOP_EXEC(local_method , nhighs,
+	  dual_mode,
+      verts_of_highs,
+      lows_of_verts_offsets,
+      lows_of_verts,
+      verts_per_high,
+      lows_per_high,
+      verts_per_low,
+      lows_of_highs,
+      high_verts_of_lows);
   return lows_of_highs;
 }
 

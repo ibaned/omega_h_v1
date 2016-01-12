@@ -78,6 +78,9 @@ static double* get_boundary_side_normals(
     default:
       assert(0);
   }
+#ifdef __CUDACC__
+  return 0;
+#endif
 }
 
 static double* get_hinge_angles(
