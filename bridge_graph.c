@@ -20,7 +20,7 @@ LOOP_KERNEL( degree_count,
   degree_of_verts[i] = degree_of_vert;
 }
 
-LOOP_KERNEL( edge_count,
+LOOP_KERNEL( edge_fill,
     unsigned const* adj,
     unsigned const* adj_offsets,
     unsigned* bridge_offsets,
@@ -62,7 +62,7 @@ static void bridge_graph_general(
   unsigned* directions = 0;
   if (directions_out)
     directions = LOOP_MALLOC(unsigned, nedges);
-  LOOP_EXEC(edge_count,
+  LOOP_EXEC(edge_fill,
     nverts,
     adj,
     adj_offsets,
