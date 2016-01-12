@@ -4,7 +4,6 @@
 
 #include "adapt.h"
 #include "algebra.h"
-#include "classify_box.h"
 #include "derive_model.h"
 #include "element_gradients.h"
 #include "eval_field.h"

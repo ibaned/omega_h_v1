@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     printf("%s", help_str);
     return -1;
   }
-  struct mesh* m = read_vtu(argv[1]);
+  struct mesh* m = read_mesh_vtk(argv[1]);
   for (unsigned i = 0; i < mesh_count_tags(m, mesh_dim(m)); ++i) {
     struct const_tag* f = mesh_get_tag(m, mesh_dim(m), i);
     if (f->type != TAG_F64)
@@ -47,6 +47,6 @@ int main(int argc, char** argv)
   struct mesh* sm = subset_mesh(m, d - 1, off);
   free_mesh(m);
   loop_free(off);
-  write_vtu(sm, argv[2]);
+  write_mesh_vtk(sm, argv[2]);
   free_mesh(sm);
 }

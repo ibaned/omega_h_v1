@@ -28,7 +28,7 @@ int main()
   mesh_set_rep(m, MESH_FULL);
   char fname[64];
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
-  write_vtu(m, "out_0.vtu");
+  write_mesh_vtk(m, "out_0.vtu");
   for (unsigned it = 1; 1; ++it) {
     if (!refine_by_size(&m, 0))
       break;
@@ -40,7 +40,7 @@ int main()
     loop_free(quals);
     printf("min quality %f\n", minqual);
     sprintf(fname, "out_%u.vtu", it);
-    write_vtu(m, fname);
+    write_mesh_vtk(m, fname);
     mesh_free_tag(m, 0, "adapt_size");
     mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
   }

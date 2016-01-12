@@ -2,7 +2,6 @@
 
 #include <assert.h>
 
-#include "infer_class.h"
 #include "loop.h"
 #include "mesh.h"
 #include "quality.h"
@@ -131,8 +130,10 @@ unsigned* mark_class(
 unsigned* mesh_mark_class(struct mesh* m, unsigned ent_dim,
     unsigned target_dim, unsigned target_id)
 {
-  unsigned const* class_dim_of_ents = mesh_ask_class_dim(m, ent_dim);
-  unsigned const* class_id_of_ents = mesh_ask_class_id(m, ent_dim);
+  unsigned const* class_dim_of_ents =
+    mesh_find_tag(m, ent_dim, "class_dim")->d.u32;
+  unsigned const* class_id_of_ents =
+    mesh_find_tag(m, ent_dim, "class_id")->d.u32;
   unsigned nents = mesh_count(m, ent_dim);
   return mark_class(nents, target_dim, target_id, class_dim_of_ents,
       class_id_of_ents);
@@ -147,25 +148,18 @@ unsigned* mesh_mark_class_closure_verts(struct mesh* m, unsigned target_dim,
   return out;
 }
 
-void unmark_boundary(
-    unsigned elem_dim,
+void mesh_unmark_boundary(
+    struct mesh* m,
     unsigned ent_dim,
-    unsigned nents,
-    unsigned const* verts_of_ents,
-    unsigned const* vert_class_dim,
     unsigned* marked)
 {
-  unsigned* ent_class_dim;
-  infer_class(ent_dim, nents, verts_of_ents, vert_class_dim, 0,
-      &ent_class_dim, 0);
-  /* TODO: if this was computed before we shouldn't recompute it */
-  unsigned* interior_ents = mark_class(nents, elem_dim, INVALID,
-      ent_class_dim, 0);
-  loop_free(ent_class_dim);
+  unsigned const* class_dim =
+    mesh_find_tag(m, ent_dim, "class_dim")->d.u32;
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nents = mesh_count(m, ent_dim);
   for (unsigned i = 0; i < nents; ++i)
-    if (!interior_ents[i])
+    if (class_dim[i] != elem_dim)
       marked[i] = 0;
-  loop_free(interior_ents);
 }
 
 static unsigned* mark_slivers(

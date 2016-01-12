@@ -52,18 +52,20 @@ static void free_up(struct up* u)
   loop_host_free(u);
 }
 
-struct mesh* new_mesh(unsigned elem_dim)
+struct mesh* new_mesh(unsigned elem_dim, enum mesh_rep rep, unsigned is_parallel)
 {
   struct mesh* m = LOOP_HOST_MALLOC(struct mesh, 1);
   memset(m, 0, sizeof(*m));
   m->elem_dim = elem_dim;
-  m->parallel = new_parallel_mesh(m);
+  m->rep = rep;
+  if (is_parallel)
+    m->parallel = new_parallel_mesh();
   return m;
 }
 
 struct mesh* new_box_mesh(unsigned elem_dim)
 {
-  struct mesh* m = new_mesh(elem_dim);
+  struct mesh* m = new_mesh(elem_dim, MESH_REDUCED, 0);
   unsigned nelems = the_box_nelems[elem_dim];
   unsigned nverts = the_box_nverts[elem_dim];
   mesh_set_ents(m, 0, nverts, 0);
@@ -107,7 +109,8 @@ void free_mesh(struct mesh* m)
   loop_free(m->dual);
   for (unsigned d = 0; d < 4; ++d)
     free_tags(&m->tags[d]);
-  free_parallel_mesh(m->parallel);
+  if (m->parallel)
+    free_parallel_mesh(m->parallel);
   loop_host_free(m);
 }
 
@@ -298,19 +301,14 @@ unsigned mesh_has_dim(struct mesh* m, unsigned dim)
   return dim == 0 || m->down[dim][0] != 0;
 }
 
-struct parallel_mesh* mesh_parallel(struct mesh* m)
-{
-  return m->parallel;
-}
-
 enum mesh_rep mesh_get_rep(struct mesh* m)
 {
   return m->rep;
 }
 
-void mesh_set_rep(struct mesh* m, enum mesh_rep r)
+void mesh_set_rep(struct mesh* m, enum mesh_rep rep)
 {
-  m->rep = r;
+  m->rep = rep;
 }
 
 unsigned mesh_is_parallel(struct mesh* m)
@@ -318,12 +316,16 @@ unsigned mesh_is_parallel(struct mesh* m)
   return m->parallel != 0;
 }
 
-void mesh_set_parallel(struct mesh* m, unsigned yn)
+struct parallel_mesh* mesh_parallel(struct mesh* m)
 {
-  if (yn && !m->parallel)
-    m->parallel = new_parallel_mesh(m);
-  else if (!yn && !m->parallel) {
-    free_parallel_mesh(m->parallel);
-    m->parallel = 0;
-  }
+  return m->parallel;
+}
+
+void mesh_make_parallel(struct mesh* m)
+{
+  assert(!mesh_is_parallel(m));
+  m->parallel = new_parallel_mesh();
+  for (unsigned d = 0; d <= mesh_dim(m); ++d)
+    if (mesh_has_dim(m, d))
+      mesh_set_global(m, d, ulongs_linear(mesh_count(m, d), 1));
 }

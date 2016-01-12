@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "classify_box.h"
+#include "comm.h"
 #include "eval_field.h"
 #include "mesh.h"
 #include "refine_by_size.h"
@@ -11,6 +11,7 @@
 
 int main(int argc, char** argv)
 {
+  comm_init();
   unsigned dim = 3;
   unsigned nrefs = 0;
   char const* file = "out.vtu";
@@ -46,7 +47,7 @@ int main(int argc, char** argv)
   struct mesh* m = new_box_mesh(dim);
   for (unsigned i = 0; i < nrefs; ++i)
     uniformly_refine(&m);
-  mesh_classify_box(m);
-  write_vtu(m, file);
+  write_mesh_vtk(m, file);
   free_mesh(m);
+  comm_fini();
 }

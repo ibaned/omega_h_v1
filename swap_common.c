@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-#include "copy_mesh.h"
+#include "copy_tags.h"
 #include "doubles.h"
 #include "graph.h"
 #include "indset.h"
@@ -49,7 +49,7 @@ static void swap_ents(
     unsigned* prods_of_doms_offsets[4];
     setup_swap(m, ent_dim, gen_offset_of_edges, same_ent_offsets,
         ndoms, prods_of_doms_offsets);
-    inherit_class(m, m_out, INVALID, ent_dim, ndoms, prods_of_doms_offsets);
+    inherit_class(m, m_out, ent_dim, ndoms, prods_of_doms_offsets);
   }
   loop_free(gen_offset_of_edges);
   loop_free(same_ent_offsets);
@@ -65,9 +65,7 @@ unsigned swap_common(
   unsigned nedges = mesh_count(m, 1);
   if (!uints_max(candidates, nedges))
     return 0;
-  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  unsigned const* class_dim = mesh_find_tag(m, 0, "class_dim")->d.u32;
-  unmark_boundary(elem_dim, 1, nedges, verts_of_edges, class_dim, candidates);
+  mesh_unmark_boundary(m, 1, candidates);
   if (!uints_max(candidates, nedges))
     return 0;
   double* edge_quals;
@@ -83,8 +81,7 @@ unsigned swap_common(
   }
   /* vertex handling */
   unsigned nverts = mesh_count(m, 0);
-  struct mesh* m_out = new_mesh(elem_dim);
-  mesh_set_rep(m_out, mesh_get_rep(m));
+  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), 0);
   mesh_set_ents(m_out, 0, nverts, 0);
   copy_tags(mesh_tags(m, 0), mesh_tags(m_out, 0), nverts);
   /* end vertex handling */

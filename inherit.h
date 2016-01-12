@@ -34,7 +34,6 @@ void setup_swap(
 void inherit_class(
     struct mesh* m_in,
     struct mesh* m_out,
-    unsigned src_dim,
     unsigned prod_dim,
     unsigned ndoms[4],
     unsigned* prods_of_doms_offsets[4]);
