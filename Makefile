@@ -30,7 +30,8 @@ test_memory.c \
 test_ask_up.c \
 test_ask_down.c \
 test_derive_model.c \
-test_subdim.c
+test_subdim.c \
+test_loop.c
 
 lib_sources := \
 star.c \

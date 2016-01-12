@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "classify_box.h"
 #include "eval_field.h"
 #include "mesh.h"
 #include "refine_by_size.h"
