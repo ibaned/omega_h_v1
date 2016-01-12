@@ -55,16 +55,6 @@ static void bridge_graph_general(
     adj,
     adj_offsets,
     degree_of_verts);
-/*  for (unsigned i = 0; i < nverts; ++i) {
-    unsigned first_adj = adj_offsets[i];
-    unsigned end_adj = adj_offsets[i + 1];
-    unsigned degree_of_vert = 0;
-    for (unsigned j = first_adj; j < end_adj; ++j)
-      if (i < adj[j])
-        ++degree_of_vert;
-    degree_of_verts[i] = degree_of_vert;
-  }
-*/
   unsigned* bridge_offsets = uints_exscan(degree_of_verts, nverts);
   loop_free(degree_of_verts);
   unsigned nedges = bridge_offsets[nverts];
@@ -79,19 +69,6 @@ static void bridge_graph_general(
     bridge_offsets,
     verts_of_edges,
     directions);
-  /*for (unsigned i = 0; i < nverts; ++i) {
-    unsigned first_adj = adj_offsets[i];
-    unsigned end_adj = adj_offsets[i + 1];
-    unsigned edge = bridge_offsets[i];
-    for (unsigned j = first_adj; j < end_adj; ++j)
-      if (i < adj[j]) {
-        verts_of_edges[edge * 2 + 0] = i;
-        verts_of_edges[edge * 2 + 1] = adj[j];
-        if (directions)
-          directions[edge] = j - first_adj;
-        ++edge;
-      }
-  }*/
   loop_free(bridge_offsets);
   *nedges_out = nedges;
   *verts_of_edges_out = verts_of_edges;
