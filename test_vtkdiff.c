@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "comm.h"
 #include "mesh.h"
 #include "mesh_diff.h"
 #include "vtk.h"
 
 int main(int argc, char** argv)
 {
+  comm_init();
   double tol = 1e-6;
   double floor = 0;
   unsigned get_tol = 0;
@@ -67,9 +69,10 @@ int main(int argc, char** argv)
   }
   struct mesh* a = read_mesh_vtk(filea);
   struct mesh* b = read_mesh_vtk(fileb);
-  unsigned differ = mesh_diff(a, b, tol, floor, 0);
+  unsigned differ = mesh_diff(a, b, tol, floor, 1);
   free_mesh(a);
   free_mesh(b);
+  comm_fini();
   if (differ)
     return 2;
   return 0;
