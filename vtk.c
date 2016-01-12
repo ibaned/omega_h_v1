@@ -810,6 +810,17 @@ static void write_pvtu(struct mesh* m, char const* filename,
   fclose(file);
 }
 
+static void get_ghost_level(struct mesh* m, char const* pvtu_filename)
+{
+  FILE* file = safe_fopen(pvtu_filename, "r");
+  line_t line;
+  seek_prefix(file, line, sizeof(line), "<PUnstructuredGrid");
+  unsigned nlayers;
+  if (try_read_int_attrib(line, "GhostLevel", &nlayers))
+    mesh_set_ghost_layers(m, nlayers);
+  fclose(file);
+}
+
 void write_pvtu_cloud(struct cloud* c, char const* filename,
     unsigned npieces)
 {
@@ -848,6 +859,8 @@ struct mesh* read_mesh_vtk(char const* inpath)
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));
   struct mesh* m = read_vtu_opts(piecepath, is_parallel);
+  if (is_parallel)
+    get_ghost_level(m, inpath);
   return m;
 }
 
