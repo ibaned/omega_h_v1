@@ -67,7 +67,7 @@ int main(int argc, char** argv)
   }
   struct mesh* a = read_mesh_vtk(filea);
   struct mesh* b = read_mesh_vtk(fileb);
-  unsigned differ = mesh_diff(a, b, tol, floor);
+  unsigned differ = mesh_diff(a, b, tol, floor, 0);
   free_mesh(a);
   free_mesh(b);
   if (differ)
