@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "loop.h"
@@ -120,4 +121,15 @@ void* generic_swap_if_needed(enum endian e, unsigned n, unsigned width,
     LOOP_EXEC(swap_kern, n, width, b);
   }
   return b;
+}
+
+FILE* safe_fopen(char const* filename, char const* mode)
+{
+  FILE* f = fopen(filename, mode);
+  if (!f) {
+    fprintf(stderr, "could not open \"%s\" for %s !\n",
+        filename, mode[0] == 'w' ? "writing" : "reading");
+    abort();
+  }
+  return f;
 }

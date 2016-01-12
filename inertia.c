@@ -70,7 +70,7 @@ static void positivize_axis(double a[3])
   unsigned signbits = 0;
   for (unsigned i = 0; i < 3; ++i)
     if (a[i] > 0)
-      signbits |= (1 << (3-i-1));
+      signbits |= (((unsigned)1) << (3-i-1));
   unsigned opp_signbits = signbits ^ 0x7;
   if (opp_signbits > signbits)
     for (unsigned i = 0; i < 3; ++i)

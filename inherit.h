@@ -13,14 +13,6 @@ void setup_refine(
     unsigned* prods_of_doms_offsets[4],
     unsigned ngen_offsets[5]);
 
-void refine_class(
-    struct mesh* m_in,
-    struct mesh* m_out,
-    unsigned src_dim,
-    unsigned prod_dim,
-    unsigned ndoms[4],
-    unsigned* prods_of_doms_offsets[4]);
-
 void setup_coarsen(
     struct mesh* m,
     unsigned ent_dim,
@@ -30,10 +22,20 @@ void setup_coarsen(
     unsigned ndoms[4],
     unsigned* prods_of_doms_offsets[4]);
 
-void coarsen_class(
+void setup_swap(
+    struct mesh* m,
+    unsigned ent_dim,
+    unsigned* gen_offset_of_edges,
+    unsigned* offset_of_same_ents,
+    /* out: */
+    unsigned ndoms[4],
+    unsigned* prods_of_doms_offsets[4]);
+
+void inherit_class(
     struct mesh* m_in,
     struct mesh* m_out,
-    unsigned ent_dim,
+    unsigned src_dim,
+    unsigned prod_dim,
     unsigned ndoms[4],
     unsigned* prods_of_doms_offsets[4]);
 

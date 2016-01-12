@@ -14,7 +14,46 @@
 #include "quality.h"
 #include "swap_qualities.h"
 #include "swap_topology.h"
-#include "tag.h"
+#include "tables.h"
+
+static void swap_ents(
+    struct mesh* m,
+    struct mesh* m_out,
+    unsigned ent_dim,
+    unsigned const* indset,
+    unsigned const* ring_sizes,
+    unsigned const* edge_codes)
+{
+  unsigned nedges = mesh_count(m, 1);
+  unsigned* gen_offset_of_edges = get_swap_topology_offsets(
+      ent_dim, nedges, indset, ring_sizes);
+  unsigned ngen_ents = gen_offset_of_edges[nedges];
+  unsigned* verts_of_gen_ents = mesh_swap_topology(m, ent_dim,
+      indset, gen_offset_of_edges, edge_codes);
+  unsigned* old_ents = mesh_mark_up(m, 1, ent_dim, indset);
+  unsigned nents = mesh_count(m, ent_dim);
+  unsigned* same_ents = uints_negate(old_ents, nents);
+  loop_free(old_ents);
+  unsigned* same_ent_offsets = uints_exscan(same_ents, nents);
+  loop_free(same_ents);
+  unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
+  unsigned nents_out;
+  unsigned* verts_of_ents_out;
+  concat_verts_of_elems(ent_dim, nents, ngen_ents, verts_of_ents,
+      same_ent_offsets, verts_of_gen_ents,
+      &nents_out, &verts_of_ents_out);
+  loop_free(verts_of_gen_ents);
+  mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
+  if (mesh_get_rep(m) == MESH_FULL) {
+    unsigned ndoms[4];
+    unsigned* prods_of_doms_offsets[4];
+    setup_swap(m, ent_dim, gen_offset_of_edges, same_ent_offsets,
+        ndoms, prods_of_doms_offsets);
+    inherit_class(m, m_out, INVALID, ent_dim, ndoms, prods_of_doms_offsets);
+  }
+  loop_free(gen_offset_of_edges);
+  loop_free(same_ent_offsets);
+}
 
 unsigned swap_common(
     struct mesh** p_m,
@@ -31,62 +70,34 @@ unsigned swap_common(
   unmark_boundary(elem_dim, 1, nedges, verts_of_edges, class_dim, candidates);
   if (!uints_max(candidates, nedges))
     return 0;
-  unsigned const* elems_of_edges_offsets =
-    mesh_ask_up(m, 1, elem_dim)->offsets;
-  unsigned const* elems_of_edges =
-    mesh_ask_up(m, 1, elem_dim)->adj;
-  unsigned const* elems_of_edges_directions =
-    mesh_ask_up(m, 1, elem_dim)->directions;
-  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
-  double* elem_quals = mesh_qualities(m);
   double* edge_quals;
   unsigned* edge_codes;
-  unsigned* gen_elems_per_edge;
-  swap_qualities(nedges, candidates,
-      elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
-      verts_of_edges, verts_of_elems, coords, elem_quals,
-      &edge_quals, &edge_codes, &gen_elems_per_edge);
-  loop_free(elem_quals);
+  unsigned* ring_sizes;
+  mesh_swap_qualities(m, candidates,
+      &edge_quals, &edge_codes, &ring_sizes);
   if (!uints_max(candidates, nedges)) {
     loop_free(edge_quals);
     loop_free(edge_codes);
-    loop_free(gen_elems_per_edge);
+    loop_free(ring_sizes);
     return 0;
   }
-  unsigned* indset = mesh_find_indset(m, 1, candidates, edge_quals);
-  loop_free(edge_quals);
-  for (unsigned i = 0; i < nedges; ++i)
-    if (!indset[i])
-      gen_elems_per_edge[i] = 0;
-  unsigned* gen_offset_of_edges = uints_exscan(gen_elems_per_edge, nedges);
-  unsigned ngen_elems = gen_offset_of_edges[nedges];
-  loop_free(gen_elems_per_edge);
-  unsigned* verts_of_gen_elems = swap_topology(nedges, indset,
-      gen_offset_of_edges, edge_codes,
-      elems_of_edges_offsets, elems_of_edges, elems_of_edges_directions,
-      verts_of_edges, verts_of_elems);
-  loop_free(edge_codes);
-  loop_free(gen_offset_of_edges);
-  unsigned* old_elems = mesh_mark_up(m, 1, elem_dim, indset);
-  loop_free(indset);
-  unsigned nelems = mesh_count(m, elem_dim);
-  unsigned* same_elems = uints_negate(old_elems, nelems);
-  loop_free(old_elems);
-  unsigned* same_elem_offsets = uints_exscan(same_elems, nelems);
-  loop_free(same_elems);
-  unsigned nelems_out;
-  unsigned* verts_of_elems_out;
-  concat_verts_of_elems(elem_dim, nelems, ngen_elems, verts_of_elems,
-      same_elem_offsets, verts_of_gen_elems,
-      &nelems_out, &verts_of_elems_out);
-  loop_free(same_elem_offsets);
-  loop_free(verts_of_gen_elems);
+  /* vertex handling */
   unsigned nverts = mesh_count(m, 0);
   struct mesh* m_out = new_mesh(elem_dim);
+  mesh_set_rep(m_out, mesh_get_rep(m));
   mesh_set_ents(m_out, 0, nverts, 0);
-  mesh_set_ents(m_out, elem_dim, nelems_out, verts_of_elems_out);
   copy_tags(mesh_tags(m, 0), mesh_tags(m_out, 0), nverts);
+  /* end vertex handling */
+  unsigned* indset = mesh_find_indset(m, 1, candidates, edge_quals);
+  loop_free(edge_quals);
+  if (mesh_get_rep(m) == MESH_REDUCED)
+    swap_ents(m, m_out, mesh_dim(m), indset, ring_sizes, edge_codes);
+  else
+    for (unsigned d = 1; d <= mesh_dim(m); ++d)
+      swap_ents(m, m_out, d, indset, ring_sizes, edge_codes);
+  loop_free(indset);
+  loop_free(edge_codes);
+  loop_free(ring_sizes);
   free_mesh(m);
   *p_m = m_out;
   return 1;

@@ -33,7 +33,7 @@ double* coarsen_qualities(
       continue;
     unsigned const* verts_of_edge = verts_of_edges + i * 2;
     for (unsigned j = 0; j < 2; ++j) {
-      if (!(col_codes[i] & (1<<j)))
+      if (!collapses(col_codes[i], j))
         continue;
       double minq = 1;
       double old_minq = 1;
@@ -71,7 +71,7 @@ double* coarsen_qualities(
       }
       if ((minq < quality_floor) ||
           (require_better && (minq <= old_minq))) {
-        col_codes[i] &= ~(1<<j);
+        col_codes[i] = dont_collapse(col_codes[i], j);
       } else {
         out[i * 2 + j] = minq;
       }

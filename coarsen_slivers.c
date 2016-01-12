@@ -1,5 +1,6 @@
 #include "coarsen_slivers.h"
 
+#include "collapse_codes.h"
 #include "coarsen_common.h"
 #include "loop.h"
 #include "mark.h"
@@ -24,7 +25,7 @@ unsigned coarsen_slivers(
     for (unsigned j = 0; j < 2; ++j) {
       unsigned vert = verts_of_edge[j];
       if (marked_verts[vert])
-        col_codes[i] |= (1<<j);
+        col_codes[i] = do_collapse(col_codes[i], j);
     }
   }
   loop_free(marked_verts);

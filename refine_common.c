@@ -88,7 +88,7 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
               verts_of_prods_out + (ngen_offsets[dom_dim] * verts_per_prod));
       mesh_set_ents(m_out, prod_dim, nprods_out, verts_of_prods_out);
     }
-    refine_class(m, m_out, src_dim, prod_dim, ndoms, prods_of_doms_offsets);
+    inherit_class(m, m_out, src_dim, prod_dim, ndoms, prods_of_doms_offsets);
     for (unsigned i = 0; i < 4; ++i)
       loop_free(prods_of_doms_offsets[i]);
   }
