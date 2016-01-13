@@ -4,8 +4,8 @@ $VALGRIND ./bin/loop.exe
 if [ "LOOP_MODE" -eq "cuda" ]; then
   return
 fi
-$VALGRIND ./bin/print_swap_edges.exe
 $VALGRIND ./bin/box.exe --file ./data/box.vtu --dim 2 --refinements 6
+$VALGRIND ./bin/vtkdiff.exe ./data/box.vtu ./data/box.vtu
 $VALGRIND ./bin/node_ele.exe ./data/xgc.node ./data/xgc.ele ./data/xgc.vtu
 $VALGRIND ./bin/from_gmsh.exe ./data/cube.msh ./data/cube.vtu
 if [ "$USE_MPI" -eq "1" ]; then
