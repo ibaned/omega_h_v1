@@ -855,6 +855,9 @@ struct mesh* read_mesh_vtk(char const* inpath)
   line_t prefix;
   split_pathname(inpath, prefix, sizeof(prefix), 0, &suffix);
   unsigned is_parallel = !(strcmp(suffix, "pvtu"));
+  if (!is_parallel && comm_size() > 1)
+    /* fine, but I'm not going to like it. */
+    return read_and_partition_serial_mesh(inpath);
   line_t piecepath;
   enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
       piecepath, sizeof(piecepath));

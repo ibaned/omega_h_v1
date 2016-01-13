@@ -36,4 +36,6 @@ void mesh_parallel_from_tags(struct mesh* m, unsigned dim);
 void mesh_partition_out(struct mesh** p_m, unsigned factor);
 void mesh_partition_in(struct mesh** p_m, unsigned factor);
 
+struct mesh* read_and_partition_serial_mesh(char const* filename);
+
 #endif

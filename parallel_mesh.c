@@ -14,6 +14,8 @@
 #include "loop.h"
 #include "mesh.h"
 #include "owners_from_global.h"
+#include "parallel_inertial_bisect.h"
+#include "vtk.h"
 
 struct parallel_mesh {
   unsigned long* globals[4];
@@ -279,4 +281,19 @@ void mesh_partition_in(struct mesh** p_m, unsigned factor)
     for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
       invalidate_ranks(mesh_parallel(*p_m), d);
   }
+}
+
+struct mesh* read_and_partition_serial_mesh(char const* filename)
+{
+  struct mesh* m = 0;
+  if (comm_rank() == 0) {
+    comm_use(comm_self());
+    m = read_mesh_vtk(filename);
+    assert(!mesh_is_parallel(m));
+    mesh_make_parallel(m);
+    comm_use(comm_world());
+  }
+  mesh_partition_out(&m, comm_size());
+  balance_mesh_inertial(&m);
+  return m;
 }
