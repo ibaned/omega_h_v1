@@ -115,11 +115,12 @@ inherit.c
 USE_ZLIB ?= 0
 USE_MPI ?= 0
 USE_MPI3 ?= 0
-USE_CUDA_MALLOC_MANAGED ?= 1
+USE_CUDA_MALLOC_MANAGED ?= 0
 MEASURE_MEMORY ?= 0
 LOOP_MODE ?= serial
 MPIRUN ?= mpirun
-VALGRIND ?= valgrind
+VALGRIND ?= ""
+PATIENT ?= 0
 #comm.c is compiled with -DUSE_MPI=
 objs/comm.o : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
 deps/comm.dep : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
@@ -234,7 +235,9 @@ deps/%.dep: %.c loop.h | deps
 -include $(depfiles)
 
 check: data $(exes)
-	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) USE_MPI=$(USE_MPI) ./run_tests.sh
+	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) \
+  USE_MPI=$(USE_MPI) PATIENT=$(PATIENT) \
+  LOOP_MODE=$(LOOP_MODE) ./run_tests.sh
 
 data:
 	git clone https://github.com/ibaned/omega_h_data.git data

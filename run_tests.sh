@@ -1,6 +1,9 @@
 #!/bin/bash -ex
 
 $VALGRIND ./bin/loop.exe
+if [ "LOOP_MODE" -eq "cuda" ]; then
+  return
+fi
 $VALGRIND ./bin/print_swap_edges.exe
 $VALGRIND ./bin/box.exe --file ./data/box.vtu --dim 2 --refinements 6
 $VALGRIND ./bin/node_ele.exe ./data/xgc.node ./data/xgc.ele ./data/xgc.vtu
@@ -10,4 +13,6 @@ if [ "$USE_MPI" -eq "1" ]; then
   $MPIRUN -np 2 $VALGRIND ./bin/conform.exe
 fi
 $VALGRIND ./bin/warp.exe
-$VALGRIND ./bin/warp_3d.exe
+if [ "$PATIENT" -eq "1" ]; then
+  $VALGRIND ./bin/warp_3d.exe
+fi
