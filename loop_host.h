@@ -12,7 +12,11 @@ void loop_host_free(void* p);
 unsigned loop_host_atomic_increment(unsigned* p);
 
 void* loop_host_copy(void const* p, unsigned long n);
+#define LOOP_HOST_COPY(T, p, n) \
+  ((T*)loop_host_copy(p, sizeof(T) * (n)))
 void loop_host_memcpy(void* dst, void const* src, unsigned long n);
+#define LOOP_HOST_MEMCPY(T, dst, src, n) \
+  loop_host_memcpy(dst, src, sizeof(T) * (n))
 
 unsigned long loop_host_memory(void);
 

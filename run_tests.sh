@@ -1,5 +1,6 @@
 #!/bin/bash -ex
 
+$VALGRIND ./bin/loop.exe
 $VALGRIND ./bin/print_swap_edges.exe
 $VALGRIND ./bin/box.exe --file ./data/box.vtu --dim 2 --refinements 6
 $VALGRIND ./bin/node_ele.exe ./data/xgc.node ./data/xgc.ele ./data/xgc.vtu

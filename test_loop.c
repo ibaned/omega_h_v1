@@ -14,9 +14,9 @@ int main()
   /* use reflect_down to derive the
      triangle to edge graph */
   mesh_ask_down(m, 2, 1);
-  unsigned* host_graph = (unsigned*) loop_to_host(
+  unsigned* host_graph = LOOP_TO_HOST(unsigned,
       mesh_ask_down(m, 2, 1),
-      mesh_count(m, 2) * 3 * sizeof(unsigned));
+      mesh_count(m, 2) * 3);
   for (unsigned i = 0; i < mesh_count(m, 2); ++i) {
     for (unsigned j = 0; j < 3; ++j)
       printf("%u ", host_graph[i * 3 + j]);

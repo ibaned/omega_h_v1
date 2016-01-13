@@ -40,9 +40,10 @@ static unsigned* concat_uints_inherited(
   unsigned* out_data = LOOP_MALLOC(unsigned,
       ngen_offsets[4] * width);
   for (unsigned i = 0; i < 4; ++i) {
-    loop_memcpy(out_data + ngen_offsets[i] * width,
+    LOOP_MEMCPY(unsigned,
+        out_data + ngen_offsets[i] * width,
         gen_data[i],
-        (ngen_offsets[i + 1] - ngen_offsets[i]) * width * sizeof(unsigned));
+        (ngen_offsets[i + 1] - ngen_offsets[i]) * width);
     loop_free(gen_data[i]);
   }
   return out_data;
