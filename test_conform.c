@@ -14,10 +14,11 @@ static struct mesh* make_2_tri_parallel(void)
 {
   struct mesh* m = 0;
   assert(comm_size() == 2);
-  if (comm_rank() == 0)
+  if (comm_rank() == 0) {
     m = new_box_mesh(2);
+  }
   m = bcast_mesh_metadata(m);
-  mesh_number_simply(m, 0);
+  mesh_make_parallel(m);
   if (comm_rank() == 0) {
     unsigned n = 1;
     unsigned recvd_elem_ranks[1] = {0};
@@ -38,11 +39,11 @@ int main()
   struct mesh* m = make_2_tri_parallel();
   double* data = doubles_filled(3, (double) (comm_rank() + 1));
   mesh_add_tag(m, 0, TAG_F64, "field", 1, data);
-  write_parallel_vtu(m, "one.pvtu");
+  write_mesh_vtk(m, "one.pvtu");
   mesh_accumulate_tag(m, 0, "field");
-  write_parallel_vtu(m, "two.pvtu");
+  write_mesh_vtk(m, "two.pvtu");
   mesh_conform_tag(m, 0, "field");
-  write_parallel_vtu(m, "three.pvtu");
+  write_mesh_vtk(m, "three.pvtu");
   free_mesh(m);
   comm_fini();
 }

@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include "classify_box.h"
 #include "eval_field.h"
 #include "mesh.h"
 #include "refine_by_size.h"
 #include "vtk.h"
+#include "graph.h"
 
 int main()
 {
@@ -17,7 +17,7 @@ int main()
     unsigned first_adj = a->offsets[i];
     unsigned last_adj = a->offsets[i + 1];
     for (unsigned j = first_adj; j < last_adj; ++j)
-      printf(" %u(%u)", a->adj[j], a->directions[j]);
+      printf(" %u(%u,%u)",j, a->adj[j] , a->directions[j]);
     printf("\n");
   }
   free_mesh(m);

@@ -6,6 +6,41 @@
 #include "loop.h"
 #include "tables.h"
 
+LOOP_KERNEL( degree_count,
+	unsigned const* adj,
+    unsigned const* adj_offsets,
+    unsigned* degree_of_verts)
+
+  unsigned first_adj = adj_offsets[i];
+  unsigned end_adj = adj_offsets[i+1];
+  unsigned degree_of_vert = 0;
+  for( unsigned j = first_adj ; j< end_adj ; j++) // Could make secondary Kernal Launch
+    if( i < adj[j])
+      ++degree_of_vert;
+  degree_of_verts[i] = degree_of_vert;
+}
+
+LOOP_KERNEL( edge_fill,
+    unsigned const* adj,
+    unsigned const* adj_offsets,
+    unsigned* bridge_offsets,
+    unsigned* verts_of_edges,
+    unsigned* directions)
+
+  unsigned first_adj = adj_offsets[i];
+  unsigned end_adj = adj_offsets[i + 1];
+  unsigned edge = bridge_offsets[i];
+  for (unsigned j = first_adj; j < end_adj; ++j)
+    if (i < adj[j]) {
+      verts_of_edges[edge * 2 + 0] = i;
+      verts_of_edges[edge * 2 + 1] = adj[j];
+      if (directions)
+        directions[edge] = j - first_adj;
+      ++edge;
+    }
+}
+
+
 static void bridge_graph_general(
     unsigned nverts,
     unsigned const* adj_offsets,
@@ -15,15 +50,11 @@ static void bridge_graph_general(
     unsigned** directions_out)
 {
   unsigned* degree_of_verts = LOOP_MALLOC(unsigned, nverts);
-  for (unsigned i = 0; i < nverts; ++i) {
-    unsigned first_adj = adj_offsets[i];
-    unsigned end_adj = adj_offsets[i + 1];
-    unsigned degree_of_vert = 0;
-    for (unsigned j = first_adj; j < end_adj; ++j)
-      if (i < adj[j])
-        ++degree_of_vert;
-    degree_of_verts[i] = degree_of_vert;
-  }
+  LOOP_EXEC(degree_count,
+    nverts,
+    adj,
+    adj_offsets,
+    degree_of_verts);
   unsigned* bridge_offsets = uints_exscan(degree_of_verts, nverts);
   loop_free(degree_of_verts);
   unsigned nedges = bridge_offsets[nverts];
@@ -31,19 +62,13 @@ static void bridge_graph_general(
   unsigned* directions = 0;
   if (directions_out)
     directions = LOOP_MALLOC(unsigned, nedges);
-  for (unsigned i = 0; i < nverts; ++i) {
-    unsigned first_adj = adj_offsets[i];
-    unsigned end_adj = adj_offsets[i + 1];
-    unsigned edge = bridge_offsets[i];
-    for (unsigned j = first_adj; j < end_adj; ++j)
-      if (i < adj[j]) {
-        verts_of_edges[edge * 2 + 0] = i;
-        verts_of_edges[edge * 2 + 1] = adj[j];
-        if (directions)
-          directions[edge] = j - first_adj;
-        ++edge;
-      }
-  }
+  LOOP_EXEC(edge_fill,
+    nverts,
+    adj,
+    adj_offsets,
+    bridge_offsets,
+    verts_of_edges,
+    directions);
   loop_free(bridge_offsets);
   *nedges_out = nedges;
   *verts_of_edges_out = verts_of_edges;

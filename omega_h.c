@@ -16,17 +16,19 @@ void osh_free(osh_t m)
 
 osh_t osh_read_vtk(char const* filename)
 {
-  return (osh_t) read_vtu(filename);
+  return (osh_t) read_mesh_vtk(filename);
 }
 
 void osh_write_vtk(osh_t m, char const* filename)
 {
-  write_vtu((struct mesh*)m, filename);
+  write_mesh_vtk((struct mesh*)m, filename);
 }
 
 osh_t osh_new(unsigned elem_dim)
 {
-  return (osh_t) new_mesh(elem_dim);
+  /* TODO: right now only APF uses this function,
+     so its set to FULL/parallel for their convenience. */
+  return (osh_t) new_mesh(elem_dim, MESH_FULL, 1);
 }
 
 unsigned* osh_build_ents(osh_t m, unsigned ent_dim, unsigned nents)
@@ -136,7 +138,7 @@ unsigned long* osh_new_global(osh_t m, unsigned dim)
 {
   unsigned nents = mesh_count((struct mesh*)m, dim);
   unsigned long* global = LOOP_MALLOC(unsigned long, nents);
-  mesh_add_tag((struct mesh*)m, dim, TAG_U64, "global_number", 1, global);
+  mesh_set_global((struct mesh*)m, dim, global);
   return global;
 }
 

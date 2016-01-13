@@ -11,26 +11,22 @@ enum vtk_format {
 
 #define VTK_FORMATS 2
 
-void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format fmt);
-void write_vtu(struct mesh* m, char const* filename);
+struct mesh* read_mesh_vtk(char const* filename);
+void write_mesh_vtk(struct mesh* m, char const* filename);
+void write_mesh_vtk_opts(struct mesh* m, char const* outpath,
+    enum vtk_format fmt);
 
 void start_vtk_steps(char const* prefix);
 void write_vtk_step(struct mesh* m);
-
-struct mesh* read_vtu(char const* filename);
 
 void write_vtu_cloud_opts(struct cloud* c, char const* filename,
     enum vtk_format fmt);
 void write_vtu_cloud(struct cloud* c, char const* filename);
 struct cloud* read_vtu_cloud(char const* filename);
 
-void write_pvtu(struct mesh* m, char const* filename,
-    unsigned npieces);
 void write_pvtu_cloud(struct cloud* c, char const* filename,
     unsigned npieces);
 
-struct mesh* read_parallel_vtu(char const* inpath);
-void write_parallel_vtu(struct mesh* m, char const* outpath);
 struct cloud* read_parallel_vtu_cloud(char const* inpath);
 void write_parallel_vtu_cloud(struct cloud* c, char const* outpath);
 

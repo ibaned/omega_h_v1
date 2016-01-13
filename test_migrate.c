@@ -20,26 +20,19 @@ int main()
     mesh_count(m, 1); //trigger edge creation
   }
   m = bcast_mesh_metadata(m);
-  mesh_number_simply(m, 0);
-  mesh_number_simply(m, 1);
-  mesh_number_simply(m, 2);
-  write_parallel_vtu(m, "before.pvtu");
+  mesh_make_parallel(m);
+  write_mesh_vtk(m, "before.pvtu");
+  unsigned n = 1;
   if (comm_rank() == 0) {
-    unsigned n = 1;
     unsigned recvd_elem_ranks[1] = {0};
     unsigned recvd_elem_ids[1] = {0};
     migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
   } else {
-    unsigned n = 2;
-    unsigned recvd_elem_ranks[2] = {0,0};
-    unsigned recvd_elem_ids[2] = {1,0};
+    unsigned recvd_elem_ranks[1] = {0};
+    unsigned recvd_elem_ids[1] = {1};
     migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
   }
-  unsigned* offsets = uints_linear(mesh_count(m, 1) + 1, 1);
-  struct mesh* sm = subset_mesh(m, 1, offsets);
-  loop_free(offsets);
+  write_mesh_vtk(m, "after.pvtu");
   free_mesh(m);
-  write_parallel_vtu(sm, "after.pvtu");
-  free_mesh(sm);
   comm_fini();
 }

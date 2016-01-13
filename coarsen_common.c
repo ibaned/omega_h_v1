@@ -54,29 +54,16 @@ static void coarsen_ents(
   for (unsigned i = 0; i < nents_out * verts_per_ent; ++i)
     verts_of_ents_out[i] = offset_of_same_verts[verts_of_ents_out[i]];
   mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
-  if (mesh_get_rep(m) == MESH_FULL) {
-    unsigned ndoms[4];
-    unsigned* prods_of_doms_offsets[4];
-    setup_coarsen(m, ent_dim, gen_offset_of_ents, offset_of_same_ents,
-        ndoms, prods_of_doms_offsets);
-    inherit_class(m, m_out, INVALID, ent_dim, ndoms, prods_of_doms_offsets);
-  }
+  unsigned ndoms[4];
+  unsigned* prods_of_doms_offsets[4];
+  setup_coarsen(m, ent_dim, gen_offset_of_ents, offset_of_same_ents,
+      ndoms, prods_of_doms_offsets);
+  inherit_class(m, m_out, ent_dim, ndoms, prods_of_doms_offsets);
   loop_free(gen_offset_of_ents);
   loop_free(offset_of_same_ents);
 }
 
-static void coarsen_reduced_ents(
-    struct mesh* m,
-    struct mesh* m_out,
-    unsigned const* gen_offset_of_verts,
-    unsigned const* gen_vert_of_verts,
-    unsigned const* offset_of_same_verts)
-{
-  coarsen_ents(m, m_out, mesh_dim(m), gen_offset_of_verts,
-      gen_vert_of_verts, offset_of_same_verts, 0, 0);
-}
-
-static void coarsen_full_ents(
+static void coarsen_all_ents(
     struct mesh* m,
     struct mesh* m_out,
     unsigned const* gen_offset_of_verts,
@@ -145,16 +132,11 @@ unsigned coarsen_common(
   unsigned* offset_of_same_verts = uints_negate_offsets(
       gen_offset_of_verts, nverts);
   unsigned nverts_out = offset_of_same_verts[nverts];
-  struct mesh* m_out = new_mesh(elem_dim);
-  mesh_set_rep(m_out, mesh_get_rep(m));
+  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), 0);
   mesh_set_ents(m_out, 0, nverts_out, 0);
   tags_subset(m, m_out, 0, offset_of_same_verts);
-  if (mesh_get_rep(m) == MESH_REDUCED)
-    coarsen_reduced_ents(m, m_out, gen_offset_of_verts, gen_vert_of_verts,
-        offset_of_same_verts);
-  else
-    coarsen_full_ents(m, m_out, gen_offset_of_verts, gen_vert_of_verts,
-        offset_of_same_verts);
+  coarsen_all_ents(m, m_out, gen_offset_of_verts, gen_vert_of_verts,
+      offset_of_same_verts);
   loop_free(gen_vert_of_verts);
   loop_free(gen_offset_of_verts);
   loop_free(offset_of_same_verts);

@@ -14,9 +14,14 @@ void* loop_cuda_malloc(unsigned long n);
 void loop_cuda_free(void* p);
 
 void* loop_cuda_to_host(void const* p, unsigned long n);
+#define LOOP_CUDA_TO_HOST(T, p, n) \
+  ((T*)loop_cuda_to_host(p, sizeof(T) * (n)))
 void* loop_cuda_to_device(void const* p, unsigned long n);
-
+#define LOOP_CUDA_TO_DEVICE(T, p, n) \
+  ((T*)loop_cuda_to_device(p, sizeof(T) * (n)))
 void loop_cuda_memcpy(void* dst, void const* src, unsigned long n);
+#define LOOP_CUDA_MEMCPY(T, dst, src, n) \
+  loop_cuda_memcpy(dst, src, sizeof(T) * (n))
 
 static inline LOOP_IN unsigned
 loop_cuda_atomic_increment(unsigned* p)
@@ -24,9 +29,9 @@ loop_cuda_atomic_increment(unsigned* p)
   return atomicAdd(p, 1);
 }
 
-#define loop_to_host loop_cuda_to_host
-#define loop_to_device loop_cuda_to_device
-#define loop_memcpy loop_cuda_memcpy
+#define LOOP_TO_HOST LOOP_CUDA_TO_HOST
+#define LOOP_TO_DEVICE LOOP_CUDA_TO_DEVICE
+#define LOOP_MEMCPY LOOP_CUDA_MEMCPY
 
 #define loop_atomic_increment loop_cuda_atomic_increment
 
@@ -57,8 +62,8 @@ do { \
 
 #define LOOP_EXEC(fname, n, ...) \
 do { \
-fname<<< loop_ceildiv((n), LOOP_BLOCK_SIZE), LOOP_BLOCK_SIZE >>>(n,__VA_ARGS__);\
-CUDACALL(cudaGetLastError()); \
+  fname<<<loop_ceildiv((n),LOOP_BLOCK_SIZE),LOOP_BLOCK_SIZE>>>(n,__VA_ARGS__); \
+  CUDACALL(cudaGetLastError()); \
 } while(0)
 
 unsigned loop_size(void);

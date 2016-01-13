@@ -27,7 +27,7 @@ int main()
   for (unsigned i = 4; i <= MAX_EDGE_SWAP; ++i) {
     unsigned nmeshes = swap_mesh_counts[i];
     for (unsigned j = 0; j < nmeshes; ++j) {
-      struct mesh* m = new_mesh(2);
+      struct mesh* m = new_mesh(2, MESH_REDUCED, 0);
       mesh_set_ents(m, 0, i, 0);
       unsigned ntris = swap_mesh_sizes[i];
       unsigned* conn = LOOP_MALLOC(unsigned, ntris * 3);
@@ -57,6 +57,8 @@ int main()
           ++l;
         }
       fprintf(f, "};\n");
+      loop_free(bdry_edges);
+      free_mesh(m);
     }
   }
   for (unsigned i = 4; i <= MAX_EDGE_SWAP; ++i) {

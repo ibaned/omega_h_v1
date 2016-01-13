@@ -85,8 +85,8 @@ T* concat_##name(unsigned width, \
     T const* b, unsigned nb) \
 { \
   T* out = LOOP_MALLOC(T, (na + nb) * width); \
-  loop_memcpy(out, a, na * width * sizeof(T)); \
-  loop_memcpy(out + (na * width), b, nb * width * sizeof(T)); \
+  LOOP_MEMCPY(T, out, a, na * width); \
+  LOOP_MEMCPY(T, out + (na * width), b, nb * width); \
   return out; \
 }
 

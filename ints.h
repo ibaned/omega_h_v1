@@ -10,6 +10,7 @@ unsigned* uints_negate(unsigned const* a, unsigned n);
 unsigned* uints_negate_offsets(unsigned const* a, unsigned n);
 unsigned* uints_filled(unsigned n, unsigned v);
 unsigned* uints_linear(unsigned n, unsigned stride);
+unsigned long* ulongs_linear(unsigned n, unsigned long stride);
 unsigned uints_sum(unsigned const* a, unsigned n);
 unsigned long ulongs_max(unsigned long const* a, unsigned n);
 unsigned* uints_scale(unsigned const* a, unsigned n, unsigned s);

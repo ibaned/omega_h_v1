@@ -20,13 +20,13 @@ static void density_fun(double const x[3], double* d)
 
 int main()
 {
-  struct mesh* m = read_vtu("xgc.vtu");
+  struct mesh* m = read_mesh_vtk("xgc.vtu");
   /* assume first vertex is center vertex */
   cen = mesh_find_tag(m, 0, "coordinates")->d.f64;
   mesh_interp_to_elems(m, "coordinates");
   mesh_eval_field(m, 2, "cloud_density", 1, density_fun);
   struct cloud* c = form_cloud(m);
-  write_vtu(m, "cloud_mesh.vtu");
+  write_mesh_vtk(m, "cloud_mesh.vtu");
   write_vtu_cloud(c, "cloud.vtu");
   free_cloud(c);
   free_mesh(m);

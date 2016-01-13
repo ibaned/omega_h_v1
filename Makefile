@@ -7,42 +7,31 @@
 include config.mk
 
 test_sources := \
-test_coarsen_3d.c \
-test_coarsen_by_size.c \
-test_form_cloud.c \
-test_grad.c \
-test_inertia.c \
+test_partition.c \
+test_print_swap_edges.c \
+test_box.c \
 test_node_ele.c \
-test_read_vtk.c \
-test_refine_by_size.c \
-test_up_from_down.c \
-test_vtk.c \
-test_warp.c \
-test_warp_3d.c \
+test_from_gmsh.c \
+test_vtk_ascii.c \
 test_vtk_surfer.c \
 test_vtkdiff.c \
-test_push_cloud.c \
-test_box.c \
-test_pvtu.c \
-test_split.c \
-test_loop.c \
-test_global.c \
-test_vtk_ascii.c \
-test_from_gmsh.c \
-test_cuda_box.c \
-test_infer_class.c \
-test_star.c \
-test_rib.c \
+test_coarsen_by_size.c \
+test_refine_by_size.c \
+test_grad.c \
+test_warp.c \
+test_warp_3d.c \
 test_migrate.c \
 test_conform.c \
-test_mesh_rib.c \
 test_ghost.c \
-test_memory.c \
-test_derive_model.c \
+test_form_cloud.c \
+test_push_cloud.c \
 test_fusion_part.c \
-test_print_swap_edges.c \
+test_memory.c \
+test_ask_up.c \
+test_ask_down.c \
+test_derive_model.c \
 test_subdim.c \
-test_swap.c
+test_loop.c
 
 lib_sources := \
 star.c \
@@ -63,7 +52,6 @@ reflect_down.c \
 refine_nodal.c \
 refine_qualities.c \
 doubles.c \
-classify_box.c \
 coarsen_by_size.c \
 check_collapse_class.c \
 coarsen_qualities.c \
@@ -110,9 +98,7 @@ invert_map.c \
 owners_from_global.c \
 gmsh_io.c \
 exchanger.c \
-infer_class.c \
-copy_mesh.c \
-refine_by_class.c \
+copy_tags.c \
 parallel_inertial_bisect.c \
 parallel_mesh.c \
 migrate_cloud.c \
@@ -129,9 +115,12 @@ inherit.c
 USE_ZLIB ?= 0
 USE_MPI ?= 0
 USE_MPI3 ?= 0
-USE_CUDA_MALLOC_MANAGED ?= 1
+USE_CUDA_MALLOC_MANAGED ?= 0
 MEASURE_MEMORY ?= 0
 LOOP_MODE ?= serial
+MPIRUN ?= mpirun
+VALGRIND ?= ""
+PATIENT ?= 0
 #comm.c is compiled with -DUSE_MPI=
 objs/comm.o : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
 deps/comm.dep : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
@@ -169,8 +158,8 @@ all: $(lib) $(exes)
 clean:
 	rm -rf deps/ objs/ bin/ lib/ loop.h
 
-#"all" and "clean" are targets, not files or directories
-.PHONY: all clean
+#just targets, not files or directories
+.PHONY: all clean check
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
@@ -244,3 +233,11 @@ deps/%.dep: %.c loop.h | deps
 #the minus sign silences warnings when the
 #depfiles don't exist yet.
 -include $(depfiles)
+
+check: data $(exes)
+	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) \
+  USE_MPI=$(USE_MPI) PATIENT=$(PATIENT) \
+  LOOP_MODE=$(LOOP_MODE) ./run_tests.sh
+
+data:
+	git clone https://github.com/ibaned/omega_h_data.git data
