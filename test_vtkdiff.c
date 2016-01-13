@@ -17,6 +17,7 @@ int main(int argc, char** argv)
   unsigned get_help = 0;
   char const* filea = 0;
   char const* fileb = 0;
+  unsigned allow_superset = 0;
   for (int i = 1; i < argc; ++i) {
     if (get_tol) {
       tol = atof(argv[i]);
@@ -38,6 +39,10 @@ int main(int argc, char** argv)
     }
     if (!strcmp(argv[i], "-help")) {
       get_help = 1;
+      continue;
+    }
+    if (!strcmp(argv[i], "-superset")) {
+      allow_superset = 1;
       continue;
     }
     if (!filea) {
@@ -69,7 +74,7 @@ int main(int argc, char** argv)
   }
   struct mesh* a = read_mesh_vtk(filea);
   struct mesh* b = read_mesh_vtk(fileb);
-  unsigned differ = mesh_diff(a, b, tol, floor, 1);
+  unsigned differ = mesh_diff(a, b, tol, floor, allow_superset);
   free_mesh(a);
   free_mesh(b);
   comm_fini();
