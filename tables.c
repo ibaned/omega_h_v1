@@ -186,3 +186,19 @@ unsigned const* const* const the_opposite_orders[4] = {
   of_,
   or_
 };
+
+static double const estimated_ratios[2][4] = {
+  {1,3,2,0},
+  {1,7,12,6},
+};
+
+double estimate_degree(unsigned mesh_dim, unsigned dim_a, unsigned dim_b)
+{
+  if (dim_a == dim_b)
+    return 1;
+  if (dim_a > dim_b)
+    return the_down_degrees[dim_a][dim_b];
+  return estimate_degree(mesh_dim, dim_b, dim_a)
+       * estimated_ratios[mesh_dim][dim_a]
+       / estimated_ratios[mesh_dim][dim_b];
+}
