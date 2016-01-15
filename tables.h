@@ -20,6 +20,4 @@ static inline unsigned get_opposite_dim(
   return elem_dim - 1 - ent_dim;
 }
 
-double estimate_degree(unsigned mesh_dim, unsigned dim_a, unsigned dim_b);
-
 #endif
