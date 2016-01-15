@@ -315,6 +315,8 @@ static void get_swap_edges(
     unsigned* out)
 {
   unsigned nint_edges = swap_nint_edges[ring_size];
+  if (!nint_edges)
+    return;
   unsigned const* edges = swap_int_edges[ring_size][code];
   for (unsigned i = 0; i < nint_edges; ++i)
     for (unsigned j = 0; j < 2; ++j)
@@ -329,14 +331,16 @@ static void get_swap_tris(
     unsigned* out)
 {
   unsigned nint_edges = swap_nint_edges[ring_size];
-  unsigned const* edges = swap_int_edges[ring_size][code];
-  for (unsigned i = 0; i < nint_edges; ++i)
-    for (unsigned j = 0; j < 2; ++j) {
-      for (unsigned k = 0; k < 2; ++k)
-        out[i * 6 + j * 3 + k] = ring_v[edges[i * 2 + k]];
-      out[i * 6 + j * 3 + 2] = edge_v[j];
-    }
-  out += nint_edges * 6;
+  if (nint_edges) {
+    unsigned const* edges = swap_int_edges[ring_size][code];
+    for (unsigned i = 0; i < nint_edges; ++i)
+      for (unsigned j = 0; j < 2; ++j) {
+        for (unsigned k = 0; k < 2; ++k)
+          out[i * 6 + j * 3 + k] = ring_v[edges[i * 2 + k]];
+        out[i * 6 + j * 3 + 2] = edge_v[j];
+      }
+    out += nint_edges * 6;
+  }
   unsigned npoly_tris = swap_mesh_sizes[ring_size];
   unsigned const* poly_mesh = swap_meshes[ring_size] + code * npoly_tris;
   swap_tri_t const* tris = swap_triangles[ring_size];
