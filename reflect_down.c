@@ -94,9 +94,11 @@ LOOP_KERNEL(reflect_down_entity,
   }
 }
 
-/* This is the #1 most expensive function, takes up 50% of
-   refinement time !
+/* TODO: This is the #1 most expensive function, takes up 70% of
+   adaptation time !
    If you are going to optimize, optimize here !
+   1) try to make this marginally faster
+   2) look for higher-level ways to avoid calling this function
  */
 static unsigned* reflect_down_general(
     unsigned dual_mode,
