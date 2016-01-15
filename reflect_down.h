@@ -27,4 +27,13 @@ unsigned* get_dual(
     unsigned const* elems_of_verts_offsets,
     unsigned const* elems_of_verts);
 
+struct mesh;
+
+unsigned* mesh_reflect_down(
+    struct mesh* m,
+    unsigned high_dim,
+    unsigned low_dim);
+
+unsigned* mesh_get_dual(struct mesh* m);
+
 #endif

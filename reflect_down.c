@@ -4,6 +4,7 @@
 
 #include "ints.h"
 #include "loop.h"
+#include "mesh.h"
 #include "tables.h"
 
 LOOP_INOUT static unsigned copy(
@@ -140,6 +141,18 @@ unsigned* reflect_down(
       lows_of_verts_offsets, lows_of_verts);
 }
 
+unsigned* mesh_reflect_down(
+    struct mesh* m,
+    unsigned high_dim,
+    unsigned low_dim)
+{
+  unsigned nhighs = mesh_count(m, high_dim);
+  unsigned const* verts_of_highs = mesh_ask_down(m, high_dim, 0);
+  struct const_up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
+  return reflect_down(high_dim, low_dim, nhighs,
+      verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
+}
+
 unsigned* get_dual(
     unsigned elem_dim,
     unsigned nelems,
@@ -149,4 +162,14 @@ unsigned* get_dual(
 {
   return reflect_down_general(1, elem_dim, elem_dim - 1, nelems, verts_of_elems,
       elems_of_verts_offsets, elems_of_verts);
+}
+
+unsigned* mesh_get_dual(struct mesh* m)
+{
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, elem_dim);
+  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
+  struct const_up* elems_of_verts = mesh_ask_up(m, 0, elem_dim);
+  return get_dual(elem_dim, nelems, verts_of_elems,
+      elems_of_verts->offsets, elems_of_verts->adj);
 }
