@@ -43,9 +43,9 @@ LOOP_INOUT static unsigned intersect(
 }
 
 LOOP_KERNEL( local_method,
-	unsigned dual_mode,
-	unsigned const* verts_of_highs,
-	unsigned const* lows_of_verts_offsets,
+    unsigned dual_mode,
+    unsigned const* verts_of_highs,
+    unsigned const* lows_of_verts_offsets,
     unsigned const* lows_of_verts,
     unsigned verts_per_high,
     unsigned lows_per_high,
@@ -114,7 +114,7 @@ static unsigned* reflect_down_general(
   unsigned const* const* high_verts_of_lows =
     the_canonical_orders[high_dim][low_dim][0];
   LOOP_EXEC(local_method , nhighs,
-	  dual_mode,
+      dual_mode,
       verts_of_highs,
       lows_of_verts_offsets,
       lows_of_verts,
