@@ -1,10 +1,12 @@
 #include <stdio.h>
 
+#include "comm.h"
 #include "loop.h"
 #include "mesh.h"
 
 int main()
 {
+  comm_init();
   /* make a 2-triangle mesh with only
      the triangle to vertex graph */
   struct mesh* m = new_box_mesh(2);
@@ -24,4 +26,5 @@ int main()
   }
   loop_free(host_graph);
   free_mesh(m);
+  comm_fini();
 }

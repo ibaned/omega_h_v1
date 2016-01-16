@@ -4,6 +4,7 @@
 
 #include "adapt.h"
 #include "algebra.h"
+#include "comm.h"
 #include "derive_model.h"
 #include "eval_field.h"
 #include "mesh.h"
@@ -81,6 +82,7 @@ static void warped_adapt(struct mesh** p_m)
 
 int main()
 {
+  comm_init();
   struct mesh* m = new_box_mesh(3);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
@@ -101,4 +103,5 @@ int main()
     the_rotation = -the_rotation;
   }
   free_mesh(m);
+  comm_fini();
 }
