@@ -49,6 +49,7 @@ refine_by_size.c \
 indset.c \
 measure_edges.c \
 reflect_down.c \
+dual.c \
 refine_nodal.c \
 refine_qualities.c \
 doubles.c \

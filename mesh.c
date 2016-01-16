@@ -6,6 +6,7 @@
 #include "arrays.h"
 #include "bridge_graph.h"
 #include "derive_sides.h"
+#include "dual.h"
 #include "graph.h"
 #include "ints.h"
 #include "loop.h"
