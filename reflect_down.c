@@ -1,8 +1,6 @@
 #include "reflect_down.h"
 
 #include <assert.h>
-#include <stdio.h>
-#include <mpi.h>
 
 #include "ints.h"
 #include "loop.h"
@@ -146,6 +144,8 @@ static unsigned* reflect_down_general(
    we can use this macro (template) to make it clearer to
    the compiler it should generate unrolled code for
    these two cases.
+
+TODO: consolidate this with find_by_verts.h
 */
 
 #define FIND_LOW_FAST(N) \
@@ -256,41 +256,8 @@ unsigned* mesh_reflect_down(
   unsigned const* verts_of_highs = mesh_ask_down(m, high_dim, 0);
   struct const_up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
   unsigned const* verts_of_lows = mesh_ask_down(m, low_dim, 0);
-  {
-    double lows_per_high = mesh_estimate_degree(m, high_dim, low_dim);
-    double verts_per_low = mesh_estimate_degree(m, low_dim, 0);
-    double lows_per_vert = mesh_estimate_degree(m, 0, low_dim);
-    printf("mesh_reflect_down(high=%u, low=%u)\n", high_dim, low_dim);
-    double sets_per_high = lows_per_high * verts_per_low;
-    printf("set queries/intersections per high = (%f*%f) = %f\n",
-        lows_per_high, verts_per_low, sets_per_high);
-    double set_size = lows_per_vert;
-    printf("average set size %f\n", set_size);
-    printf("best case per high (intersect cost O(N)) = %f\n",
-        sets_per_high * set_size);
-    printf("worst case per high (intersect cost O(N^2)) = %f\n",
-        sets_per_high * set_size * set_size);
-  }
-  {
-    printf("predicted improvement:\n");
-    double lows_per_high = mesh_estimate_degree(m, high_dim, low_dim);
-    double verts_per_low = mesh_estimate_degree(m, low_dim, 0);
-    double lows_per_vert = mesh_estimate_degree(m, 0, low_dim);
-    double num_sets = lows_per_high * lows_per_vert;
-    printf("number of sets %f\n", num_sets);
-    double set_size = verts_per_low;
-    printf("average set size %f\n", set_size);
-    printf("cost per high: %f\n", num_sets * set_size * set_size);
-  }
-  double t0 = MPI_Wtime();
-//unsigned* out = reflect_down(high_dim, low_dim, nhighs,
-//    verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
-  unsigned* out = reflect_down_fast(high_dim, low_dim, nhighs,
+  return reflect_down_fast(high_dim, low_dim, nhighs,
       verts_of_highs, verts_of_lows, lows_of_verts->offsets, lows_of_verts->adj);
-  double t1 = MPI_Wtime();
-  printf("actual cost: %f (total) %e (per high)\n", t1 - t0,
-      (t1 - t0)/((double)nhighs));
-  return out;
 }
 
 unsigned* reflect_down(
