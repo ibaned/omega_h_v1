@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <mpi.h>
 
 #include "ints.h"
 #include "loop.h"
@@ -167,16 +168,22 @@ unsigned* mesh_reflect_down(
   }
   {
     printf("predicted improvement:\n");
+    double lows_per_high = mesh_estimate_degree(m, high_dim, low_dim);
     double verts_per_low = mesh_estimate_degree(m, low_dim, 0);
     double lows_per_vert = mesh_estimate_degree(m, 0, low_dim);
-    double num_sets = lows_per_vert;
+    double num_sets = lows_per_high * lows_per_vert;
     printf("number of sets %f\n", num_sets);
     double set_size = verts_per_low;
     printf("average set size %f\n", set_size);
     printf("cost per high: %f\n", num_sets * set_size * set_size);
   }
-  return reflect_down(high_dim, low_dim, nhighs,
+  double t0 = MPI_Wtime();
+  unsigned* out = reflect_down(high_dim, low_dim, nhighs,
       verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
+  double t1 = MPI_Wtime();
+  printf("actual cost: %f (total) %e (per high)\n", t1 - t0,
+      (t1 - t0)/((double)nhighs));
+  return out;
 }
 
 unsigned* get_dual(
