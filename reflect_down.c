@@ -230,6 +230,7 @@ static unsigned* reflect_down_fast(
   unsigned verts_per_high = the_down_degrees[high_dim][0];
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned verts_per_low = the_down_degrees[low_dim][0];
+  assert(verts_per_low == 2 || verts_per_low == 3);
   unsigned* lows_of_highs = LOOP_MALLOC(unsigned, nhighs * lows_per_high);
   unsigned const* const* high_verts_of_lows =
     the_canonical_orders[high_dim][low_dim][0];
@@ -290,6 +291,18 @@ unsigned* mesh_reflect_down(
   printf("actual cost: %f (total) %e (per high)\n", t1 - t0,
       (t1 - t0)/((double)nhighs));
   return out;
+}
+
+unsigned* reflect_down(
+    unsigned high_dim,
+    unsigned low_dim,
+    unsigned nhighs,
+    unsigned const* verts_of_highs,
+    unsigned const* lows_of_verts_offsets,
+    unsigned const* lows_of_verts)
+{
+  return reflect_down_general(0, high_dim, low_dim, nhighs, verts_of_highs,
+      lows_of_verts_offsets, lows_of_verts);
 }
 
 unsigned* get_dual(
