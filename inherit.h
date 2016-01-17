@@ -48,4 +48,14 @@ void concat_verts_of_elems(
     unsigned* nelems_out,
     unsigned** verts_of_elems_out);
 
+unsigned* concat_uints_inherited(
+    unsigned width,
+    unsigned const ngen_offsets[5],
+    unsigned* gen_data[4]);
+
+double* concat_doubles_inherited(
+    unsigned width,
+    unsigned const ngen_offsets[5],
+    double* gen_data[4]);
+
 #endif
