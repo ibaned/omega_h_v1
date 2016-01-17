@@ -6,7 +6,7 @@
  * so those entries will be marked INVALID.
  */
 
-unsigned* get_dual(
+unsigned* dual_from_verts(
     unsigned elem_dim,
     unsigned nelems,
     unsigned const* verts_of_elems,
@@ -15,6 +15,6 @@ unsigned* get_dual(
 
 struct mesh;
 
-unsigned* mesh_get_dual(struct mesh* m);
+unsigned* mesh_get_dual_from_verts(struct mesh* m);
 
 #endif

@@ -73,7 +73,7 @@ LOOP_KERNEL(element_dual_from_verts,
   }
 }
 
-static unsigned* dual_from_verts(
+unsigned* dual_from_verts(
     unsigned elem_dim,
     unsigned nelems,
     unsigned const* verts_of_elems,
@@ -99,23 +99,12 @@ static unsigned* dual_from_verts(
   return elems_of_elems;
 }
 
-unsigned* get_dual(
-    unsigned elem_dim,
-    unsigned nelems,
-    unsigned const* verts_of_elems,
-    unsigned const* elems_of_verts_offsets,
-    unsigned const* elems_of_verts)
-{
-  return dual_from_verts(elem_dim, nelems, verts_of_elems,
-      elems_of_verts_offsets, elems_of_verts);
-}
-
-unsigned* mesh_get_dual(struct mesh* m)
+unsigned* mesh_get_dual_from_verts(struct mesh* m)
 {
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   struct const_up* elems_of_verts = mesh_ask_up(m, 0, elem_dim);
-  return get_dual(elem_dim, nelems, verts_of_elems,
+  return dual_from_verts(elem_dim, nelems, verts_of_elems,
       elems_of_verts->offsets, elems_of_verts->adj);
 }

@@ -251,7 +251,7 @@ static void set_dual(struct mesh* m, unsigned* adj)
 unsigned const* mesh_ask_dual(struct mesh* m)
 {
   if (!m->dual)
-    set_dual(m, mesh_get_dual(m));
+    set_dual(m, mesh_get_dual_from_verts(m));
   return m->dual;
 }
 
