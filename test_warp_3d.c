@@ -6,6 +6,8 @@
 #include "algebra.h"
 #include "comm.h"
 #include "derive_model.h"
+#include "doubles.h"
+#include "element_field.h"
 #include "eval_field.h"
 #include "mesh.h"
 #include "refine_by_size.h"
@@ -65,6 +67,16 @@ static void dye_fun(double const* coords, double* v)
   v[0] = 4 * dir * (.25 - vector_norm(x, 3));
 }
 
+static unsigned global_nelems_for_mass;
+
+static void mass_fun(double const* coords, double* v)
+{
+  if (coords[0] > 0.5)
+    *v = 1.0 / global_nelems_for_mass;
+  else
+    *v = 0;
+}
+
 static void warped_adapt(struct mesh** p_m)
 {
   static unsigned const n = 6;
@@ -73,6 +85,12 @@ static void warped_adapt(struct mesh** p_m)
     unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
     write_vtk_step(*p_m);
     mesh_adapt(p_m, size_floor, good_qual_floor, nsliver_layers, max_ops);
+    {
+      double total_mass = doubles_sum(
+          mesh_find_tag(*p_m, mesh_dim(*p_m), "mass")->d.f64,
+          mesh_count(*p_m, mesh_dim(*p_m)));
+      printf("TOTAL MASS %e\n", total_mass);
+    }
     if (done)
       return;
   }
@@ -90,6 +108,12 @@ int main()
   while (refine_by_size(&m, 0));
   start_vtk_steps("warp");
   mesh_eval_field(m, 0, "dye", 1, dye_fun);
+  { //set mass field to test conservative transfer
+    mesh_interp_to_elems(m, "coordinates");
+    global_nelems_for_mass = mesh_count(m, mesh_dim(m));
+    mesh_eval_field(m, mesh_dim(m), "mass", 1, mass_fun);
+    mesh_free_tag(m, mesh_dim(m), "coordinates");
+  }
   write_vtk_step(m);
   for (unsigned i = 0; i < 2; ++i) {
     printf("\nOUTER DIRECTION %u\n", i);

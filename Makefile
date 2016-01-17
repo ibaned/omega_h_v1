@@ -78,6 +78,7 @@ swap_slivers.c \
 swap_common.c \
 swap_qualities.c \
 swap_topology.c \
+swap_conserve.c \
 edge_ring.c \
 edge_swap.c \
 edge_swap_edges.c \
