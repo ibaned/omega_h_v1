@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "algebra.h"
+#include "comm.h"
 #include "derive_model.h"
 #include "doubles.h"
 #include "eval_field.h"
@@ -23,6 +24,7 @@ static void size_fun(double const* x, double* s)
 
 int main()
 {
+  comm_init();
   struct mesh* m = new_box_mesh(2);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
@@ -45,4 +47,5 @@ int main()
     mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
   }
   free_mesh(m);
+  comm_fini();
 }
