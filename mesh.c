@@ -250,8 +250,12 @@ static void set_dual(struct mesh* m, unsigned* adj)
 
 unsigned const* mesh_ask_dual(struct mesh* m)
 {
-  if (!m->dual)
-    set_dual(m, mesh_get_dual(m));
+  if (!m->dual) {
+    if (mesh_has_dim(m, mesh_dim(m) - 1))
+      set_dual(m, mesh_get_dual_from_sides(m));
+    else
+      set_dual(m, mesh_get_dual_from_verts(m));
+  }
   return m->dual;
 }
 

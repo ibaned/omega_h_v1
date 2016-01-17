@@ -73,7 +73,7 @@ LOOP_KERNEL(element_dual_from_verts,
   }
 }
 
-static unsigned* dual_from_verts(
+unsigned* dual_from_verts(
     unsigned elem_dim,
     unsigned nelems,
     unsigned const* verts_of_elems,
@@ -99,23 +99,66 @@ static unsigned* dual_from_verts(
   return elems_of_elems;
 }
 
-unsigned* get_dual(
-    unsigned elem_dim,
-    unsigned nelems,
-    unsigned const* verts_of_elems,
-    unsigned const* elems_of_verts_offsets,
-    unsigned const* elems_of_verts)
-{
-  return dual_from_verts(elem_dim, nelems, verts_of_elems,
-      elems_of_verts_offsets, elems_of_verts);
-}
-
-unsigned* mesh_get_dual(struct mesh* m)
+unsigned* mesh_get_dual_from_verts(struct mesh* m)
 {
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   struct const_up* elems_of_verts = mesh_ask_up(m, 0, elem_dim);
-  return get_dual(elem_dim, nelems, verts_of_elems,
+  return dual_from_verts(elem_dim, nelems, verts_of_elems,
       elems_of_verts->offsets, elems_of_verts->adj);
+}
+
+LOOP_KERNEL(element_dual_from_sides,
+    unsigned sides_per_elem,
+    unsigned const* sides_of_elems,
+    unsigned const* elems_of_sides_offsets,
+    unsigned const* elems_of_sides,
+    unsigned* elems_of_elems)
+
+  unsigned const* sides_of_elem = sides_of_elems + i * sides_per_elem;
+  unsigned* elems_of_elem = elems_of_elems + i * sides_per_elem;
+  for (unsigned j = 0; j < sides_per_elem; ++j) {
+    unsigned side = sides_of_elem[j];
+    unsigned f = elems_of_sides_offsets[side];
+    unsigned e = elems_of_sides_offsets[side + 1];
+    unsigned k;
+    for (k = f; k < e; ++k) {
+      unsigned oelem = elems_of_sides[k];
+      if (oelem != i) {
+        elems_of_elem[j] = oelem;
+        break;
+      }
+    }
+    if (k == e)
+      elems_of_elem[j] = INVALID;
+  }
+}
+
+unsigned* dual_from_sides(
+    unsigned elem_dim,
+    unsigned nelems,
+    unsigned const* sides_of_elems,
+    unsigned const* elems_of_sides_offsets,
+    unsigned const* elems_of_sides)
+{
+  unsigned sides_per_elem = the_down_degrees[elem_dim][elem_dim - 1];
+  unsigned* elems_of_elems = LOOP_MALLOC(unsigned, nelems * sides_per_elem);
+  LOOP_EXEC(element_dual_from_sides, nelems,
+      sides_per_elem,
+      sides_of_elems,
+      elems_of_sides_offsets,
+      elems_of_sides,
+      elems_of_elems);
+  return elems_of_elems;
+}
+
+unsigned* mesh_get_dual_from_sides(struct mesh* m)
+{
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, elem_dim);
+  unsigned const* sides_of_elems = mesh_ask_down(m, elem_dim, elem_dim - 1);
+  struct const_up* elems_of_sides = mesh_ask_up(m, elem_dim - 1, elem_dim);
+  return dual_from_sides(elem_dim, nelems, sides_of_elems,
+      elems_of_sides->offsets, elems_of_sides->adj);
 }
