@@ -3,6 +3,7 @@
 
 #include "algebra.h"
 #include "coarsen_by_size.h"
+#include "comm.h"
 #include "derive_model.h"
 #include "eval_field.h"
 #include "ints.h"
@@ -29,6 +30,7 @@ static void coarse_fun(double const* x, double* s)
 
 int main()
 {
+  comm_init();
   struct mesh* m = new_box_mesh(2);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
@@ -52,4 +54,5 @@ int main()
     write_mesh_vtk(m, fname);
   }
   free_mesh(m);
+  comm_fini();
 }
