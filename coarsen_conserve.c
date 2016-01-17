@@ -34,12 +34,16 @@ static double* coarsen_conserve_data(
     unsigned f = elems_of_verts_offsets[i];
     unsigned e = elems_of_verts_offsets[i + 1];
     double sum[MAX_NCOMPS] = {0};
+    unsigned ncavity = 0;
     for (unsigned j = f; j < e; ++j) {
       unsigned elem = elems_of_verts[j];
       add_vectors(sum, data_in + elem * ncomps, sum, ncomps);
+      if (gen_offset_of_elems[elem] !=
+          gen_offset_of_elems[elem + 1])
+        ++ncavity;
     }
     double avg[MAX_NCOMPS] = {0};
-    scale_vector(sum, 1.0 / (e - f), avg, ncomps);
+    scale_vector(sum, 1.0 / ncavity, avg, ncomps);
     for (unsigned j = f; j < e; ++j) {
       unsigned elem = elems_of_verts[j];
       if (gen_offset_of_elems[elem] ==
