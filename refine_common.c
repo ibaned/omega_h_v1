@@ -10,6 +10,7 @@
 #include "loop.h"
 #include "mesh.h"
 #include "quality.h"
+#include "refine_conserve.h"
 #include "refine_nodal.h"
 #include "refine_qualities.h"
 #include "refine_topology.h"
@@ -89,6 +90,8 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
       mesh_set_ents(m_out, prod_dim, nprods_out, verts_of_prods_out);
     }
     inherit_class(m, m_out, prod_dim, ndoms, prods_of_doms_offsets);
+    if (prod_dim == elem_dim)
+      refine_conserve(m, m_out, ndoms, prods_of_doms_offsets);
     for (unsigned i = 0; i < 4; ++i)
       loop_free(prods_of_doms_offsets[i]);
   }

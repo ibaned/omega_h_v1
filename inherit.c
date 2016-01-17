@@ -9,7 +9,7 @@
 #include "refine_topology.h"
 #include "tables.h"
 
-static void make_ngen_from_doms(
+void make_ngen_from_doms(
     unsigned const ndoms[4],
     unsigned* prods_of_doms_offsets[4],
     unsigned ngen[4])
@@ -22,7 +22,7 @@ static void make_ngen_from_doms(
   }
 }
 
-static void make_ngen_offsets(
+void make_ngen_offsets(
     unsigned const ngen[4],
     /* out: */
     unsigned ngen_offsets[5])
@@ -32,22 +32,25 @@ static void make_ngen_offsets(
     ngen_offsets[i + 1] = ngen_offsets[i] + ngen[i];
 }
 
-static unsigned* concat_uints_inherited(
-    unsigned width,
-    unsigned const ngen_offsets[5],
-    unsigned* gen_data[4])
-{
-  unsigned* out_data = LOOP_MALLOC(unsigned,
-      ngen_offsets[4] * width);
-  for (unsigned i = 0; i < 4; ++i) {
-    LOOP_MEMCPY(unsigned,
-        out_data + ngen_offsets[i] * width,
-        gen_data[i],
-        (ngen_offsets[i + 1] - ngen_offsets[i]) * width);
-    loop_free(gen_data[i]);
-  }
-  return out_data;
+#define GENERIC_CONCAT_INHERITED(T, name) \
+T* concat_##name##_inherited( \
+    unsigned width, \
+    unsigned const ngen_offsets[5], \
+    T* gen_data[4]) \
+{ \
+  T* out_data = LOOP_MALLOC(T, ngen_offsets[4] * width); \
+  for (unsigned i = 0; i < 4; ++i) { \
+    LOOP_MEMCPY(T, \
+        out_data + ngen_offsets[i] * width, \
+        gen_data[i], \
+        (ngen_offsets[i + 1] - ngen_offsets[i]) * width); \
+    loop_free(gen_data[i]); \
+  } \
+  return out_data; \
 }
+
+GENERIC_CONCAT_INHERITED(unsigned, uints)
+GENERIC_CONCAT_INHERITED(double, doubles)
 
 static void inherit_uints_direct(
     unsigned width,
