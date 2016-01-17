@@ -51,6 +51,7 @@ measure_edges.c \
 reflect_down.c \
 dual.c \
 refine_nodal.c \
+refine_conserve.c \
 refine_qualities.c \
 doubles.c \
 coarsen_by_size.c \

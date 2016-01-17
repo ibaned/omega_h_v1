@@ -9,7 +9,7 @@
 #include "refine_topology.h"
 #include "tables.h"
 
-static void make_ngen_from_doms(
+void make_ngen_from_doms(
     unsigned const ndoms[4],
     unsigned* prods_of_doms_offsets[4],
     unsigned ngen[4])
@@ -22,7 +22,7 @@ static void make_ngen_from_doms(
   }
 }
 
-static void make_ngen_offsets(
+void make_ngen_offsets(
     unsigned const ngen[4],
     /* out: */
     unsigned ngen_offsets[5])

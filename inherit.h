@@ -58,4 +58,14 @@ double* concat_doubles_inherited(
     unsigned const ngen_offsets[5],
     double* gen_data[4]);
 
+void make_ngen_from_doms(
+    unsigned const ndoms[4],
+    unsigned* prods_of_doms_offsets[4],
+    unsigned ngen[4]);
+
+void make_ngen_offsets(
+    unsigned const ngen[4],
+    /* out: */
+    unsigned ngen_offsets[5]);
+
 #endif
