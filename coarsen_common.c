@@ -2,6 +2,7 @@
 
 #include "arrays.h"
 #include "check_collapse_class.h"
+#include "coarsen_conserve.h"
 #include "coarsen_qualities.h"
 #include "coarsen_topology.h"
 #include "collapse_codes.h"
@@ -59,6 +60,9 @@ static void coarsen_ents(
   setup_coarsen(m, ent_dim, gen_offset_of_ents, offset_of_same_ents,
       ndoms, prods_of_doms_offsets);
   inherit_class(m, m_out, ent_dim, ndoms, prods_of_doms_offsets);
+  if (ent_dim == mesh_dim(m))
+    coarsen_conserve(m, m_out, gen_offset_of_verts, gen_offset_of_ents,
+        offset_of_same_ents);
   loop_free(gen_offset_of_ents);
   loop_free(offset_of_same_ents);
 }

@@ -58,6 +58,7 @@ coarsen_by_size.c \
 check_collapse_class.c \
 coarsen_qualities.c \
 coarsen_topology.c \
+coarsen_conserve.c \
 collapses_to_verts.c \
 collapses_to_ents.c \
 mesh.c \
