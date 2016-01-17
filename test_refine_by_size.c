@@ -30,6 +30,11 @@ int main()
   mesh_set_rep(m, MESH_FULL);
   char fname[64];
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
+  { //set mass field to test conservative transfer
+    unsigned nelems = mesh_count(m, mesh_dim(m));
+    mesh_add_tag(m, mesh_dim(m), TAG_F64, "mass", 1,
+        doubles_filled(nelems, 1.0 / nelems));
+  }
   write_mesh_vtk(m, "out_0.vtu");
   for (unsigned it = 1; 1; ++it) {
     if (!refine_by_size(&m, 0))
