@@ -51,6 +51,12 @@ void osh_free_label(osh_t m, char const* name);
 
 void osh_ghost(osh_t* m, unsigned nlayers);
 
+void osh_adapt(osh_t* m,
+    double size_ratio_floor,
+    double good_element_quality,
+    unsigned nsliver_layers,
+    unsigned max_passes);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

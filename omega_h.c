@@ -1,5 +1,6 @@
 #include "include/omega_h.h"
 
+#include "adapt.h"
 #include "ghost_mesh.h"
 #include "loop.h"
 #include "mark.h"
@@ -177,4 +178,17 @@ void osh_free_label(osh_t m, char const* name)
 void osh_ghost(osh_t* m, unsigned nlayers)
 {
   ghost_mesh((struct mesh**)m, nlayers);
+}
+
+void osh_adapt(osh_t* m,
+    double size_ratio_floor,
+    double good_element_quality,
+    unsigned nsliver_layers,
+    unsigned max_passes)
+{
+  mesh_adapt((struct mesh**)m,
+      size_ratio_floor,
+      good_element_quality,
+      nsliver_layers,
+      max_passes);
 }
