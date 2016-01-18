@@ -39,36 +39,55 @@ void tags_subset(struct mesh* in, struct mesh* out,
   }
 }
 
+static void subset_ents(
+    struct mesh* m,
+    struct mesh* m_out,
+    unsigned ent_dim,
+    unsigned const* ent_offsets,
+    unsigned const* vert_offsets)
+{
+  unsigned nents = mesh_count(m, ent_dim);
+  unsigned nents_out = ent_offsets[nents];
+  unsigned verts_per_ent = the_down_degrees[ent_dim][0];
+  unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
+  unsigned* verts_of_ents_out = uints_expand(nents, verts_per_ent,
+      verts_of_ents, ent_offsets);
+  for (unsigned i = 0; i < nents_out * verts_per_ent; ++i)
+    verts_of_ents_out[i] = vert_offsets[verts_of_ents_out[i]];
+  mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
+  tags_subset(m, m_out, ent_dim, ent_offsets);
+}
+
 struct mesh* subset_mesh(
     struct mesh* m,
     unsigned elem_dim,
     unsigned const* offsets)
 {
   unsigned nelems = mesh_count(m, elem_dim);
-  unsigned nelems_out = offsets[nelems];
-  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned* verts_of_elems_out = uints_expand(nelems, verts_per_elem,
-      verts_of_elems, offsets);
-  unsigned nverts = mesh_count(m, 0);
   unsigned* marked_elems = uints_unscan(offsets, nelems);
-  unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, marked_elems);
-  loop_free(marked_elems);
-  unsigned* vert_offsets = uints_exscan(marked_verts, nverts);
-  loop_free(marked_verts);
-  for (unsigned i = 0; i < nelems_out * verts_per_elem; ++i) {
-    unsigned tmp = vert_offsets[verts_of_elems_out[i]];
-    verts_of_elems_out[i] = tmp;
+  unsigned* to_free[4] = {0};
+  unsigned const* ent_offsets[4] = {0};
+  ent_offsets[elem_dim] = offsets;
+  for (unsigned d = 0; d < elem_dim; ++d) {
+    if (!mesh_has_dim(m, d))
+      continue;
+    unsigned nents = mesh_count(m, d);
+    unsigned* marked_ents = mesh_mark_down(m, elem_dim, d, marked_elems);
+    ent_offsets[d] = to_free[d] = uints_exscan(marked_ents, nents);
+    loop_free(marked_ents);
   }
-  unsigned nverts_out = vert_offsets[nverts];
-  /* TODO: should subset_mesh preserve full topology ? */
-  struct mesh* out = new_mesh(elem_dim, MESH_REDUCED, 0);
-  mesh_set_ents(out, 0, nverts_out, 0);
-  mesh_set_ents(out, elem_dim, nelems_out, verts_of_elems_out);
-  tags_subset(m, out, 0, vert_offsets);
-  tags_subset(m, out, elem_dim, offsets);
-  loop_free(vert_offsets);
-  return out;
+  loop_free(marked_elems);
+  unsigned nverts = mesh_count(m, 0);
+  unsigned nverts_out = ent_offsets[0][nverts];
+  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), mesh_is_parallel(m));
+  mesh_set_ents(m_out, 0, nverts_out, 0);
+  tags_subset(m, m_out, 0, ent_offsets[0]);
+  for (unsigned d = 1; d <= elem_dim; ++d)
+    if (mesh_has_dim(m, d))
+      subset_ents(m, m_out, d, ent_offsets[d], ent_offsets[0]);
+  for (unsigned d = 0; d < elem_dim; ++d)
+    loop_free(to_free[d]);
+  return m_out;
 }
 
 void subset_verts_of_doms(
