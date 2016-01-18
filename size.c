@@ -109,7 +109,8 @@ double* mesh_element_sizes(struct mesh* m)
 
 double mesh_domain_size(struct mesh* m)
 {
-  double const* sizes = mesh_element_sizes(m);
+  double* sizes = mesh_element_sizes(m);
   double domsize = doubles_sum(sizes, mesh_count(m, mesh_dim(m)));
+  loop_free(sizes);
   return domsize;
 }
