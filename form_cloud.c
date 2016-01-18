@@ -55,10 +55,11 @@ struct cloud* form_cloud(struct mesh* m)
   unsigned dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, dim);
   double const* elem_density = mesh_find_tag(m, dim, "cloud_density")->d.f64;
-  double const* elem_size = mesh_element_sizes(m);
+  double* elem_size = mesh_element_sizes(m);
   double* pts_of_elems = LOOP_MALLOC(double, nelems);
   for (unsigned i = 0; i < nelems; ++i)
     pts_of_elems[i] = elem_size[i] * elem_density[i];
+  loop_free(elem_size);
   double* real_offset = doubles_exscan(pts_of_elems, nelems);
   loop_free(pts_of_elems);
   unsigned* uint_offset = LOOP_MALLOC(unsigned, (nelems + 1));
