@@ -7,12 +7,14 @@
 #include "loop.h"
 #include "mark.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
 #include "tables.h"
-#include "tag.h"
 
 void tags_subset(struct mesh* in, struct mesh* out,
     unsigned dim, unsigned const* offsets)
 {
+  if (mesh_is_parallel(in))
+    mesh_parallel_to_tags(in, dim);
   unsigned nverts = mesh_count(in, dim);
   for (unsigned i = 0; i < mesh_count_tags(in, dim); ++i) {
     struct const_tag* t = mesh_get_tag(in, dim, i);
@@ -36,6 +38,10 @@ void tags_subset(struct mesh* in, struct mesh* out,
         break;
     }
     mesh_add_tag(out, dim, t->type, t->name, t->ncomps, vals_out);
+  }
+  if (mesh_is_parallel(in)) {
+    mesh_parallel_untag(in, dim);
+    mesh_parallel_from_tags(out, dim);
   }
 }
 
