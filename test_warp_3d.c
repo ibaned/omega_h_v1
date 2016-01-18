@@ -73,8 +73,8 @@ static void warped_adapt(struct mesh** p_m)
   for (unsigned i = 0; i < n; ++i) {
     printf("\n WARP TO LIMIT %u\n", i);
     unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
-    write_vtk_step(*p_m);
     mesh_adapt(p_m, size_floor, good_qual_floor, nsliver_layers, max_ops);
+    write_vtk_step(*p_m);
     if (done)
       return;
   }
