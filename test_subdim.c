@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include "comm.h"
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
@@ -9,6 +10,7 @@
 
 int main(int argc, char** argv)
 {
+  comm_init();
   assert(argc == 4);
   struct mesh* m = read_mesh_vtk(argv[1]);
   unsigned dim = (unsigned) atoi(argv[2]);
@@ -19,4 +21,5 @@ int main(int argc, char** argv)
   free_mesh(m);
   write_mesh_vtk(sm, argv[3]);
   free_mesh(sm);
+  comm_fini();
 }
