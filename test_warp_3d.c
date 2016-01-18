@@ -14,8 +14,6 @@
 #include "vtk.h"
 #include "warp_to_limit.h"
 
-struct mesh;
-
 static double const warp_qual_floor = 0.2;
 static double const good_qual_floor = 0.3;
 static double const size_floor = 1. / 3.;
@@ -77,12 +75,20 @@ static void mass_fun(double const* coords, double* v)
     *v = 0;
 }
 
+static unsigned counter_two = 0;
+
 static void warped_adapt(struct mesh** p_m)
 {
   static unsigned const n = 6;
   for (unsigned i = 0; i < n; ++i) {
     printf("\n WARP TO LIMIT %u\n", i);
     unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
+    {
+      char fname[64];
+      sprintf(fname, "before_%u.vtu", counter_two++);
+      printf("writing \"%s\"\n", fname);
+      write_mesh_vtk(*p_m, fname);
+    }
     mesh_adapt(p_m, size_floor, good_qual_floor, nsliver_layers, max_ops);
     write_vtk_step(*p_m);
     {
