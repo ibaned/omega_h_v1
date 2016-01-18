@@ -12,6 +12,7 @@
 #include "mark.h"
 #include "mesh.h"
 #include "quality.h"
+#include "swap_conserve.h"
 #include "swap_qualities.h"
 #include "swap_topology.h"
 #include "tables.h"
@@ -51,6 +52,8 @@ static void swap_ents(
         ndoms, prods_of_doms_offsets);
     inherit_class(m, m_out, ent_dim, ndoms, prods_of_doms_offsets);
   }
+  if (ent_dim == mesh_dim(m))
+    swap_conserve(m, m_out, gen_offset_of_edges, same_ent_offsets);
   loop_free(gen_offset_of_edges);
   loop_free(same_ent_offsets);
 }

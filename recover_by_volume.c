@@ -38,16 +38,14 @@ double* recover_by_volume(
 struct const_tag* mesh_recover_by_volume(
     struct mesh* m, char const* name)
 {
-  mesh_element_sizes(m);
-  double const* elem_sizes = mesh_find_tag(
-      m, mesh_dim(m), "elem_size")->d.f64;
+  double* elem_sizes = mesh_element_sizes(m);
   struct const_tag* t = mesh_find_tag(m, mesh_dim(m), name);
   double* data = recover_by_volume(mesh_count(m, 0),
       mesh_ask_up(m, 0, mesh_dim(m))->offsets,
       mesh_ask_up(m, 0, mesh_dim(m))->adj,
       elem_sizes,
       t->ncomps, t->d.f64);
-  mesh_free_tag(m, mesh_dim(m), "elem_size");
+  loop_free(elem_sizes);
   struct const_tag* out = mesh_add_tag(m, 0, TAG_F64, name, t->ncomps, data);
   return out;
 }

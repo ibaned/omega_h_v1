@@ -3,7 +3,9 @@
 
 #include "algebra.h"
 #include "coarsen_by_size.h"
+#include "comm.h"
 #include "derive_model.h"
+#include "doubles.h"
 #include "eval_field.h"
 #include "ints.h"
 #include "mesh.h"
@@ -29,12 +31,18 @@ static void coarse_fun(double const* x, double* s)
 
 int main()
 {
+  comm_init();
   struct mesh* m = new_box_mesh(2);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
   char fname[64];
   unsigned it = 0;
   mesh_eval_field(m, 0, "adapt_size", 1, fine_fun);
+  { //set mass field to test conservative transfer
+    unsigned nelems = mesh_count(m, mesh_dim(m));
+    mesh_add_tag(m, mesh_dim(m), TAG_F64, "mass", 1,
+        doubles_filled(nelems, 1.0 / nelems));
+  }
   while (refine_by_size(&m, 0)) {
     sprintf(fname, "ref_%u.vtu", it++);
     write_mesh_vtk(m, fname);
@@ -52,4 +60,5 @@ int main()
     write_mesh_vtk(m, fname);
   }
   free_mesh(m);
+  comm_fini();
 }

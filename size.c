@@ -96,20 +96,21 @@ double* element_sizes(
   return out;
 }
 
-double const* mesh_element_sizes(struct mesh* m)
+/* TODO: create a proper cache for coordinates,
+   element sizes, and element qualities, with
+   invalidation when coordinates change */
+
+double* mesh_element_sizes(struct mesh* m)
 {
-  if (!mesh_find_tag(m, mesh_dim(m), "elem_size")) {
-    double* data = element_sizes(mesh_dim(m), mesh_count(m, mesh_dim(m)),
+  return element_sizes(mesh_dim(m), mesh_count(m, mesh_dim(m)),
         mesh_ask_down(m, mesh_dim(m), 0),
         mesh_find_tag(m, 0, "coordinates")->d.f64);
-    mesh_add_tag(m, mesh_dim(m), TAG_F64, "elem_size", 1, data);
-  }
-  return mesh_find_tag(m, mesh_dim(m), "elem_size")->d.f64;
 }
 
 double mesh_domain_size(struct mesh* m)
 {
-  double const* sizes = mesh_element_sizes(m);
+  double* sizes = mesh_element_sizes(m);
   double domsize = doubles_sum(sizes, mesh_count(m, mesh_dim(m)));
+  loop_free(sizes);
   return domsize;
 }

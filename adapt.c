@@ -1,5 +1,6 @@
 #include "adapt.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -86,6 +87,7 @@ void mesh_adapt(struct mesh** p_m,
     unsigned nsliver_layers,
     unsigned max_ops)
 {
+  assert(!mesh_is_parallel(*p_m));
   global_op_count = 0;
   global_max_ops = max_ops;
   adapt_summary(*p_m);

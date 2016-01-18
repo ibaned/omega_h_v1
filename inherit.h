@@ -48,4 +48,24 @@ void concat_verts_of_elems(
     unsigned* nelems_out,
     unsigned** verts_of_elems_out);
 
+unsigned* concat_uints_inherited(
+    unsigned width,
+    unsigned const ngen_offsets[5],
+    unsigned* gen_data[4]);
+
+double* concat_doubles_inherited(
+    unsigned width,
+    unsigned const ngen_offsets[5],
+    double* gen_data[4]);
+
+void make_ngen_from_doms(
+    unsigned const ndoms[4],
+    unsigned* prods_of_doms_offsets[4],
+    unsigned ngen[4]);
+
+void make_ngen_offsets(
+    unsigned const ngen[4],
+    /* out: */
+    unsigned ngen_offsets[5]);
+
 #endif

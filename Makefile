@@ -49,13 +49,16 @@ refine_by_size.c \
 indset.c \
 measure_edges.c \
 reflect_down.c \
+dual.c \
 refine_nodal.c \
+refine_conserve.c \
 refine_qualities.c \
 doubles.c \
 coarsen_by_size.c \
 check_collapse_class.c \
 coarsen_qualities.c \
 coarsen_topology.c \
+coarsen_conserve.c \
 collapses_to_verts.c \
 collapses_to_ents.c \
 mesh.c \
@@ -75,6 +78,7 @@ swap_slivers.c \
 swap_common.c \
 swap_qualities.c \
 swap_topology.c \
+swap_conserve.c \
 edge_ring.c \
 edge_swap.c \
 edge_swap_edges.c \
