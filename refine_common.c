@@ -122,6 +122,7 @@ unsigned refine_common(
   double* src_quals = mesh_refine_qualities(m, src_dim, &good_candidates,
       qual_floor, require_better);
   if (!comm_max_uint(uints_max(good_candidates, nsrcs))) {
+    loop_free(good_candidates);
     loop_free(src_quals);
     return 0;
   }
