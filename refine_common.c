@@ -9,6 +9,7 @@
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
 #include "quality.h"
 #include "refine_conserve.h"
 #include "refine_nodal.h"
@@ -110,6 +111,8 @@ unsigned refine_common(
     unsigned require_better)
 {
   struct mesh* m = *p_m;
+  if (mesh_is_parallel(m))
+    assert(mesh_ghost_layers(m) == 1);
   unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
   if (!uints_max(candidates, nsrcs))
