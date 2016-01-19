@@ -153,16 +153,22 @@ void osh_conform(osh_t m, char const* name)
   mesh_conform_tag((struct mesh*)m, 0, name);
 }
 
-void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
-    unsigned* marked)
+void osh_mark_classified(osh_t m, unsigned ent_dim,
+    unsigned class_dim, unsigned class_id, unsigned* marked)
 {
-  unsigned* to_mark = mesh_mark_class((struct mesh*)m, 0,
+  unsigned* to_mark = mesh_mark_class((struct mesh*)m, ent_dim,
       class_dim, class_id);
   unsigned nverts = osh_nverts(m);
   for (unsigned i = 0; i < nverts; ++i)
     if (to_mark[i])
       marked[i] = 1;
   loop_free(to_mark);
+}
+
+void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
+    unsigned* marked)
+{
+  osh_mark_classified(m, 0, class_dim, class_id, marked);
 }
 
 void osh_add_label(osh_t m, char const* name, unsigned* data)
