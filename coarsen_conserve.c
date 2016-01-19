@@ -96,8 +96,14 @@ void coarsen_conserve(
     unsigned const* offset_of_same_elems)
 {
   unsigned elem_dim = mesh_dim(m);
+  unsigned i;
+  for (i = 0; i < mesh_count_tags(m, elem_dim); ++i)
+    if (mesh_get_tag(m, elem_dim, i)->type == TAG_F64)
+      break;
+  if (i == mesh_count_tags(m, elem_dim))
+    return;
   double* new_elem_sizes = mesh_element_sizes(m_out);
-  for (unsigned i = 0; i < mesh_count_tags(m, elem_dim); ++i) {
+  for (i = 0; i < mesh_count_tags(m, elem_dim); ++i) {
     struct const_tag* t = mesh_get_tag(m, elem_dim, i);
     if (t->type == TAG_F64)
       coarsen_conserve_tag(m, m_out, gen_offset_of_verts,

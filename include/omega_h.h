@@ -43,6 +43,8 @@ unsigned long* osh_new_global(osh_t m, unsigned dim);
 void osh_accumulate_to_owner(osh_t m, char const* name);
 void osh_conform(osh_t m, char const* name);
 
+void osh_mark_classified(osh_t m, unsigned ent_dim,
+    unsigned class_dim, unsigned class_id, unsigned* marked);
 void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
     unsigned* marked);
 
