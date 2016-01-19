@@ -107,7 +107,7 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
 unsigned refine_common(
     struct mesh** p_m,
     unsigned src_dim,
-    unsigned* candidates,
+    unsigned const* candidates,
     double qual_floor,
     unsigned require_better)
 {
@@ -118,14 +118,16 @@ unsigned refine_common(
   unsigned nsrcs = mesh_count(m, src_dim);
   if (!comm_max_uint(uints_max(candidates, nsrcs)))
     return 0;
-  double* src_quals = mesh_refine_qualities(m, src_dim, candidates,
+  unsigned* good_candidates = uints_copy(candidates, nsrcs);
+  double* src_quals = mesh_refine_qualities(m, src_dim, &good_candidates,
       qual_floor, require_better);
-  if (!uints_max(candidates, nsrcs)) {
+  if (!comm_max_uint(uints_max(good_candidates, nsrcs))) {
     loop_free(src_quals);
     return 0;
   }
-  unsigned* gen_offset_of_srcs = mesh_indset_offsets(m, src_dim, candidates,
-      src_quals);
+  unsigned* gen_offset_of_srcs = mesh_indset_offsets(m, src_dim,
+      good_candidates, src_quals);
+  loop_free(good_candidates);
   loop_free(src_quals);
   struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), 0);
   refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
