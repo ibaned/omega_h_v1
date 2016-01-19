@@ -146,6 +146,7 @@ void mesh_conform_##name(struct mesh* m, unsigned dim, unsigned width, \
 }
 
 GENERIC_MESH_CONFORM(double, doubles)
+GENERIC_MESH_CONFORM(unsigned, uints)
 
 void mesh_conform_tag(struct mesh* m, unsigned dim, const char* name)
 {
