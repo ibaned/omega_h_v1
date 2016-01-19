@@ -6,6 +6,7 @@
 #include "element_field.h"
 #include "loop.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
 #include "quality.h"
 #include "tables.h"
 
@@ -107,5 +108,7 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
       candidates, coords, qual_floor,
       elem_quals, require_better);
   loop_free(elem_quals);
+  if (mesh_is_parallel(m))
+    mesh_conform_doubles(m, src_dim, 1, &src_quals);
   return src_quals;
 }
