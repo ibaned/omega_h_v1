@@ -262,7 +262,7 @@ void unghost_mesh(struct mesh** p_m)
   *p_m = ugm;
 }
 
-void mesh_require_ghosting(struct mesh** p_m, unsigned nlayers)
+void mesh_ensure_ghosting(struct mesh** p_m, unsigned nlayers)
 {
   if (nlayers == mesh_ghost_layers(*p_m))
     return;
