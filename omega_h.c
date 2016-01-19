@@ -158,8 +158,8 @@ void osh_mark_classified(osh_t m, unsigned ent_dim,
 {
   unsigned* to_mark = mesh_mark_class((struct mesh*)m, ent_dim,
       class_dim, class_id);
-  unsigned nverts = osh_nverts(m);
-  for (unsigned i = 0; i < nverts; ++i)
+  unsigned nents = osh_count(m, ent_dim);
+  for (unsigned i = 0; i < nents; ++i)
     if (to_mark[i])
       marked[i] = 1;
   loop_free(to_mark);
