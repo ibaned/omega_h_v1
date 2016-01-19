@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "arrays.h"
+#include "comm.h"
 #include "graph.h"
 #include "indset.h"
 #include "inherit.h"
@@ -115,7 +116,7 @@ unsigned refine_common(
     assert(mesh_ghost_layers(m) == 1);
   unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
-  if (!uints_max(candidates, nsrcs))
+  if (!comm_max_uint(uints_max(candidates, nsrcs)))
     return 0;
   double* src_quals = mesh_refine_qualities(m, src_dim, candidates,
       qual_floor, require_better);
