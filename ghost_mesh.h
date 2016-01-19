@@ -4,5 +4,6 @@
 struct mesh;
 
 void ghost_mesh(struct mesh** p_m, unsigned nlayers);
+void unghost_mesh(struct mesh** p_m);
 
 #endif

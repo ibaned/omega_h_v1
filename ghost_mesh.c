@@ -6,10 +6,12 @@
 #include "arrays.h"
 #include "close_partition.h"
 #include "exchanger.h"
+#include "ints.h"
 #include "loop.h"
 #include "mesh.h"
 #include "migrate_mesh.h"
 #include "parallel_mesh.h"
+#include "subset.h"
 
 /* this function is analogous to
    get_vert_use_owners_of_elems
@@ -244,4 +246,18 @@ void ghost_mesh(struct mesh** p_m, unsigned nlayers)
       s.resident[ELEM].ranks, s.resident[ELEM].ids);
   free_resident(&s.resident[ELEM]);
   mesh_set_ghost_layers(*p_m, nlayers);
+}
+
+void unghost_mesh(struct mesh** p_m)
+{
+  struct mesh* m = *p_m;
+  unsigned dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, dim);
+  unsigned* owned_elems = mesh_get_owned(m, dim);
+  unsigned* offsets = uints_exscan(owned_elems, nelems);
+  loop_free(owned_elems);
+  struct mesh* ugm = subset_mesh(m, dim, offsets);
+  loop_free(offsets);
+  free_mesh(m);
+  *p_m = ugm;
 }
