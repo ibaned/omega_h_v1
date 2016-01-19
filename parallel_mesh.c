@@ -297,3 +297,14 @@ struct mesh* read_and_partition_serial_mesh(char const* filename)
   balance_mesh_inertial(&m);
   return m;
 }
+
+unsigned* mesh_get_owned(struct mesh* m, unsigned dim)
+{
+  unsigned n = mesh_count(m, dim);
+  unsigned* out = LOOP_MALLOC(unsigned, n);
+  unsigned const* own_ranks = mesh_ask_own_ranks(m, dim);
+  unsigned self = comm_rank();
+  for (unsigned i = 0; i < n; ++i)
+    out[i] = (own_ranks[i] == self);
+  return out;
+}

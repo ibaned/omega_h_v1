@@ -38,4 +38,6 @@ void mesh_partition_in(struct mesh** p_m, unsigned factor);
 
 struct mesh* read_and_partition_serial_mesh(char const* filename);
 
+unsigned* mesh_get_owned(struct mesh* m, unsigned dim);
+
 #endif
