@@ -7,6 +7,8 @@
  * returns a maximal independent set of the subgraph
  * induced by the filter, whose members are
  * preferrably those with locally high goodness values.
+ * ties in goodness values are broken by choosing the
+ * vertex with the lowest "global" value.
  * In order for this function to run efficiently,
  * there should not exist long paths with monotonically
  * decreasing goodness.
@@ -17,7 +19,8 @@ unsigned* find_indset(
     unsigned const* offsets,
     unsigned const* adj,
     unsigned const* filter,
-    double const* goodness);
+    double const* goodness,
+    unsigned long const* global);
 
 struct mesh;
 
