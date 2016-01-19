@@ -261,3 +261,13 @@ void unghost_mesh(struct mesh** p_m)
   free_mesh(m);
   *p_m = ugm;
 }
+
+void mesh_require_ghosting(struct mesh** p_m, unsigned nlayers)
+{
+  if (nlayers == mesh_ghost_layers(*p_m))
+    return;
+  if (mesh_ghost_layers(*p_m))
+    unghost_mesh(p_m);
+  if (nlayers)
+    ghost_mesh(p_m, nlayers);
+}
