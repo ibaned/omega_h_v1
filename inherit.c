@@ -246,21 +246,3 @@ void concat_verts_of_ents(
   *p_nents_out = nents_out;
   *p_verts_of_ents_out = verts_of_ents_out;
 }
-
-void account_for_dead_verts(
-    unsigned ent_dim,
-    unsigned nents_out,
-    unsigned nverts,
-    unsigned const* offset_of_same_verts,
-    unsigned* verts_of_ents_out)
-{
-  unsigned verts_per_ent = the_down_degrees[ent_dim][0];
-  unsigned nsame_verts = offset_of_same_verts[nverts];
-  for (unsigned i = 0; i < nents_out * verts_per_ent; ++i) {
-    unsigned old = verts_of_ents_out[i];
-    if (old > nverts)
-      verts_of_ents_out[i] = old - (nverts - nsame_verts);
-    else
-      verts_of_ents_out[i] = offset_of_same_verts[old];
-  }
-}

@@ -38,6 +38,16 @@ void inherit_class(
     unsigned ndoms[4],
     unsigned* prods_of_doms_offsets[4]);
 
+void concat_verts_of_ents(
+    unsigned ent_dim,
+    unsigned nents,
+    unsigned ngen_ents,
+    unsigned const* verts_of_ents,
+    unsigned const* offset_of_same_ents,
+    unsigned const* verts_of_gen_ents,
+    unsigned* p_nents_out,
+    unsigned** p_verts_of_ents_out);
+
 unsigned* concat_uints_inherited(
     unsigned width,
     unsigned const ngen_offsets[5],
@@ -57,22 +67,5 @@ void make_ngen_offsets(
     unsigned const ngen[4],
     /* out: */
     unsigned ngen_offsets[5]);
-
-void concat_verts_of_ents(
-    unsigned ent_dim,
-    unsigned nents,
-    unsigned ngen_ents,
-    unsigned const* verts_of_ents,
-    unsigned const* offset_of_same_ents,
-    unsigned const* verts_of_gen_ents,
-    unsigned* p_nents_out,
-    unsigned** p_verts_of_ents_out);
-
-void account_for_dead_verts(
-    unsigned ent_dim,
-    unsigned nents_out,
-    unsigned nverts,
-    unsigned const* offset_of_same_verts,
-    unsigned* verts_of_ents_out);
 
 #endif
