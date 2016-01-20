@@ -44,9 +44,9 @@ void concat_verts_of_ents(
     unsigned ngen_ents,
     unsigned const* verts_of_ents,
     unsigned const* offset_of_same_ents,
-    unsigned* verts_of_gen_ents,
-    unsigned* nents_out,
-    unsigned** verts_of_ents_out);
+    unsigned const* verts_of_gen_ents,
+    unsigned* p_nents_out,
+    unsigned** p_verts_of_ents_out);
 
 unsigned* concat_uints_inherited(
     unsigned width,

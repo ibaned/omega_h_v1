@@ -230,17 +230,19 @@ void concat_verts_of_ents(
     unsigned ngen_ents,
     unsigned const* verts_of_ents,
     unsigned const* offset_of_same_ents,
-    unsigned* verts_of_gen_ents,
-    unsigned* nents_out,
-    unsigned** verts_of_ents_out)
+    unsigned const* verts_of_gen_ents,
+    unsigned* p_nents_out,
+    unsigned** p_verts_of_ents_out)
 {
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned nsame_ents = offset_of_same_ents[nents];
-  *nents_out = nsame_ents + ngen_ents;
+  unsigned nents_out = nsame_ents + ngen_ents;
   unsigned* verts_of_same_ents = uints_expand(nents, verts_per_ent,
       verts_of_ents, offset_of_same_ents);
-  *verts_of_ents_out = concat_uints(verts_per_ent,
+  unsigned* verts_of_ents_out = concat_uints(verts_per_ent,
       verts_of_same_ents, nsame_ents,
       verts_of_gen_ents, ngen_ents);
   loop_free(verts_of_same_ents);
+  *p_nents_out = nents_out;
+  *p_verts_of_ents_out = verts_of_ents_out;
 }
