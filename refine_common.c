@@ -112,8 +112,10 @@ unsigned refine_common(
     unsigned require_better)
 {
   struct mesh* m = *p_m;
-  if (mesh_is_parallel(m))
+  if (mesh_is_parallel(m)) {
     assert(mesh_ghost_layers(m) == 1);
+    assert(mesh_get_rep(m) == MESH_FULL);
+  }
   unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
   if (!comm_max_uint(uints_max(candidates, nsrcs)))
