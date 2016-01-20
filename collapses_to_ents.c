@@ -10,21 +10,21 @@ void collapses_to_ents(
     unsigned ent_dim,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
-    unsigned const* dead_ents,
+    unsigned const* fused_ents,
     unsigned** p_gen_offset_of_ents,
     unsigned** p_gen_vert_of_ents,
     unsigned** p_gen_direction_of_ents,
     unsigned** p_offset_of_same_ents,
-    unsigned** p_dead_sides)
+    unsigned** p_fused_sides)
 {
   unsigned nents = mesh_count(m, ent_dim);
   unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
   unsigned const* sides_of_ents = 0;
-  unsigned* dead_sides = 0;
-  if (p_dead_sides) {
+  unsigned* fused_sides = 0;
+  if (p_fused_sides) {
     sides_of_ents = mesh_ask_down(m, ent_dim, ent_dim - 1);
     unsigned nsides = mesh_count(m, ent_dim - 1);
-    dead_sides = uints_filled(nsides, 0);
+    fused_sides = uints_filled(nsides, 0);
   }
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned sides_per_ent = the_down_degrees[ent_dim][ent_dim - 1];
@@ -57,15 +57,15 @@ void collapses_to_ents(
         gen_dir = j;
     unsigned ent_will_die = (gen_dir != INVALID);
     if (ent_will_die) {
-      if (p_dead_sides) {
+      if (p_fused_sides) {
         unsigned ent_side = ent_sides_opp_verts[gen_dir];
         unsigned side = sides_of_ents[i * sides_per_ent + ent_side];
-        dead_sides[side] = 1;
+        fused_sides[side] = 1;
       }
       continue;
     }
-    unsigned is_dead_side = (dead_ents && dead_ents[i]);
-    if (!is_dead_side) {
+    unsigned is_fused_side = (fused_ents && fused_ents[i]);
+    if (!is_fused_side) {
       ent_will_gen[i] = 1;
       gen_vert_of_ents[i] = gen_vert;
       gen_direction_of_ents[i] = direction;
@@ -77,6 +77,6 @@ void collapses_to_ents(
   *p_gen_direction_of_ents = gen_direction_of_ents;
   *p_offset_of_same_ents = uints_exscan(ent_is_same, nents);
   loop_free(ent_is_same);
-  if (p_dead_sides)
-    *p_dead_sides = dead_sides;
+  if (p_fused_sides)
+    *p_fused_sides = fused_sides;
 }
