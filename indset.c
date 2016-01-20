@@ -3,10 +3,24 @@
 #include <stdlib.h>
 
 #include "arrays.h"
+#include "comm.h"
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
 #include "parallel_mesh.h"
+
+/* given an undirected graph (usually obtained from get_star),
+ * an initial filtered subset of the vertices,
+ * and a scalar value (goodness) at the vertices,
+ * returns a maximal independent set of the subgraph
+ * induced by the filter, whose members are
+ * preferrably those with locally high goodness values.
+ * ties in goodness values are broken by choosing the
+ * vertex with the lowest "global" value.
+ * In order for this function to run efficiently,
+ * there should not exist long paths with monotonically
+ * decreasing goodness.
+ */
 
 /* the runtime of the independent set algorithm
  * as written below is O(iterations * vertices).
@@ -68,7 +82,9 @@ static void at_vert(
   state[i] = IN_SET;
 }
 
-unsigned* find_indset(
+static unsigned* find_indset(
+    struct mesh* m,
+    unsigned ent_dim,
     unsigned nverts,
     unsigned const* offsets,
     unsigned const* adj,
@@ -88,7 +104,9 @@ unsigned* find_indset(
     for (unsigned i = 0; i < nverts; ++i)
       at_vert(offsets, adj, goodness, global, old_state, state, i);
     loop_free(old_state);
-    if (uints_max(state, nverts) < UNKNOWN)
+    if (mesh_is_parallel(m))
+      mesh_conform_uints(m, ent_dim, 1, &state);
+    if (comm_max_uint(uints_max(state, nverts)) < UNKNOWN)
       return state;
   }
   abort();
@@ -110,8 +128,8 @@ unsigned* mesh_find_indset(struct mesh* m, unsigned ent_dim,
   } else {
     global = to_free = ulongs_linear(nents, 1);
   }
-  unsigned* indset = find_indset(nents, star_offsets, star, candidates,
-      qualities, global);
+  unsigned* indset = find_indset(m, ent_dim, nents,
+      star_offsets, star, candidates, qualities, global);
   loop_free(to_free);
   return indset;
 }
