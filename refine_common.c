@@ -105,18 +105,15 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
   }
 }
 
-unsigned refine_common(
+static unsigned choose_refinement_indset(
     struct mesh** p_m,
     unsigned src_dim,
     double qual_floor,
     unsigned require_better)
 {
-  if (mesh_is_parallel(*p_m)) {
-    assert(mesh_get_rep(*p_m) == MESH_FULL);
+  if (mesh_is_parallel(*p_m))
     mesh_ensure_ghosting(p_m, 1);
-  }
   struct mesh* m = *p_m;
-  unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
   unsigned const* candidates = mesh_find_tag(m, src_dim, "candidate")->d.u32;
   if (!comm_max_uint(uints_max(candidates, nsrcs))) {
@@ -132,12 +129,29 @@ unsigned refine_common(
     loop_free(src_quals);
     return 0;
   }
-  unsigned* gen_offset_of_srcs = mesh_indset_offsets(m, src_dim,
+  unsigned* indset = mesh_find_indset(m, src_dim,
       good_candidates, src_quals);
   loop_free(good_candidates);
   loop_free(src_quals);
-  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m),
-      mesh_is_parallel(m));
+  mesh_add_tag(m, src_dim, TAG_U32, "indset", 1, indset);
+  return 1;
+}
+
+unsigned refine_common(
+    struct mesh** p_m,
+    unsigned src_dim,
+    double qual_floor,
+    unsigned require_better)
+{
+  if (mesh_is_parallel(*p_m))
+    assert(mesh_get_rep(*p_m) == MESH_FULL);
+  if (!choose_refinement_indset(p_m, src_dim, qual_floor, require_better))
+    return 0;
+  struct mesh* m = *p_m;
+  unsigned const* indset = mesh_find_tag(m, src_dim, "indset")->d.u32;
+  unsigned* gen_offset_of_srcs = uints_exscan(indset, mesh_count(m, src_dim));
+  mesh_free_tag(m, src_dim, "indset");
+  struct mesh* m_out = new_mesh(mesh_dim(m), mesh_get_rep(m), mesh_is_parallel(m));
   refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
   refine_ents(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);
