@@ -12,6 +12,7 @@
 #include "loop.h"
 #include "mesh.h"
 #include "parallel_mesh.h"
+#include "parallel_modify.h"
 #include "quality.h"
 #include "refine_conserve.h"
 #include "refine_nodal.h"
