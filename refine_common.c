@@ -147,6 +147,10 @@ unsigned refine_common(
     assert(mesh_get_rep(*p_m) == MESH_FULL);
   if (!choose_refinement_indset(p_m, src_dim, qual_floor, require_better))
     return 0;
+  if (mesh_is_parallel(*p_m)) {
+    set_own_ranks_by_indset(*p_m, src_dim);
+    unghost_mesh(p_m);
+  }
   struct mesh* m = *p_m;
   unsigned const* indset = mesh_find_tag(m, src_dim, "indset")->d.u32;
   unsigned* gen_offset_of_srcs = uints_exscan(indset, mesh_count(m, src_dim));
