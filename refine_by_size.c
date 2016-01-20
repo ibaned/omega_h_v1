@@ -4,14 +4,11 @@
 #include "loop.h"
 #include "measure_edges.h"
 #include "mesh.h"
-#include "ghost_mesh.h"
 #include "refine_common.h"
 #include "tag.h"
 
 unsigned refine_by_size(struct mesh** p_m, double qual_floor)
 {
-  if (mesh_is_parallel(*p_m))
-    mesh_ensure_ghosting(p_m, 1);
   struct mesh* m = *p_m;
   double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
@@ -22,18 +19,15 @@ unsigned refine_by_size(struct mesh** p_m, double qual_floor)
   for (unsigned i = 0; i < nedges; ++i)
     candidates[i] = edge_sizes[i] > 1.0;
   loop_free(edge_sizes);
-  unsigned ret = refine_common(p_m, 1, candidates, qual_floor, 0);
-  loop_free(candidates);
+  mesh_add_tag(m, 1, TAG_U32, "candidate", 1, candidates);
+  unsigned ret = refine_common(p_m, 1, qual_floor, 0);
   return ret;
 }
 
 void uniformly_refine(struct mesh** p_m)
 {
-  if (mesh_is_parallel(*p_m))
-    mesh_ensure_ghosting(p_m, 1);
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
-  unsigned* candidates = uints_filled(nedges, 1);
-  refine_common(p_m, 1, candidates, 0, 0);
-  loop_free(candidates);
+  mesh_add_tag(m, 1, TAG_U32, "candidate", 1, uints_filled(nedges, 1));
+  refine_common(p_m, 1, 0.0, 0);
 }

@@ -4,6 +4,7 @@
 
 #include "arrays.h"
 #include "comm.h"
+#include "ghost_mesh.h"
 #include "graph.h"
 #include "indset.h"
 #include "inherit.h"
@@ -107,20 +108,23 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
 unsigned refine_common(
     struct mesh** p_m,
     unsigned src_dim,
-    unsigned const* candidates,
     double qual_floor,
     unsigned require_better)
 {
-  struct mesh* m = *p_m;
-  if (mesh_is_parallel(m)) {
-    assert(mesh_ghost_layers(m) == 1);
-    assert(mesh_get_rep(m) == MESH_FULL);
+  if (mesh_is_parallel(*p_m)) {
+    assert(mesh_get_rep(*p_m) == MESH_FULL);
+    mesh_ensure_ghosting(p_m, 1);
   }
+  struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
-  if (!comm_max_uint(uints_max(candidates, nsrcs)))
+  unsigned const* candidates = mesh_find_tag(m, src_dim, "candidate")->d.u32;
+  if (!comm_max_uint(uints_max(candidates, nsrcs))) {
+    mesh_free_tag(m, src_dim, "candidate");
     return 0;
+  }
   unsigned* good_candidates = uints_copy(candidates, nsrcs);
+  mesh_free_tag(m, src_dim, "candidate");
   double* src_quals = mesh_refine_qualities(m, src_dim, &good_candidates,
       qual_floor, require_better);
   if (!comm_max_uint(uints_max(good_candidates, nsrcs))) {
