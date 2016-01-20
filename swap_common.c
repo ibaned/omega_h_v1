@@ -40,7 +40,7 @@ static void swap_ents(
   unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
   unsigned nents_out;
   unsigned* verts_of_ents_out;
-  concat_verts_of_elems(ent_dim, nents, ngen_ents, verts_of_ents,
+  concat_verts_of_ents(ent_dim, nents, ngen_ents, verts_of_ents,
       same_ent_offsets, verts_of_gen_ents,
       &nents_out, &verts_of_ents_out);
   loop_free(verts_of_gen_ents);

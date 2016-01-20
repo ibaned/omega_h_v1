@@ -46,7 +46,7 @@ static void coarsen_ents(
   loop_free(gen_vert_of_ents);
   unsigned nents_out;
   unsigned* verts_of_ents_out;
-  concat_verts_of_elems(ent_dim, nents, ngen_ents, verts_of_ents,
+  concat_verts_of_ents(ent_dim, nents, ngen_ents, verts_of_ents,
       offset_of_same_ents, verts_of_gen_ents,
       &nents_out, &verts_of_ents_out);
   loop_free(verts_of_gen_ents);
