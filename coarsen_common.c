@@ -50,10 +50,8 @@ static void coarsen_ents(
       offset_of_same_ents, verts_of_gen_ents,
       &nents_out, &verts_of_ents_out);
   loop_free(verts_of_gen_ents);
-  /* remap new connectivity to account for vertex removal */
-  unsigned verts_per_ent = the_down_degrees[ent_dim][0];
-  for (unsigned i = 0; i < nents_out * verts_per_ent; ++i)
-    verts_of_ents_out[i] = offset_of_same_verts[verts_of_ents_out[i]];
+  account_for_dead_verts(ent_dim, nents_out, mesh_count(m, 0),
+      offset_of_same_verts, verts_of_ents_out);
   mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
   unsigned ndoms[4];
   unsigned* prods_of_doms_offsets[4];
