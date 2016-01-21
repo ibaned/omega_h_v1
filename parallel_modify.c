@@ -1,6 +1,7 @@
 #include "parallel_modify.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "arrays.h"
 #include "comm.h"
@@ -9,6 +10,7 @@
 #include "mesh.h"
 #include "parallel_mesh.h"
 #include "tables.h"
+#include "vtk.h"
 
 /* given a ghosted mesh with an independent set
    of some key entities tagged as "indset",
@@ -46,42 +48,32 @@ void inherit_globals(
     unsigned ent_dim,
     unsigned const* offset_of_same_ents)
 {
-  /* this call ensures that the global numbers in the old mesh
-     are organized such that the entities owned by the
-     same rank are numbered consecutively */
-  mesh_global_renumber(m_in, ent_dim);
-  unsigned nents_in = mesh_count(m_in, ent_dim);
-  unsigned nsame_ents = offset_of_same_ents[nents_in];
-  unsigned* owned_ents_in = mesh_get_owned(m_in, ent_dim);
-  unsigned nowned_ents_in = uints_sum(owned_ents_in, nents_in);
-  unsigned* owned_same_ents = uints_expand(nents_in, 1,
-      owned_ents_in, offset_of_same_ents);
-  loop_free(owned_ents_in);
-  unsigned nowned_same_ents = uints_sum(
-      owned_same_ents, nsame_ents);
-  loop_free(owned_same_ents);
-  unsigned nents_out = mesh_count(m_out, ent_dim);
-  unsigned nnew_ents = nents_out - nsame_ents;
-  unsigned nowned_ents_out = nowned_same_ents + nnew_ents;
-  unsigned long offset_out = comm_exscan_ulong(nowned_ents_out);
-  unsigned long offset_in = comm_exscan_ulong(nowned_ents_in);
-  long shift = ((long)offset_out) - ((long)offset_in);
-  struct exchanger* ex = mesh_ask_exchanger(m_in, ent_dim);
-  unsigned nowner_neighbors = ex->nmsgs[EX_REV];
-  long* owner_neighbor_shifts = LOOP_MALLOC(long, nowner_neighbors);
-  comm_sync_long(ex->comms[EX_FOR], shift, owner_neighbor_shifts);
-  unsigned long* shifted_globals_in = ulongs_copy(
-      mesh_ask_global(m_in, ent_dim), nents_in);
-  for (unsigned i = 0; i < nents_in; ++i)
-    shifted_globals_in[i] = (unsigned long)(
-        ((long)(shifted_globals_in[i])) +
-        owner_neighbor_shifts[ex->msg_of_items[EX_REV][i]]);
-  loop_free(owner_neighbor_shifts);
-  unsigned long* globals_out = LOOP_MALLOC(unsigned long, nents_out);
-  ulongs_expand_into(nents_in, 1, shifted_globals_in, offset_of_same_ents,
-      globals_out);
-  loop_free(shifted_globals_in);
-  for (unsigned i = 0; i < nnew_ents; ++i)
-    globals_out[i + nsame_ents] = offset_out + nowned_same_ents + i;
-  mesh_set_global(m_out, ent_dim, globals_out);
+  unsigned nin = mesh_count(m_in, ent_dim);
+  unsigned* owned = mesh_get_owned(m_in, ent_dim);
+  unsigned* same = uints_unscan(offset_of_same_ents, nin);
+  unsigned* owned_and_same = LOOP_MALLOC(unsigned, nin);
+  for (unsigned i = 0; i < nin; ++i)
+    owned_and_same[i] = owned[i] && same[i];
+  loop_free(owned);
+  loop_free(same);
+  unsigned* owned_and_same_offsets = uints_exscan(owned_and_same, nin);
+  unsigned nowned_and_same = owned_and_same_offsets[nin];
+  unsigned nsame = offset_of_same_ents[nin];
+  unsigned nout = mesh_count(m_out, ent_dim);
+  unsigned nnew = nout - nsame;
+  unsigned nowned_out = nowned_and_same + nnew;
+  unsigned long offset_out = comm_exscan_ulong(nowned_out);
+  unsigned long* new_globals_in = ulongs_filled(nin, ~((unsigned long) 0));
+  for (unsigned i = 0; i < nin; ++i)
+    if (owned_and_same[i])
+      new_globals_in[i] = offset_out + owned_and_same_offsets[i];
+  loop_free(owned_and_same);
+  mesh_conform_ulongs(m_in, ent_dim, 1, &new_globals_in);
+  unsigned long* new_globals_out = LOOP_MALLOC(unsigned long, nout);
+  ulongs_expand_into(nin, 1, new_globals_in, offset_of_same_ents,
+      new_globals_out);
+  loop_free(new_globals_in);
+  for (unsigned i = 0; i < nnew; ++i)
+    new_globals_out[i + nsame] = offset_out + nowned_and_same + i;
+  mesh_set_global(m_out, ent_dim, new_globals_out);
 }
