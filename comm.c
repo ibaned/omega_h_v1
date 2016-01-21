@@ -192,6 +192,11 @@ void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
   comm_sync_any(c, &out, in, MPI_UNSIGNED);
 }
 
+void comm_sync_long(struct comm* c, long out, long* in)
+{
+  comm_sync_any(c, &out, in, MPI_LONG);
+}
+
 unsigned comm_bcast_uint(unsigned x)
 {
   CALL(MPI_Bcast(&x, 1, MPI_UNSIGNED, 0, comm_using()->c));
@@ -400,6 +405,13 @@ void comm_exch_ulongs(struct comm* c,
 }
 
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
+{
+  struct graph_comm* gc = (struct graph_comm*) c;
+  if (gc->nout)
+    in[0] = out;
+}
+
+void comm_sync_long(struct comm* c, long out, long* in)
 {
   struct graph_comm* gc = (struct graph_comm*) c;
   if (gc->nout)

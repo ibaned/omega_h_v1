@@ -3,6 +3,9 @@
 #include <assert.h>
 
 #include "arrays.h"
+#include "comm.h"
+#include "exchanger.h"
+#include "ints.h"
 #include "mesh.h"
 #include "parallel_mesh.h"
 #include "tables.h"
@@ -35,4 +38,46 @@ void set_own_ranks_by_indset(
     }
   }
   mesh_set_own_ranks(m, elem_dim, elem_owners);
+}
+
+void inherit_globals(
+    struct mesh* m_in,
+    struct mesh* m_out,
+    unsigned ent_dim,
+    unsigned const* offset_of_same_ents)
+{
+  /* this call ensures that the global numbers in the old mesh
+     are organized such that the entities owned by the
+     same rank are numbered consecutively */
+  mesh_global_renumber(m_in, ent_dim);
+  unsigned nents_in = mesh_count(m_in, ent_dim);
+  unsigned nsame_ents = offset_of_same_ents[nents_in];
+  unsigned* owned_ents_in = mesh_get_owned(m_in, ent_dim);
+  unsigned nowned_ents_in = uints_sum(owned_ents_in, nents_in);
+  unsigned* owned_same_ents = uints_expand(nents_in, 1,
+      owned_ents_in, offset_of_same_ents);
+  unsigned nowned_same_ents = uints_sum(
+      owned_same_ents, nsame_ents);
+  unsigned nents_out = mesh_count(m_out, ent_dim);
+  unsigned nnew_ents = nents_out - nsame_ents;
+  unsigned nowned_ents_out = nowned_same_ents + nnew_ents;
+  unsigned long offset_out = comm_exscan_ulong(nowned_ents_out);
+  unsigned long offset_in = comm_exscan_ulong(nowned_ents_in);
+  long shift = ((long)offset_out) - ((long)offset_in);
+  struct exchanger* ex = mesh_ask_exchanger(m_in, ent_dim);
+  unsigned nowner_neighbors = ex->nmsgs[EX_REV];
+  long* owner_neighbor_shifts = LOOP_MALLOC(long, nowner_neighbors);
+  comm_sync_long(ex->comms[EX_FOR], shift, owner_neighbor_shifts);
+  unsigned long* shifted_globals_in = ulongs_copy(
+      mesh_ask_global(m_in, ent_dim), nents_in);
+  for (unsigned i = 0; i < nents_in; ++i)
+    shifted_globals_in[i] = (unsigned long)(
+        ((long)(shifted_globals_in[i])) +
+        owner_neighbor_shifts[ex->msg_of_items[EX_REV][i]]);
+  unsigned long* globals_out = LOOP_MALLOC(unsigned long, nents_out);
+  ulongs_expand_into(nents_in, 1, shifted_globals_in, offset_of_same_ents,
+      globals_out);
+  for (unsigned i = nsame_ents; i < nents_out; ++i)
+    globals_out[i] = offset_out + i;
+  mesh_set_global(m_out, ent_dim, globals_out);
 }
