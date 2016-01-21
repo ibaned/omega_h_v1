@@ -3,7 +3,7 @@
 
 #include "algebra.h"
 #include "arrays.h"
-#include "coarsen_by_size.h"
+#include "coarsen.h"
 #include "comm.h"
 #include "derive_model.h"
 #include "doubles.h"

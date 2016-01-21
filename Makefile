@@ -55,7 +55,7 @@ refine_nodal.c \
 refine_conserve.c \
 refine_qualities.c \
 doubles.c \
-coarsen_by_size.c \
+coarsen.c \
 check_collapse_class.c \
 coarsen_qualities.c \
 coarsen_topology.c \
@@ -74,7 +74,6 @@ subset.c \
 adapt.c \
 coarsen_common.c \
 mark.c \
-coarsen_slivers.c \
 swap_slivers.c \
 swap_common.c \
 swap_qualities.c \
