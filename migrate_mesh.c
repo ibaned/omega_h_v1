@@ -106,7 +106,7 @@ static void move_ents(struct mesh* m, struct mesh* m_out, unsigned dim,
     struct exchanger* push)
 {
   mesh_set_ents(m_out, dim, nents, verts_of_ents);
-  mesh_tag_global(m, dim);
+  mesh_tag_globals(m, dim);
   push_tags(push, mesh_tags(m, dim), mesh_tags(m_out, dim));
   mesh_parallel_from_tags(m_out, dim);
 }

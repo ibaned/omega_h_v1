@@ -322,7 +322,7 @@ void mesh_make_parallel(struct mesh* m)
   m->parallel = new_parallel_mesh();
   for (unsigned d = 0; d <= mesh_dim(m); ++d)
     if (mesh_has_dim(m, d))
-      mesh_set_global(m, d, ulongs_linear(mesh_count(m, d), 1));
+      mesh_set_globals(m, d, ulongs_linear(mesh_count(m, d), 1));
 }
 
 double mesh_estimate_degree(struct mesh* m, unsigned dim_a, unsigned dim_b)
