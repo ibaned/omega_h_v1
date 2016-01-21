@@ -87,20 +87,24 @@ static void coarsen_all_ents(
 
 unsigned coarsen_common(
     struct mesh** p_m,
-    unsigned* col_codes,
     double quality_floor,
     unsigned require_better)
 {
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
-  if (uints_max(col_codes, nedges) == DONT_COLLAPSE)
+  unsigned * col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
+  if (uints_max(col_codes_in, nedges) == DONT_COLLAPSE) {
+    mesh_free_tag(m, 1, "col_codes");
     return 0;
+  }
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   unsigned nverts = mesh_count(m, 0);
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
+  unsigned* col_codes = uints_copy(col_codes_in, nedges);
+  mesh_free_tag(m, 1, "col_codes");
   check_collapse_class(m, col_codes);
   unsigned const* elems_of_verts_offsets = mesh_ask_up(m, 0, elem_dim)->offsets;
   unsigned const* elems_of_verts = mesh_ask_up(m, 0, elem_dim)->adj;
@@ -116,6 +120,7 @@ unsigned coarsen_common(
   if (uints_max(col_codes, nedges) == DONT_COLLAPSE) {
     /* early return #2: all candidate edges failed their classif/quality checks */
     loop_free(quals_of_edges);
+    loop_free(col_codes);
     return 0;
   }
   /* from this point forward, some edges will definitely collapse */
@@ -128,6 +133,7 @@ unsigned coarsen_common(
   collapses_to_verts(nverts, verts_of_edges, edges_of_verts_offsets,
       edges_of_verts, edges_of_verts_directions, col_codes, quals_of_edges,
       &candidates, &gen_vert_of_verts, &qual_of_verts);
+  loop_free(col_codes);
   loop_free(quals_of_edges);
   unsigned* gen_offset_of_verts = mesh_indset_offsets(m, 0, candidates,
       qual_of_verts);
