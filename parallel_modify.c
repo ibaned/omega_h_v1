@@ -68,6 +68,7 @@ void inherit_globals(
     if (owned_and_same[i])
       new_globals_in[i] = offset_out + owned_and_same_offsets[i];
   loop_free(owned_and_same);
+  loop_free(owned_and_same_offsets);
   mesh_conform_ulongs(m_in, ent_dim, 1, &new_globals_in);
   unsigned long* new_globals_out = LOOP_MALLOC(unsigned long, nout);
   ulongs_expand_into(nin, 1, new_globals_in, offset_of_same_ents,
