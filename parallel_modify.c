@@ -81,7 +81,7 @@ void inherit_globals(
   ulongs_expand_into(nents_in, 1, shifted_globals_in, offset_of_same_ents,
       globals_out);
   loop_free(shifted_globals_in);
-  for (unsigned i = nsame_ents; i < nents_out; ++i)
-    globals_out[i] = offset_out + i;
+  for (unsigned i = 0; i < nnew_ents; ++i)
+    globals_out[i + nsame_ents] = offset_out + nowned_same_ents + i;
   mesh_set_global(m_out, ent_dim, globals_out);
 }
