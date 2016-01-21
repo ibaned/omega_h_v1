@@ -92,3 +92,18 @@ T* concat_##name(unsigned width, \
 
 GENERIC_CONCAT(unsigned, uints)
 GENERIC_CONCAT(double, doubles)
+
+#define GENERIC_FILL(T, name) \
+LOOP_KERNEL(name##_fill_kern, T* a, T v) \
+  a[i] = v; \
+} \
+T* name##_filled(unsigned n, T v) \
+{ \
+  T* a = LOOP_MALLOC(T, n); \
+  LOOP_EXEC(name##_fill_kern, n, a, v); \
+  return a; \
+}
+
+GENERIC_FILL(unsigned, uints)
+GENERIC_FILL(unsigned long, ulongs)
+GENERIC_FILL(double, doubles)

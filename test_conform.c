@@ -1,7 +1,7 @@
 #include <assert.h>
 
+#include "arrays.h"
 #include "bcast.h"
-#include "doubles.h"
 #include "comm.h"
 #include "global.h"
 #include "loop.h"
