@@ -1,6 +1,6 @@
 #include "refine_by_size.h"
 
-#include "ints.h"
+#include "arrays.h"
 #include "loop.h"
 #include "measure_edges.h"
 #include "mesh.h"
@@ -19,8 +19,8 @@ unsigned refine_by_size(struct mesh** p_m, double qual_floor)
   for (unsigned i = 0; i < nedges; ++i)
     candidates[i] = edge_sizes[i] > 1.0;
   loop_free(edge_sizes);
-  unsigned ret = refine_common(p_m, 1, candidates, qual_floor, 0);
-  loop_free(candidates);
+  mesh_add_tag(m, 1, TAG_U32, "candidate", 1, candidates);
+  unsigned ret = refine_common(p_m, 1, qual_floor, 0);
   return ret;
 }
 
@@ -28,7 +28,6 @@ void uniformly_refine(struct mesh** p_m)
 {
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
-  unsigned* candidates = uints_filled(nedges, 1);
-  refine_common(p_m, 1, candidates, 0, 0);
-  loop_free(candidates);
+  mesh_add_tag(m, 1, TAG_U32, "candidate", 1, uints_filled(nedges, 1));
+  refine_common(p_m, 1, 0.0, 0);
 }

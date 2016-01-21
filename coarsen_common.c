@@ -24,8 +24,8 @@ static void coarsen_ents(
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
     unsigned const* offset_of_same_verts,
-    unsigned const* dead_ents,
-    unsigned** p_dead_sides)
+    unsigned const* fused_ents,
+    unsigned** p_fused_sides)
 {
   unsigned nents = mesh_count(m, ent_dim);
   unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
@@ -34,9 +34,9 @@ static void coarsen_ents(
   unsigned* gen_direction_of_ents;
   unsigned* offset_of_same_ents;
   collapses_to_ents(m, ent_dim,
-      gen_offset_of_verts, gen_vert_of_verts, dead_ents,
+      gen_offset_of_verts, gen_vert_of_verts, fused_ents,
       &gen_offset_of_ents, &gen_vert_of_ents,
-      &gen_direction_of_ents, &offset_of_same_ents, p_dead_sides);
+      &gen_direction_of_ents, &offset_of_same_ents, p_fused_sides);
   unsigned ngen_ents;
   unsigned* verts_of_gen_ents;
   coarsen_topology(ent_dim, nents, verts_of_ents, gen_offset_of_ents,
@@ -46,7 +46,7 @@ static void coarsen_ents(
   loop_free(gen_vert_of_ents);
   unsigned nents_out;
   unsigned* verts_of_ents_out;
-  concat_verts_of_elems(ent_dim, nents, ngen_ents, verts_of_ents,
+  concat_verts_of_ents(ent_dim, nents, ngen_ents, verts_of_ents,
       offset_of_same_ents, verts_of_gen_ents,
       &nents_out, &verts_of_ents_out);
   loop_free(verts_of_gen_ents);
@@ -74,15 +74,15 @@ static void coarsen_all_ents(
     unsigned const* gen_vert_of_verts,
     unsigned const* offset_of_same_verts)
 {
-  unsigned* dead_sides[4] = {0};
+  unsigned* fused_sides[4] = {0};
   for (unsigned dd = 0; dd < mesh_dim(m); ++dd) {
     unsigned d = mesh_dim(m) - dd;
     coarsen_ents(m, m_out, d, gen_offset_of_verts,
         gen_vert_of_verts, offset_of_same_verts,
-        dead_sides[d], &dead_sides[d - 1]);
+        fused_sides[d], &fused_sides[d - 1]);
   }
   for (unsigned d = 0; d <= mesh_dim(m); ++d)
-    loop_free(dead_sides[d]);
+    loop_free(fused_sides[d]);
 }
 
 unsigned coarsen_common(

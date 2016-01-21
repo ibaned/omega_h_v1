@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "algebra.h"
+#include "arrays.h"
 #include "comm.h"
 #include "derive_model.h"
 #include "doubles.h"

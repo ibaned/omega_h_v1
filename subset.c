@@ -13,8 +13,6 @@
 void tags_subset(struct mesh* in, struct mesh* out,
     unsigned dim, unsigned const* offsets)
 {
-  if (mesh_is_parallel(in))
-    mesh_parallel_to_tags(in, dim);
   unsigned nverts = mesh_count(in, dim);
   for (unsigned i = 0; i < mesh_count_tags(in, dim); ++i) {
     struct const_tag* t = mesh_get_tag(in, dim, i);

@@ -23,6 +23,6 @@ double* refine_qualities(
 struct mesh;
 
 double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
-    unsigned* candidates, double qual_floor, unsigned require_better);
+    unsigned** p_candidates, double qual_floor, unsigned require_better);
 
 #endif

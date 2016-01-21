@@ -31,7 +31,8 @@ test_ask_up.c \
 test_ask_down.c \
 test_derive_model.c \
 test_subdim.c \
-test_loop.c
+test_loop.c \
+test_one_refine.c
 
 lib_sources := \
 star.c \
@@ -105,6 +106,7 @@ exchanger.c \
 copy_tags.c \
 parallel_inertial_bisect.c \
 parallel_mesh.c \
+parallel_modify.c \
 migrate_cloud.c \
 arrays.c \
 migrate_mesh.c \

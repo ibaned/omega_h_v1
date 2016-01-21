@@ -6,6 +6,7 @@
 #include "element_field.h"
 #include "loop.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
 #include "quality.h"
 #include "tables.h"
 
@@ -85,7 +86,7 @@ double* refine_qualities(
 }
 
 double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
-    unsigned* candidates, double qual_floor, unsigned require_better)
+    unsigned** p_candidates, double qual_floor, unsigned require_better)
 {
   unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
@@ -104,8 +105,12 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   double* src_quals = refine_qualities(elem_dim, src_dim, nsrcs,
       verts_of_srcs, verts_of_elems,
       elems_of_srcs_offsets, elems_of_srcs, elems_of_srcs_directions,
-      candidates, coords, qual_floor,
+      *p_candidates, coords, qual_floor,
       elem_quals, require_better);
   loop_free(elem_quals);
+  if (mesh_is_parallel(m)) {
+    mesh_conform_doubles(m, src_dim, 1, &src_quals);
+    mesh_conform_uints(m, src_dim, 1, p_candidates);
+  }
   return src_quals;
 }

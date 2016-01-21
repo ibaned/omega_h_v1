@@ -49,5 +49,6 @@ double comm_max_double(double x);
 unsigned long comm_add_ulong(unsigned long x);
 unsigned long comm_exscan_ulong(unsigned long x);
 unsigned long comm_max_ulong(unsigned long x);
+unsigned comm_max_uint(unsigned x);
 
 #endif

@@ -12,6 +12,7 @@
 #include "migrate_mesh.h"
 #include "parallel_mesh.h"
 #include "subset.h"
+#include "tables.h"
 
 /* this function is analogous to
    get_vert_use_owners_of_elems
@@ -252,6 +253,9 @@ void unghost_mesh(struct mesh** p_m)
 {
   struct mesh* m = *p_m;
   unsigned dim = mesh_dim(m);
+  for (unsigned d = 0; d <= dim; ++d)
+    if (mesh_has_dim(m, d))
+      mesh_tag_global(m, d);
   unsigned nelems = mesh_count(m, dim);
   unsigned* owned_elems = mesh_get_owned(m, dim);
   unsigned* offsets = uints_exscan(owned_elems, nelems);

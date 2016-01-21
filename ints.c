@@ -139,17 +139,6 @@ unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
   return out;
 }
 
-LOOP_KERNEL(fill_kern, unsigned* a, unsigned v)
-  a[i] = v;
-}
-
-unsigned* uints_filled(unsigned n, unsigned v)
-{
-  unsigned* a = LOOP_MALLOC(unsigned, n);
-  LOOP_EXEC(fill_kern, n, a, v);
-  return a;
-}
-
 LOOP_KERNEL(scale_kern, unsigned const* a, unsigned s, unsigned* o)
   o[i] = s * a[i];
 }
