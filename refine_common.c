@@ -42,6 +42,9 @@ static void refine_verts(struct mesh* m, struct mesh* m_out,
     loop_free(gen_vals);
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
   }
+  unsigned* offsets = uints_linear(nverts + 1, 1);
+  inherit_globals(m, m_out, 0, offsets);
+  loop_free(offsets);
 }
 
 static void refine_ents(struct mesh* m, struct mesh* m_out,
