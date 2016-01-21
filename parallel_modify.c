@@ -56,8 +56,10 @@ void inherit_globals(
   unsigned nowned_ents_in = uints_sum(owned_ents_in, nents_in);
   unsigned* owned_same_ents = uints_expand(nents_in, 1,
       owned_ents_in, offset_of_same_ents);
+  loop_free(owned_ents_in);
   unsigned nowned_same_ents = uints_sum(
       owned_same_ents, nsame_ents);
+  loop_free(owned_same_ents);
   unsigned nents_out = mesh_count(m_out, ent_dim);
   unsigned nnew_ents = nents_out - nsame_ents;
   unsigned nowned_ents_out = nowned_same_ents + nnew_ents;
@@ -74,9 +76,11 @@ void inherit_globals(
     shifted_globals_in[i] = (unsigned long)(
         ((long)(shifted_globals_in[i])) +
         owner_neighbor_shifts[ex->msg_of_items[EX_REV][i]]);
+  loop_free(owner_neighbor_shifts);
   unsigned long* globals_out = LOOP_MALLOC(unsigned long, nents_out);
   ulongs_expand_into(nents_in, 1, shifted_globals_in, offset_of_same_ents,
       globals_out);
+  loop_free(shifted_globals_in);
   for (unsigned i = nsame_ents; i < nents_out; ++i)
     globals_out[i] = offset_out + i;
   mesh_set_global(m_out, ent_dim, globals_out);
