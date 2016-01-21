@@ -97,6 +97,8 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
               vert_of_doms[dom_dim],
               verts_of_prods_out + (ngen_offsets[dom_dim] * verts_per_prod));
       mesh_set_ents(m_out, prod_dim, nprods_out, verts_of_prods_out);
+      if (mesh_is_parallel(m))
+        inherit_globals(m, m_out, prod_dim, prods_of_doms_offsets[0]);
     }
     inherit_class(m, m_out, prod_dim, ndoms, prods_of_doms_offsets);
     if (prod_dim == elem_dim)
