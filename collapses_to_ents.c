@@ -1,5 +1,6 @@
 #include "collapses_to_ents.h"
 
+#include "arrays.h"
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"

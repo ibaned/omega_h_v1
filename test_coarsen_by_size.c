@@ -2,12 +2,12 @@
 #include <stdio.h>
 
 #include "algebra.h"
+#include "arrays.h"
 #include "coarsen_by_size.h"
 #include "comm.h"
 #include "derive_model.h"
 #include "doubles.h"
 #include "eval_field.h"
-#include "ints.h"
 #include "mesh.h"
 #include "quality.h"
 #include "refine_by_size.h"

@@ -1,6 +1,6 @@
 #include "refine_by_size.h"
 
-#include "ints.h"
+#include "arrays.h"
 #include "loop.h"
 #include "measure_edges.h"
 #include "mesh.h"
