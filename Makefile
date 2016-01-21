@@ -46,7 +46,7 @@ quality.c \
 size.c \
 bridge_graph.c \
 refine_common.c \
-refine_by_size.c \
+refine.c \
 indset.c \
 measure_edges.c \
 reflect_down.c \

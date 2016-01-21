@@ -10,7 +10,7 @@
 #include "eval_field.h"
 #include "mesh.h"
 #include "quality.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "subset.h"
 #include "vtk.h"
 

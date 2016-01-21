@@ -11,7 +11,7 @@
 #include "measure_edges.h"
 #include "mesh.h"
 #include "quality.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "size.h"
 #include "swap_slivers.h"
 #include "tag.h"

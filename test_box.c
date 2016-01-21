@@ -8,7 +8,7 @@
 #include "derive_model.h"
 #include "eval_field.h"
 #include "mesh.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "vtk.h"
 
 int main(int argc, char** argv)

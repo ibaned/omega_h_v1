@@ -10,7 +10,7 @@
 #include "element_field.h"
 #include "eval_field.h"
 #include "mesh.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "vtk.h"
 #include "warp_to_limit.h"
 
