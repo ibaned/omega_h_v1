@@ -110,7 +110,7 @@ void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
 
 void osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
-  if (mesh_find_tag((struct mesh*)m, 0, name))
+  if (mesh_find_tag((struct mesh*)m, dim, name))
     return;
   double* data = LOOP_MALLOC(double, ncomps * mesh_count((struct mesh*)m, dim));
   mesh_add_tag((struct mesh*)m, dim, TAG_F64, name, ncomps, data);
