@@ -8,11 +8,15 @@
 #include "collapse_codes.h"
 #include "collapses_to_ents.h"
 #include "collapses_to_verts.h"
+#include "comm.h"
+#include "ghost_mesh.h"
 #include "indset.h"
 #include "inherit.h"
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
+#include "parallel_modify.h"
 #include "quality.h"
 #include "subset.h"
 #include "tables.h"
@@ -88,7 +92,7 @@ static void coarsen_all_ents(
 static unsigned check_coarsen_noop(struct mesh* m)
 {
   unsigned nedges = mesh_count(m, 1);
-  unsigned const* col_codes = mesh_find_tag(_m, 1, "col_codes")->d.u32;
+  unsigned const* col_codes = mesh_find_tag(m, 1, "col_codes")->d.u32;
   if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
     mesh_free_tag(m, 1, "col_codes");
     return 0;
@@ -103,6 +107,7 @@ static unsigned check_coarsen_class(struct mesh* m)
      closure classification. if it gets more advanced,
      add ghosting and synchronization to this function */
   unsigned const* col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
+  unsigned nedges = mesh_count(m, 1);
   unsigned* col_codes = uints_copy(col_codes_in, nedges);
   mesh_free_tag(m, 1, "col_codes");
   check_collapse_class(m, col_codes);
@@ -121,9 +126,9 @@ static unsigned check_coarsen_quality(
 {
   if (mesh_is_parallel(*p_m))
     mesh_ensure_ghosting(p_m, 1);
+  struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
-  unsigned nverts = mesh_count(m, 0);
   unsigned nedges = mesh_count(m, 1);
   unsigned const* col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
   unsigned* col_codes = uints_copy(col_codes_in, nedges);
@@ -159,44 +164,27 @@ static unsigned check_coarsen_quality(
   return 1;
 }
 
-static void setup_coarsen_indset(
-    struct mesh** p_m)
+static void setup_coarsen_indset(struct mesh* m)
 {
-  if (mesh_is_parallel(*p_m))
-    mesh_ensure_ghosting(p_m, 1);
-  unsigned const* col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
+  valid_collapses_to_verts(m);
+  unsigned const* candidates = mesh_find_tag(m, 0, "candidates")->d.u32;
+  double const* quals = mesh_find_tag(m, 0, "col_qual")->d.f64;
+  unsigned* indset = mesh_find_indset(m, 0, candidates, quals);
+  mesh_add_tag(m, 0, TAG_U32, "indset", 1, indset);
 }
 
-unsigned coarsen_common(
-    struct mesh** p_m,
-    double quality_floor,
-    unsigned require_better)
+static void coarsen_interior(struct mesh** p_m)
 {
-  if (!check_coarsen_noop(m))
-    return 0;
-  if (!check_coarsen_class(m))
-    return 0;
-  if (!check_coarsen_quality(&m, quality_floor, require_better))
-    return 0;
-
-  unsigned* col_codes = uints_copy(col_codes_in, nedges);
+  struct mesh* m = *p_m;
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nverts = mesh_count(m, 0);
+  unsigned* gen_vert_of_verts = collapsing_vertex_destinations(m);
   mesh_free_tag(m, 1, "col_codes");
-  /* from this point forward, some edges will definitely collapse */
-  unsigned* candidates;
-  unsigned* gen_vert_of_verts;
-  double* qual_of_verts;
-  unsigned const* edges_of_verts_offsets = mesh_ask_up(m, 0, 1)->offsets;
-  unsigned const* edges_of_verts = mesh_ask_up(m, 0, 1)->adj;
-  unsigned const* edges_of_verts_directions = mesh_ask_up(m, 0, 1)->directions;
-  collapses_to_verts(nverts, verts_of_edges, edges_of_verts_offsets,
-      edges_of_verts, edges_of_verts_directions, col_codes, quals_of_edges,
-      &candidates, &gen_vert_of_verts, &qual_of_verts);
-  loop_free(col_codes);
-  loop_free(quals_of_edges);
-  unsigned* gen_offset_of_verts = mesh_indset_offsets(m, 0, candidates,
-      qual_of_verts);
-  loop_free(candidates);
-  loop_free(qual_of_verts);
+  mesh_free_tag(m, 1, "col_quals");
+  mesh_free_tag(m, 0, "col_qual");
+  unsigned const* indset = mesh_find_tag(m, 0, "indset")->d.u32;
+  unsigned* gen_offset_of_verts = uints_exscan(indset, nverts);
+  mesh_free_tag(m, 0, "indset");
   unsigned* offset_of_same_verts = uints_negate_offsets(
       gen_offset_of_verts, nverts);
   unsigned nverts_out = offset_of_same_verts[nverts];
@@ -210,5 +198,24 @@ unsigned coarsen_common(
   loop_free(offset_of_same_verts);
   free_mesh(m);
   *p_m = m_out;
+}
+
+unsigned coarsen_common(
+    struct mesh** p_m,
+    double quality_floor,
+    unsigned require_better)
+{
+  if (!check_coarsen_noop(*p_m))
+    return 0;
+  if (!check_coarsen_class(*p_m))
+    return 0;
+  if (!check_coarsen_quality(p_m, quality_floor, require_better))
+    return 0;
+  setup_coarsen_indset(*p_m);
+  if (mesh_is_parallel(*p_m)) {
+    set_own_ranks_by_indset(*p_m, 0);
+    unghost_mesh(p_m);
+  }
+  coarsen_interior(p_m);
   return 1;
 }
