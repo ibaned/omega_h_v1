@@ -2,6 +2,7 @@
 
 #include "coarsen_common.h"
 #include "collapse_codes.h"
+#include "ghost_mesh.h"
 #include "loop.h"
 #include "mark.h"
 #include "measure_edges.h"
@@ -35,6 +36,8 @@ unsigned coarsen_slivers(
     double quality_floor,
     unsigned nlayers)
 {
+  if (mesh_is_parallel(*p_m))
+    mesh_ensure_ghosting(p_m, 1);
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned* slivers = mesh_mark_slivers(m, quality_floor, nlayers);
