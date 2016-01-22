@@ -54,10 +54,15 @@ unsigned* mark_up(
 unsigned* mesh_mark_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
     unsigned const* marked_highs)
 {
-  return mark_down(mesh_count(m, low_dim),
+  unsigned* out = mark_down(mesh_count(m, low_dim),
       mesh_ask_up(m, low_dim, high_dim)->offsets,
       mesh_ask_up(m, low_dim, high_dim)->adj,
       marked_highs);
+  if (mesh_is_parallel(m)) {
+    assert(mesh_ghost_layers(m) == 1);
+    mesh_conform_uints(m, low_dim, &out);
+  }
+  return out;
 }
 
 unsigned* mesh_mark_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
