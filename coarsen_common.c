@@ -85,44 +85,96 @@ static void coarsen_all_ents(
     loop_free(fused_sides[d]);
 }
 
+static unsigned check_coarsen_noop(struct mesh* m)
+{
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* col_codes = mesh_find_tag(_m, 1, "col_codes")->d.u32;
+  if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
+    mesh_free_tag(m, 1, "col_codes");
+    return 0;
+  }
+  return 1;
+}
+
+static unsigned check_coarsen_class(struct mesh* m)
+{
+  /* right now this assumes we're doing the simple
+     check_collapse_class that only looks at the edge
+     closure classification. if it gets more advanced,
+     add ghosting and synchronization to this function */
+  unsigned const* col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
+  unsigned* col_codes = uints_copy(col_codes_in, nedges);
+  mesh_free_tag(m, 1, "col_codes");
+  check_collapse_class(m, col_codes);
+  if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
+    loop_free(col_codes);
+    return 0;
+  }
+  mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
+  return 1;
+}
+
+static unsigned check_coarsen_quality(
+    struct mesh** p_m,
+    double quality_floor,
+    unsigned require_better)
+{
+  if (mesh_is_parallel(*p_m))
+    mesh_ensure_ghosting(p_m, 1);
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, elem_dim);
+  unsigned nverts = mesh_count(m, 0);
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
+  unsigned* col_codes = uints_copy(col_codes_in, nedges);
+  mesh_free_tag(m, 1, "col_codes");
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
+  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
+  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
+  unsigned const* elems_of_verts_offsets =
+    mesh_ask_up(m, 0, elem_dim)->offsets;
+  unsigned const* elems_of_verts =
+    mesh_ask_up(m, 0, elem_dim)->adj;
+  unsigned const* elems_of_verts_directions =
+    mesh_ask_up(m, 0, elem_dim)->directions;
+  double* elem_quals = 0;
+  if (require_better)
+    elem_quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);
+  double* quals_of_edges = coarsen_qualities(elem_dim, nedges, col_codes,
+      verts_of_elems, verts_of_edges,
+      elems_of_verts_offsets, elems_of_verts, elems_of_verts_directions,
+      coords, quality_floor, elem_quals, require_better);
+  loop_free(elem_quals);
+  if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
+    loop_free(col_codes);
+    return 0;
+  }
+  mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
+  return 1;
+}
+
+static void setup_coarsen_indset(
+    struct mesh** p_m)
+{
+  if (mesh_is_parallel(*p_m))
+    mesh_ensure_ghosting(p_m, 1);
+  unsigned const* col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
+}
+
 unsigned coarsen_common(
     struct mesh** p_m,
     double quality_floor,
     unsigned require_better)
 {
-  struct mesh* m = *p_m;
-  unsigned nedges = mesh_count(m, 1);
-  unsigned * col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
-  if (uints_max(col_codes_in, nedges) == DONT_COLLAPSE) {
-    mesh_free_tag(m, 1, "col_codes");
+  if (!check_coarsen_noop(m))
     return 0;
-  }
-  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
-  unsigned nverts = mesh_count(m, 0);
-  unsigned elem_dim = mesh_dim(m);
-  unsigned nelems = mesh_count(m, elem_dim);
-  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
+  if (!check_coarsen_class(m))
+    return 0;
+  if (!check_coarsen_quality(&m, quality_floor, require_better))
+    return 0;
+
   unsigned* col_codes = uints_copy(col_codes_in, nedges);
   mesh_free_tag(m, 1, "col_codes");
-  check_collapse_class(m, col_codes);
-  unsigned const* elems_of_verts_offsets = mesh_ask_up(m, 0, elem_dim)->offsets;
-  unsigned const* elems_of_verts = mesh_ask_up(m, 0, elem_dim)->adj;
-  unsigned const* elems_of_verts_directions = mesh_ask_up(m, 0, elem_dim)->directions;
-  double* elem_quals = 0;
-  if (require_better)
-    elem_quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);
-  double* quals_of_edges = coarsen_qualities(elem_dim, nedges, col_codes,
-      verts_of_elems, verts_of_edges, elems_of_verts_offsets,
-      elems_of_verts, elems_of_verts_directions, coords, quality_floor,
-      elem_quals, require_better);
-  loop_free(elem_quals);
-  if (uints_max(col_codes, nedges) == DONT_COLLAPSE) {
-    /* early return #2: all candidate edges failed their classif/quality checks */
-    loop_free(quals_of_edges);
-    loop_free(col_codes);
-    return 0;
-  }
   /* from this point forward, some edges will definitely collapse */
   unsigned* candidates;
   unsigned* gen_vert_of_verts;
