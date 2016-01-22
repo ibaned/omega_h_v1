@@ -155,7 +155,7 @@ static unsigned check_coarsen_quality(
   if (mesh_is_parallel(m))
     mesh_conform_doubles(m, 1, 2, &quals_of_edges);
   mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
-  mesh_add_tag(m, 1, TAG_U32, "quals_of_edges", 1, quals_of_edges);
+  mesh_add_tag(m, 1, TAG_U32, "col_quals", 2, quals_of_edges);
   return 1;
 }
 
