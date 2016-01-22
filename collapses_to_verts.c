@@ -6,7 +6,6 @@
 
 void valid_collapses_to_verts(
     struct mesh* m,
-    unsigned const* col_codes,
     double const* col_quals_of_edges,
     unsigned** candidates_out,
     unsigned** gen_vert_of_verts_out,

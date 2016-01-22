@@ -147,6 +147,7 @@ static unsigned check_coarsen_quality(
   loop_free(elem_quals);
   if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
     loop_free(col_codes);
+    loop_free(quals_of_edges);
     return 0;
   }
   mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
