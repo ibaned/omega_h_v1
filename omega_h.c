@@ -121,6 +121,32 @@ double* osh_get_field(osh_t m, unsigned dim, char const* name)
   return mesh_find_tag((struct mesh*)m, dim, name)->d.f64;
 }
 
+unsigned osh_nfields(osh_t om, unsigned dim)
+{
+  struct mesh* m = (struct mesh*) om;
+  unsigned n = 0;
+  for (unsigned i = 0; i < mesh_count_tags(m, dim); ++i)
+    if (mesh_get_tag(m, dim, i)->type == TAG_F64)
+      ++n;
+  return n;
+}
+
+char const* osh_field(osh_t om, unsigned dim, unsigned i)
+{
+  struct mesh* m = (struct mesh*) om;
+  unsigned n = 0;
+  for (unsigned j = 0; j < mesh_count_tags(m, dim); ++j)
+    if (mesh_get_tag(m, dim, j)->type == TAG_F64)
+      if (i == n++)
+        return mesh_get_tag(m, dim, j)->name;
+  return 0;
+}
+
+unsigned osh_components(osh_t m, unsigned dim, char const* name)
+{
+  return mesh_find_tag((struct mesh*)m, dim, name)->ncomps;
+}
+
 unsigned* osh_new_label(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
   if (mesh_find_tag((struct mesh*)m, dim, name))
