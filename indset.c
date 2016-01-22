@@ -124,7 +124,7 @@ unsigned* mesh_find_indset(struct mesh* m, unsigned ent_dim,
   unsigned long const* global = 0;
   unsigned long* to_free = 0;
   if (mesh_is_parallel(m)) {
-    global = mesh_ask_global(m, ent_dim);
+    global = mesh_ask_globals(m, ent_dim);
   } else {
     global = to_free = ulongs_linear(nents, 1);
   }

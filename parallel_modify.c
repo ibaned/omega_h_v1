@@ -76,5 +76,5 @@ void inherit_globals(
   loop_free(new_globals_in);
   for (unsigned i = 0; i < nnew; ++i)
     new_globals_out[i + nsame] = offset_out + nowned_and_same + i;
-  mesh_set_global(m_out, ent_dim, new_globals_out);
+  mesh_set_globals(m_out, ent_dim, new_globals_out);
 }
