@@ -4,6 +4,7 @@
 
 #include "loop.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
 #include "quality.h"
 #include "tables.h"
 
@@ -84,28 +85,24 @@ static unsigned* mark_dual(
   return out;
 }
 
-static void mark_dual_layers(
-    unsigned elem_dim,
-    unsigned nelems,
-    unsigned const* dual,
-    unsigned** marked,
-    unsigned nlayers)
-{
-  for (unsigned i = 0; i < nlayers; ++i) {
-    unsigned* in = *marked;
-    unsigned* out = mark_dual(elem_dim, nelems, dual, in);
-    loop_free(in);
-    *marked = out;
-  }
-}
-
 void mesh_mark_dual_layers(
     struct mesh* m,
     unsigned** marked,
     unsigned nlayers)
 {
-  mark_dual_layers(mesh_dim(m), mesh_count(m, mesh_dim(m)),
-      mesh_ask_dual(m), marked, nlayers);
+  if (mesh_is_parallel(m))
+    assert(mesh_ghost_layers(m) == 1);
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, nelems);
+  unsigned const* dual = mesh_ask_dual(m);
+  for (unsigned i = 0; i < nlayers; ++i) {
+    unsigned* in = *marked;
+    unsigned* out = mark_dual(elem_dim, nelems, dual, in);
+    loop_free(in);
+    if (mesh_is_parallel(m))
+      mesh_conform_uints(m, elem_dim, &out);
+    *marked = out;
+  }
 }
 
 unsigned* mark_class(
