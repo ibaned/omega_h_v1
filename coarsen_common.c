@@ -145,12 +145,17 @@ static unsigned check_coarsen_quality(
       elems_of_verts_offsets, elems_of_verts, elems_of_verts_directions,
       coords, quality_floor, elem_quals, require_better);
   loop_free(elem_quals);
+  if (mesh_is_parallel(m))
+    mesh_conform_uints(m, 1, 1, &col_codes);
   if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
     loop_free(col_codes);
     loop_free(quals_of_edges);
     return 0;
   }
+  if (mesh_is_parallel(m))
+    mesh_conform_doubles(m, 1, 2, &quals_of_edges);
   mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
+  mesh_add_tag(m, 1, TAG_U32, "quals_of_edges", 1, quals_of_edges);
   return 1;
 }
 
