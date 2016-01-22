@@ -164,7 +164,7 @@ clean:
 	rm -rf deps/ objs/ bin/ lib/ loop.h
 
 #just targets, not files or directories
-.PHONY: all clean check
+.PHONY: all clean check install
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
@@ -238,6 +238,14 @@ deps/%.dep: %.c loop.h | deps
 #the minus sign silences warnings when the
 #depfiles don't exist yet.
 -include $(depfiles)
+
+install: all
+	install -d $(PREFIX)/bin
+	install -m 755 $(exes) $(PREFIX)/bin
+	install -d $(PREFIX)/lib
+	install -m 644 $(lib) $(PREFIX)/lib
+	install -d $(PREFIX)/include
+	install -m 644 include/omega_h.h $(PREFIX)/include
 
 check: data $(exes)
 	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) \
