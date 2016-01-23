@@ -64,6 +64,8 @@ static void coarsen_ents(
   setup_coarsen(m, ent_dim, gen_offset_of_ents, offset_of_same_ents,
       ndoms, prods_of_doms_offsets);
   inherit_class(m, m_out, ent_dim, ndoms, prods_of_doms_offsets);
+  if (mesh_is_parallel(m))
+    inherit_globals(m, m_out, ent_dim, offset_of_same_ents);
   if (ent_dim == mesh_dim(m))
     coarsen_conserve(m, m_out, gen_offset_of_verts, gen_offset_of_ents,
         offset_of_same_ents);
@@ -192,6 +194,8 @@ static void coarsen_interior(struct mesh** p_m)
   struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), mesh_is_parallel(m));
   mesh_set_ents(m_out, 0, nverts_out, 0);
   tags_subset(m, m_out, 0, offset_of_same_verts);
+  if (mesh_is_parallel(m))
+    inherit_globals(m, m_out, 0, offset_of_same_verts);
   coarsen_all_ents(m, m_out, gen_offset_of_verts, gen_vert_of_verts,
       offset_of_same_verts);
   loop_free(gen_vert_of_verts);
