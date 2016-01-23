@@ -100,25 +100,23 @@ unsigned const* osh_own_id(osh_t m, unsigned dim)
   return mesh_ask_own_ids((struct mesh*)m, dim);
 }
 
-void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data)
-{
-  struct const_tag* t = mesh_find_tag((struct mesh*)m, 0, name);
-  if (t)
-    mesh_free_tag((struct mesh*)m, 0, name);
-  mesh_add_tag((struct mesh*)m, 0, TAG_F64, name, ncomps, data);
-}
-
-void osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
+double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
   if (mesh_find_tag((struct mesh*)m, dim, name))
-    return;
+    return osh_get_field(m, dim, name);
   double* data = LOOP_MALLOC(double, ncomps * mesh_count((struct mesh*)m, dim));
   mesh_add_tag((struct mesh*)m, dim, TAG_F64, name, ncomps, data);
+  return data;
 }
 
 double* osh_get_field(osh_t m, unsigned dim, char const* name)
 {
   return mesh_find_tag((struct mesh*)m, dim, name)->d.f64;
+}
+
+void osh_free_field(osh_t m, char const* name)
+{
+  mesh_free_tag((struct mesh*)m, 0, name);
 }
 
 unsigned osh_nfields(osh_t om, unsigned dim)
@@ -189,17 +187,6 @@ void osh_mark_classified(osh_t m, unsigned ent_dim,
     if (to_mark[i])
       marked[i] = 1;
   loop_free(to_mark);
-}
-
-void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
-    unsigned* marked)
-{
-  osh_mark_classified(m, 0, class_dim, class_id, marked);
-}
-
-void osh_add_label(osh_t m, char const* name, unsigned* data)
-{
-  mesh_add_tag((struct mesh*)m, 0, TAG_U32, name, 1, data);
 }
 
 void osh_free_label(osh_t m, char const* name)
