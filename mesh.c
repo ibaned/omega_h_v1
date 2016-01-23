@@ -105,7 +105,7 @@ void free_mesh(struct mesh* m)
     for (unsigned low_dim = 0; low_dim <= high_dim; ++low_dim) {
       loop_free(m->down[high_dim][low_dim]);
       free_up(m->up[low_dim][high_dim]);
-      free_graph(m->star[low_dim][high_dim]);
+      osh_free_graph(m->star[low_dim][high_dim]);
     }
   loop_free(m->dual);
   for (unsigned d = 0; d < 4; ++d)
@@ -228,7 +228,7 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
        with equal-order cases separately */
     unsigned n = m->counts[low_dim];
     unsigned* offsets = uints_filled(n + 1, 0);
-    set_star(m, low_dim, high_dim, new_graph(offsets, 0));
+    set_star(m, low_dim, high_dim, osh_new_graph(offsets, 0));
   } else {
     unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
     struct const_up* highs_of_lows = mesh_ask_up(m, low_dim, high_dim);
@@ -237,7 +237,7 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
     unsigned* adj;
     get_star(low_dim, high_dim, nlows, highs_of_lows->offsets, highs_of_lows->adj,
         lows_of_highs, &offsets, &adj);
-    set_star(m, low_dim, high_dim, new_graph(offsets, adj));
+    set_star(m, low_dim, high_dim, osh_new_graph(offsets, adj));
   }
   return (struct const_graph*) m->star[low_dim][high_dim];
 }
