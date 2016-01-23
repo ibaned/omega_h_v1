@@ -11,6 +11,11 @@ $VALGRIND ./bin/from_gmsh.exe ./data/cube.msh ./data/cube.vtu
 if [ "$USE_MPI" -eq "1" ]; then
   $MPIRUN -np 2 $VALGRIND ./bin/migrate.exe
   $MPIRUN -np 2 $VALGRIND ./bin/conform.exe
+  $MPIRUN -np 2 $VALGRIND ./bin/partition.exe ./data/box.vtu ./data/split.pvtu
+  $MPIRUN -np 2 $VALGRIND ./bin/one_refine.exe ./data/split.pvtu ./data/one_ref.pvtu
+  $MPIRUN -np 2 $VALGRIND ./bin/one_refine.exe ./data/one_ref.pvtu ./data/two_ref.pvtu
+  $MPIRUN -np 2 $VALGRIND ./bin/one_coarsen.exe ./data/split.pvtu ./data/one_cor.pvtu
+  $MPIRUN -np 2 $VALGRIND ./bin/one_coarsen.exe ./data/one_cor.pvtu ./data/two_cor.pvtu
 fi
 $VALGRIND ./bin/warp.exe
 if [ "$PATIENT" -eq "1" ]; then
