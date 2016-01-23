@@ -1,5 +1,7 @@
 #include "collapses_to_verts.h"
 
+#include <assert.h>
+
 #include "arrays.h"
 #include "collapse_codes.h"
 #include "loop.h"
@@ -90,6 +92,7 @@ unsigned* collapsing_vertex_destinations(struct mesh* m)
         break;
       }
     }
+    assert(gen_vert != INVALID);
     gen_vert_of_verts[i] = gen_vert;
   }
   return gen_vert_of_verts;
