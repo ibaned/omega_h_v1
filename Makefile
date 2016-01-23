@@ -7,6 +7,7 @@
 include config.mk
 
 test_sources := \
+test_one_coarsen.c \
 test_partition.c \
 test_print_swap_edges.c \
 test_box.c \
@@ -46,7 +47,7 @@ quality.c \
 size.c \
 bridge_graph.c \
 refine_common.c \
-refine_by_size.c \
+refine.c \
 indset.c \
 measure_edges.c \
 reflect_down.c \
@@ -55,7 +56,7 @@ refine_nodal.c \
 refine_conserve.c \
 refine_qualities.c \
 doubles.c \
-coarsen_by_size.c \
+coarsen.c \
 check_collapse_class.c \
 coarsen_qualities.c \
 coarsen_topology.c \
@@ -74,7 +75,6 @@ subset.c \
 adapt.c \
 coarsen_common.c \
 mark.c \
-coarsen_slivers.c \
 swap_slivers.c \
 swap_common.c \
 swap_qualities.c \

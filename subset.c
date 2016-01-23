@@ -76,7 +76,7 @@ struct mesh* subset_mesh(
     if (!mesh_has_dim(m, d))
       continue;
     unsigned nents = mesh_count(m, d);
-    unsigned* marked_ents = mesh_mark_down(m, elem_dim, d, marked_elems);
+    unsigned* marked_ents = mesh_mark_down_local(m, elem_dim, d, marked_elems);
     ent_offsets[d] = to_free[d] = uints_exscan(marked_ents, nents);
     loop_free(marked_ents);
   }

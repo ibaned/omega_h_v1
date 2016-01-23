@@ -4,14 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "coarsen_by_size.h"
-#include "coarsen_slivers.h"
+#include "coarsen.h"
 #include "doubles.h"
 #include "loop.h"
 #include "measure_edges.h"
 #include "mesh.h"
 #include "quality.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "size.h"
 #include "swap_slivers.h"
 #include "tag.h"

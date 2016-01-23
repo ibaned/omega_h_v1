@@ -10,7 +10,7 @@
 #include "eval_field.h"
 #include "mesh.h"
 #include "recover_by_volume.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "size_from_hessian.h"
 #include "vtk.h"
 #include "warp_to_limit.h"

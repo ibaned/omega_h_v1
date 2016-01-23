@@ -10,7 +10,7 @@
 #include "loop.h"
 #include "mesh.h"
 #include "quality.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "tag.h"
 #include "vtk.h"
 

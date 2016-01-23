@@ -8,11 +8,15 @@
 #include "collapse_codes.h"
 #include "collapses_to_ents.h"
 #include "collapses_to_verts.h"
+#include "comm.h"
+#include "ghost_mesh.h"
 #include "indset.h"
 #include "inherit.h"
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
+#include "parallel_modify.h"
 #include "quality.h"
 #include "subset.h"
 #include "tables.h"
@@ -60,6 +64,8 @@ static void coarsen_ents(
   setup_coarsen(m, ent_dim, gen_offset_of_ents, offset_of_same_ents,
       ndoms, prods_of_doms_offsets);
   inherit_class(m, m_out, ent_dim, ndoms, prods_of_doms_offsets);
+  if (mesh_is_parallel(m))
+    inherit_globals(m, m_out, ent_dim, offset_of_same_ents);
   if (ent_dim == mesh_dim(m))
     coarsen_conserve(m, m_out, gen_offset_of_verts, gen_offset_of_ents,
         offset_of_same_ents);
@@ -85,60 +91,109 @@ static void coarsen_all_ents(
     loop_free(fused_sides[d]);
 }
 
-unsigned coarsen_common(
+static unsigned check_coarsen_noop(struct mesh* m)
+{
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* col_codes = mesh_find_tag(m, 1, "col_codes")->d.u32;
+  if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
+    mesh_free_tag(m, 1, "col_codes");
+    return 0;
+  }
+  return 1;
+}
+
+static unsigned check_coarsen_class(struct mesh* m)
+{
+  /* right now this assumes we're doing the simple
+     check_collapse_class that only looks at the edge
+     closure classification. if it gets more advanced,
+     add ghosting and synchronization to this function */
+  unsigned const* col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
+  unsigned nedges = mesh_count(m, 1);
+  unsigned* col_codes = uints_copy(col_codes_in, nedges);
+  mesh_free_tag(m, 1, "col_codes");
+  check_collapse_class(m, col_codes);
+  if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
+    loop_free(col_codes);
+    return 0;
+  }
+  mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
+  return 1;
+}
+
+static unsigned check_coarsen_quality(
     struct mesh** p_m,
-    unsigned* col_codes,
     double quality_floor,
     unsigned require_better)
 {
+  if (mesh_is_parallel(*p_m))
+    mesh_ensure_ghosting(p_m, 1);
   struct mesh* m = *p_m;
-  unsigned nedges = mesh_count(m, 1);
-  if (uints_max(col_codes, nedges) == DONT_COLLAPSE)
-    return 0;
-  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
-  unsigned nverts = mesh_count(m, 0);
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
+  unsigned* col_codes = uints_copy(col_codes_in, nedges);
+  mesh_free_tag(m, 1, "col_codes");
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  check_collapse_class(m, col_codes);
-  unsigned const* elems_of_verts_offsets = mesh_ask_up(m, 0, elem_dim)->offsets;
-  unsigned const* elems_of_verts = mesh_ask_up(m, 0, elem_dim)->adj;
-  unsigned const* elems_of_verts_directions = mesh_ask_up(m, 0, elem_dim)->directions;
+  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
+  unsigned const* elems_of_verts_offsets =
+    mesh_ask_up(m, 0, elem_dim)->offsets;
+  unsigned const* elems_of_verts =
+    mesh_ask_up(m, 0, elem_dim)->adj;
+  unsigned const* elems_of_verts_directions =
+    mesh_ask_up(m, 0, elem_dim)->directions;
   double* elem_quals = 0;
   if (require_better)
     elem_quals = element_qualities(elem_dim, nelems, verts_of_elems, coords);
   double* quals_of_edges = coarsen_qualities(elem_dim, nedges, col_codes,
-      verts_of_elems, verts_of_edges, elems_of_verts_offsets,
-      elems_of_verts, elems_of_verts_directions, coords, quality_floor,
-      elem_quals, require_better);
+      verts_of_elems, verts_of_edges,
+      elems_of_verts_offsets, elems_of_verts, elems_of_verts_directions,
+      coords, quality_floor, elem_quals, require_better);
   loop_free(elem_quals);
-  if (uints_max(col_codes, nedges) == DONT_COLLAPSE) {
-    /* early return #2: all candidate edges failed their classif/quality checks */
+  mesh_conform_uints(m, 1, 1, &col_codes);
+  if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
+    loop_free(col_codes);
     loop_free(quals_of_edges);
     return 0;
   }
-  /* from this point forward, some edges will definitely collapse */
-  unsigned* candidates;
-  unsigned* gen_vert_of_verts;
-  double* qual_of_verts;
-  unsigned const* edges_of_verts_offsets = mesh_ask_up(m, 0, 1)->offsets;
-  unsigned const* edges_of_verts = mesh_ask_up(m, 0, 1)->adj;
-  unsigned const* edges_of_verts_directions = mesh_ask_up(m, 0, 1)->directions;
-  collapses_to_verts(nverts, verts_of_edges, edges_of_verts_offsets,
-      edges_of_verts, edges_of_verts_directions, col_codes, quals_of_edges,
-      &candidates, &gen_vert_of_verts, &qual_of_verts);
-  loop_free(quals_of_edges);
-  unsigned* gen_offset_of_verts = mesh_indset_offsets(m, 0, candidates,
-      qual_of_verts);
-  loop_free(candidates);
-  loop_free(qual_of_verts);
+  mesh_conform_doubles(m, 1, 2, &quals_of_edges);
+  mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
+  mesh_add_tag(m, 1, TAG_F64, "col_quals", 2, quals_of_edges);
+  return 1;
+}
+
+static void setup_coarsen_indset(struct mesh* m)
+{
+  valid_collapses_to_verts(m);
+  unsigned const* candidates = mesh_find_tag(m, 0, "candidates")->d.u32;
+  double const* quals = mesh_find_tag(m, 0, "col_qual")->d.f64;
+  unsigned* indset = mesh_find_indset(m, 0, candidates, quals);
+  mesh_free_tag(m, 0, "candidates");
+  mesh_add_tag(m, 0, TAG_U32, "indset", 1, indset);
+}
+
+static void coarsen_interior(struct mesh** p_m)
+{
+  struct mesh* m = *p_m;
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nverts = mesh_count(m, 0);
+  unsigned* gen_vert_of_verts = collapsing_vertex_destinations(m);
+  mesh_free_tag(m, 1, "col_codes");
+  mesh_free_tag(m, 1, "col_quals");
+  mesh_free_tag(m, 0, "col_qual");
+  unsigned const* indset = mesh_find_tag(m, 0, "indset")->d.u32;
+  unsigned* gen_offset_of_verts = uints_exscan(indset, nverts);
+  mesh_free_tag(m, 0, "indset");
   unsigned* offset_of_same_verts = uints_negate_offsets(
       gen_offset_of_verts, nverts);
   unsigned nverts_out = offset_of_same_verts[nverts];
-  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), 0);
+  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), mesh_is_parallel(m));
   mesh_set_ents(m_out, 0, nverts_out, 0);
   tags_subset(m, m_out, 0, offset_of_same_verts);
+  if (mesh_is_parallel(m))
+    inherit_globals(m, m_out, 0, offset_of_same_verts);
   coarsen_all_ents(m, m_out, gen_offset_of_verts, gen_vert_of_verts,
       offset_of_same_verts);
   loop_free(gen_vert_of_verts);
@@ -146,5 +201,24 @@ unsigned coarsen_common(
   loop_free(offset_of_same_verts);
   free_mesh(m);
   *p_m = m_out;
+}
+
+unsigned coarsen_common(
+    struct mesh** p_m,
+    double quality_floor,
+    unsigned require_better)
+{
+  if (!check_coarsen_noop(*p_m))
+    return 0;
+  if (!check_coarsen_class(*p_m))
+    return 0;
+  if (!check_coarsen_quality(p_m, quality_floor, require_better))
+    return 0;
+  setup_coarsen_indset(*p_m);
+  if (mesh_is_parallel(*p_m)) {
+    set_own_ranks_by_indset(*p_m, 0);
+    unghost_mesh(p_m);
+  }
+  coarsen_interior(p_m);
   return 1;
 }
