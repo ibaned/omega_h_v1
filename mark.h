@@ -16,6 +16,8 @@ unsigned* mark_up(
 
 struct mesh;
 
+unsigned* mesh_mark_down_local(struct mesh* m, unsigned high_dim, unsigned low_dim,
+    unsigned const* marked_highs);
 unsigned* mesh_mark_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
     unsigned const* marked_highs);
 unsigned* mesh_mark_up(struct mesh* m, unsigned low_dim, unsigned high_dim,

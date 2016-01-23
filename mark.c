@@ -4,6 +4,7 @@
 
 #include "loop.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
 #include "quality.h"
 #include "tables.h"
 
@@ -50,13 +51,25 @@ unsigned* mark_up(
   return marked_highs;
 }
 
-unsigned* mesh_mark_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
+unsigned* mesh_mark_down_local(struct mesh* m, unsigned high_dim, unsigned low_dim,
     unsigned const* marked_highs)
 {
-  return mark_down(mesh_count(m, low_dim),
+  unsigned* out = mark_down(mesh_count(m, low_dim),
       mesh_ask_up(m, low_dim, high_dim)->offsets,
       mesh_ask_up(m, low_dim, high_dim)->adj,
       marked_highs);
+  return out;
+}
+
+unsigned* mesh_mark_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
+    unsigned const* marked_highs)
+{
+  unsigned* out = mesh_mark_down_local(m, high_dim, low_dim, marked_highs);
+  if (mesh_is_parallel(m)) {
+    assert(mesh_ghost_layers(m) == 1);
+    mesh_conform_uints(m, low_dim, 1, &out);
+  }
+  return out;
 }
 
 unsigned* mesh_mark_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
@@ -84,28 +97,24 @@ static unsigned* mark_dual(
   return out;
 }
 
-static void mark_dual_layers(
-    unsigned elem_dim,
-    unsigned nelems,
-    unsigned const* dual,
-    unsigned** marked,
-    unsigned nlayers)
-{
-  for (unsigned i = 0; i < nlayers; ++i) {
-    unsigned* in = *marked;
-    unsigned* out = mark_dual(elem_dim, nelems, dual, in);
-    loop_free(in);
-    *marked = out;
-  }
-}
-
 void mesh_mark_dual_layers(
     struct mesh* m,
     unsigned** marked,
     unsigned nlayers)
 {
-  mark_dual_layers(mesh_dim(m), mesh_count(m, mesh_dim(m)),
-      mesh_ask_dual(m), marked, nlayers);
+  if (mesh_is_parallel(m))
+    assert(mesh_ghost_layers(m) == 1);
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, elem_dim);
+  unsigned const* dual = mesh_ask_dual(m);
+  for (unsigned i = 0; i < nlayers; ++i) {
+    unsigned* in = *marked;
+    unsigned* out = mark_dual(elem_dim, nelems, dual, in);
+    loop_free(in);
+    if (mesh_is_parallel(m))
+      mesh_conform_uints(m, elem_dim, 1, &out);
+    *marked = out;
+  }
 }
 
 unsigned* mark_class(

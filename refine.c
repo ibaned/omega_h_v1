@@ -1,4 +1,4 @@
-#include "refine_by_size.h"
+#include "refine.h"
 
 #include "arrays.h"
 #include "loop.h"
