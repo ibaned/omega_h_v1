@@ -2,7 +2,6 @@
 
 #include <assert.h>
 
-#include "arrays.h"
 #include "collapse_codes.h"
 #include "loop.h"
 #include "mesh.h"
@@ -22,7 +21,7 @@ void valid_collapses_to_verts(struct mesh* m)
   unsigned const* edges_of_verts_directions =
     mesh_ask_up(m, 0, 1)->directions;
   unsigned* candidates = LOOP_MALLOC(unsigned, nverts);
-  double* col_qual_of_verts = doubles_filled(nverts, 42.0);
+  double* col_qual_of_verts = LOOP_MALLOC(double, nverts);
   for (unsigned i = 0; i < nverts; ++i) {
     unsigned first_use = edges_of_verts_offsets[i];
     unsigned end_use = edges_of_verts_offsets[i + 1];
