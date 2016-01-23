@@ -1,7 +1,6 @@
 #include "reflect_down.h"
 
 #include <assert.h>
-#include <stdio.h>
 
 #include "ints.h"
 #include "loop.h"
@@ -53,8 +52,6 @@ LOOP_INOUT static inline unsigned find_low_fast_##N( \
     if (j == N) \
       return low; \
   } \
-  fprintf(stderr, "could not find new edge (%u %u)\n", \
-      verts_wanted[0], verts_wanted[1]); \
   assert(0); \
 }
 
