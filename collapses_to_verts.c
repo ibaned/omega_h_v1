@@ -73,6 +73,8 @@ unsigned* collapsing_vertex_destinations(struct mesh* m)
     unsigned first_use = edges_of_verts_offsets[i];
     unsigned end_use = edges_of_verts_offsets[i + 1];
     double maxq = col_qual_of_verts[i];
+    if (maxq == 1e10)
+      maxq = -1e10;
     unsigned gen_vert = INVALID;
     for (unsigned j = first_use; j < end_use; ++j) {
       unsigned edge = edges_of_verts[j];
@@ -80,6 +82,8 @@ unsigned* collapsing_vertex_destinations(struct mesh* m)
       if (!collapses(col_codes[edge], direction))
         continue;
       double q = col_quals_of_edges[edge * 2 + direction];
+      if (q == 1e10)
+        q = -1e10;
       if (q == maxq) {
         gen_vert = verts_of_edges[edge * 2 + (1 - direction)];
         break;
