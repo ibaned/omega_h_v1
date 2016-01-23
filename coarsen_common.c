@@ -170,6 +170,7 @@ static void setup_coarsen_indset(struct mesh* m)
   unsigned const* candidates = mesh_find_tag(m, 0, "candidates")->d.u32;
   double const* quals = mesh_find_tag(m, 0, "col_qual")->d.f64;
   unsigned* indset = mesh_find_indset(m, 0, candidates, quals);
+  mesh_free_tag(m, 0, "candidates");
   mesh_add_tag(m, 0, TAG_U32, "indset", 1, indset);
 }
 
