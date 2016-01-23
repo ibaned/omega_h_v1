@@ -138,6 +138,8 @@ void mesh_global_renumber(struct mesh* m, unsigned dim)
 void mesh_conform_##name(struct mesh* m, unsigned dim, unsigned width, \
     T** a) \
 { \
+  if (!mesh_is_parallel(m)) \
+    return; \
   T* in = *a; \
   T* out = exchange_##name(mesh_ask_exchanger(m, dim), width, in, \
       EX_FOR, EX_ROOT); \
