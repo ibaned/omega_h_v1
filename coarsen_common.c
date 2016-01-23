@@ -21,6 +21,8 @@
 #include "subset.h"
 #include "tables.h"
 
+#include "vtk.h"
+
 static void coarsen_ents(
     struct mesh* m,
     struct mesh* m_out,
@@ -176,6 +178,7 @@ static void setup_coarsen_indset(struct mesh* m)
 static void coarsen_interior(struct mesh** p_m)
 {
   struct mesh* m = *p_m;
+  write_mesh_vtk(m, "after_unghost.pvtu");
   unsigned elem_dim = mesh_dim(m);
   unsigned nverts = mesh_count(m, 0);
   unsigned* gen_vert_of_verts = collapsing_vertex_destinations(m);
@@ -214,6 +217,7 @@ unsigned coarsen_common(
   setup_coarsen_indset(*p_m);
   if (mesh_is_parallel(*p_m)) {
     set_own_ranks_by_indset(*p_m, 0);
+    write_mesh_vtk(*p_m, "before_unghost.pvtu");
     unghost_mesh(p_m);
   }
   coarsen_interior(p_m);
