@@ -161,8 +161,8 @@ void get_edge_triangle_star(
   unsigned const* tris_of_edges_directions =
     mesh_ask_up(m, 1, 2)->directions;
   unsigned* star_offsets = LOOP_MALLOC(unsigned, nedges + 1);
-  for (unsigned i = 0; i < nedges; ++i) {
-    star_offsets[i + 1] = tris_of_edges_offsets[i + 1] * 2;
+  for (unsigned i = 0; i <= nedges; ++i) {
+    star_offsets[i] = tris_of_edges_offsets[i] * 2;
   }
   unsigned nadj = tris_of_edges_offsets[nedges] * 2;
   unsigned* star = LOOP_MALLOC(unsigned, nadj);
