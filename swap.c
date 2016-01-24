@@ -58,13 +58,33 @@ static void swap_ents(
   loop_free(same_ent_offsets);
 }
 
+static void swap_interior(
+    struct mesh** p_m,
+    unsigned* indset,
+    unsigned* ring_sizes)
+{
+  struct mesh* m = *p_m;
+  unsigned elem_dim = mesh_dim(m);
+  /* vertex handling */
+  unsigned nverts = mesh_count(m, 0);
+  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), mesh_is_parallel(m));
+  mesh_set_ents(m_out, 0, nverts, 0);
+  copy_tags(mesh_tags(m, 0), mesh_tags(m_out, 0), nverts);
+  /* end vertex handling */
+  if (mesh_get_rep(m) == MESH_REDUCED)
+    swap_ents(m, m_out, mesh_dim(m), indset, ring_sizes);
+  else
+    for (unsigned d = 1; d <= mesh_dim(m); ++d)
+      swap_ents(m, m_out, d, indset, ring_sizes);
+  free_mesh(m);
+  *p_m = m_out;
+}
+
 static unsigned swap_common(
     struct mesh** p_m,
     unsigned* candidates)
 {
   struct mesh* m = *p_m;
-  unsigned elem_dim = mesh_dim(m);
-  assert(elem_dim == 3);
   unsigned nedges = mesh_count(m, 1);
   if (!uints_max(candidates, nedges))
     return 0;
@@ -80,23 +100,11 @@ static unsigned swap_common(
     loop_free(ring_sizes);
     return 0;
   }
-  /* vertex handling */
-  unsigned nverts = mesh_count(m, 0);
-  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), 0);
-  mesh_set_ents(m_out, 0, nverts, 0);
-  copy_tags(mesh_tags(m, 0), mesh_tags(m_out, 0), nverts);
-  /* end vertex handling */
   unsigned* indset = mesh_find_indset(m, 1, candidates, edge_quals);
   loop_free(edge_quals);
-  if (mesh_get_rep(m) == MESH_REDUCED)
-    swap_ents(m, m_out, mesh_dim(m), indset, ring_sizes);
-  else
-    for (unsigned d = 1; d <= mesh_dim(m); ++d)
-      swap_ents(m, m_out, d, indset, ring_sizes);
+  swap_interior(p_m, indset, ring_sizes);
   loop_free(indset);
   loop_free(ring_sizes);
-  free_mesh(m);
-  *p_m = m_out;
   return 1;
 }
 
@@ -105,8 +113,11 @@ unsigned swap_slivers(
     double good_qual,
     unsigned nlayers)
 {
-  if (mesh_is_parallel(*p_m))
+  assert(mesh_dim(*p_m) == 3);
+  if (mesh_is_parallel(*p_m)) {
+    assert(mesh_get_rep(*p_m) == MESH_FULL);
     mesh_ensure_ghosting(p_m, 1);
+  }
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned* slivers = mesh_mark_slivers(m, good_qual, nlayers);
