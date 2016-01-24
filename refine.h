@@ -1,5 +1,5 @@
-#ifndef REFINE_BY_SIZE_H
-#define REFINE_BY_SIZE_H
+#ifndef REFINE_H
+#define REFINE_H
 
 struct mesh;
 

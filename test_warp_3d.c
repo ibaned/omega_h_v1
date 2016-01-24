@@ -4,10 +4,13 @@
 
 #include "adapt.h"
 #include "algebra.h"
+#include "comm.h"
 #include "derive_model.h"
+#include "doubles.h"
+#include "element_field.h"
 #include "eval_field.h"
 #include "mesh.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "vtk.h"
 #include "warp_to_limit.h"
 
@@ -70,8 +73,8 @@ static void warped_adapt(struct mesh** p_m)
   for (unsigned i = 0; i < n; ++i) {
     printf("\n WARP TO LIMIT %u\n", i);
     unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
-    write_vtk_step(*p_m);
     mesh_adapt(p_m, size_floor, good_qual_floor, nsliver_layers, max_ops);
+    write_vtk_step(*p_m);
     if (done)
       return;
   }
@@ -81,6 +84,7 @@ static void warped_adapt(struct mesh** p_m)
 
 int main()
 {
+  comm_init();
   struct mesh* m = new_box_mesh(3);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
@@ -101,4 +105,5 @@ int main()
     the_rotation = -the_rotation;
   }
   free_mesh(m);
+  comm_fini();
 }

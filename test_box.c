@@ -3,10 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "algebra.h"
 #include "comm.h"
+#include "derive_model.h"
 #include "eval_field.h"
 #include "mesh.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "vtk.h"
 
 int main(int argc, char** argv)
@@ -14,7 +16,8 @@ int main(int argc, char** argv)
   comm_init();
   unsigned dim = 3;
   unsigned nrefs = 0;
-  char const* file = "out.vtu";
+  unsigned full = 1;
+  char const* file = "box.vtu";
   for (int i = 1; i < argc; ++i) {
     if (!strcmp(argv[i], "--dim")) {
       ++i;
@@ -39,12 +42,18 @@ int main(int argc, char** argv)
         return -1;
       }
       file = argv[i];
+    } else if (!strcmp(argv[i], "--reduced")) {
+      full = 0;
     } else {
       printf("unknown argument %s\n", argv[i]);
       return -1;
     }
   }
   struct mesh* m = new_box_mesh(dim);
+  if (full) {
+    mesh_derive_model(m, PI / 4);
+    mesh_set_rep(m, MESH_FULL);
+  }
   for (unsigned i = 0; i < nrefs; ++i)
     uniformly_refine(&m);
   write_mesh_vtk(m, file);

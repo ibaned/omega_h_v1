@@ -3,13 +3,18 @@
 #include <assert.h>
 
 #include "arrays.h"
+#include "comm.h"
+#include "ghost_mesh.h"
 #include "graph.h"
 #include "indset.h"
 #include "inherit.h"
 #include "ints.h"
 #include "loop.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
+#include "parallel_modify.h"
 #include "quality.h"
+#include "refine_conserve.h"
 #include "refine_nodal.h"
 #include "refine_qualities.h"
 #include "refine_topology.h"
@@ -36,6 +41,11 @@ static void refine_verts(struct mesh* m, struct mesh* m_out,
         gen_vals, nsplit_srcs);
     loop_free(gen_vals);
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);
+  }
+  if (mesh_is_parallel(m)) {
+    unsigned* offsets = uints_linear(nverts + 1, 1);
+    inherit_globals(m, m_out, 0, offsets);
+    loop_free(offsets);
   }
 }
 
@@ -87,8 +97,12 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
               vert_of_doms[dom_dim],
               verts_of_prods_out + (ngen_offsets[dom_dim] * verts_per_prod));
       mesh_set_ents(m_out, prod_dim, nprods_out, verts_of_prods_out);
+      if (mesh_is_parallel(m))
+        inherit_globals(m, m_out, prod_dim, prods_of_doms_offsets[0]);
     }
     inherit_class(m, m_out, prod_dim, ndoms, prods_of_doms_offsets);
+    if (prod_dim == elem_dim)
+      refine_conserve(m, m_out, ndoms, prods_of_doms_offsets);
     for (unsigned i = 0; i < 4; ++i)
       loop_free(prods_of_doms_offsets[i]);
   }
@@ -99,28 +113,57 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
   }
 }
 
-unsigned refine_common(
+static unsigned choose_refinement_indset(
     struct mesh** p_m,
     unsigned src_dim,
-    unsigned* candidates,
     double qual_floor,
     unsigned require_better)
 {
+  if (mesh_is_parallel(*p_m))
+    mesh_ensure_ghosting(p_m, 1);
   struct mesh* m = *p_m;
-  unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
-  if (!uints_max(candidates, nsrcs))
+  unsigned const* candidates = mesh_find_tag(m, src_dim, "candidate")->d.u32;
+  if (!comm_max_uint(uints_max(candidates, nsrcs))) {
+    mesh_free_tag(m, src_dim, "candidate");
     return 0;
-  double* src_quals = mesh_refine_qualities(m, src_dim, candidates,
+  }
+  unsigned* good_candidates = uints_copy(candidates, nsrcs);
+  mesh_free_tag(m, src_dim, "candidate");
+  double* src_quals = mesh_refine_qualities(m, src_dim, &good_candidates,
       qual_floor, require_better);
-  if (!uints_max(candidates, nsrcs)) {
+  if (!comm_max_uint(uints_max(good_candidates, nsrcs))) {
+    loop_free(good_candidates);
     loop_free(src_quals);
     return 0;
   }
-  unsigned* gen_offset_of_srcs = mesh_indset_offsets(m, src_dim, candidates,
-      src_quals);
+  unsigned* indset = mesh_find_indset(m, src_dim,
+      good_candidates, src_quals);
+  loop_free(good_candidates);
   loop_free(src_quals);
-  struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), 0);
+  mesh_add_tag(m, src_dim, TAG_U32, "indset", 1, indset);
+  return 1;
+}
+
+unsigned refine_common(
+    struct mesh** p_m,
+    unsigned src_dim,
+    double qual_floor,
+    unsigned require_better)
+{
+  if (mesh_is_parallel(*p_m))
+    assert(mesh_get_rep(*p_m) == MESH_FULL);
+  if (!choose_refinement_indset(p_m, src_dim, qual_floor, require_better))
+    return 0;
+  if (mesh_is_parallel(*p_m)) {
+    set_own_ranks_by_indset(*p_m, src_dim);
+    unghost_mesh(p_m);
+  }
+  struct mesh* m = *p_m;
+  unsigned const* indset = mesh_find_tag(m, src_dim, "indset")->d.u32;
+  unsigned* gen_offset_of_srcs = uints_exscan(indset, mesh_count(m, src_dim));
+  mesh_free_tag(m, src_dim, "indset");
+  struct mesh* m_out = new_mesh(mesh_dim(m), mesh_get_rep(m), mesh_is_parallel(m));
   refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
   refine_ents(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);

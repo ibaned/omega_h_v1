@@ -7,6 +7,9 @@
 include config.mk
 
 test_sources := \
+test_one_refine.c \
+test_one_coarsen.c \
+test_one_swap.c \
 test_partition.c \
 test_print_swap_edges.c \
 test_box.c \
@@ -45,17 +48,20 @@ quality.c \
 size.c \
 bridge_graph.c \
 refine_common.c \
-refine_by_size.c \
+refine.c \
 indset.c \
 measure_edges.c \
 reflect_down.c \
+dual.c \
 refine_nodal.c \
+refine_conserve.c \
 refine_qualities.c \
 doubles.c \
-coarsen_by_size.c \
+coarsen.c \
 check_collapse_class.c \
 coarsen_qualities.c \
 coarsen_topology.c \
+coarsen_conserve.c \
 collapses_to_verts.c \
 collapses_to_ents.c \
 mesh.c \
@@ -70,11 +76,10 @@ subset.c \
 adapt.c \
 coarsen_common.c \
 mark.c \
-coarsen_slivers.c \
-swap_slivers.c \
-swap_common.c \
+swap.c \
 swap_qualities.c \
 swap_topology.c \
+swap_conserve.c \
 edge_ring.c \
 edge_swap.c \
 edge_swap_edges.c \
@@ -101,6 +106,7 @@ exchanger.c \
 copy_tags.c \
 parallel_inertial_bisect.c \
 parallel_mesh.c \
+parallel_modify.c \
 migrate_cloud.c \
 arrays.c \
 migrate_mesh.c \
@@ -159,7 +165,7 @@ clean:
 	rm -rf deps/ objs/ bin/ lib/ loop.h
 
 #just targets, not files or directories
-.PHONY: all clean check
+.PHONY: all clean check install
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
@@ -233,6 +239,14 @@ deps/%.dep: %.c loop.h | deps
 #the minus sign silences warnings when the
 #depfiles don't exist yet.
 -include $(depfiles)
+
+install: all
+	install -d $(PREFIX)/bin
+	install -m 755 $(exes) $(PREFIX)/bin
+	install -d $(PREFIX)/lib
+	install -m 644 $(lib) $(PREFIX)/lib
+	install -d $(PREFIX)/include
+	install -m 644 include/omega_h.h $(PREFIX)/include
 
 check: data $(exes)
 	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) \

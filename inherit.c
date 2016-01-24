@@ -9,7 +9,7 @@
 #include "refine_topology.h"
 #include "tables.h"
 
-static void make_ngen_from_doms(
+void make_ngen_from_doms(
     unsigned const ndoms[4],
     unsigned* prods_of_doms_offsets[4],
     unsigned ngen[4])
@@ -22,7 +22,7 @@ static void make_ngen_from_doms(
   }
 }
 
-static void make_ngen_offsets(
+void make_ngen_offsets(
     unsigned const ngen[4],
     /* out: */
     unsigned ngen_offsets[5])
@@ -32,22 +32,25 @@ static void make_ngen_offsets(
     ngen_offsets[i + 1] = ngen_offsets[i] + ngen[i];
 }
 
-static unsigned* concat_uints_inherited(
-    unsigned width,
-    unsigned const ngen_offsets[5],
-    unsigned* gen_data[4])
-{
-  unsigned* out_data = LOOP_MALLOC(unsigned,
-      ngen_offsets[4] * width);
-  for (unsigned i = 0; i < 4; ++i) {
-    LOOP_MEMCPY(unsigned,
-        out_data + ngen_offsets[i] * width,
-        gen_data[i],
-        (ngen_offsets[i + 1] - ngen_offsets[i]) * width);
-    loop_free(gen_data[i]);
-  }
-  return out_data;
+#define GENERIC_CONCAT_INHERITED(T, name) \
+T* concat_##name##_inherited( \
+    unsigned width, \
+    unsigned const ngen_offsets[5], \
+    T* gen_data[4]) \
+{ \
+  T* out_data = LOOP_MALLOC(T, ngen_offsets[4] * width); \
+  for (unsigned i = 0; i < 4; ++i) { \
+    LOOP_MEMCPY(T, \
+        out_data + ngen_offsets[i] * width, \
+        gen_data[i], \
+        (ngen_offsets[i + 1] - ngen_offsets[i]) * width); \
+    loop_free(gen_data[i]); \
+  } \
+  return out_data; \
 }
+
+GENERIC_CONCAT_INHERITED(unsigned, uints)
+GENERIC_CONCAT_INHERITED(double, doubles)
 
 static void inherit_uints_direct(
     unsigned width,
@@ -221,23 +224,25 @@ void inherit_class(
         "class_id");
 }
 
-void concat_verts_of_elems(
-    unsigned elem_dim,
-    unsigned nelems,
-    unsigned ngen_elems,
-    unsigned const* verts_of_elems,
-    unsigned const* offset_of_same_elems,
-    unsigned* verts_of_gen_elems,
-    unsigned* nelems_out,
-    unsigned** verts_of_elems_out)
+void concat_verts_of_ents(
+    unsigned ent_dim,
+    unsigned nents,
+    unsigned ngen_ents,
+    unsigned const* verts_of_ents,
+    unsigned const* offset_of_same_ents,
+    unsigned const* verts_of_gen_ents,
+    unsigned* p_nents_out,
+    unsigned** p_verts_of_ents_out)
 {
-  unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned nsame_elems = offset_of_same_elems[nelems];
-  *nelems_out = nsame_elems + ngen_elems;
-  unsigned* verts_of_same_elems = uints_expand(nelems, verts_per_elem,
-      verts_of_elems, offset_of_same_elems);
-  *verts_of_elems_out = concat_uints(verts_per_elem,
-      verts_of_same_elems, nsame_elems,
-      verts_of_gen_elems, ngen_elems);
-  loop_free(verts_of_same_elems);
+  unsigned verts_per_ent = the_down_degrees[ent_dim][0];
+  unsigned nsame_ents = offset_of_same_ents[nents];
+  unsigned nents_out = nsame_ents + ngen_ents;
+  unsigned* verts_of_same_ents = uints_expand(nents, verts_per_ent,
+      verts_of_ents, offset_of_same_ents);
+  unsigned* verts_of_ents_out = concat_uints(verts_per_ent,
+      verts_of_same_ents, nsame_ents,
+      verts_of_gen_ents, ngen_ents);
+  loop_free(verts_of_same_ents);
+  *p_nents_out = nents_out;
+  *p_verts_of_ents_out = verts_of_ents_out;
 }

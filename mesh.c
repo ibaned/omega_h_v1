@@ -6,6 +6,7 @@
 #include "arrays.h"
 #include "bridge_graph.h"
 #include "derive_sides.h"
+#include "dual.h"
 #include "graph.h"
 #include "ints.h"
 #include "loop.h"
@@ -104,7 +105,7 @@ void free_mesh(struct mesh* m)
     for (unsigned low_dim = 0; low_dim <= high_dim; ++low_dim) {
       loop_free(m->down[high_dim][low_dim]);
       free_up(m->up[low_dim][high_dim]);
-      free_graph(m->star[low_dim][high_dim]);
+      osh_free_graph(m->star[low_dim][high_dim]);
     }
   loop_free(m->dual);
   for (unsigned d = 0; d < 4; ++d)
@@ -141,12 +142,8 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
     set_down(m, high_dim, low_dim, lows_of_highs);
   } else {
     if (low_dim > 0) {/* deriving intermediate downward adjacency */
-      unsigned nhighs = m->counts[high_dim];
-      unsigned const* verts_of_highs = mesh_ask_down(m, high_dim, 0);
-      struct const_up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
-      unsigned* lows_of_highs = reflect_down(high_dim, low_dim, nhighs,
-          verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
-      set_down(m, high_dim, low_dim, lows_of_highs);
+      set_down(m, high_dim, low_dim,
+          mesh_reflect_down(m, high_dim, low_dim));
     } else {/* deriving implicit entity to vertex connectivity */
       assert(mesh_get_rep(m) == MESH_REDUCED);
       if (high_dim == 1 && m->elem_dim == 3) { /* deriving edges in 3D */
@@ -231,16 +228,12 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
        with equal-order cases separately */
     unsigned n = m->counts[low_dim];
     unsigned* offsets = uints_filled(n + 1, 0);
-    set_star(m, low_dim, high_dim, new_graph(offsets, 0));
+    set_star(m, low_dim, high_dim, osh_new_graph(offsets, 0));
   } else {
-    unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
-    struct const_up* highs_of_lows = mesh_ask_up(m, low_dim, high_dim);
-    unsigned nlows = m->counts[low_dim];
     unsigned* offsets;
     unsigned* adj;
-    get_star(low_dim, high_dim, nlows, highs_of_lows->offsets, highs_of_lows->adj,
-        lows_of_highs, &offsets, &adj);
-    set_star(m, low_dim, high_dim, new_graph(offsets, adj));
+    mesh_get_star(m, low_dim, high_dim, &offsets, &adj);
+    set_star(m, low_dim, high_dim, osh_new_graph(offsets, adj));
   }
   return (struct const_graph*) m->star[low_dim][high_dim];
 }
@@ -253,14 +246,12 @@ static void set_dual(struct mesh* m, unsigned* adj)
 
 unsigned const* mesh_ask_dual(struct mesh* m)
 {
-  if (m->dual)
-    return m->dual;
-  unsigned nelems = m->counts[m->elem_dim];
-  unsigned const* verts_of_elems = m->down[m->elem_dim][0];
-  struct const_up* elems_of_verts = mesh_ask_up(m, 0, m->elem_dim);
-  unsigned* elems_of_elems = get_dual(m->elem_dim, nelems, verts_of_elems,
-      elems_of_verts->offsets, elems_of_verts->adj);
-  set_dual(m, elems_of_elems);
+  if (!m->dual) {
+    if (mesh_has_dim(m, mesh_dim(m) - 1))
+      set_dual(m, mesh_get_dual_from_sides(m));
+    else
+      set_dual(m, mesh_get_dual_from_verts(m));
+  }
   return m->dual;
 }
 
@@ -327,5 +318,16 @@ void mesh_make_parallel(struct mesh* m)
   m->parallel = new_parallel_mesh();
   for (unsigned d = 0; d <= mesh_dim(m); ++d)
     if (mesh_has_dim(m, d))
-      mesh_set_global(m, d, ulongs_linear(mesh_count(m, d), 1));
+      mesh_set_globals(m, d, ulongs_linear(mesh_count(m, d), 1));
+}
+
+double mesh_estimate_degree(struct mesh* m, unsigned dim_a, unsigned dim_b)
+{
+  if (dim_a == dim_b)
+    return 1;
+  if (dim_a > dim_b)
+    return the_down_degrees[dim_a][dim_b];
+  return mesh_estimate_degree(m, dim_b, dim_a)
+       * ((double)(mesh_count(m, dim_b)))
+       / ((double)(mesh_count(m, dim_a)));
 }

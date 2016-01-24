@@ -2,25 +2,26 @@
 
 #include <assert.h>
 
+#include "arrays.h"
 #include "ints.h"
 #include "loop.h"
 #include "tables.h"
 
-LOOP_KERNEL( degree_count,
-	unsigned const* adj,
+LOOP_KERNEL(degree_count,
+    unsigned const* adj,
     unsigned const* adj_offsets,
     unsigned* degree_of_verts)
 
   unsigned first_adj = adj_offsets[i];
   unsigned end_adj = adj_offsets[i+1];
   unsigned degree_of_vert = 0;
-  for( unsigned j = first_adj ; j< end_adj ; j++) // Could make secondary Kernal Launch
-    if( i < adj[j])
+  for(unsigned j = first_adj; j < end_adj; ++j)
+    if(i < adj[j])
       ++degree_of_vert;
   degree_of_verts[i] = degree_of_vert;
 }
 
-LOOP_KERNEL( edge_fill,
+LOOP_KERNEL(edge_fill,
     unsigned const* adj,
     unsigned const* adj_offsets,
     unsigned* bridge_offsets,

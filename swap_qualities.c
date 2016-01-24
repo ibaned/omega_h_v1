@@ -5,6 +5,7 @@
 #include "edge_swap.h"
 #include "loop.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
 #include "quality.h"
 
 static void swap_qualities(
@@ -17,15 +18,16 @@ static void swap_qualities(
     unsigned const* verts_of_tets,
     double const* coords,
     double const* elem_quals,
+    unsigned const* owned_edges,
     double** p_qualities,
-    unsigned** p_codes,
     unsigned** p_ring_sizes)
 {
   double* out_quals = LOOP_MALLOC(double, nedges);
-  unsigned* out_codes = LOOP_MALLOC(unsigned, nedges);
   unsigned* ring_sizes = LOOP_MALLOC(unsigned, nedges);
   for (unsigned i = 0; i < nedges; ++i) {
     if (!candidates[i])
+      continue;
+    if (owned_edges && !owned_edges[i])
       continue;
     unsigned first_use = tets_of_edges_offsets[i];
     unsigned end_use = tets_of_edges_offsets[i + 1];
@@ -54,14 +56,12 @@ static void swap_qualities(
     struct swap_choice sc = choose_edge_swap(ring_size, edge_x, ring_x);
     if (sc.quality > old_minq) {
       out_quals[i] = sc.quality;
-      out_codes[i] = sc.code;
       ring_sizes[i] = ring_size;
     } else {
       candidates[i] = 0;
     }
   }
   *p_qualities = out_quals;
-  *p_codes = out_codes;
   *p_ring_sizes = ring_sizes;
 }
 
@@ -69,7 +69,6 @@ void mesh_swap_qualities(
     struct mesh* m,
     unsigned* candidates,
     double** p_qualities,
-    unsigned** p_codes,
     unsigned** p_ring_sizes)
 {
   unsigned nedges = mesh_count(m, 1);
@@ -83,10 +82,14 @@ void mesh_swap_qualities(
   unsigned const* verts_of_tets = mesh_ask_down(m, 3, 0);
   double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   double* elem_quals = mesh_qualities(m);
+  unsigned* owned_edges = 0;
+  if (mesh_is_parallel(m))
+    owned_edges = mesh_get_owned(m, 1);
   swap_qualities(nedges, candidates,
       tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
       verts_of_edges, verts_of_tets,
-      coords, elem_quals,
-      p_qualities, p_codes, p_ring_sizes);
+      coords, elem_quals, owned_edges,
+      p_qualities, p_ring_sizes);
   loop_free(elem_quals);
+  loop_free(owned_edges);
 }

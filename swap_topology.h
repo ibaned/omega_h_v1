@@ -13,7 +13,6 @@ unsigned* mesh_swap_topology(
     struct mesh* m,
     unsigned ent_dim,
     unsigned const* candidates,
-    unsigned const* gen_offset_of_edges,
-    unsigned const* edge_codes);
+    unsigned const* gen_offset_of_edges);
 
 #endif

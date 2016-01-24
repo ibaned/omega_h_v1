@@ -1,5 +1,7 @@
 objs/*.o
 deps/*.dep
 bin/*.exe
+bin/*.dSYM
 lib/*.a
 config.mk
+loop.h

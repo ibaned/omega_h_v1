@@ -4,12 +4,13 @@
 
 #include "adapt.h"
 #include "algebra.h"
+#include "comm.h"
 #include "derive_model.h"
 #include "element_gradients.h"
 #include "eval_field.h"
 #include "mesh.h"
 #include "recover_by_volume.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "size_from_hessian.h"
 #include "vtk.h"
 #include "warp_to_limit.h"
@@ -98,6 +99,7 @@ static void warped_adapt(struct mesh** p_m)
 
 int main()
 {
+  comm_init();
   struct mesh* m = new_box_mesh(2);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
@@ -118,4 +120,5 @@ int main()
     the_rotation = -the_rotation;
   }
   free_mesh(m);
+  comm_fini();
 }

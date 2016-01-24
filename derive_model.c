@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "algebra.h"
-#include "ints.h"
+#include "arrays.h"
 #include "loop.h"
 #include "mark.h"
 #include "mesh.h"
