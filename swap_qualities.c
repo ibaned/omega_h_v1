@@ -18,11 +18,9 @@ static void swap_qualities(
     double const* coords,
     double const* elem_quals,
     double** p_qualities,
-    unsigned** p_codes,
     unsigned** p_ring_sizes)
 {
   double* out_quals = LOOP_MALLOC(double, nedges);
-  unsigned* out_codes = LOOP_MALLOC(unsigned, nedges);
   unsigned* ring_sizes = LOOP_MALLOC(unsigned, nedges);
   for (unsigned i = 0; i < nedges; ++i) {
     if (!candidates[i])
@@ -54,14 +52,12 @@ static void swap_qualities(
     struct swap_choice sc = choose_edge_swap(ring_size, edge_x, ring_x);
     if (sc.quality > old_minq) {
       out_quals[i] = sc.quality;
-      out_codes[i] = sc.code;
       ring_sizes[i] = ring_size;
     } else {
       candidates[i] = 0;
     }
   }
   *p_qualities = out_quals;
-  *p_codes = out_codes;
   *p_ring_sizes = ring_sizes;
 }
 
@@ -69,7 +65,6 @@ void mesh_swap_qualities(
     struct mesh* m,
     unsigned* candidates,
     double** p_qualities,
-    unsigned** p_codes,
     unsigned** p_ring_sizes)
 {
   unsigned nedges = mesh_count(m, 1);
@@ -87,6 +82,6 @@ void mesh_swap_qualities(
       tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
       verts_of_edges, verts_of_tets,
       coords, elem_quals,
-      p_qualities, p_codes, p_ring_sizes);
+      p_qualities, p_ring_sizes);
   loop_free(elem_quals);
 }

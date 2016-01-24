@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "algebra.h"
 #include "edge_ring.h"
 #include "edge_swap.h"
 #include "ints.h"
@@ -30,12 +31,12 @@ static unsigned* swap_topology(
     unsigned nedges,
     unsigned const* candidates,
     unsigned const* gen_offset_of_edges,
-    unsigned const* edge_codes,
     unsigned const* tets_of_edges_offsets,
     unsigned const* tets_of_edges,
     unsigned const* tets_of_edges_directions,
     unsigned const* verts_of_edges,
-    unsigned const* verts_of_tets)
+    unsigned const* verts_of_tets,
+    double const* coords)
 {
   unsigned ngen_ents = gen_offset_of_edges[nedges];
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
@@ -50,7 +51,14 @@ static unsigned* swap_topology(
         tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
         verts_of_edges, verts_of_tets, edge_v, ring_v);
     assert(ring_size <= MAX_EDGE_SWAP);
-    get_swap_ents(ring_size, edge_codes[i], ent_dim, edge_v, ring_v, edge_out);
+    double edge_x[2][3];
+    copy_vector(coords + edge_v[0] * 3, edge_x[0], 3);
+    copy_vector(coords + edge_v[1] * 3, edge_x[1], 3);
+    double ring_x[MAX_EDGE_SWAP][3];
+    for (unsigned j = 0; j < ring_size; ++j)
+      copy_vector(coords + ring_v[j] * 3, ring_x[j], 3);
+    struct swap_choice sc = choose_edge_swap(ring_size, edge_x, ring_x);
+    get_swap_ents(ring_size, sc.code, ent_dim, edge_v, ring_v, edge_out);
   }
   return out;
 }
@@ -59,8 +67,7 @@ unsigned* mesh_swap_topology(
     struct mesh* m,
     unsigned ent_dim,
     unsigned const* candidates,
-    unsigned const* gen_offset_of_edges,
-    unsigned const* edge_codes)
+    unsigned const* gen_offset_of_edges)
 {
   unsigned nedges = mesh_count(m, 1);
   unsigned const* tets_of_edges_offsets =
@@ -71,8 +78,9 @@ unsigned* mesh_swap_topology(
     mesh_ask_up(m, 1, 3)->directions;
   unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
   unsigned const* verts_of_tets = mesh_ask_down(m, 3, 0);
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   return swap_topology(ent_dim, nedges,
-      candidates, gen_offset_of_edges, edge_codes,
+      candidates, gen_offset_of_edges,
       tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
-      verts_of_edges, verts_of_tets);
+      verts_of_edges, verts_of_tets, coords);
 }

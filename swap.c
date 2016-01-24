@@ -23,15 +23,14 @@ static void swap_ents(
     struct mesh* m_out,
     unsigned ent_dim,
     unsigned const* indset,
-    unsigned const* ring_sizes,
-    unsigned const* edge_codes)
+    unsigned const* ring_sizes)
 {
   unsigned nedges = mesh_count(m, 1);
   unsigned* gen_offset_of_edges = get_swap_topology_offsets(
       ent_dim, nedges, indset, ring_sizes);
   unsigned ngen_ents = gen_offset_of_edges[nedges];
   unsigned* verts_of_gen_ents = mesh_swap_topology(m, ent_dim,
-      indset, gen_offset_of_edges, edge_codes);
+      indset, gen_offset_of_edges);
   unsigned* old_ents = mesh_mark_up(m, 1, ent_dim, indset);
   unsigned nents = mesh_count(m, ent_dim);
   unsigned* same_ents = uints_negate(old_ents, nents);
@@ -59,7 +58,7 @@ static void swap_ents(
   loop_free(same_ent_offsets);
 }
 
-unsigned swap_common(
+static unsigned swap_common(
     struct mesh** p_m,
     unsigned* candidates)
 {
@@ -73,13 +72,11 @@ unsigned swap_common(
   if (!uints_max(candidates, nedges))
     return 0;
   double* edge_quals;
-  unsigned* edge_codes;
   unsigned* ring_sizes;
   mesh_swap_qualities(m, candidates,
-      &edge_quals, &edge_codes, &ring_sizes);
+      &edge_quals, &ring_sizes);
   if (!uints_max(candidates, nedges)) {
     loop_free(edge_quals);
-    loop_free(edge_codes);
     loop_free(ring_sizes);
     return 0;
   }
@@ -92,12 +89,11 @@ unsigned swap_common(
   unsigned* indset = mesh_find_indset(m, 1, candidates, edge_quals);
   loop_free(edge_quals);
   if (mesh_get_rep(m) == MESH_REDUCED)
-    swap_ents(m, m_out, mesh_dim(m), indset, ring_sizes, edge_codes);
+    swap_ents(m, m_out, mesh_dim(m), indset, ring_sizes);
   else
     for (unsigned d = 1; d <= mesh_dim(m); ++d)
-      swap_ents(m, m_out, d, indset, ring_sizes, edge_codes);
+      swap_ents(m, m_out, d, indset, ring_sizes);
   loop_free(indset);
-  loop_free(edge_codes);
   loop_free(ring_sizes);
   free_mesh(m);
   *p_m = m_out;

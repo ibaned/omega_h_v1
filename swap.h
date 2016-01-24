@@ -3,10 +3,6 @@
 
 struct mesh;
 
-unsigned swap_common(
-    struct mesh** p_m,
-    unsigned* candidates);
-
 unsigned swap_slivers(
     struct mesh** p_m,
     double good_qual,
