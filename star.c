@@ -180,6 +180,61 @@ void get_edge_triangle_star(
   *p_star = star;
 }
 
+void get_edge_tet_star(
+    struct mesh* m,
+    unsigned** p_star_offsets,
+    unsigned** p_star)
+{
+  unsigned* edge_tri_star_offsets;
+  unsigned* edge_tri_star;
+  get_edge_triangle_star(m, &edge_tri_star_offsets, &edge_tri_star);
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* edges_of_tets =
+    mesh_ask_down(m, 3, 1);
+  unsigned const* tets_of_edges_offsets =
+    mesh_ask_up(m, 1, 3)->offsets;
+  unsigned const* tets_of_edges =
+    mesh_ask_up(m, 1, 3)->adj;
+  unsigned const* tets_of_edges_directions =
+    mesh_ask_up(m, 1, 3)->directions;
+  unsigned* edge_tri_star_degrees = uints_exscan(
+      edge_tri_star_offsets, nedges);
+  unsigned* edge_tet_degrees = uints_exscan(
+      tets_of_edges_offsets, nedges);
+  unsigned* star_degrees = LOOP_MALLOC(unsigned, nedges);
+  for (unsigned i = 0; i < nedges; ++i)
+    star_degrees[i] = edge_tri_star_degrees[i] + edge_tet_degrees[i];
+  loop_free(edge_tri_star_degrees);
+  loop_free(edge_tet_degrees);
+  unsigned* star_offsets = uints_exscan(star_degrees, nedges);
+  loop_free(star_degrees);
+  unsigned nadj = star_offsets[nedges];
+  unsigned* star = LOOP_MALLOC(unsigned, nadj);
+  unsigned const* tet_edge_opp_edges = the_opposite_orders[3][1];
+  for (unsigned i = 0; i < nedges; ++i) {
+    unsigned o = star_offsets[i];
+    {
+      unsigned f = edge_tri_star_offsets[i];
+      unsigned e = edge_tri_star_offsets[i + 1];
+      for (unsigned j = f; j < e; ++j)
+        star[o++] = edge_tri_star[j];
+      o += (e - f);
+    }
+    {
+      unsigned f = tets_of_edges_offsets[i];
+      unsigned e = tets_of_edges_offsets[i + 1];
+      for (unsigned j = f; j < e; ++j) {
+        unsigned tet = tets_of_edges[j];
+        unsigned dir = tets_of_edges_directions[j];
+        unsigned tet_edge = tet_edge_opp_edges[dir];
+        star[o++] = edges_of_tets[tet * 4 + tet_edge];
+      }
+    }
+  }
+  *p_star_offsets = star_offsets;
+  *p_star = star;
+}
+
 void mesh_get_star(
     struct mesh* m,
     unsigned low_dim,
@@ -193,6 +248,8 @@ void mesh_get_star(
     get_vertex_edge_star(m, p_star_offsets, p_star);
   else if (low_dim == 1 && high_dim == 2)
     get_edge_triangle_star(m, p_star_offsets, p_star);
+  else if (low_dim == 1 && high_dim == 3 && mesh_has_dim(m, 2))
+    get_edge_tet_star(m, p_star_offsets, p_star);
   else
     mesh_get_star_general(m, low_dim, high_dim, p_star_offsets, p_star);
 }
