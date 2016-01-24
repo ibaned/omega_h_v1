@@ -100,7 +100,7 @@ static void get_star_general(
   *star_out = star;
 }
 
-void mesh_get_star_general(
+static void mesh_get_star_general(
     struct mesh* m,
     unsigned low_dim,
     unsigned high_dim,
@@ -114,7 +114,7 @@ void mesh_get_star_general(
       p_star_offsets, p_star);
 }
 
-void get_vertex_edge_star(
+static void get_vertex_edge_star(
     struct mesh* m,
     unsigned** p_star_offsets,
     unsigned** p_star)
@@ -144,7 +144,7 @@ void get_vertex_edge_star(
   *p_star = star;
 }
 
-void get_edge_triangle_star(
+static void get_edge_triangle_star(
     struct mesh* m,
     unsigned** p_star_offsets,
     unsigned** p_star)
@@ -178,7 +178,7 @@ void get_edge_triangle_star(
   *p_star = star;
 }
 
-void get_edge_tet_star(
+static void get_edge_tet_star(
     struct mesh* m,
     unsigned** p_star_offsets,
     unsigned** p_star)
