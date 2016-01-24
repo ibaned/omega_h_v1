@@ -7,7 +7,9 @@
 include config.mk
 
 test_sources := \
+test_one_refine.c \
 test_one_coarsen.c \
+test_one_swap.c \
 test_partition.c \
 test_print_swap_edges.c \
 test_box.c \
@@ -32,8 +34,7 @@ test_ask_up.c \
 test_ask_down.c \
 test_derive_model.c \
 test_subdim.c \
-test_loop.c \
-test_one_refine.c
+test_loop.c
 
 lib_sources := \
 star.c \
@@ -75,8 +76,7 @@ subset.c \
 adapt.c \
 coarsen_common.c \
 mark.c \
-swap_slivers.c \
-swap_common.c \
+swap.c \
 swap_qualities.c \
 swap_topology.c \
 swap_conserve.c \

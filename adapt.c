@@ -12,7 +12,7 @@
 #include "quality.h"
 #include "refine.h"
 #include "size.h"
-#include "swap_slivers.h"
+#include "swap.h"
 #include "tag.h"
 
 static unsigned global_op_count = 0;
