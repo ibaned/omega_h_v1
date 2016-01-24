@@ -75,7 +75,6 @@ subset.c \
 adapt.c \
 coarsen_common.c \
 mark.c \
-swap_slivers.c \
 swap.c \
 swap_qualities.c \
 swap_topology.c \
