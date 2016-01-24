@@ -230,13 +230,9 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
     unsigned* offsets = uints_filled(n + 1, 0);
     set_star(m, low_dim, high_dim, osh_new_graph(offsets, 0));
   } else {
-    unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
-    struct const_up* highs_of_lows = mesh_ask_up(m, low_dim, high_dim);
-    unsigned nlows = m->counts[low_dim];
     unsigned* offsets;
     unsigned* adj;
-    get_star(low_dim, high_dim, nlows, highs_of_lows->offsets, highs_of_lows->adj,
-        lows_of_highs, &offsets, &adj);
+    mesh_get_star(m, low_dim, high_dim, &offsets, &adj);
     set_star(m, low_dim, high_dim, osh_new_graph(offsets, adj));
   }
   return (struct const_graph*) m->star[low_dim][high_dim];
