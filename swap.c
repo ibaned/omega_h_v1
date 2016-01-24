@@ -94,20 +94,29 @@ static unsigned swap_common(
 {
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
-  if (!comm_max_uint(uints_max(candidates, nedges)))
+  if (!comm_max_uint(uints_max(candidates, nedges))) {
+    loop_free(candidates);
     return 0;
+  }
   mesh_unmark_boundary(m, 1, candidates);
-  if (!comm_max_uint(uints_max(candidates, nedges)))
+  if (!comm_max_uint(uints_max(candidates, nedges))) {
+    loop_free(candidates);
     return 0;
+  }
   double* edge_quals;
   unsigned* ring_sizes;
   mesh_swap_qualities(m, candidates, &edge_quals, &ring_sizes);
+  mesh_conform_uints(m, 1, 1, &candidates);
+  mesh_conform_doubles(m, 1, 1, &edge_quals);
+  mesh_conform_uints(m, 1, 1, &ring_sizes);
   if (!comm_max_uint(uints_max(candidates, nedges))) {
+    loop_free(candidates);
     loop_free(edge_quals);
     loop_free(ring_sizes);
     return 0;
   }
   unsigned* indset = mesh_find_indset(m, 1, candidates, edge_quals);
+  loop_free(candidates);
   loop_free(edge_quals);
   mesh_add_tag(m, 1, TAG_U32, "indset", 1, indset);
   mesh_add_tag(m, 1, TAG_U32, "ring_size", 1, ring_sizes);
@@ -135,6 +144,5 @@ unsigned swap_slivers(
   unsigned* candidates = mesh_mark_down(m, elem_dim, 1, slivers);
   loop_free(slivers);
   unsigned ret = swap_common(p_m, candidates);
-  loop_free(candidates);
   return ret;
 }
