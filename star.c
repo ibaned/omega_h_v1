@@ -1,10 +1,12 @@
 #include "star.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "arrays.h"
 #include "ints.h"
 #include "loop.h"
+#include "mesh.h"
 #include "tables.h"
 
 /* This is the #2 most expensive function, takes up 30% of
@@ -69,7 +71,7 @@ LOOP_KERNEL(fill,
       star + star_offsets[i]);
 }
 
-void get_star(
+static void get_star(
     unsigned low_dim,
     unsigned high_dim,
     unsigned nlows,
@@ -102,4 +104,18 @@ void get_star(
     star_offsets);
   *star_offsets_out = star_offsets;
   *star_out = star;
+}
+
+void mesh_get_star(
+    struct mesh* m,
+    unsigned low_dim,
+    unsigned high_dim,
+    unsigned** p_star_offsets,
+    unsigned** p_star)
+{
+  get_star(low_dim, high_dim, mesh_count(m, low_dim),
+      mesh_ask_up(m, low_dim, high_dim)->offsets,
+      mesh_ask_up(m, low_dim, high_dim)->adj,
+      mesh_ask_down(m, high_dim, low_dim),
+      p_star_offsets, p_star);
 }
