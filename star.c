@@ -9,12 +9,7 @@
 #include "mesh.h"
 #include "tables.h"
 
-/* This is the #2 most expensive function, takes up 30% of
-   refinement time !
-   If you are going to optimize, optimize here !
- */
-
-static LOOP_IN unsigned get_ent_star(
+static LOOP_IN unsigned get_ent_star_general(
     unsigned const* highs_of_lows_offsets,
     unsigned const* highs_of_lows,
     unsigned const* lows_of_highs,
@@ -37,7 +32,7 @@ static LOOP_IN unsigned get_ent_star(
   return size;
 }
 
-LOOP_KERNEL(count,
+LOOP_KERNEL(count_general,
     unsigned *degrees,
     unsigned const* highs_of_lows_offsets,
     unsigned const* highs_of_lows,
@@ -45,7 +40,7 @@ LOOP_KERNEL(count,
     unsigned lows_per_high)
 
   unsigned star_buf[MAX_UP * MAX_DOWN];
-  degrees[i] = get_ent_star(
+  degrees[i] = get_ent_star_general(
       highs_of_lows_offsets,
       highs_of_lows,
       lows_of_highs,
@@ -54,7 +49,7 @@ LOOP_KERNEL(count,
       star_buf);
 }
 
-LOOP_KERNEL(fill,
+LOOP_KERNEL(fill_general,
     unsigned const* highs_of_lows_offsets,
     unsigned const* highs_of_lows,
     unsigned const* lows_of_highs,
@@ -62,7 +57,7 @@ LOOP_KERNEL(fill,
     unsigned* star,
     unsigned const* star_offsets)
 
-  get_ent_star(
+  get_ent_star_general(
       highs_of_lows_offsets,
       highs_of_lows,
       lows_of_highs,
@@ -71,7 +66,7 @@ LOOP_KERNEL(fill,
       star + star_offsets[i]);
 }
 
-static void get_star(
+static void get_star_general(
     unsigned low_dim,
     unsigned high_dim,
     unsigned nlows,
@@ -83,7 +78,7 @@ static void get_star(
 {
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned* degrees = uints_filled(nlows, 0);
-  LOOP_EXEC(count,
+  LOOP_EXEC(count_general,
     nlows,
     degrees,
     highs_of_lows_offsets,
@@ -94,7 +89,7 @@ static void get_star(
   loop_free(degrees);
   unsigned sum_degrees = star_offsets[nlows];
   unsigned* star = LOOP_MALLOC(unsigned, sum_degrees);
-  LOOP_EXEC(fill,
+  LOOP_EXEC(fill_general,
     nlows,
     highs_of_lows_offsets,
     highs_of_lows,
@@ -106,6 +101,20 @@ static void get_star(
   *star_out = star;
 }
 
+void mesh_get_star_general(
+    struct mesh* m,
+    unsigned low_dim,
+    unsigned high_dim,
+    unsigned** p_star_offsets,
+    unsigned** p_star)
+{
+  get_star_general(low_dim, high_dim, mesh_count(m, low_dim),
+      mesh_ask_up(m, low_dim, high_dim)->offsets,
+      mesh_ask_up(m, low_dim, high_dim)->adj,
+      mesh_ask_down(m, high_dim, low_dim),
+      p_star_offsets, p_star);
+}
+
 void mesh_get_star(
     struct mesh* m,
     unsigned low_dim,
@@ -113,9 +122,8 @@ void mesh_get_star(
     unsigned** p_star_offsets,
     unsigned** p_star)
 {
-  get_star(low_dim, high_dim, mesh_count(m, low_dim),
-      mesh_ask_up(m, low_dim, high_dim)->offsets,
-      mesh_ask_up(m, low_dim, high_dim)->adj,
-      mesh_ask_down(m, high_dim, low_dim),
-      p_star_offsets, p_star);
+  if (low_dim == 0 && high_dim == mesh_dim(m) && mesh_has_dim(m, 1))
+    mesh_get_star(m, low_dim, 1, p_star_offsets, p_star);
+  else
+    mesh_get_star_general(m, low_dim, high_dim, p_star_offsets, p_star);
 }
