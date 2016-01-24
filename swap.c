@@ -4,13 +4,14 @@
 
 #include "copy_tags.h"
 #include "doubles.h"
-#include "graph.h"
+#include "ghost_mesh.h"
 #include "indset.h"
 #include "inherit.h"
 #include "ints.h"
 #include "loop.h"
 #include "mark.h"
 #include "mesh.h"
+#include "parallel_mesh.h"
 #include "quality.h"
 #include "swap_conserve.h"
 #include "swap_qualities.h"
@@ -108,6 +109,8 @@ unsigned swap_slivers(
     double good_qual,
     unsigned nlayers)
 {
+  if (mesh_is_parallel(*p_m))
+    mesh_ensure_ghosting(p_m, 1);
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned* slivers = mesh_mark_slivers(m, good_qual, nlayers);
