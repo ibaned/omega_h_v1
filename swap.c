@@ -54,6 +54,8 @@ static void swap_ents(
         ndoms, prods_of_doms_offsets);
     inherit_class(m, m_out, ent_dim, ndoms, prods_of_doms_offsets);
   }
+  if (mesh_is_parallel(m))
+    inherit_globals(m, m_out, ent_dim, same_ent_offsets);
   if (ent_dim == mesh_dim(m))
     swap_conserve(m, m_out, gen_offset_of_edges, same_ent_offsets);
   loop_free(gen_offset_of_edges);
@@ -71,7 +73,11 @@ static void swap_interior(
   unsigned nverts = mesh_count(m, 0);
   struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), mesh_is_parallel(m));
   mesh_set_ents(m_out, 0, nverts, 0);
+  if (mesh_is_parallel(m))
+    mesh_tag_globals(m, 0);
   copy_tags(mesh_tags(m, 0), mesh_tags(m_out, 0), nverts);
+  if (mesh_is_parallel(m))
+    mesh_parallel_from_tags(m_out, 0);
   /* end vertex handling */
   if (mesh_get_rep(m) == MESH_REDUCED)
     swap_ents(m, m_out, mesh_dim(m), indset, ring_sizes);
