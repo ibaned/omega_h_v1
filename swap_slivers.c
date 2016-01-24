@@ -3,7 +3,7 @@
 #include "loop.h"
 #include "mark.h"
 #include "mesh.h"
-#include "swap_common.h"
+#include "swap.h"
 
 unsigned swap_slivers(
     struct mesh** p_m,

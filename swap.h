@@ -1,5 +1,5 @@
-#ifndef SWAP_COMMON_H
-#define SWAP_COMMON_H
+#ifndef SWAP_H
+#define SWAP_H
 
 struct mesh;
 

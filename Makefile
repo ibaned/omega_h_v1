@@ -76,7 +76,7 @@ adapt.c \
 coarsen_common.c \
 mark.c \
 swap_slivers.c \
-swap_common.c \
+swap.c \
 swap_qualities.c \
 swap_topology.c \
 swap_conserve.c \

@@ -1,4 +1,4 @@
-#include "swap_common.h"
+#include "swap.h"
 
 #include <assert.h>
 
