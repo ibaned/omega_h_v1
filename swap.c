@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "comm.h"
 #include "copy_tags.h"
 #include "doubles.h"
 #include "ghost_mesh.h"
@@ -12,6 +13,7 @@
 #include "mark.h"
 #include "mesh.h"
 #include "parallel_mesh.h"
+#include "parallel_modify.h"
 #include "quality.h"
 #include "swap_conserve.h"
 #include "swap_qualities.h"
@@ -59,11 +61,11 @@ static void swap_ents(
 }
 
 static void swap_interior(
-    struct mesh** p_m,
-    unsigned* indset,
-    unsigned* ring_sizes)
+    struct mesh** p_m)
 {
   struct mesh* m = *p_m;
+  unsigned const* indset = mesh_find_tag(m, 1, "indset")->d.u32;
+  unsigned const* ring_sizes = mesh_find_tag(m, 1, "ring_size")->d.u32;
   unsigned elem_dim = mesh_dim(m);
   /* vertex handling */
   unsigned nverts = mesh_count(m, 0);
@@ -86,25 +88,28 @@ static unsigned swap_common(
 {
   struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
-  if (!uints_max(candidates, nedges))
+  if (!comm_max_uint(uints_max(candidates, nedges)))
     return 0;
   mesh_unmark_boundary(m, 1, candidates);
-  if (!uints_max(candidates, nedges))
+  if (!comm_max_uint(uints_max(candidates, nedges)))
     return 0;
   double* edge_quals;
   unsigned* ring_sizes;
-  mesh_swap_qualities(m, candidates,
-      &edge_quals, &ring_sizes);
-  if (!uints_max(candidates, nedges)) {
+  mesh_swap_qualities(m, candidates, &edge_quals, &ring_sizes);
+  if (!comm_max_uint(uints_max(candidates, nedges))) {
     loop_free(edge_quals);
     loop_free(ring_sizes);
     return 0;
   }
   unsigned* indset = mesh_find_indset(m, 1, candidates, edge_quals);
   loop_free(edge_quals);
-  swap_interior(p_m, indset, ring_sizes);
-  loop_free(indset);
-  loop_free(ring_sizes);
+  mesh_add_tag(m, 1, TAG_U32, "indset", 1, indset);
+  mesh_add_tag(m, 1, TAG_U32, "ring_size", 1, ring_sizes);
+  if (mesh_is_parallel(*p_m)) {
+    set_own_ranks_by_indset(*p_m, 1);
+    unghost_mesh(p_m);
+  }
+  swap_interior(p_m);
   return 1;
 }
 
