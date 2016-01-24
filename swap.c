@@ -20,9 +20,6 @@
 #include "swap_topology.h"
 #include "tables.h"
 
-/* remove this now */
-#include "vtk.h"
-
 static void swap_ents(
     struct mesh* m,
     struct mesh* m_out,
@@ -125,9 +122,7 @@ static unsigned swap_common(
   mesh_add_tag(m, 1, TAG_U32, "ring_size", 1, ring_sizes);
   if (mesh_is_parallel(*p_m)) {
     set_own_ranks_by_indset(*p_m, 1);
-    write_mesh_vtk(*p_m, "before_unghost.vtu");
     unghost_mesh(p_m);
-    write_mesh_vtk(*p_m, "after_unghost.vtu");
   }
   swap_interior(p_m);
   return 1;
