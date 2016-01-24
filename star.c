@@ -108,6 +108,7 @@ void mesh_get_star_general(
     unsigned** p_star_offsets,
     unsigned** p_star)
 {
+  printf("get_star_general low=%u high=%u\n", low_dim, high_dim);
   get_star_general(low_dim, high_dim, mesh_count(m, low_dim),
       mesh_ask_up(m, low_dim, high_dim)->offsets,
       mesh_ask_up(m, low_dim, high_dim)->adj,
@@ -145,6 +146,40 @@ void get_vertex_edge_star(
   *p_star = star;
 }
 
+void get_edge_triangle_star(
+    struct mesh* m,
+    unsigned** p_star_offsets,
+    unsigned** p_star)
+{
+  unsigned nedges = mesh_count(m, 1);
+  unsigned const* edges_of_tris =
+    mesh_ask_down(m, 2, 1);
+  unsigned const* tris_of_edges_offsets =
+    mesh_ask_up(m, 1, 2)->offsets;
+  unsigned const* tris_of_edges =
+    mesh_ask_up(m, 1, 2)->adj;
+  unsigned const* tris_of_edges_directions =
+    mesh_ask_up(m, 1, 2)->directions;
+  unsigned* star_offsets = LOOP_MALLOC(unsigned, nedges + 1);
+  for (unsigned i = 0; i < nedges; ++i) {
+    star_offsets[i + 1] = tris_of_edges_offsets[i + 1] * 2;
+  }
+  unsigned nadj = tris_of_edges_offsets[nedges] * 2;
+  unsigned* star = LOOP_MALLOC(unsigned, nadj);
+  for (unsigned i = 0; i < nedges; ++i) {
+    unsigned f = tris_of_edges_offsets[i];
+    unsigned e = tris_of_edges_offsets[i + 1];
+    for (unsigned j = f; j < e; ++j) {
+      unsigned tri = tris_of_edges[j];
+      unsigned dir = tris_of_edges_directions[j];
+      star[j * 2 + 0] = edges_of_tris[tri * 3 + ((dir + 1) % 3)];
+      star[j * 2 + 1] = edges_of_tris[tri * 3 + ((dir + 2) % 3)];
+    }
+  }
+  *p_star_offsets = star_offsets;
+  *p_star = star;
+}
+
 void mesh_get_star(
     struct mesh* m,
     unsigned low_dim,
@@ -156,6 +191,8 @@ void mesh_get_star(
     mesh_get_star(m, low_dim, 1, p_star_offsets, p_star);
   else if (low_dim == 0 && high_dim == 1)
     get_vertex_edge_star(m, p_star_offsets, p_star);
+  else if (low_dim == 1 && high_dim == 2)
+    get_edge_triangle_star(m, p_star_offsets, p_star);
   else
     mesh_get_star_general(m, low_dim, high_dim, p_star_offsets, p_star);
 }
