@@ -13,14 +13,13 @@
  * across an edge.
  */
 
-void get_star(
+struct mesh;
+
+void mesh_get_star(
+    struct mesh* m,
     unsigned low_dim,
     unsigned high_dim,
-    unsigned nlows,
-    unsigned const* highs_of_lows_offsets,
-    unsigned const* highs_of_lows,
-    unsigned const* lows_of_highs,
-    unsigned** star_offsets_out,
-    unsigned** star_out);
+    unsigned** p_star_offsets,
+    unsigned** p_star);
 
 #endif

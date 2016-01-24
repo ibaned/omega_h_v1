@@ -19,65 +19,75 @@
      2->1
    and for d=2, d=1, the number of vertices of a simplex
    is n=3, n=2, respectively.
-   we can use this macro (template) to make it clearer to
-   the compiler it should generate unrolled code for
-   these two cases.
 
 TODO: consolidate this with find_by_verts.h
 */
 
-#define FIND_LOW_FAST(N) \
-LOOP_INOUT static inline unsigned find_low_fast_##N( \
-    unsigned const* verts_wanted, \
-    unsigned const* verts_of_lows, \
-    unsigned const* lows_of_verts_offsets, \
-    unsigned const* lows_of_verts) \
-{ \
-  unsigned v0 = verts_wanted[0]; \
-  unsigned f = lows_of_verts_offsets[v0]; \
-  unsigned e = lows_of_verts_offsets[v0 + 1]; \
-  for (unsigned i = f; i < e; ++i) { \
-    unsigned low = lows_of_verts[i]; \
-    unsigned const* verts_of_low = verts_of_lows + low * N; \
-    unsigned j; \
-    for (j = 0; j < N; ++j) { \
-      unsigned wanted_vert = verts_wanted[j]; \
-      unsigned k; \
-      for (k = 0; k < N; ++k) \
-        if (verts_of_low[k] == wanted_vert) \
-          break; \
-      if (k == N) \
-        break; \
-    } \
-    if (j == N) \
-      return low; \
-  } \
-  assert(0); \
+LOOP_INOUT static inline unsigned find_face_up(
+    unsigned const* verts_wanted,
+    unsigned const* verts_of_lows,
+    unsigned const* lows_of_verts_offsets,
+    unsigned const* lows_of_verts,
+    unsigned const* lows_of_verts_directions)
+{
+  unsigned v0 = verts_wanted[0];
+  unsigned f = lows_of_verts_offsets[v0];
+  unsigned e = lows_of_verts_offsets[v0 + 1];
+  for (unsigned i = f; i < e; ++i) {
+    unsigned low = lows_of_verts[i];
+    unsigned dir = lows_of_verts_directions[i];
+    unsigned const* verts_of_low = verts_of_lows + low * 3;
+    if (((verts_of_low[(dir + 1) % 3] == verts_wanted[1]) &&
+         (verts_of_low[(dir + 2) % 3] == verts_wanted[2])) ||
+        ((verts_of_low[(dir + 1) % 3] == verts_wanted[2]) &&
+         (verts_of_low[(dir + 2) % 3] == verts_wanted[1])))
+      return low;
+  }
+  assert(0);
 }
 
-FIND_LOW_FAST(2)
-FIND_LOW_FAST(3)
+LOOP_INOUT static inline unsigned find_edge_up(
+    unsigned const* verts_wanted,
+    unsigned const* verts_of_lows,
+    unsigned const* lows_of_verts_offsets,
+    unsigned const* lows_of_verts,
+    unsigned const* lows_of_verts_directions)
+{
+  unsigned v0 = verts_wanted[0];
+  unsigned f = lows_of_verts_offsets[v0];
+  unsigned e = lows_of_verts_offsets[v0 + 1];
+  for (unsigned i = f; i < e; ++i) {
+    unsigned low = lows_of_verts[i];
+    unsigned dir = lows_of_verts_directions[i];
+    unsigned const* verts_of_low = verts_of_lows + low * 2;
+    if (verts_of_low[1 - dir] == verts_wanted[1])
+      return low;
+  }
+  assert(0);
+}
 
-LOOP_INOUT static inline unsigned find_low_fast(
+LOOP_INOUT static inline unsigned find_low(
     unsigned nverts_wanted,
     unsigned const* verts_wanted,
     unsigned const* verts_of_lows,
     unsigned const* lows_of_verts_offsets,
-    unsigned const* lows_of_verts)
+    unsigned const* lows_of_verts,
+    unsigned const* lows_of_verts_directions)
 {
   if (nverts_wanted == 2)
-    return find_low_fast_2(verts_wanted, verts_of_lows, lows_of_verts_offsets,
-        lows_of_verts);
+    return find_edge_up(verts_wanted, verts_of_lows,
+        lows_of_verts_offsets, lows_of_verts, lows_of_verts_directions);
   else
-    return find_low_fast_3(verts_wanted, verts_of_lows, lows_of_verts_offsets,
-        lows_of_verts);
+    return find_face_up(verts_wanted, verts_of_lows,
+        lows_of_verts_offsets, lows_of_verts, lows_of_verts_directions);
 }
 
-LOOP_KERNEL(reflect_down_entity_fast,
+LOOP_KERNEL(reflect_down_entity,
     unsigned const* verts_of_highs,
     unsigned const* verts_of_lows,
     unsigned const* lows_of_verts_offsets,
     unsigned const* lows_of_verts,
+    unsigned const* lows_of_verts_directions,
     unsigned verts_per_high,
     unsigned lows_per_high,
     unsigned verts_per_low,
@@ -91,19 +101,20 @@ LOOP_KERNEL(reflect_down_entity_fast,
     unsigned verts_wanted[3];
     for (unsigned k = 0; k < verts_per_low; ++k)
       verts_wanted[k] = verts_of_high[high_verts_of_low[k]];
-    lows_of_high[j] = find_low_fast(verts_per_low, verts_wanted,
-        verts_of_lows, lows_of_verts_offsets, lows_of_verts);
+    lows_of_high[j] = find_low(verts_per_low, verts_wanted, verts_of_lows,
+        lows_of_verts_offsets, lows_of_verts, lows_of_verts_directions);
   }
 }
 
-static unsigned* reflect_down_fast(
+static unsigned* reflect_down(
     unsigned high_dim,
     unsigned low_dim,
     unsigned nhighs,
     unsigned const* verts_of_highs,
     unsigned const* verts_of_lows,
     unsigned const* lows_of_verts_offsets,
-    unsigned const* lows_of_verts)
+    unsigned const* lows_of_verts,
+    unsigned const* lows_of_verts_directions)
 {
   unsigned verts_per_high = the_down_degrees[high_dim][0];
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
@@ -112,11 +123,12 @@ static unsigned* reflect_down_fast(
   unsigned* lows_of_highs = LOOP_MALLOC(unsigned, nhighs * lows_per_high);
   unsigned const* const* high_verts_of_lows =
     the_canonical_orders[high_dim][low_dim][0];
-  LOOP_EXEC(reflect_down_entity_fast, nhighs,
+  LOOP_EXEC(reflect_down_entity, nhighs,
       verts_of_highs,
       verts_of_lows,
       lows_of_verts_offsets,
       lows_of_verts,
+      lows_of_verts_directions,
       verts_per_high,
       lows_per_high,
       verts_per_low,
@@ -134,6 +146,6 @@ unsigned* mesh_reflect_down(
   unsigned const* verts_of_highs = mesh_ask_down(m, high_dim, 0);
   struct const_up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
   unsigned const* verts_of_lows = mesh_ask_down(m, low_dim, 0);
-  return reflect_down_fast(high_dim, low_dim, nhighs,
-      verts_of_highs, verts_of_lows, lows_of_verts->offsets, lows_of_verts->adj);
+  return reflect_down(high_dim, low_dim, nhighs, verts_of_highs, verts_of_lows,
+      lows_of_verts->offsets, lows_of_verts->adj, lows_of_verts->directions);
 }
