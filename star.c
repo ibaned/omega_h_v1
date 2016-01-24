@@ -115,6 +115,36 @@ void mesh_get_star_general(
       p_star_offsets, p_star);
 }
 
+void get_vertex_edge_star(
+    struct mesh* m,
+    unsigned** p_star_offsets,
+    unsigned** p_star)
+{
+  unsigned nverts = mesh_count(m, 0);
+  unsigned const* verts_of_edges =
+    mesh_ask_down(m, 1, 0);
+  unsigned const* edges_of_verts_offsets =
+    mesh_ask_up(m, 0, 1)->offsets;
+  unsigned const* edges_of_verts =
+    mesh_ask_up(m, 0, 1)->adj;
+  unsigned const* edges_of_verts_directions =
+    mesh_ask_up(m, 0, 1)->directions;
+  *p_star_offsets = uints_copy(
+      edges_of_verts_offsets, nverts + 1);
+  unsigned nadj = edges_of_verts_offsets[nverts];
+  unsigned* star = LOOP_MALLOC(unsigned, nadj);
+  for (unsigned i = 0; i < nverts; ++i) {
+    unsigned f = edges_of_verts_offsets[i];
+    unsigned e = edges_of_verts_offsets[i + 1];
+    for (unsigned j = f; j < e; ++j) {
+      unsigned edge = edges_of_verts[j];
+      unsigned dir = edges_of_verts_directions[j];
+      star[j] = verts_of_edges[edge * 2 + (1 - dir)];
+    }
+  }
+  *p_star = star;
+}
+
 void mesh_get_star(
     struct mesh* m,
     unsigned low_dim,
@@ -124,6 +154,8 @@ void mesh_get_star(
 {
   if (low_dim == 0 && high_dim == mesh_dim(m) && mesh_has_dim(m, 1))
     mesh_get_star(m, low_dim, 1, p_star_offsets, p_star);
+  else if (low_dim == 0 && high_dim == 1)
+    get_vertex_edge_star(m, p_star_offsets, p_star);
   else
     mesh_get_star_general(m, low_dim, high_dim, p_star_offsets, p_star);
 }
