@@ -24,6 +24,8 @@ unsigned const* osh_down(osh_t m, unsigned high_dim, unsigned low_dim);
 unsigned const* osh_up(osh_t m, unsigned low_dim, unsigned high_dim);
 unsigned const* osh_up_offs(osh_t m, unsigned low_dim, unsigned high_dim);
 unsigned const* osh_up_dirs(osh_t m, unsigned low_dim, unsigned high_dim);
+unsigned const* osh_star(osh_t m, unsigned low_dim, unsigned high_dim);
+unsigned const* osh_star_offs(osh_t m, unsigned low_dim, unsigned high_dim);
 
 double const* osh_coords(osh_t m);
 
