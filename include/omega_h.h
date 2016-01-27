@@ -54,7 +54,7 @@ void osh_mark_classified(osh_t m, unsigned ent_dim,
 
 void osh_ghost(osh_t* m, unsigned nlayers);
 
-void osh_adapt(osh_t* m,
+unsigned osh_adapt(osh_t* m,
     double size_ratio_floor,
     double good_element_quality,
     unsigned nsliver_layers,
