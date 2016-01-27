@@ -80,7 +80,7 @@ static void satisfy_shape(
   }
 }
 
-void mesh_adapt(struct mesh** p_m,
+unsigned mesh_adapt(struct mesh** p_m,
     double size_ratio_floor,
     double good_qual,
     unsigned nsliver_layers,
@@ -92,4 +92,5 @@ void mesh_adapt(struct mesh** p_m,
   adapt_summary(*p_m);
   satisfy_size(p_m, size_ratio_floor, good_qual);
   satisfy_shape(p_m, good_qual, nsliver_layers);
+  return global_op_count > 0;
 }
