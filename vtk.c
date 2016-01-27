@@ -716,16 +716,15 @@ void write_vtu_cloud_opts(struct cloud* c, char const* filename,
   write_tag(file, npts, coord_tag, fmt);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
-  unsigned* conn = LOOP_HOST_MALLOC(unsigned, npts);
-  for (unsigned i = 0; i < npts; ++i)
-    conn[i] = i;
+  unsigned* conn = uints_linear(npts, 1);
   write_array(file, TAG_U32, "connectivity", npts, 1, conn, fmt);
-  loop_host_free(conn);
-  unsigned off[1];
-  off[0] = npts;
+  loop_free(conn);
+  unsigned* off = uints_filled(1, npts);
   write_array(file, TAG_U32, "offsets", 1, 1, off, fmt);
-  unsigned char type[1] = {VTK_POLY_VERTEX};
+  loop_free(off);
+  unsigned char* type = uchars_filled(1, VTK_POLY_VERTEX);
   write_array(file, TAG_U8, "types", 1, 1, type, fmt);
+  loop_free(type);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
   for (unsigned i = 0; i < cloud_count_tags(c); ++i) {

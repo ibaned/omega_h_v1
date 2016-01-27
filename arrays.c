@@ -104,6 +104,7 @@ T* name##_filled(unsigned n, T v) \
   return a; \
 }
 
+GENERIC_FILL(unsigned char, uchars)
 GENERIC_FILL(unsigned, uints)
 GENERIC_FILL(unsigned long, ulongs)
 GENERIC_FILL(double, doubles)
