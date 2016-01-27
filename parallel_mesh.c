@@ -68,7 +68,7 @@ void free_parallel_mesh(struct parallel_mesh* pm)
   loop_host_free(pm);
 }
 
-unsigned long const* mesh_ask_global(struct mesh* m, unsigned dim)
+unsigned long const* mesh_ask_globals(struct mesh* m, unsigned dim)
 {
   struct parallel_mesh* pm = mesh_parallel(m);
   return pm->globals[dim];
@@ -78,7 +78,7 @@ unsigned const* mesh_ask_own_ranks(struct mesh* m, unsigned dim)
 {
   struct parallel_mesh* pm = mesh_parallel(m);
   if (!pm->own_ranks[dim])
-    owners_from_global(mesh_count(m, dim), mesh_ask_global(m, dim),
+    owners_from_global(mesh_count(m, dim), mesh_ask_globals(m, dim),
         &pm->own_ranks[dim], &pm->own_ids[dim]);
   return pm->own_ranks[dim];
 }
@@ -87,7 +87,7 @@ unsigned const* mesh_ask_own_ids(struct mesh* m, unsigned dim)
 {
   struct parallel_mesh* pm = mesh_parallel(m);
   if (!pm->own_ids[dim])
-    own_idxs_from_global(mesh_count(m, dim), mesh_ask_global(m, dim),
+    own_idxs_from_global(mesh_count(m, dim), mesh_ask_globals(m, dim),
         pm->own_ranks[dim], &pm->own_ids[dim]);
   return pm->own_ids[dim];
 }
@@ -138,6 +138,8 @@ void mesh_global_renumber(struct mesh* m, unsigned dim)
 void mesh_conform_##name(struct mesh* m, unsigned dim, unsigned width, \
     T** a) \
 { \
+  if (!mesh_is_parallel(m)) \
+    return; \
   T* in = *a; \
   T* out = exchange_##name(mesh_ask_exchanger(m, dim), width, in, \
       EX_FOR, EX_ROOT); \
@@ -194,7 +196,7 @@ void mesh_set_ghost_layers(struct mesh* m, unsigned n)
   mesh_parallel(m)->nghost_layers = n;
 }
 
-void mesh_set_global(struct mesh* m, unsigned dim, unsigned long* new_globals)
+void mesh_set_globals(struct mesh* m, unsigned dim, unsigned long* new_globals)
 {
   struct parallel_mesh* pm = mesh_parallel(m);
   invalidate_globals(pm, dim);
@@ -208,10 +210,10 @@ void mesh_set_own_ranks(struct mesh* m, unsigned dim, unsigned* new_owners)
   pm->own_ranks[dim] = new_owners;
 }
 
-void mesh_tag_global(struct mesh* m, unsigned dim)
+void mesh_tag_globals(struct mesh* m, unsigned dim)
 {
   mesh_add_tag(m, dim, TAG_U64, "global_number", 1,
-      ulongs_copy(mesh_ask_global(m, dim), mesh_count(m, dim)));
+      ulongs_copy(mesh_ask_globals(m, dim), mesh_count(m, dim)));
 }
 
 void mesh_tag_own_rank(struct mesh* m, unsigned dim)
@@ -230,7 +232,7 @@ void mesh_parallel_to_tags(struct mesh* m, unsigned dim)
 {
   struct parallel_mesh* pm = mesh_parallel(m);
   if (pm->globals[dim])
-    mesh_tag_global(m, dim);
+    mesh_tag_globals(m, dim);
   if (pm->own_ranks[dim])
     mesh_tag_own_rank(m, dim);
   if (pm->own_ids[dim])
@@ -251,7 +253,7 @@ void mesh_parallel_from_tags(struct mesh* m, unsigned dim)
 {
   if (!mesh_find_tag(m, dim, "global_number"))
     return;
-  mesh_set_global(m, dim, ulongs_copy(
+  mesh_set_globals(m, dim, ulongs_copy(
         mesh_find_tag(m, dim, "global_number")->d.u64,
         mesh_count(m, dim)));
   mesh_free_tag(m, dim, "global_number");

@@ -2,7 +2,7 @@
 
 #include "loop.h"
 
-struct graph* new_graph(unsigned* offsets, unsigned* adj)
+struct graph* osh_new_graph(unsigned* offsets, unsigned* adj)
 {
   struct graph* g = LOOP_HOST_MALLOC(struct graph, 1);
   g->offsets = offsets;
@@ -10,7 +10,7 @@ struct graph* new_graph(unsigned* offsets, unsigned* adj)
   return g;
 }
 
-void free_graph(struct graph* g)
+void osh_free_graph(struct graph* g)
 {
   if (!g)
     return;

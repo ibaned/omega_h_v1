@@ -7,6 +7,9 @@
 include config.mk
 
 test_sources := \
+test_one_refine.c \
+test_one_coarsen.c \
+test_one_swap.c \
 test_partition.c \
 test_print_swap_edges.c \
 test_box.c \
@@ -31,8 +34,7 @@ test_ask_up.c \
 test_ask_down.c \
 test_derive_model.c \
 test_subdim.c \
-test_loop.c \
-test_one_refine.c
+test_loop.c
 
 lib_sources := \
 star.c \
@@ -46,7 +48,7 @@ quality.c \
 size.c \
 bridge_graph.c \
 refine_common.c \
-refine_by_size.c \
+refine.c \
 indset.c \
 measure_edges.c \
 reflect_down.c \
@@ -55,7 +57,7 @@ refine_nodal.c \
 refine_conserve.c \
 refine_qualities.c \
 doubles.c \
-coarsen_by_size.c \
+coarsen.c \
 check_collapse_class.c \
 coarsen_qualities.c \
 coarsen_topology.c \
@@ -74,9 +76,7 @@ subset.c \
 adapt.c \
 coarsen_common.c \
 mark.c \
-coarsen_slivers.c \
-swap_slivers.c \
-swap_common.c \
+swap.c \
 swap_qualities.c \
 swap_topology.c \
 swap_conserve.c \
@@ -165,7 +165,7 @@ clean:
 	rm -rf deps/ objs/ bin/ lib/ loop.h
 
 #just targets, not files or directories
-.PHONY: all clean check
+.PHONY: all clean check install
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
@@ -239,6 +239,14 @@ deps/%.dep: %.c loop.h | deps
 #the minus sign silences warnings when the
 #depfiles don't exist yet.
 -include $(depfiles)
+
+install: all
+	install -d $(PREFIX)/bin
+	install -m 755 $(exes) $(PREFIX)/bin
+	install -d $(PREFIX)/lib
+	install -m 644 $(lib) $(PREFIX)/lib
+	install -d $(PREFIX)/include
+	install -m 644 include/omega_h.h $(PREFIX)/include
 
 check: data $(exes)
 	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) \

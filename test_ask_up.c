@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "eval_field.h"
 #include "mesh.h"
-#include "refine_by_size.h"
 #include "vtk.h"
 #include "graph.h"
 

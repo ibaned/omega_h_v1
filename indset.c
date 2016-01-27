@@ -104,8 +104,7 @@ static unsigned* find_indset(
     for (unsigned i = 0; i < nverts; ++i)
       at_vert(offsets, adj, goodness, global, old_state, state, i);
     loop_free(old_state);
-    if (mesh_is_parallel(m))
-      mesh_conform_uints(m, ent_dim, 1, &state);
+    mesh_conform_uints(m, ent_dim, 1, &state);
     if (comm_max_uint(uints_max(state, nverts)) < UNKNOWN)
       return state;
   }
@@ -124,7 +123,7 @@ unsigned* mesh_find_indset(struct mesh* m, unsigned ent_dim,
   unsigned long const* global = 0;
   unsigned long* to_free = 0;
   if (mesh_is_parallel(m)) {
-    global = mesh_ask_global(m, ent_dim);
+    global = mesh_ask_globals(m, ent_dim);
   } else {
     global = to_free = ulongs_linear(nents, 1);
   }

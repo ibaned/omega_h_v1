@@ -1,5 +1,5 @@
-#ifndef SWAP_SLIVERS_H
-#define SWAP_SLIVERS_H
+#ifndef SWAP_H
+#define SWAP_H
 
 struct mesh;
 

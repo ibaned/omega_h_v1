@@ -8,7 +8,7 @@ struct exchanger;
 struct parallel_mesh* new_parallel_mesh(void);
 void free_parallel_mesh(struct parallel_mesh* m);
 
-unsigned long const* mesh_ask_global(struct mesh* m, unsigned dim);
+unsigned long const* mesh_ask_globals(struct mesh* m, unsigned dim);
 unsigned const* mesh_ask_own_ranks(struct mesh* m, unsigned dim);
 unsigned const* mesh_ask_own_ids(struct mesh* m, unsigned dim);
 struct exchanger* mesh_ask_exchanger(struct mesh* m, unsigned dim);
@@ -29,10 +29,10 @@ unsigned mesh_ghost_layers(struct mesh* m);
 
 void mesh_set_ghost_layers(struct mesh* m, unsigned n);
 
-void mesh_set_global(struct mesh* m, unsigned dim, unsigned long* new_globals);
+void mesh_set_globals(struct mesh* m, unsigned dim, unsigned long* new_globals);
 void mesh_set_own_ranks(struct mesh* m, unsigned dim, unsigned* new_owners);
 
-void mesh_tag_global(struct mesh* m, unsigned dim);
+void mesh_tag_globals(struct mesh* m, unsigned dim);
 void mesh_tag_own_rank(struct mesh* m, unsigned dim);
 void mesh_tag_own_id(struct mesh* m, unsigned dim);
 

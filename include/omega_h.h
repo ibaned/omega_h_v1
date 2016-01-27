@@ -24,19 +24,25 @@ unsigned const* osh_down(osh_t m, unsigned high_dim, unsigned low_dim);
 unsigned const* osh_up(osh_t m, unsigned low_dim, unsigned high_dim);
 unsigned const* osh_up_offs(osh_t m, unsigned low_dim, unsigned high_dim);
 unsigned const* osh_up_dirs(osh_t m, unsigned low_dim, unsigned high_dim);
+unsigned const* osh_star(osh_t m, unsigned low_dim, unsigned high_dim);
+unsigned const* osh_star_offs(osh_t m, unsigned low_dim, unsigned high_dim);
 
 double const* osh_coords(osh_t m);
 
 unsigned const* osh_own_rank(osh_t m, unsigned dim);
 unsigned const* osh_own_id(osh_t m, unsigned dim);
 
-void osh_set_field(osh_t m, char const* name, unsigned ncomps, double* data);
-
-void osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps);
+double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps);
 double* osh_get_field(osh_t m, unsigned dim, char const* name);
+void osh_free_field(osh_t m, char const* name);
+
+unsigned osh_nfields(osh_t om, unsigned dim);
+char const* osh_field(osh_t m, unsigned dim, unsigned i);
+unsigned osh_components(osh_t m, unsigned dim, char const* name);
 
 unsigned* osh_new_label(osh_t m, unsigned dim, char const* name, unsigned ncomps);
 unsigned* osh_get_label(osh_t m, unsigned dim, char const* name);
+void osh_free_label(osh_t m, char const* name);
 
 unsigned long* osh_new_global(osh_t m, unsigned dim);
 
@@ -45,11 +51,6 @@ void osh_conform(osh_t m, char const* name);
 
 void osh_mark_classified(osh_t m, unsigned ent_dim,
     unsigned class_dim, unsigned class_id, unsigned* marked);
-void osh_mark_verts(osh_t m, unsigned class_dim, unsigned class_id,
-    unsigned* marked);
-
-void osh_add_label(osh_t m, char const* name, unsigned* data);
-void osh_free_label(osh_t m, char const* name);
 
 void osh_ghost(osh_t* m, unsigned nlayers);
 

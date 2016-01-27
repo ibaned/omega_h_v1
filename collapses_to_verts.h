@@ -1,16 +1,9 @@
 #ifndef COLLAPSES_TO_VERTS_H
 #define COLLAPSES_TO_VERTS_H
 
-void collapses_to_verts(
-    unsigned nverts,
-    unsigned const* verts_of_edges,
-    unsigned const* edges_of_verts_offsets,
-    unsigned const* edges_of_verts,
-    unsigned const* edges_of_verts_directions,
-    unsigned const* col_codes,
-    double const* col_quals_of_edges,
-    unsigned** candidates_out,
-    unsigned** gen_vert_of_verts_out,
-    double** col_qual_of_verts_out);
+struct mesh;
+
+void valid_collapses_to_verts(struct mesh* m);
+unsigned* collapsing_vertex_destinations(struct mesh* m);
 
 #endif
