@@ -44,6 +44,9 @@ LOOP_INOUT static inline unsigned find_face_up(
       return low;
   }
   assert(0);
+#ifdef __CUDACC__
+  return INVALID;
+#endif
 }
 
 LOOP_INOUT static inline unsigned find_edge_up(
@@ -64,6 +67,9 @@ LOOP_INOUT static inline unsigned find_edge_up(
       return low;
   }
   assert(0);
+#ifdef __CUDACC__
+  return INVALID;
+#endif
 }
 
 LOOP_INOUT static inline unsigned find_low(
