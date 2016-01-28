@@ -17,48 +17,40 @@
    hinge = side - 1
 */
 
-static double* get_boundary_edge_normals(
-    unsigned nedges,
+LOOP_KERNEL(boundary_edge_normal, 
     unsigned const* boundary_edges,
     unsigned const* verts_of_edges,
-    double const* coords)
-{
-  double* normals = LOOP_MALLOC(double, 3 * nedges);
-  for (unsigned i = 0; i < nedges; ++i) {
-    if (!boundary_edges[i])
-      continue;
-    subtract_vectors(coords + verts_of_edges[i * 2 + 1] * 3,
-                     coords + verts_of_edges[i * 2 + 0] * 3,
-                     normals + i * 3,
-                     3);
-    normalize_vector(normals + i * 3, normals + i * 3, 3);
-  }
-  return normals;
+    double const* coords,
+    double* normals)
+
+  if (!boundary_edges[i])
+    return;
+  subtract_vectors(coords + verts_of_edges[i * 2 + 1] * 3,
+                   coords + verts_of_edges[i * 2 + 0] * 3,
+                   normals + i * 3,
+                   3);
+  normalize_vector(normals + i * 3, normals + i * 3, 3);
 }
 
-static double* get_boundary_tri_normals(
-    unsigned ntris,
+LOOP_KERNEL(boundary_tri_normal, 
     unsigned const* boundary_tris,
     unsigned const* verts_of_tris,
-    double const* coords)
-{
-  double* normals = LOOP_MALLOC(double, 3 * ntris);
-  for (unsigned i = 0; i < ntris; ++i) {
-    if (!boundary_tris[i])
-      continue;
-    double basis[2][3];
-    subtract_vectors(coords + verts_of_tris[i * 3 + 1] * 3,
-                     coords + verts_of_tris[i * 3 + 0] * 3,
-                     basis[0],
-                     3);
-    subtract_vectors(coords + verts_of_tris[i * 3 + 2] * 3,
-                     coords + verts_of_tris[i * 3 + 0] * 3,
-                     basis[1],
-                     3);
-    cross_product(basis[0], basis[1], normals + i * 3);
-    normalize_vector(normals + i * 3, normals + i * 3, 3);
-  }
-  return normals;
+    double const* coords,
+    double* normals)
+
+  if (!boundary_tris[i])
+    return;
+  double basis[2][3];
+  subtract_vectors(coords + verts_of_tris[i * 3 + 1] * 3,
+                   coords + verts_of_tris[i * 3 + 0] * 3,
+                   basis[0],
+                   3);
+  subtract_vectors(coords + verts_of_tris[i * 3 + 2] * 3,
+                   coords + verts_of_tris[i * 3 + 0] * 3,
+                   basis[1],
+                   3);
+  cross_product(basis[0], basis[1], normals + i * 3);
+  normalize_vector(normals + i * 3, normals + i * 3, 3);
 }
 
 static double* get_boundary_side_normals(
@@ -68,19 +60,18 @@ static double* get_boundary_side_normals(
     unsigned const* verts_of_sides,
     double const* coords)
 {
+  double* normals = LOOP_MALLOC(double, 3 * nsides);
   switch (side_dim) {
     case 1:
-      return get_boundary_edge_normals(nsides, boundary_sides, verts_of_sides,
-          coords);
+      LOOP_EXEC(boundary_edge_normal, nsides, boundary_sides, verts_of_sides,
+          coords, normals);
+      break;
     case 2:
-      return get_boundary_tri_normals(nsides, boundary_sides, verts_of_sides,
-          coords);
-    default:
-      assert(0);
+      LOOP_EXEC(boundary_tri_normal, nsides, boundary_sides, verts_of_sides,
+          coords, normals);
+      break;
   }
-#ifdef __CUDACC__
-  return 0;
-#endif
+  return normals;
 }
 
 static double* get_hinge_angles(
