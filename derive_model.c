@@ -74,6 +74,37 @@ static double* get_boundary_side_normals(
   return normals;
 }
 
+LOOP_KERNEL(get_hinge_angle,
+    unsigned const* sides_of_hinges,
+    unsigned const* sides_of_hinges_offsets,
+    unsigned const* boundary_sides,
+    unsigned const* boundary_hinges,
+    double const* side_normals,
+    double* angles)
+
+  if (!boundary_hinges[i]) {
+    angles[i] = 0;
+    return;
+  }
+  unsigned f = sides_of_hinges_offsets[i];
+  unsigned e = sides_of_hinges_offsets[i + 1];
+  unsigned nadj = 0;
+  unsigned adj[2];
+  for (unsigned j = f; j < e; ++j) {
+    unsigned side = sides_of_hinges[j];
+    if (boundary_sides[side]) {
+      assert(nadj < 2);
+      adj[nadj] = side;
+      ++nadj;
+    }
+  }
+  double d = dot_product(
+      side_normals + adj[0] * 3,
+      side_normals + adj[1] * 3,
+      3);
+  angles[i] = acos(d);
+}
+
 static double* get_hinge_angles(
     unsigned nhinges,
     unsigned const* sides_of_hinges,
@@ -83,30 +114,18 @@ static double* get_hinge_angles(
     double const* side_normals)
 {
   double* angles = LOOP_MALLOC(double, nhinges);
-  for (unsigned i = 0; i < nhinges; ++i) {
-    if (!boundary_hinges[i]) {
-      angles[i] = 0;
-      continue;
-    }
-    unsigned f = sides_of_hinges_offsets[i];
-    unsigned e = sides_of_hinges_offsets[i + 1];
-    unsigned nadj = 0;
-    unsigned adj[2];
-    for (unsigned j = f; j < e; ++j) {
-      unsigned side = sides_of_hinges[j];
-      if (boundary_sides[side]) {
-        assert(nadj < 2);
-        adj[nadj] = side;
-        ++nadj;
-      }
-    }
-    double d = dot_product(
-        side_normals + adj[0] * 3,
-        side_normals + adj[1] * 3,
-        3);
-    angles[i] = acos(d);
-  }
+  LOOP_EXEC(get_hinge_angle, nhinges,
+      sides_of_hinges, sides_of_hinges_offsets,
+      boundary_sides, boundary_hinges, side_normals,
+      angles);
   return angles;
+}
+
+LOOP_KERNEL(mark_crease,
+    double const* hingle_angles,
+    double crease_angle,
+    unsigned* creases)
+  creases[i] = hingle_angles[i] > crease_angle;
 }
 
 static unsigned* mark_creases(
@@ -115,9 +134,22 @@ static unsigned* mark_creases(
     double crease_angle)
 {
   unsigned* creases = LOOP_MALLOC(unsigned, nhinges);
-  for (unsigned i = 0; i < nhinges; ++i)
-    creases[i] = hingle_angles[i] > crease_angle;
+  LOOP_EXEC(mark_crease, nhinges, hingle_angles, crease_angle, creases);
   return creases;
+}
+
+LOOP_KERNEL(mark_corner,
+    unsigned const* edges_of_verts,
+    unsigned const* edges_of_verts_offsets,
+    unsigned const* crease_edges,
+    unsigned* corners)
+  unsigned f = edges_of_verts_offsets[i];
+  unsigned e = edges_of_verts_offsets[i + 1];
+  unsigned nin = 0;
+  for (unsigned j = f; j < e; ++j)
+    if (crease_edges[edges_of_verts[j]])
+      ++nin;
+  corners[i] = (nin > 2);
 }
 
 static unsigned* mark_corners(
@@ -127,15 +159,9 @@ static unsigned* mark_corners(
     unsigned const* crease_edges)
 {
   unsigned* corners = LOOP_MALLOC(unsigned, nverts);
-  for (unsigned i = 0; i < nverts; ++i) {
-    unsigned f = edges_of_verts_offsets[i];
-    unsigned e = edges_of_verts_offsets[i + 1];
-    unsigned nin = 0;
-    for (unsigned j = f; j < e; ++j)
-      if (crease_edges[edges_of_verts[j]])
-        ++nin;
-    corners[i] = (nin > 2);
-  }
+  LOOP_EXEC(mark_corner, nverts,
+      edges_of_verts, edges_of_verts_offsets,
+      crease_edges, corners);
   return corners;
 }
 
@@ -159,7 +185,6 @@ static unsigned* get_vert_class_dim(
     class_dim[i] = (d - corner_verts[i]);
   }
   return class_dim;
-
 }
 
 void mesh_derive_class_dim(struct mesh* m, double crease_angle)
