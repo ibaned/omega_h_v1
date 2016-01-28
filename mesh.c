@@ -71,13 +71,11 @@ struct mesh* new_box_mesh(unsigned elem_dim)
   unsigned nverts = the_box_nverts[elem_dim];
   mesh_set_ents(m, 0, nverts, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned long nbytes = sizeof(unsigned) * verts_per_elem * nelems;
-  unsigned* verts_of_elems = LOOP_MALLOC(unsigned, verts_per_elem * nelems);
-  memcpy(verts_of_elems, the_box_conns[elem_dim], nbytes);
-  double* coords = LOOP_MALLOC(double, 3 * nverts);
-  nbytes = sizeof(double) * 3 * nverts;
-  memcpy(coords, the_box_coords[elem_dim], nbytes);
+  unsigned* verts_of_elems = LOOP_TO_DEVICE(
+      unsigned, the_box_conns[elem_dim], verts_per_elem * nelems);
   mesh_set_ents(m, elem_dim, nelems, verts_of_elems);
+  double* coords = LOOP_TO_DEVICE(
+      double, the_box_coords[elem_dim], 3 * nverts);
   mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, coords);
   return m;
 }
