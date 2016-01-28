@@ -27,7 +27,7 @@ static void refine_verts(struct mesh* m, struct mesh* m_out,
 {
   unsigned nverts = mesh_count(m, 0);
   unsigned nsrcs = mesh_count(m, src_dim);
-  unsigned nsplit_srcs = gen_offset_of_srcs[nsrcs];
+  unsigned nsplit_srcs = uints_at(gen_offset_of_srcs, nsrcs);
   unsigned nverts_out = nverts + nsplit_srcs;
   mesh_set_ents(m_out, 0, nverts_out, 0);
   unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);

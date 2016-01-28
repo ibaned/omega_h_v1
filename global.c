@@ -1,5 +1,6 @@
 #include "global.h"
 
+#include "arrays.h"
 #include "comm.h"
 #include "ints.h"
 #include "loop.h"
@@ -7,7 +8,7 @@
 unsigned long* globalize_offsets(unsigned* local, unsigned n)
 {
   unsigned long* global = LOOP_MALLOC(unsigned long, n);
-  unsigned long lsum = local[n];
+  unsigned long lsum = uints_at(local, n);
   unsigned long goff = comm_exscan_ulong(lsum);
   for (unsigned i = 0; i < n; ++i)
     global[i] = local[i] + goff;

@@ -57,8 +57,8 @@ void inherit_globals(
   loop_free(owned);
   loop_free(same);
   unsigned* owned_and_same_offsets = uints_exscan(owned_and_same, nin);
-  unsigned nowned_and_same = owned_and_same_offsets[nin];
-  unsigned nsame = offset_of_same_ents[nin];
+  unsigned nowned_and_same = uints_at(owned_and_same_offsets, nin);
+  unsigned nsame = uints_at(offset_of_same_ents, nin);
   unsigned nout = mesh_count(m_out, ent_dim);
   unsigned nnew = nout - nsame;
   unsigned nowned_out = nowned_and_same + nnew;

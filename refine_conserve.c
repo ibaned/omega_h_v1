@@ -12,7 +12,7 @@ static double* refine_conserve_data(
 {
   unsigned width = t->ncomps;
   double const* data_in = t->d.f64;
-  unsigned ngen_elems = prods_of_doms_offsets[nelems];
+  unsigned ngen_elems = uints_at(prods_of_doms_offsets, nelems);
   double* data_out = LOOP_MALLOC(double, width * ngen_elems);
   for (unsigned i = 0; i < nelems; ++i) {
     unsigned f = prods_of_doms_offsets[i];

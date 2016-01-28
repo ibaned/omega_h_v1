@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "arrays.h"
 #include "loop.h"
 #include "mesh.h"
 #include "tables.h"
@@ -41,7 +42,7 @@ void refine_topology(
     return;
   unsigned opps_per_src = the_down_degrees[src_dim][opp_dim];
   assert(opps_per_src);
-  unsigned nsplit_doms = offset_of_doms[ndoms];
+  unsigned nsplit_doms = uints_at(offset_of_doms, ndoms);
   if (!nsplit_doms)
     return;
   unsigned verts_per_prod = the_down_degrees[prod_dim][0];
@@ -95,7 +96,7 @@ static unsigned refined_prod_count(
     unsigned const* offset_of_doms)
 {
   unsigned ndoms = mesh_count(m, dom_dim);
-  unsigned nsplit_doms = offset_of_doms[ndoms];
+  unsigned nsplit_doms = uints_at(offset_of_doms, ndoms);
   return nsplit_doms * get_prods_per_dom(dom_dim, src_dim, prod_dim);
 }
 
@@ -117,7 +118,7 @@ void refined_prod_counts(
     }
   }
   unsigned nsrcs = mesh_count(m, src_dim);
-  ngen_ents[0][src_dim] = offset_of_doms[src_dim][nsrcs];
+  ngen_ents[0][src_dim] = uints_at(offset_of_doms[src_dim], nsrcs);
 }
 
 void mesh_refine_topology(struct mesh* m,
