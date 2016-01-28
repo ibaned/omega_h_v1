@@ -165,6 +165,23 @@ static unsigned* mark_corners(
   return corners;
 }
 
+LOOP_KERNEL(get_vert_class_dim_kern,
+    unsigned const* corner_verts,
+    unsigned const* edges_of_verts,
+    unsigned const* edges_of_verts_offsets,
+    unsigned const* class_dim_of_edges,
+    unsigned* class_dim)
+  unsigned f = edges_of_verts_offsets[i];
+  unsigned e = edges_of_verts_offsets[i + 1];
+  unsigned d = 3;
+  for (unsigned j = f; j < e; ++j) {
+    unsigned ed = class_dim_of_edges[edges_of_verts[j]];
+    if (ed < d)
+      d = ed;
+  }
+  class_dim[i] = (d - corner_verts[i]);
+}
+
 static unsigned* get_vert_class_dim(
     unsigned nverts,
     unsigned const* corner_verts,
@@ -173,18 +190,25 @@ static unsigned* get_vert_class_dim(
     unsigned const* class_dim_of_edges)
 {
   unsigned* class_dim = LOOP_MALLOC(unsigned, nverts);
-  for (unsigned i = 0; i < nverts; ++i) {
-    unsigned f = edges_of_verts_offsets[i];
-    unsigned e = edges_of_verts_offsets[i + 1];
-    unsigned d = 3;
-    for (unsigned j = f; j < e; ++j) {
-      unsigned ed = class_dim_of_edges[edges_of_verts[j]];
-      if (ed < d)
-        d = ed;
-    }
-    class_dim[i] = (d - corner_verts[i]);
-  }
+  LOOP_EXEC(get_vert_class_dim_kern, nverts,
+      corner_verts, edges_of_verts, edges_of_verts_offsets,
+      class_dim_of_edges, class_dim);
   return class_dim;
+}
+
+LOOP_KERNEL(get_side_class_dim,
+    unsigned dim,
+    unsigned const* boundary_sides,
+    unsigned* side_class_dim)
+  side_class_dim[i] = (dim - boundary_sides[i]);
+}
+
+LOOP_KERNEL(get_hinge_class_dim,
+    unsigned dim,
+    unsigned const* boundary_hinges,
+    unsigned const* crease_hinges,
+    unsigned* hinge_class_dim)
+  hinge_class_dim[i] = (dim - boundary_hinges[i] - crease_hinges[i]);
 }
 
 void mesh_derive_class_dim(struct mesh* m, double crease_angle)
@@ -197,8 +221,7 @@ void mesh_derive_class_dim(struct mesh* m, double crease_angle)
   unsigned* boundary_sides = mesh_mark_part_boundary(m);
   unsigned nsides = mesh_count(m, dim - 1);
   unsigned* side_class_dim = LOOP_MALLOC(unsigned, nsides);
-  for (unsigned i = 0; i < nsides; ++i)
-    side_class_dim[i] = (dim - boundary_sides[i]);
+  LOOP_EXEC(get_side_class_dim, nsides, dim, boundary_sides, side_class_dim);
   mesh_add_tag(m, dim - 1, TAG_U32, "class_dim", 1, side_class_dim);
   if (dim == 1) {
     loop_free(boundary_sides);
@@ -219,8 +242,8 @@ void mesh_derive_class_dim(struct mesh* m, double crease_angle)
   unsigned* crease_hinges = mark_creases(nhinges, hinge_angles, crease_angle);
   loop_free(hinge_angles);
   unsigned* hinge_class_dim = LOOP_MALLOC(unsigned, nhinges);
-  for (unsigned i = 0; i < nhinges; ++i)
-    hinge_class_dim[i] = (dim - boundary_hinges[i] - crease_hinges[i]);
+  LOOP_EXEC(get_hinge_class_dim, nhinges,
+      dim, boundary_hinges, crease_hinges, hinge_class_dim);
   loop_free(boundary_hinges);
   mesh_add_tag(m, dim - 2, TAG_U32, "class_dim", 1, hinge_class_dim);
   if (dim == 2) {
