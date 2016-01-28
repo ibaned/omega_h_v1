@@ -51,6 +51,13 @@ unsigned long ulongs_max(unsigned long const* a, unsigned n)
   return max;
 }
 
+unsigned uints_at(unsigned const* a, unsigned i)
+{
+  unsigned x;
+  CUDACALL(cudaMemcpy(&x, a + i, sizeof(unsigned), cudaMemcpyHostToDevice));
+  return x;
+}
+
 #else
 
 unsigned uints_max(unsigned const* a, unsigned n)
@@ -89,6 +96,11 @@ unsigned long ulongs_max(unsigned long const* a, unsigned n)
     if (a[i] > max)
       max = a[i];
   return max;
+}
+
+unsigned uints_at(unsigned const* a, unsigned i)
+{
+  return a[i];
 }
 
 #endif
