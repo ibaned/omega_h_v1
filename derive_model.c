@@ -264,23 +264,32 @@ void mesh_derive_class_dim(struct mesh* m, double crease_angle)
 
 /* This algorithm amounts to finding connected components of a graph.
    It uses an iterative (non-recursive) depth-first search.
-   It seems difficult to parallelize via "loop", and the use case
-   is for serial pre-processing of under-specified meshes. */
+   It seems difficult to parallelize via "loop", so we move data
+   to the host and operate there. */
 
 static void set_equal_order_class_id(struct mesh* m, unsigned dim)
 {
-  assert(loop_size() == 1);
   unsigned n = mesh_count(m, dim);
-  unsigned const* class_dim = mesh_find_tag(m, dim, "class_dim")->d.u32;
-  unsigned const* down_class_dim = mesh_find_tag(m, dim - 1, "class_dim")->d.u32;
-  unsigned const* down = mesh_ask_down(m, dim, dim - 1);
+  unsigned ndown = mesh_count(m, dim - 1);
+  unsigned* class_dim = LOOP_TO_HOST(unsigned,
+      mesh_find_tag(m, dim, "class_dim")->d.u32, n);
+  unsigned* down_class_dim = LOOP_TO_HOST(unsigned,
+      mesh_find_tag(m, dim - 1, "class_dim")->d.u32, ndown);
   unsigned degree = the_down_degrees[dim][dim - 1];
-  unsigned const* up = mesh_ask_up(m, dim - 1, dim)->adj;
-  unsigned const* up_offsets = mesh_ask_up(m, dim - 1, dim)->offsets;
-  unsigned* class_id = uints_filled(n, INVALID);
-  unsigned* stack = LOOP_MALLOC(unsigned, n);
+  unsigned* down = LOOP_TO_HOST(unsigned,
+      mesh_ask_down(m, dim, dim - 1), n * degree);
+  unsigned* up = LOOP_TO_HOST(unsigned,
+      mesh_ask_up(m, dim - 1, dim)->adj, n * degree);
+  unsigned* up_offsets = LOOP_TO_HOST(unsigned,
+      mesh_ask_up(m, dim - 1, dim)->offsets, ndown + 1);
+  unsigned* class_id_dev = uints_filled(n, INVALID);
+  unsigned* class_id = LOOP_TO_HOST(unsigned, class_id_dev, n);
+  loop_free(class_id_dev);
+  unsigned* stack = LOOP_HOST_MALLOC(unsigned, n);
   enum { WHITE, GRAY, BLACK };
-  unsigned* state = uints_filled(n, WHITE);
+  unsigned* state_dev = uints_filled(n, WHITE);
+  unsigned* state = LOOP_TO_HOST(unsigned, state_dev, n);
+  loop_free(state_dev);
   unsigned stack_n = 0;
   unsigned component = 0;
   for (unsigned i = 0; i < n; ++i)
@@ -314,8 +323,13 @@ static void set_equal_order_class_id(struct mesh* m, unsigned dim)
     }
     ++component;
   }
-  loop_free(stack);
-  loop_free(state);
+  loop_host_free(class_dim);
+  loop_host_free(down_class_dim);
+  loop_host_free(down);
+  loop_host_free(up);
+  loop_host_free(up_offsets);
+  loop_host_free(stack);
+  loop_host_free(state);
   mesh_add_tag(m, dim, TAG_U32, "class_id", 1, class_id);
 }
 
