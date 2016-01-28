@@ -395,18 +395,14 @@ static void write_cell_arrays(FILE* file, struct mesh* m, enum vtk_format fmt)
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
   write_connectivity(file, m, elem_dim, fmt);
-  unsigned* off = LOOP_HOST_MALLOC(unsigned, nelems);
   unsigned nverts_per_elem = the_down_degrees[elem_dim][0];
-  for (unsigned i = 0; i < nelems; ++i)
-    off[i] = (i + 1) * nverts_per_elem;
-  write_array(file, TAG_U32, "offsets", nelems, 1, off, fmt);
-  loop_host_free(off);
-  unsigned char* types = LOOP_HOST_MALLOC(unsigned char, nelems);
+  unsigned* off = uints_linear(nelems + 1, nverts_per_elem);
+  write_array(file, TAG_U32, "offsets", nelems, 1, off + 1, fmt);
+  loop_free(off);
   unsigned char type = (unsigned char) simplex_types[elem_dim];
-  for (unsigned i = 0; i < nelems; ++i)
-    types[i] = type;
+  unsigned char* types = uchars_filled(nelems, type);
   write_array(file, TAG_U8, "types", nelems, 1, types, fmt);
-  loop_host_free(types);
+  loop_free(types);
 }
 
 static void write_mesh_tags(FILE* file, struct mesh* m, unsigned dim,
