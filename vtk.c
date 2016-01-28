@@ -155,7 +155,9 @@ static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
   unsigned tsize = tag_size(t);
   unsigned size = tsize * ncomps * nents;
   unsigned long comp_size;
-  void* comp = my_compress(data, size, &comp_size);
+  void* host_data = LOOP_TO_HOST(unsigned char, data, size);
+  void* comp = my_compress(host_data, size, &comp_size);
+  loop_host_free(host_data);
   if (can_compress) {
     unsigned comp_header[4] = {1, size, size, (unsigned) comp_size};
     write_binary_uints(file, comp_header, 4);
@@ -204,6 +206,7 @@ static void* read_binary_array(FILE* file, enum endian end, unsigned do_com,
     loop_host_free(decod);
   } else
     decomp = decod;
+  /* this function also copies to device space */
   void* swapped = generic_swap_if_needed(end, nents * ncomps, tsize, decomp);
   loop_host_free(decomp);
   return swapped;
@@ -214,39 +217,43 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
 {
   switch (t) {
     case TAG_U8: {
-      unsigned char const* p = (unsigned char const*) data;
+      unsigned char* p = LOOP_TO_HOST(unsigned char, data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
-          fprintf(file, " %hhu", *p++);
+          fprintf(file, " %hhu", p[i * ncomps + j]);
         fprintf(file, "\n");
       }
+      loop_host_free(p);
       break;
     }
     case TAG_U32: {
-      unsigned const* p = (unsigned const*) data;
+      unsigned* p = LOOP_TO_HOST(unsigned, data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
-          fprintf(file, " %u", *p++);
+          fprintf(file, " %u", p[i * ncomps + j]);
         fprintf(file, "\n");
       }
+      loop_host_free(p);
       break;
     }
     case TAG_U64: {
-      unsigned long const* p = (unsigned long const*) data;
+      unsigned long* p = LOOP_TO_HOST(unsigned long, data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
-          fprintf(file, " %lu", *p++);
+          fprintf(file, " %lu", p[i * ncomps + j]);
         fprintf(file, "\n");
       }
+      loop_host_free(p);
       break;
     }
     case TAG_F64: {
-      double const* p = (double const*) data;
+      double* p = LOOP_TO_HOST(double, data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
-          fprintf(file, " %.15e", *p++);
+          fprintf(file, " %.15e", p[i * ncomps + j]);
         fprintf(file, "\n");
       }
+      loop_host_free(p);
       break;
     }
   }
@@ -256,33 +263,38 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
     unsigned ncomps)
 {
   unsigned n = nents * ncomps;
+  void* out = 0;
   switch (type) {
     case TAG_U8: {
-      unsigned char* out = LOOP_HOST_MALLOC(unsigned char, n);
+      unsigned char* in = LOOP_HOST_MALLOC(unsigned char, n);
       for (unsigned i = 0; i < n; ++i)
-        safe_scanf(file, 1, "%hhu", &out[i]);
-      return out;
+        safe_scanf(file, 1, "%hhu", &in[i]);
+      out = LOOP_TO_DEVICE(unsigned char, in, n);
+      loop_host_free(in);
     }
     case TAG_U32: {
-      unsigned* out = LOOP_HOST_MALLOC(unsigned, n);
+      unsigned* in = LOOP_HOST_MALLOC(unsigned, n);
       for (unsigned i = 0; i < n; ++i)
-        safe_scanf(file, 1, "%u", &out[i]);
-      return out;
+        safe_scanf(file, 1, "%u", &in[i]);
+      out = LOOP_TO_DEVICE(unsigned, in, n);
+      loop_host_free(in);
     }
     case TAG_U64: {
-      unsigned long* out = LOOP_HOST_MALLOC(unsigned long, n);
+      unsigned long* in = LOOP_HOST_MALLOC(unsigned long, n);
       for (unsigned i = 0; i < n; ++i)
-        safe_scanf(file, 1, "%lu", &out[i]);
-      return out;
+        safe_scanf(file, 1, "%lu", &in[i]);
+      out = LOOP_TO_DEVICE(unsigned long, in, n);
+      loop_host_free(in);
     }
     case TAG_F64: {
-      double* out = LOOP_HOST_MALLOC(double, n);
+      double* in = LOOP_HOST_MALLOC(double, n);
       for (unsigned i = 0; i < n; ++i)
-        safe_scanf(file, 1, "%lf", &out[i]);
-      return out;
+        safe_scanf(file, 1, "%lf", &in[i]);
+      out = LOOP_TO_DEVICE(unsigned long, in, n);
+      loop_host_free(in);
     }
-    default: return 0;
   }
+  return out;
 }
 
 static void describe_array(FILE* file, enum tag_type t,
