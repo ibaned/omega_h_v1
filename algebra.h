@@ -3,9 +3,12 @@
 
 #include <math.h>
 
+#include "loop.h"
+
 #define PI 3.14159265359
 
-static inline void copy_vector(
+LOOP_INOUT static inline void
+copy_vector(
     double const* a,
     double* b,
     unsigned n)
@@ -14,7 +17,8 @@ static inline void copy_vector(
     b[i] = a[i];
 }
 
-static inline void subtract_vectors(
+LOOP_INOUT static inline void
+subtract_vectors(
     double const* a,
     double const* b,
     double* c,
@@ -24,7 +28,8 @@ static inline void subtract_vectors(
     c[i] = a[i] - b[i];
 }
 
-static inline void add_vectors(
+LOOP_INOUT static inline void
+add_vectors(
     double const* a,
     double const* b,
     double* c,
@@ -34,7 +39,8 @@ static inline void add_vectors(
     c[i] = a[i] + b[i];
 }
 
-static inline void swap_vectors(
+LOOP_INOUT static inline void
+swap_vectors(
     double* a,
     double* b,
     unsigned n)
@@ -46,7 +52,8 @@ static inline void swap_vectors(
   }
 }
 
-static inline void cross_product(
+LOOP_INOUT static inline void
+cross_product(
     double const* a,
     double const* b,
     double* c)
@@ -56,7 +63,8 @@ static inline void cross_product(
   c[2] = a[0] * b[1]  - a[1] * b[0];
 }
 
-static inline double dot_product(double const* a, double const* b, unsigned n)
+LOOP_INOUT static inline double
+dot_product(double const* a, double const* b, unsigned n)
 {
   double d = 0;
   for (unsigned i = 0; i < n; ++i)
@@ -64,12 +72,14 @@ static inline double dot_product(double const* a, double const* b, unsigned n)
   return d;
 }
 
-static inline double vector_norm(double const* a, unsigned n)
+LOOP_INOUT static inline double
+vector_norm(double const* a, unsigned n)
 {
   return sqrt(dot_product(a, a, n));
 }
 
-static inline double vector_squared_distance(
+LOOP_INOUT static inline double
+vector_squared_distance(
     double const* a,
     double const* b,
     unsigned n)
@@ -82,7 +92,8 @@ static inline double vector_squared_distance(
   return s;
 }
 
-static inline double vector_distance(
+LOOP_INOUT static inline double
+vector_distance(
     double const* a,
     double const* b,
     unsigned n)
@@ -90,7 +101,8 @@ static inline double vector_distance(
   return sqrt(vector_squared_distance(a, b, n));
 }
 
-static inline void scale_vector(
+LOOP_INOUT static inline void
+scale_vector(
     double const* a,
     double s,
     double* b,
@@ -100,7 +112,8 @@ static inline void scale_vector(
     b[i] = a[i] * s;
 }
 
-static inline void normalize_vector(
+LOOP_INOUT static inline void
+normalize_vector(
     double const* a,
     double* b,
     unsigned n)
@@ -108,28 +121,32 @@ static inline void normalize_vector(
   scale_vector(a, 1.0 / vector_norm(a, n), b, n);
 }
 
-static inline void scale_3x3(double m[3][3], double s, double o[3][3])
+LOOP_INOUT static inline void
+scale_3x3(double m[3][3], double s, double o[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
   for (unsigned j = 0; j < 3; ++j)
     o[i][j] = m[i][j] * s;
 }
 
-static inline double det_3x3(double m[3][3])
+LOOP_INOUT static inline double
+det_3x3(double m[3][3])
 {
   double tmp[3];
   cross_product(m[0], m[1], tmp);
   return dot_product(m[2], tmp, 3);
 }
 
-static inline void transp_3x3(double in[3][3], double out[3][3])
+LOOP_INOUT static inline void
+transp_3x3(double in[3][3], double out[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
   for (unsigned j = 0; j < 3; ++j)
     out[i][j] = in[j][i];
 }
 
-static inline void mul_3x3(double a[3][3], double b[3][3], double c[3][3])
+LOOP_INOUT static inline void
+mul_3x3(double a[3][3], double b[3][3], double c[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
   for (unsigned j = 0; j < 3; ++j) {
