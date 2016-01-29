@@ -114,7 +114,7 @@ GENERIC_FILL(double, doubles)
 T uints_at(T const* a, unsigned i) \
 { \
   T x; \
-  CUDACALL(cudaMemcpy(&x, a + i, sizeof(T), cudaMemcpyHostToDevice)); \
+  CUDACALL(cudaMemcpy(&x, a + i, sizeof(T), cudaMemcpyDeviceToHost)); \
   return x; \
 }
 #else
