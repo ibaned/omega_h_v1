@@ -214,7 +214,8 @@ LOOP_KERNEL(get_hinge_class_dim,
 void mesh_derive_class_dim(struct mesh* m, double crease_angle)
 {
   unsigned dim = mesh_dim(m);
-  unsigned* elem_class_dim = uints_filled(mesh_count(m, dim), dim);
+  unsigned nelems = mesh_count(m, dim);
+  unsigned* elem_class_dim = uints_filled(nelems, dim);
   mesh_add_tag(m, dim, TAG_U32, "class_dim", 1, elem_class_dim);
   if (dim == 0)
     return;
