@@ -1,6 +1,8 @@
 #ifndef COLLAPSE_H
 #define COLLAPSE_H
 
+#include "loop.h"
+
 enum {
   DONT_COLLAPSE  = 0,
   COLLAPSE_LEFT  = 1,
@@ -8,17 +10,20 @@ enum {
   COLLAPSE_BOTH  = 3,
 };
 
-static inline unsigned collapses(unsigned code, unsigned dir)
+LOOP_INOUT static inline unsigned
+collapses(unsigned code, unsigned dir)
 {
   return (code & (((unsigned)1) << dir)) != 0;
 }
 
-static inline unsigned do_collapse(unsigned code, unsigned dir)
+LOOP_INOUT static inline unsigned
+do_collapse(unsigned code, unsigned dir)
 {
   return code | (((unsigned)1) << dir);
 }
 
-static inline unsigned dont_collapse(unsigned code, unsigned dir)
+LOOP_INOUT static inline unsigned
+dont_collapse(unsigned code, unsigned dir)
 {
   return code & ~(((unsigned)1) << dir);
 }
