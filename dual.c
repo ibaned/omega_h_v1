@@ -41,7 +41,7 @@ LOOP_KERNEL(element_dual_from_verts,
     unsigned sides_per_elem,
     unsigned verts_per_side,
     unsigned* elems_of_elems,
-    unsigned const* const* elem_verts_of_sides)
+    unsigned** elem_verts_of_sides)
 
   unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
   unsigned* elems_of_elem = elems_of_elems + i * sides_per_elem;
@@ -80,7 +80,7 @@ static unsigned** orders_to_device(unsigned elem_dim, unsigned side_dim)
   unsigned* a[MAX_DOWN];
   for (unsigned i = 0; i < sides_per_elem; ++i)
     a[i] = LOOP_TO_DEVICE(unsigned,
-        the_canonical_orders[elem_dim][side_dim][0], verts_per_side);
+        the_canonical_orders[elem_dim][side_dim][0][i], verts_per_side);
   return LOOP_TO_DEVICE(unsigned*, a, sides_per_elem);
 }
 
