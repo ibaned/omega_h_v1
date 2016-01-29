@@ -331,27 +331,40 @@ static void set_equal_order_class_id(struct mesh* m, unsigned dim)
   loop_host_free(up_offsets);
   loop_host_free(stack);
   loop_host_free(state);
-  mesh_add_tag(m, dim, TAG_U32, "class_id", 1, class_id);
+  mesh_add_tag(m, dim, TAG_U32, "class_id", 1,
+      LOOP_TO_DEVICE(unsigned, class_id, n));
+  loop_host_free(class_id);
+}
+
+LOOP_KERNEL(project_class_kern,
+    unsigned const* up_offsets,
+    unsigned const* up,
+    unsigned const* high_class_dim,
+    unsigned const* high_class_id,
+    unsigned const* low_class_dim,
+    unsigned* low_class_id)
+  unsigned f = up_offsets[i];
+  unsigned e = up_offsets[i + 1];
+  for (unsigned j = f; j < e; ++j) {
+    unsigned high = up[j];
+    if (high_class_dim[high] == low_class_dim[i])
+      low_class_id[i] = high_class_id[high];
+  }
 }
 
 static void project_class_id_onto(struct mesh* m, unsigned low_dim)
 {
   unsigned nlows = mesh_count(m, low_dim);
+  unsigned const* up_offsets = mesh_ask_up(m, low_dim, low_dim + 1)->offsets;
+  unsigned const* up = mesh_ask_up(m, low_dim, low_dim + 1)->adj;
   unsigned const* high_class_dim = mesh_find_tag(m, low_dim + 1, "class_dim")->d.u32;
   unsigned const* high_class_id = mesh_find_tag(m, low_dim + 1, "class_id")->d.u32;
   unsigned const* low_class_dim = mesh_find_tag(m, low_dim, "class_dim")->d.u32;
   unsigned* low_class_id = mesh_find_tag(m, low_dim, "class_id")->d.u32;
-  unsigned const* up = mesh_ask_up(m, low_dim, low_dim + 1)->adj;
-  unsigned const* up_offsets = mesh_ask_up(m, low_dim, low_dim + 1)->offsets;
-  for (unsigned i = 0; i < nlows; ++i) {
-    unsigned f = up_offsets[i];
-    unsigned e = up_offsets[i + 1];
-    for (unsigned j = f; j < e; ++j) {
-      unsigned high = up[j];
-      if (high_class_dim[high] == low_class_dim[i])
-        low_class_id[i] = high_class_id[high];
-    }
-  }
+  LOOP_EXEC(project_class_kern, nlows,
+      up_offsets, up,
+      high_class_dim, high_class_id,
+      low_class_dim, low_class_id);
 }
 
 void mesh_derive_class_id(struct mesh* m)
