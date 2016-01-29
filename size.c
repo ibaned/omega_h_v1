@@ -114,3 +114,36 @@ double mesh_domain_size(struct mesh* m)
   loop_free(sizes);
   return domsize;
 }
+
+LOOP_KERNEL(measure_edge,
+    unsigned const* verts_of_edges,
+    double const* coords,
+    double const* size,
+    double* out)
+  unsigned const* edge_vert = verts_of_edges + i * 2;
+  double edge_coord[2][3];
+  copy_vector(coords + edge_vert[0] * 3, edge_coord[0], 3);
+  copy_vector(coords + edge_vert[1] * 3, edge_coord[1], 3);
+  double length = edge_length(edge_coord);
+  double desired_length = (size[edge_vert[0]] + size[edge_vert[1]]) / 2;
+  out[i] = length / desired_length;
+}
+
+static double* measure_edges(
+    unsigned nedges,
+    unsigned const* verts_of_edges,
+    double const* coords,
+    double const* size)
+{
+  double* out = LOOP_MALLOC(double, nedges);
+  LOOP_EXEC(measure_edge, nedges,
+      verts_of_edges, coords, size, out);
+  return out;
+}
+
+double* mesh_measure_edges_for_adapt(struct mesh* m)
+{
+  return measure_edges(mesh_count(m, 1), mesh_ask_down(m, 1, 0),
+      mesh_find_tag(m, 0, "coordinates")->d.f64,
+      mesh_find_tag(m, 0, "adapt_size")->d.f64);
+}
