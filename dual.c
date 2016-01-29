@@ -73,27 +73,6 @@ LOOP_KERNEL(element_dual_from_verts,
   }
 }
 
-static unsigned** orders_to_device(unsigned elem_dim, unsigned side_dim)
-{
-  unsigned sides_per_elem = the_down_degrees[elem_dim][side_dim];
-  unsigned verts_per_side = the_down_degrees[side_dim][0];
-  unsigned* a[MAX_DOWN];
-  for (unsigned i = 0; i < sides_per_elem; ++i)
-    a[i] = LOOP_TO_DEVICE(unsigned,
-        the_canonical_orders[elem_dim][side_dim][0][i], verts_per_side);
-  return LOOP_TO_DEVICE(unsigned*, a, sides_per_elem);
-}
-
-static void free_orders(unsigned** a, unsigned elem_dim, unsigned side_dim)
-{
-  unsigned sides_per_elem = the_down_degrees[elem_dim][side_dim];
-  unsigned** b = LOOP_TO_HOST(unsigned*, a, sides_per_elem);
-  loop_free(a);
-  for (unsigned i = 0; i < sides_per_elem; ++i)
-    loop_free(b[i]);
-  loop_host_free(b);
-}
-
 unsigned* dual_from_verts(
     unsigned elem_dim,
     unsigned nelems,

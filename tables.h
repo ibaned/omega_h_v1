@@ -20,4 +20,7 @@ static inline unsigned get_opposite_dim(
   return elem_dim - 1 - ent_dim;
 }
 
+unsigned** orders_to_device(unsigned elem_dim, unsigned side_dim);
+void free_orders(unsigned** a, unsigned elem_dim, unsigned side_dim);
+
 #endif
