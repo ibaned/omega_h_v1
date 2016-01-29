@@ -6,14 +6,19 @@
 #include "refine_common.h"
 #include "size.h"
 
+LOOP_KERNEL(refine_candidate,
+    double const* edge_sizes,
+    unsigned* candidates)
+  candidates[i] = edge_sizes[i] > 1.0;
+}
+
 unsigned refine_by_size(struct mesh** p_m, double qual_floor)
 {
   struct mesh* m = *p_m;
   double* edge_sizes = mesh_measure_edges_for_adapt(m);
   unsigned nedges = mesh_count(m, 1);
   unsigned* candidates = LOOP_MALLOC(unsigned, nedges);
-  for (unsigned i = 0; i < nedges; ++i)
-    candidates[i] = edge_sizes[i] > 1.0;
+  LOOP_EXEC(refine_candidate, nedges, edge_sizes, candidates);
   loop_free(edge_sizes);
   mesh_add_tag(m, 1, TAG_U32, "candidate", 1, candidates);
   unsigned ret = refine_common(p_m, 1, qual_floor, 0);
