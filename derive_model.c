@@ -356,14 +356,21 @@ static void project_class_id_onto(struct mesh* m, unsigned low_dim)
 
 void mesh_derive_class_id(struct mesh* m)
 {
-  unsigned nverts = mesh_count(m, 0);
-  unsigned const* vert_class_dim = mesh_find_tag(m, 0, "class_dim")->d.u32;
-  unsigned* vert_class_id = LOOP_MALLOC(unsigned, nverts);
-  unsigned nmodel_verts = 0;
-  for (unsigned i = 0; i < nverts; ++i)
-    if (vert_class_dim[i] == 0)
-      vert_class_id[i] = nmodel_verts++;
-  mesh_add_tag(m, 0, TAG_U32, "class_id", 1, vert_class_id);
+  /* we'll do this part on the host as well, for laziness */
+  {
+    unsigned nverts = mesh_count(m, 0);
+    unsigned* vert_class_dim = LOOP_TO_HOST(unsigned,
+        mesh_find_tag(m, 0, "class_dim")->d.u32, nverts);
+    unsigned* vert_class_id = LOOP_HOST_MALLOC(unsigned, nverts);
+    unsigned nmodel_verts = 0;
+    for (unsigned i = 0; i < nverts; ++i)
+      if (vert_class_dim[i] == 0)
+        vert_class_id[i] = nmodel_verts++;
+    loop_host_free(vert_class_dim);
+    mesh_add_tag(m, 0, TAG_U32, "class_id", 1,
+        LOOP_TO_DEVICE(unsigned, vert_class_id, nverts));
+    loop_host_free(vert_class_id);
+  }
   unsigned dim = mesh_dim(m);
   for (unsigned d = 1; d <= dim; ++d)
     set_equal_order_class_id(m, d);
