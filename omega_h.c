@@ -187,15 +187,20 @@ void osh_conform(osh_t m, char const* name)
   mesh_conform_tag((struct mesh*)m, 0, name);
 }
 
+LOOP_KERNEL(mark_or_kern,
+    unsigned const* to_mark,
+    unsigned* marked)
+  if (to_mark[i])
+    marked[i] = 1;
+}
+
 void osh_mark_classified(osh_t m, unsigned ent_dim,
     unsigned class_dim, unsigned class_id, unsigned* marked)
 {
   unsigned* to_mark = mesh_mark_class((struct mesh*)m, ent_dim,
       class_dim, class_id);
   unsigned nents = osh_count(m, ent_dim);
-  for (unsigned i = 0; i < nents; ++i)
-    if (to_mark[i])
-      marked[i] = 1;
+  LOOP_EXEC(mark_or_kern, nents, to_mark, marked);
   loop_free(to_mark);
 }
 

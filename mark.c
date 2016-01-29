@@ -124,6 +124,18 @@ void mesh_mark_dual_layers(
   }
 }
 
+LOOP_KERNEL(mark_class_kern,
+    unsigned target_dim,
+    unsigned target_id,
+    unsigned const* class_dim_of_ents,
+    unsigned const* class_id_of_ents,
+    unsigned* out)
+  out[i] = 0;
+  if (class_dim_of_ents[i] == target_dim)
+    if (target_id == INVALID || class_id_of_ents[i] == target_id)
+      out[i] = 1;
+}
+
 unsigned* mark_class(
     unsigned nents,
     unsigned target_dim,
@@ -134,12 +146,8 @@ unsigned* mark_class(
   if (target_id != INVALID)
     assert(class_id_of_ents);
   unsigned* out = LOOP_MALLOC(unsigned, nents);
-  for (unsigned i = 0; i < nents; ++i) {
-    out[i] = 0;
-    if (class_dim_of_ents[i] == target_dim)
-      if (target_id == INVALID || class_id_of_ents[i] == target_id)
-        out[i] = 1;
-  }
+  LOOP_EXEC(mark_class_kern, nents,
+      target_dim, target_id, class_dim_of_ents, class_id_of_ents, out);
   return out;
 }
 
