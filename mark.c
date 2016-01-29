@@ -186,14 +186,20 @@ void mesh_unmark_boundary(
       marked[i] = 0;
 }
 
+LOOP_KERNEL(mark_sliver,
+    double const* elem_quals,
+    double good_qual,
+    unsigned* slivers)
+  slivers[i] = (elem_quals[i] < good_qual) ? 1 : 0;
+}
+
 static unsigned* mark_slivers(
     unsigned nelems,
     double const* elem_quals,
     double good_qual)
 {
   unsigned* slivers = LOOP_MALLOC(unsigned, nelems);
-  for (unsigned i = 0; i < nelems; ++i)
-    slivers[i] = (elem_quals[i] < good_qual) ? 1 : 0;
+  LOOP_EXEC(mark_sliver, nelems, elem_quals, good_qual, slivers);
   return slivers;
 }
 
