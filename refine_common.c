@@ -49,6 +49,14 @@ static void refine_verts(struct mesh* m, struct mesh* m_out,
   }
 }
 
+LOOP_KERNEL(gen_vert_of_src_kern,
+    unsigned const* gen_offset_of_srcs,
+    unsigned nverts,
+    unsigned* gen_vert_of_srcs)
+  if (gen_offset_of_srcs[i] != gen_offset_of_srcs[i + 1])
+    gen_vert_of_srcs[i] = nverts + gen_offset_of_srcs[i];
+}
+
 static void refine_ents(struct mesh* m, struct mesh* m_out,
     unsigned src_dim, unsigned const* gen_offset_of_srcs)
 {
@@ -56,9 +64,8 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
   unsigned nsrcs = mesh_count(m, src_dim);
   unsigned nverts = mesh_count(m, 0);
   unsigned* gen_vert_of_srcs = LOOP_MALLOC(unsigned, nsrcs);
-  for (unsigned i = 0; i < nsrcs; ++i)
-    if (gen_offset_of_srcs[i] != gen_offset_of_srcs[i + 1])
-      gen_vert_of_srcs[i] = nverts + gen_offset_of_srcs[i];
+  LOOP_EXEC(gen_vert_of_src_kern, nsrcs,
+      gen_offset_of_srcs, nverts, gen_vert_of_srcs);
   unsigned* offset_of_doms[4] = {0};
   unsigned* direction_of_doms[4] = {0};
   unsigned* vert_of_doms[4] = {0};
