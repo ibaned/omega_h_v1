@@ -11,6 +11,7 @@
 #include "tables.h"
 
 LOOP_KERNEL(refine_quality,
+    unsigned elem_dim,
     unsigned const* elems_of_srcs_offsets,
     unsigned const* elems_of_srcs,
     unsigned const* elems_of_srcs_directions,
@@ -23,7 +24,6 @@ LOOP_KERNEL(refine_quality,
     unsigned** elem_verts_of_srcs,
     unsigned** elem_verts_of_bases,
     unsigned* elem_base_of_opps,
-    quality_function qf,
     double qual_floor,
     unsigned* candidate_srcs,
     double* out)
@@ -59,7 +59,7 @@ LOOP_KERNEL(refine_quality,
         copy_vector(coords + vert * 3, elem_x[l], 3);
       }
       copy_vector(split_x, elem_x[verts_per_elem - 1], 3);
-      double q = qf(elem_x);
+      double q = entity_quality(elem_dim, elem_x);
       assert(q > 0);
       if (q < minq)
         minq = q;
@@ -101,8 +101,8 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   unsigned** elem_verts_of_bases = orders_to_device(elem_dim, base_dim, 0);
   unsigned* elem_base_of_opps = LOOP_TO_DEVICE(unsigned,
       the_opposite_orders[elem_dim][opp_dim], verts_per_elem);
-  quality_function qf = the_quality_functions[elem_dim];
   LOOP_EXEC(refine_quality, nsrcs,
+      elem_dim,
       elems_of_srcs_offsets,
       elems_of_srcs,
       elems_of_srcs_directions,
@@ -115,7 +115,6 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
       elem_verts_of_srcs,
       elem_verts_of_bases,
       elem_base_of_opps,
-      qf,
       qual_floor,
       *p_candidates,
       src_quals);

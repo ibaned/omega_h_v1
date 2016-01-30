@@ -1,6 +1,7 @@
 #include "coarsen_qualities.h"
 
 #include "algebra.h"
+#include "arrays.h"
 #include "collapse_codes.h"
 #include "loop.h"
 #include "quality.h"
@@ -20,13 +21,14 @@ double* coarsen_qualities(
     double const* elem_quals,
     unsigned require_better)
 {
+  if (elem_dim < 2)
+    return doubles_filled(nedges * 2, 1.0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = elem_dim - 1;
   unsigned const* elem_bases_opp_verts =
     the_opposite_orders[elem_dim][0];
   unsigned const* const* elem_verts_of_bases =
     the_canonical_orders[elem_dim][base_dim][0];
-  quality_function qf = the_equal_order_quality_functions[elem_dim];
   double* out = LOOP_MALLOC(double, nedges * 2);
   for (unsigned i = 0; i < nedges; ++i) {
     if (col_codes[i] == DONT_COLLAPSE)
@@ -65,7 +67,7 @@ double* coarsen_qualities(
           unsigned vert = verts_of_elem[elem_verts_of_base[l]];
           copy_vector(coords + vert * 3, elem_x[l], 3);
         }
-        double q = qf(elem_x);
+        double q = element_quality(elem_dim, elem_x);
         if (q < minq)
           minq = q;
       }
