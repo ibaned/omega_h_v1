@@ -21,6 +21,39 @@
  * an edge vertex.
  */
 
+LOOP_KERNEL(refine_domain_entity,
+    unsigned const* offset_of_doms,
+    unsigned const* direction_of_doms,
+    unsigned const* const* dom_opps_of_srcs,
+    unsigned const* verts_of_doms,
+    unsigned const* vert_of_doms,
+    unsigned verts_per_prod,
+    unsigned verts_per_dom,
+    unsigned opps_per_src,
+    unsigned verts_per_base,
+    unsigned const* dom_base_of_opps,
+    unsigned const* const* dom_verts_of_bases,
+    unsigned* verts_of_prods)
+
+  if (offset_of_doms[i] == offset_of_doms[i + 1])
+    return;
+  unsigned direction = direction_of_doms[i];
+  unsigned const* dom_opps_of_src = dom_opps_of_srcs[direction];
+  unsigned const* verts_of_dom = verts_of_doms + i * verts_per_dom;
+  unsigned vert = vert_of_doms[i];
+  unsigned* verts_of_prod = verts_of_prods + 
+    offset_of_doms[i] * opps_per_src * verts_per_prod;
+  for (unsigned j = 0; j < opps_per_src; ++j) {
+    unsigned opp = dom_opps_of_src[j];
+    unsigned base = dom_base_of_opps[opp];
+    unsigned const* dom_verts_of_base = dom_verts_of_bases[base];
+    for (unsigned k = 0; k < verts_per_base; ++k)
+      verts_of_prod[k] = verts_of_dom[dom_verts_of_base[k]];
+    verts_of_prod[verts_per_base] = vert;
+    verts_of_prod += verts_per_prod;
+  }
+}
+
 void refine_topology(
     unsigned dom_dim,
     unsigned src_dim,
@@ -53,25 +86,19 @@ void refine_topology(
   unsigned const* const* dom_verts_of_bases =
     the_canonical_orders[dom_dim][base_dim][0];
   unsigned const* dom_base_of_opps = the_opposite_orders[dom_dim][opp_dim];
-  for (unsigned i = 0; i < ndoms; ++i) {
-    if (offset_of_doms[i] == offset_of_doms[i + 1])
-      continue;
-    unsigned direction = direction_of_doms[i];
-    unsigned const* dom_opps_of_src = dom_opps_of_srcs[direction];
-    unsigned const* verts_of_dom = verts_of_doms + i * verts_per_dom;
-    unsigned vert = vert_of_doms[i];
-    unsigned* verts_of_prod = verts_of_prods + 
-      offset_of_doms[i] * opps_per_src * verts_per_prod;
-    for (unsigned j = 0; j < opps_per_src; ++j) {
-      unsigned opp = dom_opps_of_src[j];
-      unsigned base = dom_base_of_opps[opp];
-      unsigned const* dom_verts_of_base = dom_verts_of_bases[base];
-      for (unsigned k = 0; k < verts_per_base; ++k)
-        verts_of_prod[k] = verts_of_dom[dom_verts_of_base[k]];
-      verts_of_prod[verts_per_base] = vert;
-      verts_of_prod += verts_per_prod;
-    }
-  }
+  LOOP_EXEC(refine_domain_entity, ndoms,
+      offset_of_doms,
+      direction_of_doms,
+      dom_opps_of_srcs,
+      verts_of_doms,
+      vert_of_doms,
+      verts_per_prod,
+      verts_per_dom,
+      opps_per_src,
+      verts_per_base,
+      dom_base_of_opps,
+      dom_verts_of_bases,
+      verts_of_prods);
 }
 
 unsigned get_prods_per_dom(
