@@ -36,7 +36,7 @@ unsigned* derive_sides(
   unsigned nverts_per_elem = the_down_degrees[elem_dim][0];
   unsigned nverts_per_side = the_down_degrees[elem_dim - 1][0];
   unsigned* verts_of_sides = LOOP_MALLOC(unsigned, nsides * nverts_per_side);
-  unsigned** elem_verts_of_sides = orders_to_device(elem_dim, elem_dim - 1);
+  unsigned** elem_verts_of_sides = orders_to_device(elem_dim, elem_dim - 1, 0);
   LOOP_EXEC(derive_side, nsides,
       nverts_per_elem,
       nverts_per_side,
