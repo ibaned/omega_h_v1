@@ -5,6 +5,20 @@
 #include "loop.h"
 #include "mesh.h"
 
+LOOP_KERNEL(refine_conserve_elem,
+    unsigned const* prods_of_doms_offsets,
+    unsigned width,
+    double const* data_in,
+    double* data_out)
+  unsigned f = prods_of_doms_offsets[i];
+  unsigned e = prods_of_doms_offsets[i + 1];
+  double denom = e - f;
+  for (unsigned j = f; j < e; ++j)
+    for (unsigned k = 0; k < width; ++k)
+      data_out[j * width + k] = data_in[i * width + k] / denom;
+}
+
+
 static double* refine_conserve_data(
     unsigned nelems,
     unsigned const* prods_of_doms_offsets,
@@ -14,14 +28,8 @@ static double* refine_conserve_data(
   double const* data_in = t->d.f64;
   unsigned ngen_elems = uints_at(prods_of_doms_offsets, nelems);
   double* data_out = LOOP_MALLOC(double, width * ngen_elems);
-  for (unsigned i = 0; i < nelems; ++i) {
-    unsigned f = prods_of_doms_offsets[i];
-    unsigned e = prods_of_doms_offsets[i + 1];
-    double denom = e - f;
-    for (unsigned j = f; j < e; ++j)
-      for (unsigned k = 0; k < width; ++k)
-        data_out[j * width + k] = data_in[i * width + k] / denom;
-  }
+  LOOP_EXEC(refine_conserve_elem, nelems,
+      prods_of_doms_offsets, width, data_in, data_out);
   return data_out;
 }
 
