@@ -83,7 +83,9 @@ void refine_topology(
   unsigned verts_per_dom = the_down_degrees[dom_dim][0];
   unsigned** dom_opps_of_srcs = orders_to_device(dom_dim, src_dim, opp_dim);
   unsigned** dom_verts_of_bases = orders_to_device(dom_dim, base_dim, 0);
-  unsigned const* dom_base_of_opps = the_opposite_orders[dom_dim][opp_dim];
+  unsigned opps_per_dom = the_down_degrees[dom_dim][opp_dim];
+  unsigned* dom_base_of_opps = LOOP_TO_HOST(unsigned,
+      the_opposite_orders[dom_dim][opp_dim], opps_per_dom);
   LOOP_EXEC(refine_domain_entity, ndoms,
       offset_of_doms,
       direction_of_doms,
@@ -99,6 +101,7 @@ void refine_topology(
       verts_of_prods);
   free_orders(dom_opps_of_srcs, dom_dim, src_dim);
   free_orders(dom_verts_of_bases, dom_dim, base_dim);
+  loop_host_free(dom_base_of_opps);
 }
 
 unsigned get_prods_per_dom(
