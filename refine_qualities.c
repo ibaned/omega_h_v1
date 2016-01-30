@@ -72,20 +72,23 @@ LOOP_KERNEL(refine_quality,
     out[i] = minq;
 }
 
-static double* refine_qualities(
-    unsigned elem_dim,
-    unsigned src_dim,
-    unsigned nsrcs,
-    unsigned const* verts_of_srcs,
-    unsigned const* verts_of_elems,
-    unsigned const* elems_of_srcs_offsets,
-    unsigned const* elems_of_srcs,
-    unsigned const* elems_of_srcs_directions,
-    unsigned* candidate_srcs,
-    double const* coords,
-    double qual_floor,
-    double const* elem_quals)
+double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
+    unsigned** p_candidates, double qual_floor, unsigned require_better)
 {
+  unsigned elem_dim = mesh_dim(m);
+  unsigned nsrcs = mesh_count(m, src_dim);
+  unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
+  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
+  unsigned const* elems_of_srcs_offsets =
+    mesh_ask_up(m, src_dim, elem_dim)->offsets;
+  unsigned const* elems_of_srcs =
+    mesh_ask_up(m, src_dim, elem_dim)->adj;
+  unsigned const* elems_of_srcs_directions =
+    mesh_ask_up(m, src_dim, elem_dim)->directions;
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
+  double* elem_quals = 0;
+  if (require_better)
+    elem_quals = mesh_qualities(m);
   assert(elem_dim >= src_dim);
   assert(src_dim > 0);
   unsigned base_dim = elem_dim - 1;
@@ -93,7 +96,7 @@ static double* refine_qualities(
   assert(opp_dim == 0);
   unsigned verts_per_src = the_down_degrees[src_dim][0];
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  double* out = LOOP_MALLOC(double, nsrcs);
+  double* src_quals = LOOP_MALLOC(double, nsrcs);
   unsigned const* const* elem_verts_of_srcs =
     the_canonical_orders[elem_dim][src_dim][0];
   unsigned const* const* elem_verts_of_bases =
@@ -115,32 +118,8 @@ static double* refine_qualities(
       elem_base_of_opps,
       qf,
       qual_floor,
-      candidate_srcs,
-      out);
-  return out;
-}
-
-double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
-    unsigned** p_candidates, double qual_floor, unsigned require_better)
-{
-  unsigned elem_dim = mesh_dim(m);
-  unsigned nsrcs = mesh_count(m, src_dim);
-  unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
-  unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
-  unsigned const* elems_of_srcs_offsets =
-    mesh_ask_up(m, src_dim, elem_dim)->offsets;
-  unsigned const* elems_of_srcs =
-    mesh_ask_up(m, src_dim, elem_dim)->adj;
-  unsigned const* elems_of_srcs_directions =
-    mesh_ask_up(m, src_dim, elem_dim)->directions;
-  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
-  double* elem_quals = 0;
-  if (require_better)
-    elem_quals = mesh_qualities(m);
-  double* src_quals = refine_qualities(elem_dim, src_dim, nsrcs,
-      verts_of_srcs, verts_of_elems,
-      elems_of_srcs_offsets, elems_of_srcs, elems_of_srcs_directions,
-      *p_candidates, coords, qual_floor, elem_quals);
+      *p_candidates,
+      src_quals);
   loop_free(elem_quals);
   mesh_conform_doubles(m, src_dim, 1, &src_quals);
   mesh_conform_uints(m, src_dim, 1, p_candidates);
