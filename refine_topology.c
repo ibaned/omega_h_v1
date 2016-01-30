@@ -24,7 +24,7 @@
 LOOP_KERNEL(refine_domain_entity,
     unsigned const* offset_of_doms,
     unsigned const* direction_of_doms,
-    unsigned const* const* dom_opps_of_srcs,
+    unsigned** dom_opps_of_srcs,
     unsigned const* verts_of_doms,
     unsigned const* vert_of_doms,
     unsigned verts_per_prod,
@@ -32,7 +32,7 @@ LOOP_KERNEL(refine_domain_entity,
     unsigned opps_per_src,
     unsigned verts_per_base,
     unsigned const* dom_base_of_opps,
-    unsigned const* const* dom_verts_of_bases,
+    unsigned** dom_verts_of_bases,
     unsigned* verts_of_prods)
 
   if (offset_of_doms[i] == offset_of_doms[i + 1])
@@ -81,10 +81,8 @@ void refine_topology(
   unsigned verts_per_prod = the_down_degrees[prod_dim][0];
   unsigned verts_per_base = verts_per_prod - 1;
   unsigned verts_per_dom = the_down_degrees[dom_dim][0];
-  unsigned const* const* dom_opps_of_srcs =
-    the_canonical_orders[dom_dim][src_dim][opp_dim];
-  unsigned const* const* dom_verts_of_bases =
-    the_canonical_orders[dom_dim][base_dim][0];
+  unsigned** dom_opps_of_srcs = orders_to_device(dom_dim, src_dim, opp_dim);
+  unsigned** dom_verts_of_bases = orders_to_device(dom_dim, base_dim, 0);
   unsigned const* dom_base_of_opps = the_opposite_orders[dom_dim][opp_dim];
   LOOP_EXEC(refine_domain_entity, ndoms,
       offset_of_doms,
@@ -99,6 +97,8 @@ void refine_topology(
       dom_base_of_opps,
       dom_verts_of_bases,
       verts_of_prods);
+  free_orders(dom_opps_of_srcs, dom_dim, src_dim);
+  free_orders(dom_verts_of_bases, dom_dim, base_dim);
 }
 
 unsigned get_prods_per_dom(
