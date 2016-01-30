@@ -20,9 +20,9 @@ LOOP_KERNEL(refine_quality,
     double const* elem_quals,
     unsigned const* verts_of_elems,
     unsigned verts_per_elem,
-    unsigned const* const* elem_verts_of_srcs,
-    unsigned const* const* elem_verts_of_bases,
-    unsigned const* elem_base_of_opps,
+    unsigned** elem_verts_of_srcs,
+    unsigned** elem_verts_of_bases,
+    unsigned* elem_base_of_opps,
     quality_function qf,
     double qual_floor,
     unsigned* candidate_srcs,
@@ -97,11 +97,10 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   unsigned verts_per_src = the_down_degrees[src_dim][0];
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   double* src_quals = LOOP_MALLOC(double, nsrcs);
-  unsigned const* const* elem_verts_of_srcs =
-    the_canonical_orders[elem_dim][src_dim][0];
-  unsigned const* const* elem_verts_of_bases =
-    the_canonical_orders[elem_dim][base_dim][0];
-  unsigned const* elem_base_of_opps = the_opposite_orders[elem_dim][0];
+  unsigned** elem_verts_of_srcs = orders_to_device(elem_dim, src_dim, 0);
+  unsigned** elem_verts_of_bases = orders_to_device(elem_dim, base_dim, 0);
+  unsigned* elem_base_of_opps = LOOP_TO_DEVICE(unsigned,
+      the_opposite_orders[elem_dim][opp_dim], verts_per_elem);
   quality_function qf = the_quality_functions[elem_dim];
   LOOP_EXEC(refine_quality, nsrcs,
       elems_of_srcs_offsets,
@@ -120,6 +119,9 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
       qual_floor,
       *p_candidates,
       src_quals);
+  free_orders(elem_verts_of_srcs, elem_dim, src_dim);
+  free_orders(elem_verts_of_bases, elem_dim, base_dim);
+  loop_host_free(elem_base_of_opps);
   loop_free(elem_quals);
   mesh_conform_doubles(m, src_dim, 1, &src_quals);
   mesh_conform_uints(m, src_dim, 1, p_candidates);
