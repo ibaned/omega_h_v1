@@ -17,6 +17,19 @@
    this function gives ownership of the elements
    adjacent to a key to the rank that owns the key */
 
+LOOP_KERNEL(elem_rank_by_indset,
+    unsigned keys_per_elem,
+    unsigned const* keys_of_elems,
+    unsigned const* indset,
+    unsigned const* key_owners,
+    unsigned* elem_owners)
+  for (unsigned j = 0; j < keys_per_elem; ++j) {
+    unsigned key = keys_of_elems[i * keys_per_elem + j];
+    if (indset[key])
+      elem_owners[i] = key_owners[key];
+  }
+}
+
 void set_own_ranks_by_indset(
     struct mesh* m,
     unsigned key_dim)
@@ -32,13 +45,8 @@ void set_own_ranks_by_indset(
       mesh_ask_own_ranks(m, elem_dim), nelems);
   unsigned const* keys_of_elems = mesh_ask_down(m, elem_dim, key_dim);
   unsigned keys_per_elem = the_down_degrees[elem_dim][key_dim];
-  for (unsigned i = 0; i < nelems; ++i) {
-    for (unsigned j = 0; j < keys_per_elem; ++j) {
-      unsigned key = keys_of_elems[i * keys_per_elem + j];
-      if (indset[key])
-        elem_owners[i] = key_owners[key];
-    }
-  }
+  LOOP_EXEC(elem_rank_by_indset, nelems,
+      keys_per_elem, keys_of_elems, indset, key_owners, elem_owners);
   mesh_set_own_ranks(m, elem_dim, elem_owners);
 }
 
