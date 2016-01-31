@@ -120,7 +120,7 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
       src_quals);
   free_orders(elem_verts_of_srcs, elem_dim, src_dim);
   free_orders(elem_verts_of_bases, elem_dim, base_dim);
-  loop_host_free(elem_base_of_opps);
+  loop_free(elem_base_of_opps);
   loop_free(elem_quals);
   mesh_conform_doubles(m, src_dim, 1, &src_quals);
   mesh_conform_uints(m, src_dim, 1, p_candidates);
