@@ -17,7 +17,7 @@
    hinge = side - 1
 */
 
-LOOP_KERNEL(boundary_edge_normal, 
+LOOP_KERNEL(boundary_edge_normal,
     unsigned const* boundary_edges,
     unsigned const* verts_of_edges,
     double const* coords,
@@ -32,7 +32,7 @@ LOOP_KERNEL(boundary_edge_normal,
   normalize_vector(normals + i * 3, normals + i * 3, 3);
 }
 
-LOOP_KERNEL(boundary_tri_normal, 
+LOOP_KERNEL(boundary_tri_normal,
     unsigned const* boundary_tris,
     unsigned const* verts_of_tris,
     double const* coords,
@@ -256,7 +256,7 @@ void mesh_derive_class_dim(struct mesh* m, double crease_angle)
       mesh_ask_up(m, 0, 1)->adj, mesh_ask_up(m, 0, 1)->offsets,
       crease_hinges);
   loop_free(crease_hinges);
-  unsigned* vert_class_dim = get_vert_class_dim(nverts, corner_verts, 
+  unsigned* vert_class_dim = get_vert_class_dim(nverts, corner_verts,
       mesh_ask_up(m, 0, 1)->adj, mesh_ask_up(m, 0, 1)->offsets,
       hinge_class_dim);
   loop_free(corner_verts);
@@ -357,10 +357,14 @@ static void project_class_id_onto(struct mesh* m, unsigned low_dim)
   unsigned nlows = mesh_count(m, low_dim);
   unsigned const* up_offsets = mesh_ask_up(m, low_dim, low_dim + 1)->offsets;
   unsigned const* up = mesh_ask_up(m, low_dim, low_dim + 1)->adj;
-  unsigned const* high_class_dim = mesh_find_tag(m, low_dim + 1, "class_dim")->d.u32;
-  unsigned const* high_class_id = mesh_find_tag(m, low_dim + 1, "class_id")->d.u32;
-  unsigned const* low_class_dim = mesh_find_tag(m, low_dim, "class_dim")->d.u32;
-  unsigned* low_class_id = mesh_find_tag(m, low_dim, "class_id")->d.u32;
+  unsigned const* high_class_dim =
+    mesh_find_tag(m, low_dim + 1, "class_dim")->d.u32;
+  unsigned const* high_class_id =
+    mesh_find_tag(m, low_dim + 1, "class_id")->d.u32;
+  unsigned const* low_class_dim =
+    mesh_find_tag(m, low_dim, "class_dim")->d.u32;
+  unsigned* low_class_id =
+    mesh_find_tag(m, low_dim, "class_id")->d.u32;
   LOOP_EXEC(project_class_kern, nlows,
       up_offsets, up,
       high_class_dim, high_class_id,
