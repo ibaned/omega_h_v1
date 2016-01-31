@@ -380,9 +380,6 @@ unsigned count_swap_ents(
     case 2: return swap_mesh_sizes[ring_size] +
                    2 * swap_nint_edges[ring_size];
     case 3: return 2 * swap_mesh_sizes[ring_size];
-    default: assert(0);
   }
-#ifdef __CUDACC__
-  return 42;
-#endif
+  LOOP_NORETURN(42);
 }

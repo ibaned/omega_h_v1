@@ -97,10 +97,7 @@ static enum tag_type read_array_type(char const* header)
   for (unsigned type = 0; type < TAG_TYPES; ++type)
     if (!strcmp(type_name((enum tag_type) type), val))
       return (enum tag_type) type;
-  assert(0);
-#ifdef __CUDACC__
-  return TAG_U32;
-#endif
+  LOOP_NORETURN(TAG_U32);
 }
 
 static enum vtk_format read_array_format(char const* header)
@@ -110,10 +107,7 @@ static enum vtk_format read_array_format(char const* header)
   for (unsigned fmt = 0; fmt < VTK_FORMATS; ++fmt)
     if (!strcmp(format_name((enum vtk_format) fmt), val))
       return (enum vtk_format) fmt;
-  assert(0);
-#ifdef __CUDACC__
-  return VTK_ASCII;
-#endif
+  LOOP_NORETURN(VTK_ASCII);
 }
 
 static unsigned read_int_attrib(char const* header, char const* attrib)

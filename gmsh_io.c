@@ -35,10 +35,7 @@ static unsigned find_nodes_start(FILE* f)
     if (!strncmp(line, param_prefix, param_len))
       return 1;
   }
-  assert(0);
-#ifdef __CUDACC__
-  return 0;
-#endif
+  LOOP_NORETURN(0);
 }
 
 static void read_nodes(FILE* f, unsigned* p_nnodes,

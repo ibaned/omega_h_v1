@@ -43,10 +43,7 @@ LOOP_INOUT static inline unsigned find_face_up(
          (verts_of_low[(dir + 2) % 3] == verts_wanted[1])))
       return low;
   }
-  assert(0);
-#ifdef __CUDACC__
-  return INVALID;
-#endif
+  LOOP_NORETURN(INVALID);
 }
 
 LOOP_INOUT static inline unsigned find_edge_up(
