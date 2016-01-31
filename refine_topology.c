@@ -101,7 +101,7 @@ void refine_topology(
       verts_of_prods);
   free_orders(dom_opps_of_srcs, dom_dim, src_dim);
   free_orders(dom_verts_of_bases, dom_dim, base_dim);
-  loop_host_free(dom_base_of_opps);
+  loop_free(dom_base_of_opps);
 }
 
 unsigned get_prods_per_dom(
