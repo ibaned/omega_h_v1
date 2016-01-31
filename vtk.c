@@ -97,10 +97,7 @@ static enum tag_type read_array_type(char const* header)
   for (unsigned type = 0; type < TAG_TYPES; ++type)
     if (!strcmp(type_name((enum tag_type) type), val))
       return (enum tag_type) type;
-  assert(0);
-#ifdef __CUDACC__
-  return TAG_U32;
-#endif
+  LOOP_NORETURN(TAG_U32);
 }
 
 static enum vtk_format read_array_format(char const* header)
@@ -110,10 +107,7 @@ static enum vtk_format read_array_format(char const* header)
   for (unsigned fmt = 0; fmt < VTK_FORMATS; ++fmt)
     if (!strcmp(format_name((enum vtk_format) fmt), val))
       return (enum vtk_format) fmt;
-  assert(0);
-#ifdef __CUDACC__
-  return VTK_ASCII;
-#endif
+  LOOP_NORETURN(VTK_ASCII);
 }
 
 static unsigned read_int_attrib(char const* header, char const* attrib)
@@ -155,7 +149,9 @@ static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
   unsigned tsize = tag_size(t);
   unsigned size = tsize * ncomps * nents;
   unsigned long comp_size;
-  void* comp = my_compress(data, size, &comp_size);
+  void* host_data = LOOP_TO_HOST(unsigned char, data, size);
+  void* comp = my_compress(host_data, size, &comp_size);
+  loop_host_free(host_data);
   if (can_compress) {
     unsigned comp_header[4] = {1, size, size, (unsigned) comp_size};
     write_binary_uints(file, comp_header, 4);
@@ -204,6 +200,7 @@ static void* read_binary_array(FILE* file, enum endian end, unsigned do_com,
     loop_host_free(decod);
   } else
     decomp = decod;
+  /* this function also copies to device space */
   void* swapped = generic_swap_if_needed(end, nents * ncomps, tsize, decomp);
   loop_host_free(decomp);
   return swapped;
@@ -214,39 +211,43 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
 {
   switch (t) {
     case TAG_U8: {
-      unsigned char const* p = (unsigned char const*) data;
+      unsigned char* p = LOOP_TO_HOST(unsigned char, data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
-          fprintf(file, " %hhu", *p++);
+          fprintf(file, " %hhu", p[i * ncomps + j]);
         fprintf(file, "\n");
       }
+      loop_host_free(p);
       break;
     }
     case TAG_U32: {
-      unsigned const* p = (unsigned const*) data;
+      unsigned* p = LOOP_TO_HOST(unsigned, data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
-          fprintf(file, " %u", *p++);
+          fprintf(file, " %u", p[i * ncomps + j]);
         fprintf(file, "\n");
       }
+      loop_host_free(p);
       break;
     }
     case TAG_U64: {
-      unsigned long const* p = (unsigned long const*) data;
+      unsigned long* p = LOOP_TO_HOST(unsigned long, data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
-          fprintf(file, " %lu", *p++);
+          fprintf(file, " %lu", p[i * ncomps + j]);
         fprintf(file, "\n");
       }
+      loop_host_free(p);
       break;
     }
     case TAG_F64: {
-      double const* p = (double const*) data;
+      double* p = LOOP_TO_HOST(double, data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
-          fprintf(file, " %.15e", *p++);
+          fprintf(file, " %.15e", p[i * ncomps + j]);
         fprintf(file, "\n");
       }
+      loop_host_free(p);
       break;
     }
   }
@@ -256,33 +257,38 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
     unsigned ncomps)
 {
   unsigned n = nents * ncomps;
+  void* out = 0;
   switch (type) {
     case TAG_U8: {
-      unsigned char* out = LOOP_HOST_MALLOC(unsigned char, n);
+      unsigned char* in = LOOP_HOST_MALLOC(unsigned char, n);
       for (unsigned i = 0; i < n; ++i)
-        safe_scanf(file, 1, "%hhu", &out[i]);
-      return out;
+        safe_scanf(file, 1, "%hhu", &in[i]);
+      out = LOOP_TO_DEVICE(unsigned char, in, n);
+      loop_host_free(in);
     }
     case TAG_U32: {
-      unsigned* out = LOOP_HOST_MALLOC(unsigned, n);
+      unsigned* in = LOOP_HOST_MALLOC(unsigned, n);
       for (unsigned i = 0; i < n; ++i)
-        safe_scanf(file, 1, "%u", &out[i]);
-      return out;
+        safe_scanf(file, 1, "%u", &in[i]);
+      out = LOOP_TO_DEVICE(unsigned, in, n);
+      loop_host_free(in);
     }
     case TAG_U64: {
-      unsigned long* out = LOOP_HOST_MALLOC(unsigned long, n);
+      unsigned long* in = LOOP_HOST_MALLOC(unsigned long, n);
       for (unsigned i = 0; i < n; ++i)
-        safe_scanf(file, 1, "%lu", &out[i]);
-      return out;
+        safe_scanf(file, 1, "%lu", &in[i]);
+      out = LOOP_TO_DEVICE(unsigned long, in, n);
+      loop_host_free(in);
     }
     case TAG_F64: {
-      double* out = LOOP_HOST_MALLOC(double, n);
+      double* in = LOOP_HOST_MALLOC(double, n);
       for (unsigned i = 0; i < n; ++i)
-        safe_scanf(file, 1, "%lf", &out[i]);
-      return out;
+        safe_scanf(file, 1, "%lf", &in[i]);
+      out = LOOP_TO_DEVICE(unsigned long, in, n);
+      loop_host_free(in);
     }
-    default: return 0;
   }
+  return out;
 }
 
 static void describe_array(FILE* file, enum tag_type t,
@@ -383,18 +389,14 @@ static void write_cell_arrays(FILE* file, struct mesh* m, enum vtk_format fmt)
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
   write_connectivity(file, m, elem_dim, fmt);
-  unsigned* off = LOOP_HOST_MALLOC(unsigned, nelems);
   unsigned nverts_per_elem = the_down_degrees[elem_dim][0];
-  for (unsigned i = 0; i < nelems; ++i)
-    off[i] = (i + 1) * nverts_per_elem;
-  write_array(file, TAG_U32, "offsets", nelems, 1, off, fmt);
-  loop_host_free(off);
-  unsigned char* types = LOOP_HOST_MALLOC(unsigned char, nelems);
+  unsigned* off = uints_linear(nelems + 1, nverts_per_elem);
+  write_array(file, TAG_U32, "offsets", nelems, 1, off + 1, fmt);
+  loop_free(off);
   unsigned char type = (unsigned char) simplex_types[elem_dim];
-  for (unsigned i = 0; i < nelems; ++i)
-    types[i] = type;
+  unsigned char* types = uchars_filled(nelems, type);
   write_array(file, TAG_U8, "types", nelems, 1, types, fmt);
-  loop_host_free(types);
+  loop_free(types);
 }
 
 static void write_mesh_tags(FILE* file, struct mesh* m, unsigned dim,
@@ -716,16 +718,15 @@ void write_vtu_cloud_opts(struct cloud* c, char const* filename,
   write_tag(file, npts, coord_tag, fmt);
   fprintf(file, "</Points>\n");
   fprintf(file, "<Cells>\n");
-  unsigned* conn = LOOP_HOST_MALLOC(unsigned, npts);
-  for (unsigned i = 0; i < npts; ++i)
-    conn[i] = i;
+  unsigned* conn = uints_linear(npts, 1);
   write_array(file, TAG_U32, "connectivity", npts, 1, conn, fmt);
-  loop_host_free(conn);
-  unsigned off[1];
-  off[0] = npts;
+  loop_free(conn);
+  unsigned* off = uints_filled(1, npts);
   write_array(file, TAG_U32, "offsets", 1, 1, off, fmt);
-  unsigned char type[1] = {VTK_POLY_VERTEX};
+  loop_free(off);
+  unsigned char* type = uchars_filled(1, VTK_POLY_VERTEX);
   write_array(file, TAG_U8, "types", 1, 1, type, fmt);
+  loop_free(type);
   fprintf(file, "</Cells>\n");
   fprintf(file, "<PointData>\n");
   for (unsigned i = 0; i < cloud_count_tags(c); ++i) {

@@ -43,7 +43,7 @@ static void get_unique_ranks_of_owners(
     unsigned** p_rank_of_copies)
 {
   unsigned* ncopies_of_owners = LOOP_MALLOC(unsigned, nowners);
-  unsigned nuses = uses_of_owners_offsets[nowners];
+  unsigned nuses = uints_at(uses_of_owners_offsets, nowners);
   unsigned* scratch = LOOP_MALLOC(unsigned, nuses);
   for (unsigned i = 0; i < nowners; ++i) {
     ncopies_of_owners[i] = get_unique_ranks_of_owner(
@@ -53,7 +53,7 @@ static void get_unique_ranks_of_owners(
   unsigned* copies_of_owners_offsets = uints_exscan(
       ncopies_of_owners, nowners);
   loop_free(ncopies_of_owners);
-  unsigned ncopies = copies_of_owners_offsets[nowners];
+  unsigned ncopies = uints_at(copies_of_owners_offsets, nowners);
   unsigned* rank_of_copies = LOOP_MALLOC(unsigned, ncopies);
   for (unsigned i = 0; i < nowners; ++i) {
     unsigned fu = uses_of_owners_offsets[i];
@@ -93,7 +93,7 @@ struct exchanger* close_partition_exchanger(
       buse_to_own->ranks[EX_REV],
       &copies_of_owners_offsets,
       &rank_of_copies);
-  unsigned nbcopies_own = copies_of_owners_offsets[nbowners];
+  unsigned nbcopies_own = uints_at(copies_of_owners_offsets, nbowners);
   struct exchanger* bown_to_copy = new_exchanger(nbcopies_own,
       rank_of_copies);
   loop_free(rank_of_copies);
@@ -112,7 +112,7 @@ void close_partition(
     unsigned** p_bcopy_own_ranks,
     unsigned** p_bcopy_own_ids)
 {
-  unsigned nuses = buses_by_acopies_offsets[nacopies];
+  unsigned nuses = uints_at(buses_by_acopies_offsets, nacopies);
   struct exchanger* buse_to_own = new_exchanger(nuses, buse_own_ranks);
   set_exchanger_dests(buse_to_own, nbowners, buse_own_ids);
   struct exchanger* bown_to_copy = close_partition_exchanger(buse_to_own);
@@ -199,7 +199,7 @@ void push_use_owners(
   unsigned* lids_out = uints_linear(nents_out, 1);
   unsigned* lids_in = exchange_uints(push, 1, lids_out, EX_REV, EX_ITEM);
   loop_free(lids_out);
-  unsigned nprod = prod_offsets[nents_in];
+  unsigned nprod = uints_at(prod_offsets, nents_in);
   unsigned* prod_dest_ranks = LOOP_MALLOC(unsigned, nprod);
   unsigned* prod_dest_ids = LOOP_MALLOC(unsigned, nprod);
   unsigned* prod_use_ranks = LOOP_MALLOC(unsigned, nprod);

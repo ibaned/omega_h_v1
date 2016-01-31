@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <math.h>
 
+#include "arrays.h"
 #include "cloud.h"
 #include "doubles.h"
 #include "loop.h"
@@ -66,7 +67,7 @@ struct cloud* form_cloud(struct mesh* m)
   for (unsigned i = 0; i <= nelems; ++i)
     uint_offset[i] = (unsigned) (floor(real_offset[i]));
   loop_free(real_offset);
-  unsigned npts = uint_offset[nelems];
+  unsigned npts = uints_at(uint_offset, nelems);
   struct cloud* c = new_cloud(npts);
   unsigned* pt_elem = LOOP_MALLOC(unsigned, npts);
   double* pt_coords = LOOP_MALLOC(double, npts * 3);

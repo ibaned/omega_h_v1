@@ -104,6 +104,25 @@ T* name##_filled(unsigned n, T v) \
   return a; \
 }
 
+GENERIC_FILL(unsigned char, uchars)
 GENERIC_FILL(unsigned, uints)
 GENERIC_FILL(unsigned long, ulongs)
 GENERIC_FILL(double, doubles)
+
+#ifdef __CUDACC__
+#define GENERIC_AT(T, name) \
+T uints_at(T const* a, unsigned i) \
+{ \
+  T x; \
+  CUDACALL(cudaMemcpy(&x, a + i, sizeof(T), cudaMemcpyDeviceToHost)); \
+  return x; \
+}
+#else
+#define GENERIC_AT(T, name) \
+T uints_at(T const* a, unsigned i) \
+{ \
+  return a[i]; \
+}
+#endif
+
+GENERIC_AT(unsigned, uints)
