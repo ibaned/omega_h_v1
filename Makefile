@@ -68,7 +68,6 @@ graph.c \
 warp_to_limit.c \
 eval_field.c \
 element_gradients.c \
-jacobian.c \
 recover_by_volume.c \
 size_from_hessian.c \
 subset.c \

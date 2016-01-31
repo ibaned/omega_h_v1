@@ -156,4 +156,32 @@ mul_3x3(double a[3][3], double b[3][3], double c[3][3])
   }
 }
 
+LOOP_INOUT static inline double
+det_2x2(double m[2][2])
+{
+  return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+}
+
+LOOP_INOUT static inline void
+invert_2x2(double in[2][2], double out[2][2])
+{
+  double d = det_2x2(in);
+  out[0][0] =  in[1][1] / d;
+  out[0][1] = -in[0][1] / d;
+  out[1][0] = -in[1][0] / d;
+  out[1][1] =  in[0][0] / d;
+}
+
+LOOP_INOUT static inline void
+invert_3x3(double in[3][3], double out[3][3])
+{
+  double tmp[3][3];
+  double d = det_3x3(in);
+  cross_product(in[1], in[2], tmp[0]);
+  cross_product(in[2], in[0], tmp[1]);
+  cross_product(in[0], in[1], tmp[2]);
+  scale_3x3(tmp, 1.0 / d, tmp);
+  transp_3x3(tmp, out);
+}
+
 #endif
