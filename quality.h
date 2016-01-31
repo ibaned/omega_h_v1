@@ -94,6 +94,9 @@ entity_quality(unsigned dim, double (*coords)[3])
     case 2: return triangle_quality(coords);
   }
   assert(0);
+#ifdef __CUDACC__
+  return 0;
+#endif
 }
 
 LOOP_INOUT static inline double
@@ -104,6 +107,9 @@ element_quality(unsigned dim, double (*coords)[3])
     case 2: return triangle_xy_quality(coords);
   }
   assert(0);
+#ifdef __CUDACC__
+  return 0;
+#endif
 }
 
 double* element_qualities(
