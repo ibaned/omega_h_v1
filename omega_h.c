@@ -80,6 +80,16 @@ unsigned const* osh_up_offs(osh_t m, unsigned low_dim, unsigned high_dim)
   return mesh_ask_up((struct mesh*)m, low_dim, high_dim)->offsets;
 }
 
+unsigned const* osh_star(osh_t m, unsigned low_dim, unsigned high_dim)
+{
+  return mesh_ask_star((struct mesh*)m, low_dim, high_dim)->adj;
+}
+
+unsigned const* osh_star_offs(osh_t m, unsigned low_dim, unsigned high_dim)
+{
+  return mesh_ask_star((struct mesh*)m, low_dim, high_dim)->offsets;
+}
+
 unsigned const* osh_up_dirs(osh_t m, unsigned low_dim, unsigned high_dim)
 {
   return mesh_ask_up((struct mesh*)m, low_dim, high_dim)->directions;
@@ -199,13 +209,13 @@ void osh_ghost(osh_t* m, unsigned nlayers)
   ghost_mesh((struct mesh**)m, nlayers);
 }
 
-void osh_adapt(osh_t* m,
+unsigned osh_adapt(osh_t* m,
     double size_ratio_floor,
     double good_element_quality,
     unsigned nsliver_layers,
     unsigned max_passes)
 {
-  mesh_adapt((struct mesh**)m,
+  return mesh_adapt((struct mesh**)m,
       size_ratio_floor,
       good_element_quality,
       nsliver_layers,

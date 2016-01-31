@@ -114,6 +114,22 @@ static void mesh_get_star_general(
       p_star_offsets, p_star);
 }
 
+LOOP_KERNEL(vertex_edge_kern,
+    unsigned const* edges_of_verts_offsets,
+    unsigned const* edges_of_verts,
+    unsigned const* edges_of_verts_directions,
+    unsigned const* verts_of_edges,
+    unsigned* star)
+
+  unsigned f = edges_of_verts_offsets[i];
+  unsigned e = edges_of_verts_offsets[i + 1];
+  for (unsigned j = f; j < e; ++j) {
+    unsigned edge = edges_of_verts[j];
+    unsigned dir = edges_of_verts_directions[j];
+    star[j] = verts_of_edges[edge * 2 + (1 - dir)];
+  }
+}
+
 static void get_vertex_edge_star(
     struct mesh* m,
     unsigned** p_star_offsets,
@@ -132,16 +148,37 @@ static void get_vertex_edge_star(
       edges_of_verts_offsets, nverts + 1);
   unsigned nadj = edges_of_verts_offsets[nverts];
   unsigned* star = LOOP_MALLOC(unsigned, nadj);
-  for (unsigned i = 0; i < nverts; ++i) {
-    unsigned f = edges_of_verts_offsets[i];
-    unsigned e = edges_of_verts_offsets[i + 1];
-    for (unsigned j = f; j < e; ++j) {
-      unsigned edge = edges_of_verts[j];
-      unsigned dir = edges_of_verts_directions[j];
-      star[j] = verts_of_edges[edge * 2 + (1 - dir)];
-    }
-  }
+  LOOP_EXEC(vertex_edge_kern, nverts,
+      edges_of_verts_offsets,
+      edges_of_verts,
+      edges_of_verts_directions,
+      verts_of_edges,
+      star);
   *p_star = star;
+}
+
+LOOP_KERNEL(edge_tri_kern_1,
+    unsigned const* tris_of_edges_offsets,
+    unsigned* star_offsets)
+
+  star_offsets[i] = tris_of_edges_offsets[i] * 2;
+}
+
+LOOP_KERNEL(edge_tri_kern_2,
+    unsigned const* tris_of_edges_offsets,
+    unsigned const* tris_of_edges,
+    unsigned const* tris_of_edges_directions,
+    unsigned const* edges_of_tris,
+    unsigned* star)
+
+  unsigned f = tris_of_edges_offsets[i];
+  unsigned e = tris_of_edges_offsets[i + 1];
+  for (unsigned j = f; j < e; ++j) {
+    unsigned tri = tris_of_edges[j];
+    unsigned dir = tris_of_edges_directions[j];
+    star[j * 2 + 0] = edges_of_tris[tri * 3 + ((dir + 1) % 3)];
+    star[j * 2 + 1] = edges_of_tris[tri * 3 + ((dir + 2) % 3)];
+  }
 }
 
 static void get_edge_triangle_star(
@@ -159,23 +196,58 @@ static void get_edge_triangle_star(
   unsigned const* tris_of_edges_directions =
     mesh_ask_up(m, 1, 2)->directions;
   unsigned* star_offsets = LOOP_MALLOC(unsigned, nedges + 1);
-  for (unsigned i = 0; i <= nedges; ++i) {
-    star_offsets[i] = tris_of_edges_offsets[i] * 2;
-  }
+  LOOP_EXEC(edge_tri_kern_1, nedges + 1,
+      tris_of_edges_offsets, star_offsets);
   unsigned nadj = tris_of_edges_offsets[nedges] * 2;
   unsigned* star = LOOP_MALLOC(unsigned, nadj);
-  for (unsigned i = 0; i < nedges; ++i) {
-    unsigned f = tris_of_edges_offsets[i];
-    unsigned e = tris_of_edges_offsets[i + 1];
-    for (unsigned j = f; j < e; ++j) {
-      unsigned tri = tris_of_edges[j];
-      unsigned dir = tris_of_edges_directions[j];
-      star[j * 2 + 0] = edges_of_tris[tri * 3 + ((dir + 1) % 3)];
-      star[j * 2 + 1] = edges_of_tris[tri * 3 + ((dir + 2) % 3)];
-    }
-  }
+  LOOP_EXEC(edge_tri_kern_2, nedges,
+      tris_of_edges_offsets,
+      tris_of_edges,
+      tris_of_edges_directions,
+      edges_of_tris,
+      star);
   *p_star_offsets = star_offsets;
   *p_star = star;
+}
+
+LOOP_KERNEL(edge_tet_kern_1,
+    unsigned const* edge_tri_star_degrees,
+    unsigned const* edge_tet_degrees,
+    unsigned* star_degrees)
+
+  star_degrees[i] = edge_tri_star_degrees[i] + edge_tet_degrees[i];
+}
+
+LOOP_KERNEL(edge_tet_kern_2,
+    unsigned const* star_offsets,
+    unsigned const* edge_tri_star_offsets,
+    unsigned const* edge_tri_star,
+    unsigned const* tets_of_edges_offsets,
+    unsigned const* tets_of_edges,
+    unsigned const* tets_of_edges_directions,
+    unsigned const* tet_edge_opp_edges,
+    unsigned const* edges_of_tets,
+    unsigned* star)
+
+  unsigned o = star_offsets[i];
+  {
+    unsigned f = edge_tri_star_offsets[i];
+    unsigned e = edge_tri_star_offsets[i + 1];
+    for (unsigned j = f; j < e; ++j)
+      star[o++] = edge_tri_star[j];
+  }
+  {
+    unsigned f = tets_of_edges_offsets[i];
+    unsigned e = tets_of_edges_offsets[i + 1];
+    for (unsigned j = f; j < e; ++j) {
+      unsigned tet = tets_of_edges[j];
+      unsigned dir = tets_of_edges_directions[j];
+      unsigned tet_edge = tet_edge_opp_edges[dir];
+      assert(edges_of_tets[tet * 6 + dir] == i);
+      star[o++] = edges_of_tets[tet * 6 + tet_edge];
+    }
+  }
+  assert(o == star_offsets[i + 1]);
 }
 
 static void get_edge_tet_star(
@@ -200,8 +272,8 @@ static void get_edge_tet_star(
   unsigned* edge_tet_degrees = uints_unscan(
       tets_of_edges_offsets, nedges);
   unsigned* star_degrees = LOOP_MALLOC(unsigned, nedges);
-  for (unsigned i = 0; i < nedges; ++i)
-    star_degrees[i] = edge_tri_star_degrees[i] + edge_tet_degrees[i];
+  LOOP_EXEC(edge_tet_kern_1, nedges,
+      edge_tri_star_degrees, edge_tet_degrees, star_degrees);
   loop_free(edge_tri_star_degrees);
   loop_free(edge_tet_degrees);
   unsigned* star_offsets = uints_exscan(star_degrees, nedges);
@@ -209,27 +281,10 @@ static void get_edge_tet_star(
   unsigned nadj = star_offsets[nedges];
   unsigned* star = uints_filled(nadj, INVALID);
   unsigned const* tet_edge_opp_edges = the_opposite_orders[3][1];
-  for (unsigned i = 0; i < nedges; ++i) {
-    unsigned o = star_offsets[i];
-    {
-      unsigned f = edge_tri_star_offsets[i];
-      unsigned e = edge_tri_star_offsets[i + 1];
-      for (unsigned j = f; j < e; ++j)
-        star[o++] = edge_tri_star[j];
-    }
-    {
-      unsigned f = tets_of_edges_offsets[i];
-      unsigned e = tets_of_edges_offsets[i + 1];
-      for (unsigned j = f; j < e; ++j) {
-        unsigned tet = tets_of_edges[j];
-        unsigned dir = tets_of_edges_directions[j];
-        unsigned tet_edge = tet_edge_opp_edges[dir];
-        assert(edges_of_tets[tet * 6 + dir] == i);
-        star[o++] = edges_of_tets[tet * 6 + tet_edge];
-      }
-    }
-    assert(o == star_offsets[i + 1]);
-  }
+  LOOP_EXEC(edge_tet_kern_2, nedges,
+      star_offsets, edge_tri_star_offsets, edge_tri_star,
+      tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
+      tet_edge_opp_edges, edges_of_tets, star);
   loop_free(edge_tri_star_offsets);
   loop_free(edge_tri_star);
   *p_star_offsets = star_offsets;

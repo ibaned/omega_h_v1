@@ -5,7 +5,7 @@
 #include "loop.h"
 #include "tables.h"
 
-LOOP_KERNEL( local_method,
+LOOP_KERNEL(derive_side,
     unsigned nverts_per_elem,
     unsigned nverts_per_side,
     unsigned* verts_of_sides,
@@ -16,7 +16,6 @@ LOOP_KERNEL( local_method,
 
   unsigned elem = elems_of_sides[i * 2];
   unsigned const* verts_of_elem = verts_of_elems + elem * nverts_per_elem;
-  //unsigned elem_side = elem_side_of_sides[i];
   unsigned const* elem_verts_of_side = elem_verts_of_sides[elem_side_of_sides[i]];
   unsigned* verts_of_side = verts_of_sides + i * nverts_per_side;
   for (unsigned j = 0; j < nverts_per_side; ++j) {
@@ -25,7 +24,6 @@ LOOP_KERNEL( local_method,
     verts_of_side[j] = vert;
   }
 }
-
 
 unsigned* derive_sides(
     unsigned elem_dim,
@@ -40,7 +38,7 @@ unsigned* derive_sides(
   unsigned* verts_of_sides = LOOP_MALLOC(unsigned, nsides * nverts_per_side);
   unsigned const* const* elem_verts_of_sides =
     the_canonical_orders[elem_dim][elem_dim - 1][0];
-  LOOP_EXEC(local_method, nsides,
+  LOOP_EXEC(derive_side, nsides,
       nverts_per_elem,
       nverts_per_side,
       verts_of_sides,
@@ -48,19 +46,5 @@ unsigned* derive_sides(
       elems_of_sides,
       elem_side_of_sides,
       elem_verts_of_sides);
-/*
-  for (unsigned i = 0; i < nsides; ++i) {
-    unsigned elem = elems_of_sides[i * 2];
-    unsigned const* verts_of_elem = verts_of_elems + elem * nverts_per_elem;
-    unsigned elem_side = elem_side_of_sides[i];
-    unsigned const* elem_verts_of_side = elem_verts_of_sides[elem_side];
-    unsigned* verts_of_side = verts_of_sides + i * nverts_per_side;
-    for (unsigned j = 0; j < nverts_per_side; ++j) {
-      unsigned elem_vert_of_side = elem_verts_of_side[j];
-      unsigned vert = verts_of_elem[elem_vert_of_side];
-      verts_of_side[j] = vert;
-    }
-  }
-*/
   return verts_of_sides;
 }

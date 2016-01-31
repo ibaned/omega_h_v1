@@ -24,6 +24,8 @@ unsigned const* osh_down(osh_t m, unsigned high_dim, unsigned low_dim);
 unsigned const* osh_up(osh_t m, unsigned low_dim, unsigned high_dim);
 unsigned const* osh_up_offs(osh_t m, unsigned low_dim, unsigned high_dim);
 unsigned const* osh_up_dirs(osh_t m, unsigned low_dim, unsigned high_dim);
+unsigned const* osh_star(osh_t m, unsigned low_dim, unsigned high_dim);
+unsigned const* osh_star_offs(osh_t m, unsigned low_dim, unsigned high_dim);
 
 double const* osh_coords(osh_t m);
 
@@ -52,7 +54,7 @@ void osh_mark_classified(osh_t m, unsigned ent_dim,
 
 void osh_ghost(osh_t* m, unsigned nlayers);
 
-void osh_adapt(osh_t* m,
+unsigned osh_adapt(osh_t* m,
     double size_ratio_floor,
     double good_element_quality,
     unsigned nsliver_layers,
