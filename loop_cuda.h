@@ -68,6 +68,6 @@ do { \
 
 unsigned loop_size(void);
 
-#define LOOP_NORETURN(x) return (x)
+#define LOOP_NORETURN(x) return x
 
 #endif
