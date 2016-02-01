@@ -110,6 +110,11 @@ unsigned const* osh_own_id(osh_t m, unsigned dim)
   return mesh_ask_own_ids((struct mesh*)m, dim);
 }
 
+unsigned long const* osh_global(osh_t m, unsigned dim)
+{
+  return mesh_ask_globals((struct mesh*)m, dim);
+}
+
 double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
   if (mesh_find_tag((struct mesh*)m, dim, name))
