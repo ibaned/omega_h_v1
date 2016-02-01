@@ -68,7 +68,7 @@ void name##_expand_into(unsigned n, unsigned width, \
 T* name##_expand(unsigned n, unsigned width, \
     T const* a, unsigned const* offsets) \
 { \
-  unsigned nout = offsets[n]; \
+  unsigned nout = uints_at(offsets, n); \
   T* out = LOOP_MALLOC(T, nout * width); \
   name##_expand_into(n, width, a, offsets, out); \
   return out; \
