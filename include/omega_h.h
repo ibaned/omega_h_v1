@@ -31,6 +31,7 @@ double const* osh_coords(osh_t m);
 
 unsigned const* osh_own_rank(osh_t m, unsigned dim);
 unsigned const* osh_own_id(osh_t m, unsigned dim);
+unsigned long const* osh_global(osh_t m, unsigned dim);
 
 double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps);
 double* osh_get_field(osh_t m, unsigned dim, char const* name);
