@@ -1,6 +1,8 @@
 #ifndef LOOP_OPENMP_H
 #define LOOP_OPENMP_H
 
+#include <assert.h>
+
 #include "loop_host.h"
 
 #define LOOP_MALLOC(T, n) LOOP_HOST_MALLOC(T, n)
@@ -14,10 +16,8 @@
 
 static inline unsigned loop_openmp_atomic_increment(unsigned* p)
 {
-  unsigned a = *p;
-#pragma omp atomic update
-    *p = *p +1;
-  return a;
+#pragma omp atomic capture
+  return (*p)++;
 }
 
 #define loop_atomic_increment loop_openmp_atomic_increment
