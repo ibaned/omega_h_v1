@@ -164,7 +164,7 @@ clean:
 	rm -rf deps/ objs/ bin/ lib/ loop.h
 
 #just targets, not files or directories
-.PHONY: all clean check install
+.PHONY: all clean check install dep
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
@@ -230,6 +230,10 @@ deps/%.dep: %.c loop.h | deps
 	$(CPP) -M $(CPPFLAGS) $< > $@.in; \
 	sed 's,$*\.o,objs/$*.o $@,g' < $@.in > $@; \
 	rm -f $@.in
+
+#a make target to just generate the dependency
+#files without compiling source code yet
+dep: $(depfiles)
 
 #include the auto-generated dependency files for
 #all source files.
