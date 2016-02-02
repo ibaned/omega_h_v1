@@ -12,7 +12,7 @@
 
 static void sinusoid(double const* x, double* size)
 {
-  double s = cos(x[0] * 8.0 * M_PI) / 4.0 + 1.0 / 2.0;
+  double s = cos(x[0] * 8.0 * PI) / 4.0 + 1.0 / 2.0;
   double d = fabs(x[1] - s);
   double fudge = 1.4;
   *size = sqrt(2 * (1e-7 + d * 1e-5)) * fudge;
