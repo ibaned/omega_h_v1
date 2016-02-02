@@ -16,8 +16,10 @@
 
 static inline unsigned loop_openmp_atomic_increment(unsigned* p)
 {
+  unsigned o;
 #pragma omp atomic capture
-  return (*p)++;
+  o = (*p)++;
+  return o;
 }
 
 #define loop_atomic_increment loop_openmp_atomic_increment
