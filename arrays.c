@@ -109,7 +109,7 @@ GENERIC_FILL(unsigned, uints)
 GENERIC_FILL(unsigned long, ulongs)
 GENERIC_FILL(double, doubles)
 
-#ifdef __CUDACC__
+#ifdef LOOP_CUDA_H
 #define GENERIC_AT(T, name) \
 T uints_at(T const* a, unsigned i) \
 { \
