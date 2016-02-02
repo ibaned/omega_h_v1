@@ -58,7 +58,7 @@ static void bridge_graph_general(
     degree_of_verts);
   unsigned* bridge_offsets = uints_exscan(degree_of_verts, nverts);
   loop_free(degree_of_verts);
-  unsigned nedges = bridge_offsets[nverts];
+  unsigned nedges = uints_at(bridge_offsets, nverts);
   unsigned* verts_of_edges = LOOP_MALLOC(unsigned, nedges * 2);
   unsigned* directions = 0;
   if (directions_out)

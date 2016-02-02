@@ -12,7 +12,7 @@ LOOP_KERNEL(derive_side,
     unsigned const* verts_of_elems,
     unsigned const* elems_of_sides,
     unsigned const* elem_side_of_sides,
-    unsigned const* const* elem_verts_of_sides)
+    unsigned** elem_verts_of_sides)
 
   unsigned elem = elems_of_sides[i * 2];
   unsigned const* verts_of_elem = verts_of_elems + elem * nverts_per_elem;
@@ -36,8 +36,7 @@ unsigned* derive_sides(
   unsigned nverts_per_elem = the_down_degrees[elem_dim][0];
   unsigned nverts_per_side = the_down_degrees[elem_dim - 1][0];
   unsigned* verts_of_sides = LOOP_MALLOC(unsigned, nsides * nverts_per_side);
-  unsigned const* const* elem_verts_of_sides =
-    the_canonical_orders[elem_dim][elem_dim - 1][0];
+  unsigned** elem_verts_of_sides = orders_to_device(elem_dim, elem_dim - 1, 0);
   LOOP_EXEC(derive_side, nsides,
       nverts_per_elem,
       nverts_per_side,
@@ -46,5 +45,6 @@ unsigned* derive_sides(
       elems_of_sides,
       elem_side_of_sides,
       elem_verts_of_sides);
+  free_orders(elem_verts_of_sides, elem_dim, elem_dim - 1);
   return verts_of_sides;
 }

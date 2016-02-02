@@ -44,8 +44,11 @@ double* concat_doubles(unsigned width,
     double const* a, unsigned na,
     double const* b, unsigned nb);
 
+unsigned char* uchars_filled(unsigned n, unsigned char v);
 unsigned* uints_filled(unsigned n, unsigned v);
 unsigned long* ulongs_filled(unsigned n, unsigned long v);
 double* doubles_filled(unsigned n, double v);
+
+unsigned uints_at(unsigned const* a, unsigned i);
 
 #endif

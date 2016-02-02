@@ -8,6 +8,23 @@
 #include "quality.h"
 #include "tables.h"
 
+LOOP_KERNEL(mark_down_kern,
+    unsigned const* highs_of_lows_offsets,
+    unsigned const* highs_of_lows,
+    unsigned const* marked_highs,
+    unsigned* marked_lows)
+  unsigned first_use = highs_of_lows_offsets[i];
+  unsigned end_use = highs_of_lows_offsets[i + 1];
+  marked_lows[i] = 0;
+  for (unsigned j = first_use; j < end_use; ++j) {
+    unsigned high = highs_of_lows[j];
+    if (marked_highs[high]) {
+      marked_lows[i] = 1;
+      break;
+    }
+  }
+}
+
 unsigned* mark_down(
     unsigned nlows,
     unsigned const* highs_of_lows_offsets,
@@ -15,18 +32,9 @@ unsigned* mark_down(
     unsigned const* marked_highs)
 {
   unsigned* marked_lows = LOOP_MALLOC(unsigned, nlows);
-  for (unsigned i = 0; i < nlows; ++i) {
-    unsigned first_use = highs_of_lows_offsets[i];
-    unsigned end_use = highs_of_lows_offsets[i + 1];
-    marked_lows[i] = 0;
-    for (unsigned j = first_use; j < end_use; ++j) {
-      unsigned high = highs_of_lows[j];
-      if (marked_highs[high]) {
-        marked_lows[i] = 1;
-        break;
-      }
-    }
-  }
+  LOOP_EXEC(mark_down_kern, nlows,
+      highs_of_lows_offsets, highs_of_lows,
+      marked_highs, marked_lows);
   return marked_lows;
 }
 
@@ -116,6 +124,18 @@ void mesh_mark_dual_layers(
   }
 }
 
+LOOP_KERNEL(mark_class_kern,
+    unsigned target_dim,
+    unsigned target_id,
+    unsigned const* class_dim_of_ents,
+    unsigned const* class_id_of_ents,
+    unsigned* out)
+  out[i] = 0;
+  if (class_dim_of_ents[i] == target_dim)
+    if (target_id == INVALID || class_id_of_ents[i] == target_id)
+      out[i] = 1;
+}
+
 unsigned* mark_class(
     unsigned nents,
     unsigned target_dim,
@@ -126,12 +146,8 @@ unsigned* mark_class(
   if (target_id != INVALID)
     assert(class_id_of_ents);
   unsigned* out = LOOP_MALLOC(unsigned, nents);
-  for (unsigned i = 0; i < nents; ++i) {
-    out[i] = 0;
-    if (class_dim_of_ents[i] == target_dim)
-      if (target_id == INVALID || class_id_of_ents[i] == target_id)
-        out[i] = 1;
-  }
+  LOOP_EXEC(mark_class_kern, nents,
+      target_dim, target_id, class_dim_of_ents, class_id_of_ents, out);
   return out;
 }
 
@@ -170,14 +186,20 @@ void mesh_unmark_boundary(
       marked[i] = 0;
 }
 
+LOOP_KERNEL(mark_sliver,
+    double const* elem_quals,
+    double good_qual,
+    unsigned* slivers)
+  slivers[i] = (elem_quals[i] < good_qual) ? 1 : 0;
+}
+
 static unsigned* mark_slivers(
     unsigned nelems,
     double const* elem_quals,
     double good_qual)
 {
   unsigned* slivers = LOOP_MALLOC(unsigned, nelems);
-  for (unsigned i = 0; i < nelems; ++i)
-    slivers[i] = (elem_quals[i] < good_qual) ? 1 : 0;
+  LOOP_EXEC(mark_sliver, nelems, elem_quals, good_qual, slivers);
   return slivers;
 }
 
@@ -191,14 +213,19 @@ unsigned* mesh_mark_slivers(struct mesh* m, double good_qual, unsigned nlayers)
   return slivers;
 }
 
+LOOP_KERNEL(part_boundary_kern,
+    unsigned const* elems_of_sides_offsets,
+    unsigned* out)
+  out[i] = ( elems_of_sides_offsets[i + 1]
+           - elems_of_sides_offsets[i]    ) < 2;
+}
+
 unsigned* mark_part_boundary(
     unsigned nsides,
     unsigned const* elems_of_sides_offsets)
 {
   unsigned* out = LOOP_MALLOC(unsigned, nsides);
-  for (unsigned i = 0; i < nsides; ++i)
-    out[i] = ( elems_of_sides_offsets[i + 1]
-             - elems_of_sides_offsets[i]    ) < 2;
+  LOOP_EXEC(part_boundary_kern, nsides, elems_of_sides_offsets, out);
   return out;
 }
 

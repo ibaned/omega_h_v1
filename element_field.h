@@ -1,7 +1,10 @@
 #ifndef AVERAGE_H
 #define AVERAGE_H
 
-static inline void average_element_field(
+#include "loop.h"
+
+LOOP_INOUT static inline void
+average_element_field(
     unsigned verts_per_elem,
     unsigned const* verts_of_elem,
     double const* field,

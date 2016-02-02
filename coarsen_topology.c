@@ -1,5 +1,6 @@
 #include "coarsen_topology.h"
 
+#include "arrays.h"
 #include "loop.h"
 #include "tables.h"
 
@@ -15,7 +16,7 @@ void coarsen_topology(
 {
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = get_opposite_dim(elem_dim, 0);
-  unsigned ngen_elems = gen_offset_of_elems[nelems];
+  unsigned ngen_elems = uints_at(gen_offset_of_elems, nelems);
   unsigned const* const* elem_verts_of_bases =
     the_canonical_orders[elem_dim][base_dim][0];
   unsigned const* elem_bases_opp_verts =

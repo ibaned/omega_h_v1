@@ -86,7 +86,7 @@ static void get_star_general(
     lows_per_high);
   unsigned* star_offsets = uints_exscan(degrees, nlows);
   loop_free(degrees);
-  unsigned sum_degrees = star_offsets[nlows];
+  unsigned sum_degrees = uints_at(star_offsets, nlows);
   unsigned* star = LOOP_MALLOC(unsigned, sum_degrees);
   LOOP_EXEC(fill_general,
     nlows,
@@ -146,7 +146,7 @@ static void get_vertex_edge_star(
     mesh_ask_up(m, 0, 1)->directions;
   *p_star_offsets = uints_copy(
       edges_of_verts_offsets, nverts + 1);
-  unsigned nadj = edges_of_verts_offsets[nverts];
+  unsigned nadj = uints_at(edges_of_verts_offsets, nverts);
   unsigned* star = LOOP_MALLOC(unsigned, nadj);
   LOOP_EXEC(vertex_edge_kern, nverts,
       edges_of_verts_offsets,
@@ -198,7 +198,7 @@ static void get_edge_triangle_star(
   unsigned* star_offsets = LOOP_MALLOC(unsigned, nedges + 1);
   LOOP_EXEC(edge_tri_kern_1, nedges + 1,
       tris_of_edges_offsets, star_offsets);
-  unsigned nadj = tris_of_edges_offsets[nedges] * 2;
+  unsigned nadj = uints_at(tris_of_edges_offsets, nedges) * 2;
   unsigned* star = LOOP_MALLOC(unsigned, nadj);
   LOOP_EXEC(edge_tri_kern_2, nedges,
       tris_of_edges_offsets,
@@ -278,7 +278,7 @@ static void get_edge_tet_star(
   loop_free(edge_tet_degrees);
   unsigned* star_offsets = uints_exscan(star_degrees, nedges);
   loop_free(star_degrees);
-  unsigned nadj = star_offsets[nedges];
+  unsigned nadj = uints_at(star_offsets, nedges);
   unsigned* star = uints_filled(nadj, INVALID);
   unsigned const* tet_edge_opp_edges = the_opposite_orders[3][1];
   LOOP_EXEC(edge_tet_kern_2, nedges,

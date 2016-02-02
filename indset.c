@@ -50,15 +50,14 @@ enum {
    (the algorithm's iteration count is proportional to the length
     of the longest such path). */
 
-static void at_vert(
+LOOP_KERNEL(indset_at_vert,
     unsigned const* offsets,
     unsigned const* adj,
     double const* goodness,
     unsigned long const* global,
     unsigned const* old_state,
-    unsigned* state,
-    unsigned i)
-{
+    unsigned* state)
+
   if (old_state[i] != UNKNOWN)
     return;
   unsigned first_adj = offsets[i];
@@ -82,6 +81,15 @@ static void at_vert(
   state[i] = IN_SET;
 }
 
+LOOP_KERNEL(init_state,
+    unsigned const* filter,
+    unsigned* state)
+  if (filter[i])
+    state[i] = UNKNOWN;
+  else
+    state[i] = NOT_IN_SET;
+}
+
 static unsigned* find_indset(
     struct mesh* m,
     unsigned ent_dim,
@@ -93,22 +101,17 @@ static unsigned* find_indset(
     unsigned long const* global)
 {
   unsigned* state = LOOP_MALLOC(unsigned, nverts);
-  for (unsigned i = 0; i < nverts; ++i) {
-    if (filter[i])
-      state[i] = UNKNOWN;
-    else
-      state[i] = NOT_IN_SET;
-  }
+  LOOP_EXEC(init_state, nverts, filter, state);
   for (unsigned it = 0; it < MAX_ITERATIONS; ++it) {
     unsigned* old_state = uints_copy(state, nverts);
-    for (unsigned i = 0; i < nverts; ++i)
-      at_vert(offsets, adj, goodness, global, old_state, state, i);
+    LOOP_EXEC(indset_at_vert, nverts,
+        offsets, adj, goodness, global, old_state, state);
     loop_free(old_state);
     mesh_conform_uints(m, ent_dim, 1, &state);
     if (comm_max_uint(uints_max(state, nverts)) < UNKNOWN)
       return state;
   }
-  abort();
+  LOOP_NORETURN(0);
 }
 
 unsigned* mesh_find_indset(struct mesh* m, unsigned ent_dim,

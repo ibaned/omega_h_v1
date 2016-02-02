@@ -50,7 +50,6 @@ bridge_graph.c \
 refine_common.c \
 refine.c \
 indset.c \
-measure_edges.c \
 reflect_down.c \
 dual.c \
 refine_nodal.c \
@@ -69,7 +68,6 @@ graph.c \
 warp_to_limit.c \
 eval_field.c \
 element_gradients.c \
-jacobian.c \
 recover_by_volume.c \
 size_from_hessian.c \
 subset.c \

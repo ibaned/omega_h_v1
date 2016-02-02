@@ -7,13 +7,11 @@
 #include "coarsen.h"
 #include "doubles.h"
 #include "loop.h"
-#include "measure_edges.h"
 #include "mesh.h"
 #include "quality.h"
 #include "refine.h"
 #include "size.h"
 #include "swap.h"
-#include "tag.h"
 
 static unsigned global_op_count = 0;
 static unsigned global_max_ops = 0;
@@ -23,10 +21,7 @@ static void adapt_summary(struct mesh* m)
   printf("%u elements, ", mesh_count(m, mesh_dim(m)));
   printf("min quality %.2e, ", mesh_min_quality(m));
   unsigned nedges = mesh_count(m, 1);
-  unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
-  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
-  double const* size = mesh_find_tag(m, 0, "adapt_size")->d.f64;
-  double* edge_sizes = measure_edges(nedges, verts_of_edges, coords, size);
+  double* edge_sizes = mesh_measure_edges_for_adapt(m);
   double min = doubles_min(edge_sizes, nedges);
   double max = doubles_max(edge_sizes, nedges);
   loop_free(edge_sizes);

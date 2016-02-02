@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "arrays.h"
 #include "loop.h"
 #include "mesh.h"
 #include "tables.h"
@@ -19,6 +20,39 @@
  * two base triangles, each base triangle being opposite from
  * an edge vertex.
  */
+
+LOOP_KERNEL(refine_domain_entity,
+    unsigned const* offset_of_doms,
+    unsigned const* direction_of_doms,
+    unsigned** dom_opps_of_srcs,
+    unsigned const* verts_of_doms,
+    unsigned const* vert_of_doms,
+    unsigned verts_per_prod,
+    unsigned verts_per_dom,
+    unsigned opps_per_src,
+    unsigned verts_per_base,
+    unsigned const* dom_base_of_opps,
+    unsigned** dom_verts_of_bases,
+    unsigned* verts_of_prods)
+
+  if (offset_of_doms[i] == offset_of_doms[i + 1])
+    return;
+  unsigned direction = direction_of_doms[i];
+  unsigned const* dom_opps_of_src = dom_opps_of_srcs[direction];
+  unsigned const* verts_of_dom = verts_of_doms + i * verts_per_dom;
+  unsigned vert = vert_of_doms[i];
+  unsigned* verts_of_prod = verts_of_prods + 
+    offset_of_doms[i] * opps_per_src * verts_per_prod;
+  for (unsigned j = 0; j < opps_per_src; ++j) {
+    unsigned opp = dom_opps_of_src[j];
+    unsigned base = dom_base_of_opps[opp];
+    unsigned const* dom_verts_of_base = dom_verts_of_bases[base];
+    for (unsigned k = 0; k < verts_per_base; ++k)
+      verts_of_prod[k] = verts_of_dom[dom_verts_of_base[k]];
+    verts_of_prod[verts_per_base] = vert;
+    verts_of_prod += verts_per_prod;
+  }
+}
 
 void refine_topology(
     unsigned dom_dim,
@@ -41,36 +75,33 @@ void refine_topology(
     return;
   unsigned opps_per_src = the_down_degrees[src_dim][opp_dim];
   assert(opps_per_src);
-  unsigned nsplit_doms = offset_of_doms[ndoms];
+  unsigned nsplit_doms = uints_at(offset_of_doms, ndoms);
   if (!nsplit_doms)
     return;
   unsigned verts_per_prod = the_down_degrees[prod_dim][0];
   unsigned verts_per_base = verts_per_prod - 1;
   unsigned verts_per_dom = the_down_degrees[dom_dim][0];
-  unsigned const* const* dom_opps_of_srcs =
-    the_canonical_orders[dom_dim][src_dim][opp_dim];
-  unsigned const* const* dom_verts_of_bases =
-    the_canonical_orders[dom_dim][base_dim][0];
-  unsigned const* dom_base_of_opps = the_opposite_orders[dom_dim][opp_dim];
-  for (unsigned i = 0; i < ndoms; ++i) {
-    if (offset_of_doms[i] == offset_of_doms[i + 1])
-      continue;
-    unsigned direction = direction_of_doms[i];
-    unsigned const* dom_opps_of_src = dom_opps_of_srcs[direction];
-    unsigned const* verts_of_dom = verts_of_doms + i * verts_per_dom;
-    unsigned vert = vert_of_doms[i];
-    unsigned* verts_of_prod = verts_of_prods + 
-      offset_of_doms[i] * opps_per_src * verts_per_prod;
-    for (unsigned j = 0; j < opps_per_src; ++j) {
-      unsigned opp = dom_opps_of_src[j];
-      unsigned base = dom_base_of_opps[opp];
-      unsigned const* dom_verts_of_base = dom_verts_of_bases[base];
-      for (unsigned k = 0; k < verts_per_base; ++k)
-        verts_of_prod[k] = verts_of_dom[dom_verts_of_base[k]];
-      verts_of_prod[verts_per_base] = vert;
-      verts_of_prod += verts_per_prod;
-    }
-  }
+  unsigned** dom_opps_of_srcs = orders_to_device(dom_dim, src_dim, opp_dim);
+  unsigned** dom_verts_of_bases = orders_to_device(dom_dim, base_dim, 0);
+  unsigned opps_per_dom = the_down_degrees[dom_dim][opp_dim];
+  unsigned* dom_base_of_opps = LOOP_TO_DEVICE(unsigned,
+      the_opposite_orders[dom_dim][opp_dim], opps_per_dom);
+  LOOP_EXEC(refine_domain_entity, ndoms,
+      offset_of_doms,
+      direction_of_doms,
+      dom_opps_of_srcs,
+      verts_of_doms,
+      vert_of_doms,
+      verts_per_prod,
+      verts_per_dom,
+      opps_per_src,
+      verts_per_base,
+      dom_base_of_opps,
+      dom_verts_of_bases,
+      verts_of_prods);
+  free_orders(dom_opps_of_srcs, dom_dim, src_dim);
+  free_orders(dom_verts_of_bases, dom_dim, base_dim);
+  loop_free(dom_base_of_opps);
 }
 
 unsigned get_prods_per_dom(
@@ -95,7 +126,7 @@ static unsigned refined_prod_count(
     unsigned const* offset_of_doms)
 {
   unsigned ndoms = mesh_count(m, dom_dim);
-  unsigned nsplit_doms = offset_of_doms[ndoms];
+  unsigned nsplit_doms = uints_at(offset_of_doms, ndoms);
   return nsplit_doms * get_prods_per_dom(dom_dim, src_dim, prod_dim);
 }
 
@@ -117,7 +148,7 @@ void refined_prod_counts(
     }
   }
   unsigned nsrcs = mesh_count(m, src_dim);
-  ngen_ents[0][src_dim] = offset_of_doms[src_dim][nsrcs];
+  ngen_ents[0][src_dim] = uints_at(offset_of_doms[src_dim], nsrcs);
 }
 
 void mesh_refine_topology(struct mesh* m,

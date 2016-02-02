@@ -16,7 +16,7 @@ void make_ngen_from_doms(
 {
   for (unsigned i = 0; i < 4; ++i) {
     if (ndoms[i] && prods_of_doms_offsets[i])
-      ngen[i] = prods_of_doms_offsets[i][ndoms[i]];
+      ngen[i] = uints_at(prods_of_doms_offsets[i], ndoms[i]);
     else
       ngen[i] = 0;
   }
@@ -235,7 +235,7 @@ void concat_verts_of_ents(
     unsigned** p_verts_of_ents_out)
 {
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
-  unsigned nsame_ents = offset_of_same_ents[nents];
+  unsigned nsame_ents = uints_at(offset_of_same_ents, nents);
   unsigned nents_out = nsame_ents + ngen_ents;
   unsigned* verts_of_same_ents = uints_expand(nents, verts_per_ent,
       verts_of_ents, offset_of_same_ents);

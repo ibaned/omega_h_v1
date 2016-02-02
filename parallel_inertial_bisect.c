@@ -41,7 +41,7 @@ void parallel_inertial_bisect(
   unsigned* orig_ranks_out = 0;
   unsigned* orig_ids_out = 0;
   for (unsigned dir = 0; dir < 2; ++dir) {
-    unsigned nsub = offsets[n];
+    unsigned nsub = uints_at(offsets, n);
     unsigned* local = uints_linear(nsub + 1, 1);
     unsigned long* global = globalize_offsets(local, nsub);
     loop_free(local);

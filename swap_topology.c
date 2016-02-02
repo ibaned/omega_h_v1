@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "algebra.h"
+#include "arrays.h"
 #include "edge_ring.h"
 #include "edge_swap.h"
 #include "ints.h"
@@ -38,7 +39,7 @@ static unsigned* swap_topology(
     unsigned const* verts_of_tets,
     double const* coords)
 {
-  unsigned ngen_ents = gen_offset_of_edges[nedges];
+  unsigned ngen_ents = uints_at(gen_offset_of_edges, nedges);
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned* out = LOOP_MALLOC(unsigned, ngen_ents * verts_per_ent);
   for (unsigned i = 0; i < nedges; ++i) {

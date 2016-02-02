@@ -28,7 +28,7 @@ static double* coarsen_conserve_data(
   unsigned const* elems_of_verts =
     mesh_ask_up(m, 0, elem_dim)->adj;
   double const* data_in = t->d.f64;
-  unsigned ngen_elems = gen_offset_of_elems[nelems];
+  unsigned ngen_elems = uints_at(gen_offset_of_elems, nelems);
   double* gen_data = LOOP_MALLOC(double, ngen_elems * ncomps);
   for (unsigned i = 0; i < nverts; ++i) {
     if (gen_offset_of_verts[i] ==
@@ -77,12 +77,12 @@ static void coarsen_conserve_tag(
   unsigned nelems = mesh_count(m, elem_dim);
   double* same_data = doubles_expand(nelems, t->ncomps,
       t->d.f64, offset_of_same_elems);
-  unsigned nsame_elems = offset_of_same_elems[nelems];
+  unsigned nsame_elems = uints_at(offset_of_same_elems, nelems);
   double* gen_data = coarsen_conserve_data(m, gen_offset_of_verts,
       gen_offset_of_elems, nsame_elems, new_elem_sizes, t);
   double* data_out = concat_doubles(t->ncomps,
       same_data, nsame_elems,
-      gen_data, gen_offset_of_elems[nelems]);
+      gen_data, uints_at(gen_offset_of_elems, nelems));
   loop_free(same_data);
   loop_free(gen_data);
   mesh_add_tag(m_out, elem_dim, TAG_F64, t->name, t->ncomps, data_out);

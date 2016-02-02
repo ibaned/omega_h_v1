@@ -1,6 +1,8 @@
 #ifndef LOOP_SERIAL_H
 #define LOOP_SERIAL_H
 
+#include <assert.h>
+
 #include "loop_host.h"
 
 #define LOOP_MALLOC(T, n) LOOP_HOST_MALLOC(T, n)
@@ -24,5 +26,7 @@ unsigned loop_size(void);
 
 #define LOOP_IN
 #define LOOP_INOUT
+
+#define LOOP_NORETURN(x) assert(0)
 
 #endif

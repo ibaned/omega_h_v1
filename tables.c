@@ -1,5 +1,7 @@
 #include "tables.h"
 
+#include "loop.h"
+
 static unsigned const box_1d_conn[1 * 2] = {
   0, 1
 };
@@ -186,3 +188,24 @@ unsigned const* const* const the_opposite_orders[4] = {
   of_,
   or_
 };
+
+unsigned** orders_to_device(unsigned dim1, unsigned dim2, unsigned dim3)
+{
+  unsigned deg1 = the_down_degrees[dim1][dim2];
+  unsigned deg2 = the_down_degrees[dim2][dim3];
+  unsigned* a[MAX_DOWN];
+  for (unsigned i = 0; i < deg1; ++i)
+    a[i] = LOOP_TO_DEVICE(unsigned,
+        the_canonical_orders[dim1][dim2][dim3][i], deg2);
+  return LOOP_TO_DEVICE(unsigned*, a, deg1);
+}
+
+void free_orders(unsigned** a, unsigned dim1, unsigned dim2)
+{
+  unsigned deg1 = the_down_degrees[dim1][dim2];
+  unsigned** b = LOOP_TO_HOST(unsigned*, a, deg1);
+  loop_free(a);
+  for (unsigned i = 0; i < deg1; ++i)
+    loop_free(b[i]);
+  loop_host_free(b);
+}
