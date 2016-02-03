@@ -65,7 +65,7 @@ static void coarsen_ents(
   /* remap new connectivity to account for vertex removal */
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   LOOP_EXEC(remap_conn, nents_out * verts_per_ent,
-      offset_of_same_ents,
+      offset_of_same_verts,
       verts_of_ents_out);
   mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
   unsigned ndoms[4];
