@@ -31,7 +31,7 @@ unsigned coarsen_by_size(
       edge_sizes, size_ratio_floor, col_codes);
   loop_free(edge_sizes);
   mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
-  return coarsen_common(p_m, quality_floor, 0);
+  return coarsen_common(*p_m, quality_floor, 0);
 }
 
 LOOP_KERNEL(coarsen_sliver_code,
@@ -66,5 +66,5 @@ unsigned coarsen_slivers(
       verts_of_edges, marked_verts, col_codes);
   loop_free(marked_verts);
   mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
-  return coarsen_common(p_m, 0.0, 1);
+  return coarsen_common(*p_m, 0.0, 1);
 }

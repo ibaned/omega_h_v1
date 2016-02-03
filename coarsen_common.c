@@ -122,13 +122,12 @@ static unsigned check_coarsen_class(struct mesh* m)
 }
 
 static unsigned check_coarsen_quality(
-    struct mesh** p_m,
+    struct mesh* m,
     double quality_floor,
     unsigned require_better)
 {
-  if (mesh_is_parallel(*p_m))
-    mesh_ensure_ghosting(*p_m, 1);
-  struct mesh* m = *p_m;
+  if (mesh_is_parallel(m))
+    mesh_ensure_ghosting(m, 1);
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned nedges = mesh_count(m, 1);
@@ -174,9 +173,8 @@ static void setup_coarsen_indset(struct mesh* m)
   mesh_add_tag(m, 0, TAG_U32, "indset", 1, indset);
 }
 
-static void coarsen_interior(struct mesh** p_m)
+static void coarsen_interior(struct mesh* m)
 {
-  struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned nverts = mesh_count(m, 0);
   unsigned* gen_vert_of_verts = collapsing_vertex_destinations(m);
@@ -199,26 +197,25 @@ static void coarsen_interior(struct mesh** p_m)
   loop_free(gen_vert_of_verts);
   loop_free(gen_offset_of_verts);
   loop_free(offset_of_same_verts);
-  free_mesh(m);
-  *p_m = m_out;
+  overwrite_mesh(m, m_out);
 }
 
 unsigned coarsen_common(
-    struct mesh** p_m,
+    struct mesh* m,
     double quality_floor,
     unsigned require_better)
 {
-  if (!check_coarsen_noop(*p_m))
+  if (!check_coarsen_noop(m))
     return 0;
-  if (!check_coarsen_class(*p_m))
+  if (!check_coarsen_class(m))
     return 0;
-  if (!check_coarsen_quality(p_m, quality_floor, require_better))
+  if (!check_coarsen_quality(m, quality_floor, require_better))
     return 0;
-  setup_coarsen_indset(*p_m);
-  if (mesh_is_parallel(*p_m)) {
-    set_own_ranks_by_indset(*p_m, 0);
-    unghost_mesh(*p_m);
+  setup_coarsen_indset(m);
+  if (mesh_is_parallel(m)) {
+    set_own_ranks_by_indset(m, 0);
+    unghost_mesh(m);
   }
-  coarsen_interior(p_m);
+  coarsen_interior(m);
   return 1;
 }
