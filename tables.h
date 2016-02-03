@@ -23,4 +23,6 @@ static inline unsigned get_opposite_dim(
 unsigned** orders_to_device(unsigned dim1, unsigned dim2, unsigned dim3);
 void free_orders(unsigned** a, unsigned dim1, unsigned dim2);
 
+char const* get_ent_name(unsigned dim, unsigned long n);
+
 #endif

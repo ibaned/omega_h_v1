@@ -1,5 +1,7 @@
 #include "coarsen_common.h"
 
+#include <stdio.h>
+
 #include "arrays.h"
 #include "check_collapse_class.h"
 #include "coarsen_conserve.h"
@@ -182,6 +184,7 @@ static void coarsen_interior(struct mesh* m)
   mesh_free_tag(m, 1, "col_quals");
   mesh_free_tag(m, 0, "col_qual");
   unsigned const* indset = mesh_find_tag(m, 0, "indset")->d.u32;
+  unsigned long total = comm_add_ulong(uints_sum(indset, nverts));
   unsigned* gen_offset_of_verts = uints_exscan(indset, nverts);
   mesh_free_tag(m, 0, "indset");
   unsigned* offset_of_same_verts = uints_negate_offsets(
@@ -197,6 +200,8 @@ static void coarsen_interior(struct mesh* m)
   loop_free(gen_vert_of_verts);
   loop_free(gen_offset_of_verts);
   loop_free(offset_of_same_verts);
+  if (comm_rank() == 0)
+    printf("collapsed %lu %s\n", total, get_ent_name(1, total));
   overwrite_mesh(m, m_out);
 }
 

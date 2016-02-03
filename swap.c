@@ -1,6 +1,7 @@
 #include "swap.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "arrays.h"
 #include "comm.h"
@@ -67,6 +68,8 @@ static void swap_interior(
     struct mesh* m)
 {
   unsigned const* indset = mesh_find_tag(m, 1, "indset")->d.u32;
+  unsigned nedges = mesh_count(m, 1);
+  unsigned long total = comm_add_ulong(uints_sum(indset, nedges));
   unsigned const* ring_sizes = mesh_find_tag(m, 1, "ring_size")->d.u32;
   unsigned elem_dim = mesh_dim(m);
   /* vertex handling */
@@ -84,6 +87,7 @@ static void swap_interior(
   else
     for (unsigned d = 1; d <= mesh_dim(m); ++d)
       swap_ents(m, m_out, d, indset, ring_sizes);
+  printf("swapped %lu %s\n", total, get_ent_name(1, total));
   overwrite_mesh(m, m_out);
 }
 

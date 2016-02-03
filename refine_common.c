@@ -1,6 +1,7 @@
 #include "refine_common.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "arrays.h"
 #include "comm.h"
@@ -166,12 +167,16 @@ unsigned refine_common(
     unghost_mesh(m);
   }
   unsigned const* indset = mesh_find_tag(m, src_dim, "indset")->d.u32;
-  unsigned* gen_offset_of_srcs = uints_exscan(indset, mesh_count(m, src_dim));
+  unsigned nsrcs = mesh_count(m, src_dim);
+  unsigned long total = comm_add_ulong(uints_sum(indset, nsrcs));
+  unsigned* gen_offset_of_srcs = uints_exscan(indset, nsrcs);
   mesh_free_tag(m, src_dim, "indset");
   struct mesh* m_out = new_mesh(mesh_dim(m), mesh_get_rep(m), mesh_is_parallel(m));
   refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
   refine_ents(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);
+  if (comm_rank() == 0)
+    printf("split %lu %s\n", total, get_ent_name(src_dim, total));
   overwrite_mesh(m, m_out);
   return 1;
 }

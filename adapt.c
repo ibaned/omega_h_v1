@@ -31,7 +31,7 @@ static void adapt_summary(struct mesh* m)
         total_elems, minqual * 100.0, min, max);
 }
 
-static void incr_op_count(struct mesh* m, char const* what)
+static void incr_op_count(struct mesh* m)
 {
   if (global_op_count > global_max_ops) {
     fprintf(stderr, "mesh_adapt could not succeed after %u operations\n",
@@ -39,7 +39,6 @@ static void incr_op_count(struct mesh* m, char const* what)
     abort();
   }
   ++global_op_count;
-  printf("%s", what);
   adapt_summary(m);
 }
 
@@ -49,9 +48,9 @@ static void satisfy_size(struct mesh* m, double size_floor, double good_qual)
   if (good_qual < qual_floor)
     qual_floor = good_qual;
   while (refine_by_size(m, qual_floor))
-    incr_op_count(m, "split long edges\n");
+    incr_op_count(m);
   while (coarsen_by_size(m, qual_floor, size_floor))
-    incr_op_count(m, "collapse short edges\n");
+    incr_op_count(m);
 }
 
 static void satisfy_shape(
@@ -65,11 +64,11 @@ static void satisfy_shape(
       return;
     if (mesh_dim(m) == 3 &&
         swap_slivers(m, qual_floor, nsliver_layers)) {
-      incr_op_count(m, "swap good edges\n");
+      incr_op_count(m);
       continue;
     }
     if (coarsen_slivers(m, qual_floor, nsliver_layers)) {
-      incr_op_count(m, "coarsen good verts\n");
+      incr_op_count(m);
       continue;
     }
     fprintf(stderr, "ran out of options!\n");
