@@ -214,18 +214,18 @@ void osh_free_label(osh_t m, char const* name)
   mesh_free_tag((struct mesh*)m, 0, name);
 }
 
-void osh_ghost(osh_t* m, unsigned nlayers)
+void osh_ghost(osh_t m, unsigned nlayers)
 {
-  ghost_mesh((struct mesh*)*m, nlayers);
+  ghost_mesh((struct mesh*)m, nlayers);
 }
 
-unsigned osh_adapt(osh_t* m,
+unsigned osh_adapt(osh_t m,
     double size_ratio_floor,
     double good_element_quality,
     unsigned nsliver_layers,
     unsigned max_passes)
 {
-  return mesh_adapt((struct mesh*)*m,
+  return mesh_adapt((struct mesh*)m,
       size_ratio_floor,
       good_element_quality,
       nsliver_layers,
