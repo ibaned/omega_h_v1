@@ -174,7 +174,6 @@ unsigned refine_common(
   refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
   refine_ents(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);
-  free_mesh(m);
-  *p_m = m_out;
+  overwrite_mesh(m, m_out);
   return 1;
 }
