@@ -553,6 +553,12 @@ static void read_nverts(FILE* f, unsigned* nverts)
       &ignore2);
 }
 
+LOOP_KERNEL(assert_one_type,
+    unsigned char* types,
+    unsigned char type)
+  assert(types[i] == type);
+}
+
 static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
     unsigned do_com)
 {
@@ -575,13 +581,13 @@ static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
   assert(ncomps == 1);
   unsigned char* types = (unsigned char*) data;
   unsigned dim;
+  unsigned char first_type = uchars_at(types, 0);
   for (dim = 0; dim < 4; ++dim)
-    if (types[0] == simplex_types[dim])
+    if (first_type == simplex_types[dim])
       break;
   assert(dim < 4);
-  for (unsigned i = 1; i < nelems; ++i)
-    assert(types[i] == simplex_types[dim]);
-  loop_host_free(types);
+  LOOP_EXEC(assert_one_type, nelems, types, simplex_types[dim]);
+  loop_free(types);
   return dim;
 }
 
