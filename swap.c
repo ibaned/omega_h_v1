@@ -137,7 +137,7 @@ unsigned swap_slivers(
   assert(mesh_dim(*p_m) == 3);
   if (mesh_is_parallel(*p_m)) {
     assert(mesh_get_rep(*p_m) == MESH_FULL);
-    mesh_ensure_ghosting(p_m, 1);
+    mesh_ensure_ghosting(*p_m, 1);
   }
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);

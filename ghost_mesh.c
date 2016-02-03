@@ -264,12 +264,12 @@ void unghost_mesh(struct mesh* m)
   overwrite_mesh(m, m_out);
 }
 
-void mesh_ensure_ghosting(struct mesh** p_m, unsigned nlayers)
+void mesh_ensure_ghosting(struct mesh* m, unsigned nlayers)
 {
-  if (nlayers == mesh_ghost_layers(*p_m))
+  if (nlayers == mesh_ghost_layers(m))
     return;
-  if (mesh_ghost_layers(*p_m))
-    unghost_mesh(*p_m);
+  if (mesh_ghost_layers(m))
+    unghost_mesh(m);
   if (nlayers)
-    ghost_mesh(*p_m, nlayers);
+    ghost_mesh(m, nlayers);
 }

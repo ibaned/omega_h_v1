@@ -127,7 +127,7 @@ static unsigned choose_refinement_indset(
     unsigned require_better)
 {
   if (mesh_is_parallel(*p_m))
-    mesh_ensure_ghosting(p_m, 1);
+    mesh_ensure_ghosting(*p_m, 1);
   struct mesh* m = *p_m;
   unsigned nsrcs = mesh_count(m, src_dim);
   unsigned const* candidates = mesh_find_tag(m, src_dim, "candidate")->d.u32;

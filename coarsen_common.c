@@ -127,7 +127,7 @@ static unsigned check_coarsen_quality(
     unsigned require_better)
 {
   if (mesh_is_parallel(*p_m))
-    mesh_ensure_ghosting(p_m, 1);
+    mesh_ensure_ghosting(*p_m, 1);
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);

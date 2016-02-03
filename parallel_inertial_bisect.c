@@ -135,7 +135,7 @@ void recursive_inertial_bisect(
 void balance_mesh_inertial(struct mesh** p_m)
 {
   assert(mesh_is_parallel(*p_m));
-  mesh_ensure_ghosting(p_m, 0);
+  mesh_ensure_ghosting(*p_m, 0);
   struct mesh* m = *p_m;
   unsigned dim = mesh_dim(m);
   unsigned had_elem_coords =

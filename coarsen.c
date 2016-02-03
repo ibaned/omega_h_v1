@@ -53,7 +53,7 @@ unsigned coarsen_slivers(
     unsigned nlayers)
 {
   if (mesh_is_parallel(*p_m))
-    mesh_ensure_ghosting(p_m, 1);
+    mesh_ensure_ghosting(*p_m, 1);
   struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned* slivers = mesh_mark_slivers(m, quality_floor, nlayers);
