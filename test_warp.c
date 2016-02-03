@@ -82,14 +82,14 @@ static void set_size_field(struct mesh* m)
   mesh_free_tag(m, 0, "grad_grad_dye");
 }
 
-static void warped_adapt(struct mesh** p_m)
+static void warped_adapt(struct mesh* m)
 {
   for (unsigned i = 0; i < 3; ++i) {
-    unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
-    set_size_field(*p_m);
+    unsigned done = mesh_warp_to_limit(m, warp_qual_floor);
+    set_size_field(m);
     printf("warp to limit, new size field\n");
-    write_vtk_step(*p_m);
-    mesh_adapt(*p_m, size_floor, good_qual_floor, nsliver_layers, max_ops);
+    write_vtk_step(m);
+    mesh_adapt(m, size_floor, good_qual_floor, nsliver_layers, max_ops);
     if (done)
       return;
   }
@@ -114,7 +114,7 @@ int main()
     for (unsigned j = 0; j < 4; ++j) {
       mesh_eval_field(m, 0, "warp", 3, warp_fun);
       printf("new warp field\n");
-      warped_adapt(&m);
+      warped_adapt(m);
       mesh_free_tag(m, 0, "warp");
     }
     the_rotation = -the_rotation;

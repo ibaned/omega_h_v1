@@ -67,14 +67,14 @@ static void dye_fun(double const* coords, double* v)
   v[0] = 4 * dir * (.25 - vector_norm(x, 3));
 }
 
-static void warped_adapt(struct mesh** p_m)
+static void warped_adapt(struct mesh* m)
 {
   static unsigned const n = 6;
   for (unsigned i = 0; i < n; ++i) {
     printf("\n WARP TO LIMIT %u\n", i);
-    unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
-    mesh_adapt(*p_m, size_floor, good_qual_floor, nsliver_layers, max_ops);
-    write_vtk_step(*p_m);
+    unsigned done = mesh_warp_to_limit(m, warp_qual_floor);
+    mesh_adapt(m, size_floor, good_qual_floor, nsliver_layers, max_ops);
+    write_vtk_step(m);
     if (done)
       return;
   }
@@ -99,7 +99,7 @@ int main()
       printf("\nWARP FIELD %u\n", j);
       mesh_eval_field(m, 0, "warp", 3, warp_fun);
       printf("new warp field\n");
-      warped_adapt(&m);
+      warped_adapt(m);
       mesh_free_tag(m, 0, "warp");
     }
     the_rotation = -the_rotation;
