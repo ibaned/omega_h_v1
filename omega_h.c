@@ -225,7 +225,7 @@ unsigned osh_adapt(osh_t* m,
     unsigned nsliver_layers,
     unsigned max_passes)
 {
-  return mesh_adapt((struct mesh**)m,
+  return mesh_adapt((struct mesh*)*m,
       size_ratio_floor,
       good_element_quality,
       nsliver_layers,
