@@ -217,7 +217,7 @@ unsigned coarsen_common(
   setup_coarsen_indset(*p_m);
   if (mesh_is_parallel(*p_m)) {
     set_own_ranks_by_indset(*p_m, 0);
-    unghost_mesh(p_m);
+    unghost_mesh(*p_m);
   }
   coarsen_interior(p_m);
   return 1;

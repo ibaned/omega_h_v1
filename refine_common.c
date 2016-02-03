@@ -164,7 +164,7 @@ unsigned refine_common(
     return 0;
   if (mesh_is_parallel(*p_m)) {
     set_own_ranks_by_indset(*p_m, src_dim);
-    unghost_mesh(p_m);
+    unghost_mesh(*p_m);
   }
   struct mesh* m = *p_m;
   unsigned const* indset = mesh_find_tag(m, src_dim, "indset")->d.u32;

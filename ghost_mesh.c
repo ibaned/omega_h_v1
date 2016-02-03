@@ -249,9 +249,8 @@ void ghost_mesh(struct mesh* m, unsigned nlayers)
   mesh_set_ghost_layers(m, nlayers);
 }
 
-void unghost_mesh(struct mesh** p_m)
+void unghost_mesh(struct mesh* m)
 {
-  struct mesh* m = *p_m;
   unsigned dim = mesh_dim(m);
   for (unsigned d = 0; d <= dim; ++d)
     if (mesh_has_dim(m, d))
@@ -260,10 +259,9 @@ void unghost_mesh(struct mesh** p_m)
   unsigned* owned_elems = mesh_get_owned(m, dim);
   unsigned* offsets = uints_exscan(owned_elems, nelems);
   loop_free(owned_elems);
-  struct mesh* ugm = subset_mesh(m, dim, offsets);
+  struct mesh* m_out = subset_mesh(m, dim, offsets);
   loop_free(offsets);
-  free_mesh(m);
-  *p_m = ugm;
+  overwrite_mesh(m, m_out);
 }
 
 void mesh_ensure_ghosting(struct mesh** p_m, unsigned nlayers)
@@ -271,7 +269,7 @@ void mesh_ensure_ghosting(struct mesh** p_m, unsigned nlayers)
   if (nlayers == mesh_ghost_layers(*p_m))
     return;
   if (mesh_ghost_layers(*p_m))
-    unghost_mesh(p_m);
+    unghost_mesh(*p_m);
   if (nlayers)
     ghost_mesh(*p_m, nlayers);
 }
