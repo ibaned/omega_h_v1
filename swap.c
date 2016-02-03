@@ -64,9 +64,8 @@ static void swap_ents(
 }
 
 static void swap_interior(
-    struct mesh** p_m)
+    struct mesh* m)
 {
-  struct mesh* m = *p_m;
   unsigned const* indset = mesh_find_tag(m, 1, "indset")->d.u32;
   unsigned const* ring_sizes = mesh_find_tag(m, 1, "ring_size")->d.u32;
   unsigned elem_dim = mesh_dim(m);
@@ -85,15 +84,13 @@ static void swap_interior(
   else
     for (unsigned d = 1; d <= mesh_dim(m); ++d)
       swap_ents(m, m_out, d, indset, ring_sizes);
-  free_mesh(m);
-  *p_m = m_out;
+  overwrite_mesh(m, m_out);
 }
 
 static unsigned swap_common(
-    struct mesh** p_m,
+    struct mesh* m,
     unsigned* candidates)
 {
-  struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
   if (!comm_max_uint(uints_max(candidates, nedges))) {
     loop_free(candidates);
@@ -121,29 +118,28 @@ static unsigned swap_common(
   loop_free(edge_quals);
   mesh_add_tag(m, 1, TAG_U32, "indset", 1, indset);
   mesh_add_tag(m, 1, TAG_U32, "ring_size", 1, ring_sizes);
-  if (mesh_is_parallel(*p_m)) {
-    set_own_ranks_by_indset(*p_m, 1);
-    unghost_mesh(*p_m);
+  if (mesh_is_parallel(m)) {
+    set_own_ranks_by_indset(m, 1);
+    unghost_mesh(m);
   }
-  swap_interior(p_m);
+  swap_interior(m);
   return 1;
 }
 
 unsigned swap_slivers(
-    struct mesh** p_m,
+    struct mesh* m,
     double good_qual,
     unsigned nlayers)
 {
-  assert(mesh_dim(*p_m) == 3);
-  if (mesh_is_parallel(*p_m)) {
-    assert(mesh_get_rep(*p_m) == MESH_FULL);
-    mesh_ensure_ghosting(*p_m, 1);
+  assert(mesh_dim(m) == 3);
+  if (mesh_is_parallel(m)) {
+    assert(mesh_get_rep(m) == MESH_FULL);
+    mesh_ensure_ghosting(m, 1);
   }
-  struct mesh* m = *p_m;
   unsigned elem_dim = mesh_dim(m);
   unsigned* slivers = mesh_mark_slivers(m, good_qual, nlayers);
   unsigned* candidates = mesh_mark_down(m, elem_dim, 1, slivers);
   loop_free(slivers);
-  unsigned ret = swap_common(p_m, candidates);
+  unsigned ret = swap_common(m, candidates);
   return ret;
 }

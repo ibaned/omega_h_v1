@@ -62,7 +62,7 @@ static void satisfy_shape(
     if (prev_qual >= qual_floor)
       return;
     if (mesh_dim(*p_m) == 3 &&
-        swap_slivers(p_m, qual_floor, nsliver_layers)) {
+        swap_slivers(*p_m, qual_floor, nsliver_layers)) {
       incr_op_count(*p_m, "swap good edges\n");
       continue;
     }
