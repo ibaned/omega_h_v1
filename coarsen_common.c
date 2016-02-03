@@ -23,6 +23,12 @@
 #include "subset.h"
 #include "tables.h"
 
+LOOP_KERNEL(remap_conn,
+    unsigned const* offset_of_same_verts,
+    unsigned* verts_of_ents_out)
+  verts_of_ents_out[i] = offset_of_same_verts[verts_of_ents_out[i]];
+}
+
 static void coarsen_ents(
     struct mesh* m,
     struct mesh* m_out,
@@ -58,8 +64,9 @@ static void coarsen_ents(
   loop_free(verts_of_gen_ents);
   /* remap new connectivity to account for vertex removal */
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
-  for (unsigned i = 0; i < nents_out * verts_per_ent; ++i)
-    verts_of_ents_out[i] = offset_of_same_verts[verts_of_ents_out[i]];
+  LOOP_EXEC(remap_conn, nents_out * verts_per_ent,
+      offset_of_same_ents,
+      verts_of_ents_out);
   mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
   unsigned ndoms[4];
   unsigned* prods_of_doms_offsets[4];
