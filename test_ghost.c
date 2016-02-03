@@ -14,7 +14,7 @@ int main(int argc, char** argv)
   m = read_mesh_vtk(argv[1]);
   unsigned nlayers = (unsigned) atoi(argv[2]);
   assert(nlayers <= 10);
-  mesh_ensure_ghosting(&m, nlayers);
+  mesh_ensure_ghosting(m, nlayers);
   write_mesh_vtk(m, argv[3]);
   free_mesh(m);
   comm_fini();

@@ -54,4 +54,6 @@ unsigned mesh_is_parallel(struct mesh* m);
 struct parallel_mesh* mesh_parallel(struct mesh* m);
 void mesh_make_parallel(struct mesh* m);
 
+void overwrite_mesh(struct mesh* old, struct mesh* with);
+
 #endif

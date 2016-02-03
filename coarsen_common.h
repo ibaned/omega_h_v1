@@ -4,7 +4,7 @@
 struct mesh;
 
 unsigned coarsen_common(
-    struct mesh** p_m,
+    struct mesh* m,
     double quality_floor,
     unsigned require_better);
 

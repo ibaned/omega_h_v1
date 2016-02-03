@@ -55,7 +55,7 @@ int main(int argc, char** argv)
     mesh_set_rep(m, MESH_FULL);
   }
   for (unsigned i = 0; i < nrefs; ++i)
-    uniformly_refine(&m);
+    uniformly_refine(m);
   write_mesh_vtk(m, file);
   free_mesh(m);
   comm_fini();

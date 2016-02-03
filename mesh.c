@@ -97,7 +97,7 @@ unsigned mesh_count(struct mesh* m, unsigned dim)
   return m->counts[dim];
 }
 
-void free_mesh(struct mesh* m)
+static void free_mesh_contents(struct mesh* m)
 {
   for (unsigned high_dim = 0; high_dim <= m->elem_dim; ++high_dim)
     for (unsigned low_dim = 0; low_dim <= high_dim; ++low_dim) {
@@ -110,6 +110,11 @@ void free_mesh(struct mesh* m)
     free_tags(&m->tags[d]);
   if (m->parallel)
     free_parallel_mesh(m->parallel);
+}
+
+void free_mesh(struct mesh* m)
+{
+  free_mesh_contents(m);
   loop_host_free(m);
 }
 
@@ -317,4 +322,11 @@ void mesh_make_parallel(struct mesh* m)
   for (unsigned d = 0; d <= mesh_dim(m); ++d)
     if (mesh_has_dim(m, d))
       mesh_set_globals(m, d, ulongs_linear(mesh_count(m, d), 1));
+}
+
+void overwrite_mesh(struct mesh* old, struct mesh* with)
+{
+  free_mesh_contents(old);
+  *old = *with;
+  loop_host_free(with);
 }

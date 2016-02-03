@@ -3,9 +3,9 @@
 
 struct mesh;
 
-void ghost_mesh(struct mesh** p_m, unsigned nlayers);
-void unghost_mesh(struct mesh** p_m);
+void ghost_mesh(struct mesh* m, unsigned nlayers);
+void unghost_mesh(struct mesh* m);
 
-void mesh_ensure_ghosting(struct mesh** p_m, unsigned nlayers);
+void mesh_ensure_ghosting(struct mesh* m, unsigned nlayers);
 
 #endif

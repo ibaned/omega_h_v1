@@ -3,7 +3,7 @@
 
 struct mesh;
 
-unsigned mesh_adapt(struct mesh** p_m,
+unsigned mesh_adapt(struct mesh* m,
     double size_ratio_floor,
     double good_qual,
     unsigned nsliver_layers,
