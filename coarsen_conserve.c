@@ -10,6 +10,48 @@
 
 #define MAX_NCOMPS 32
 
+LOOP_KERNEL(coarsen_conserve_cavity,
+    unsigned ncomps,
+    unsigned nsame_elems,
+    unsigned const* gen_offset_of_verts,
+    unsigned const* gen_offset_of_elems,
+    unsigned const* elems_of_verts_offsets,
+    unsigned const* elems_of_verts,
+    double const* data_in,
+    double const* new_elem_sizes,
+    double* gen_data)
+
+  if (gen_offset_of_verts[i] ==
+      gen_offset_of_verts[i + 1])
+    return;
+  unsigned f = elems_of_verts_offsets[i];
+  unsigned e = elems_of_verts_offsets[i + 1];
+  double sum[MAX_NCOMPS] = {0};
+  for (unsigned j = f; j < e; ++j) {
+    unsigned elem = elems_of_verts[j];
+    add_vectors(sum, data_in + elem * ncomps, sum, ncomps);
+  }
+  double new_cavity_size = 0;
+  for (unsigned j = f; j < e; ++j) {
+    unsigned elem = elems_of_verts[j];
+    if (gen_offset_of_elems[elem] ==
+        gen_offset_of_elems[elem + 1])
+      continue;
+    unsigned new_elem = gen_offset_of_elems[elem] + nsame_elems;
+    new_cavity_size += new_elem_sizes[new_elem];
+  }
+  for (unsigned j = f; j < e; ++j) {
+    unsigned elem = elems_of_verts[j];
+    if (gen_offset_of_elems[elem] ==
+        gen_offset_of_elems[elem + 1])
+      continue;
+    unsigned gen_elem = gen_offset_of_elems[elem];
+    unsigned new_elem = gen_offset_of_elems[elem] + nsame_elems;
+    scale_vector(sum, new_elem_sizes[new_elem] / new_cavity_size,
+        gen_data + gen_elem * ncomps, ncomps);
+  }
+}
+
 static double* coarsen_conserve_data(
     struct mesh* m,
     unsigned const* gen_offset_of_verts,
@@ -30,37 +72,16 @@ static double* coarsen_conserve_data(
   double const* data_in = t->d.f64;
   unsigned ngen_elems = uints_at(gen_offset_of_elems, nelems);
   double* gen_data = LOOP_MALLOC(double, ngen_elems * ncomps);
-  for (unsigned i = 0; i < nverts; ++i) {
-    if (gen_offset_of_verts[i] ==
-        gen_offset_of_verts[i + 1])
-      continue;
-    unsigned f = elems_of_verts_offsets[i];
-    unsigned e = elems_of_verts_offsets[i + 1];
-    double sum[MAX_NCOMPS] = {0};
-    for (unsigned j = f; j < e; ++j) {
-      unsigned elem = elems_of_verts[j];
-      add_vectors(sum, data_in + elem * ncomps, sum, ncomps);
-    }
-    double new_cavity_size = 0;
-    for (unsigned j = f; j < e; ++j) {
-      unsigned elem = elems_of_verts[j];
-      if (gen_offset_of_elems[elem] ==
-          gen_offset_of_elems[elem + 1])
-        continue;
-      unsigned new_elem = gen_offset_of_elems[elem] + nsame_elems;
-      new_cavity_size += new_elem_sizes[new_elem];
-    }
-    for (unsigned j = f; j < e; ++j) {
-      unsigned elem = elems_of_verts[j];
-      if (gen_offset_of_elems[elem] ==
-          gen_offset_of_elems[elem + 1])
-        continue;
-      unsigned gen_elem = gen_offset_of_elems[elem];
-      unsigned new_elem = gen_offset_of_elems[elem] + nsame_elems;
-      scale_vector(sum, new_elem_sizes[new_elem] / new_cavity_size,
-          gen_data + gen_elem * ncomps, ncomps);
-    }
-  }
+  LOOP_EXEC(coarsen_conserve_cavity, nverts,
+      ncomps,
+      nsame_elems,
+      gen_offset_of_verts,
+      gen_offset_of_elems,
+      elems_of_verts_offsets,
+      elems_of_verts,
+      data_in,
+      new_elem_sizes,
+      gen_data);
   return gen_data;
 }
 
