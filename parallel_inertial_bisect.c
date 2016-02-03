@@ -151,7 +151,7 @@ void balance_mesh_inertial(struct mesh** p_m)
   unsigned* orig_ids = uints_linear(n, 1);
   recursive_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
   loop_free(coords);
-  migrate_mesh(p_m, n, orig_ranks, orig_ids);
+  migrate_mesh(*p_m, n, orig_ranks, orig_ids);
   loop_free(orig_ranks);
   loop_free(orig_ids);
 }

@@ -243,7 +243,7 @@ void ghost_mesh(struct mesh** p_m, unsigned nlayers)
   for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
     if (mesh_has_dim(*p_m, d))
       mesh_tag_own_rank(*p_m, d);
-  migrate_mesh(p_m, s.resident[ELEM].n,
+  migrate_mesh(*p_m, s.resident[ELEM].n,
       s.resident[ELEM].ranks, s.resident[ELEM].ids);
   free_resident(&s.resident[ELEM]);
   mesh_set_ghost_layers(*p_m, nlayers);
