@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "coarsen.h"
+#include "comm.h"
 #include "doubles.h"
 #include "loop.h"
 #include "mesh.h"
@@ -18,15 +19,16 @@ static unsigned global_max_ops = 0;
 
 static void adapt_summary(struct mesh* m)
 {
-  printf("%u elements, ", mesh_count(m, mesh_dim(m)));
-  printf("min quality %.2e, ", mesh_min_quality(m));
+  unsigned long total_elems = comm_add_ulong(mesh_count(m, mesh_dim(m)));
+  double minqual = comm_min_double(mesh_min_quality(m));
   unsigned nedges = mesh_count(m, 1);
   double* edge_sizes = mesh_measure_edges_for_adapt(m);
-  double min = doubles_min(edge_sizes, nedges);
-  double max = doubles_max(edge_sizes, nedges);
+  double min = comm_min_double(doubles_min(edge_sizes, nedges));
+  double max = comm_max_double(doubles_max(edge_sizes, nedges));
   loop_free(edge_sizes);
-  printf("metric range %.2e - %.2e ", max, min);
-  printf("domain size %.6e\n", mesh_domain_size(m));
+  if (comm_rank() == 0)
+    printf("%10lu elements, min quality %.0f%%, metric range %.2f - %.2f\n",
+        total_elems, minqual * 100.0, min, max);
 }
 
 static void incr_op_count(struct mesh* m, char const* what)
