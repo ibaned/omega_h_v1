@@ -176,7 +176,7 @@ unsigned refine_common(
   refine_ents(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);
   if (comm_rank() == 0)
-    printf("split %lu %s\n", total, get_ent_name(src_dim, total));
+    printf("split %10lu %s\n", total, get_ent_name(src_dim, total));
   overwrite_mesh(m, m_out);
   return 1;
 }

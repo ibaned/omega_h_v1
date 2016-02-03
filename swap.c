@@ -87,7 +87,7 @@ static void swap_interior(
   else
     for (unsigned d = 1; d <= mesh_dim(m); ++d)
       swap_ents(m, m_out, d, indset, ring_sizes);
-  printf("swapped %lu %s\n", total, get_ent_name(1, total));
+  printf("swapped %10lu %s\n", total, get_ent_name(1, total));
   overwrite_mesh(m, m_out);
 }
 

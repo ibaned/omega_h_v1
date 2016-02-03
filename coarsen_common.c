@@ -201,7 +201,7 @@ static void coarsen_interior(struct mesh* m)
   loop_free(gen_offset_of_verts);
   loop_free(offset_of_same_verts);
   if (comm_rank() == 0)
-    printf("collapsed %lu %s\n", total, get_ent_name(1, total));
+    printf("collapsed %10lu %s\n", total, get_ent_name(1, total));
   overwrite_mesh(m, m_out);
 }
 
