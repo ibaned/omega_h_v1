@@ -318,14 +318,3 @@ void mesh_make_parallel(struct mesh* m)
     if (mesh_has_dim(m, d))
       mesh_set_globals(m, d, ulongs_linear(mesh_count(m, d), 1));
 }
-
-double mesh_estimate_degree(struct mesh* m, unsigned dim_a, unsigned dim_b)
-{
-  if (dim_a == dim_b)
-    return 1;
-  if (dim_a > dim_b)
-    return the_down_degrees[dim_a][dim_b];
-  return mesh_estimate_degree(m, dim_b, dim_a)
-       * ((double)(mesh_count(m, dim_b)))
-       / ((double)(mesh_count(m, dim_a)));
-}
