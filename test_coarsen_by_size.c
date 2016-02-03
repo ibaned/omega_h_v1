@@ -43,7 +43,7 @@ int main()
     mesh_add_tag(m, mesh_dim(m), TAG_F64, "mass", 1,
         doubles_filled(nelems, 1.0 / nelems));
   }
-  while (refine_by_size(&m, 0)) {
+  while (refine_by_size(m, 0)) {
     sprintf(fname, "ref_%u.vtu", it++);
     write_mesh_vtk(m, fname);
     mesh_free_tag(m, 0, "adapt_size");

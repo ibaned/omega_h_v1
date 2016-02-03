@@ -89,7 +89,7 @@ int main()
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
-  while (refine_by_size(&m, 0));
+  while (refine_by_size(m, 0));
   start_vtk_steps("warp");
   mesh_eval_field(m, 0, "dye", 1, dye_fun);
   write_vtk_step(m);

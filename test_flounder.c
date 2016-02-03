@@ -56,7 +56,7 @@ int main()
 #endif
   do {
     mesh_eval_field(m, 0, "adapt_size", 1, sinusoid);
-    did_refine = refine_by_size(&m, 0.0);
+    did_refine = refine_by_size(m, 0.0);
   //printf("%u triangles\n", mesh_count(m, 2));
     mesh_free_tag(m, 0, "adapt_size");
   } while (did_refine);

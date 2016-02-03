@@ -46,7 +46,7 @@ static void satisfy_size(struct mesh** p_m, double size_floor, double good_qual)
   double qual_floor = mesh_min_quality(*p_m);
   if (good_qual < qual_floor)
     qual_floor = good_qual;
-  while (refine_by_size(p_m, qual_floor))
+  while (refine_by_size(*p_m, qual_floor))
     incr_op_count(*p_m, "split long edges\n");
   while (coarsen_by_size(p_m, qual_floor, size_floor))
     incr_op_count(*p_m, "collapse short edges\n");
