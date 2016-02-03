@@ -151,7 +151,7 @@ static unsigned check_coarsen_quality(
   double* quals_of_edges = coarsen_qualities(elem_dim, nedges, col_codes,
       verts_of_elems, verts_of_edges,
       elems_of_verts_offsets, elems_of_verts, elems_of_verts_directions,
-      coords, quality_floor, elem_quals, require_better);
+      coords, quality_floor, elem_quals);
   loop_free(elem_quals);
   mesh_conform_uints(m, 1, 1, &col_codes);
   if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {

@@ -12,7 +12,6 @@ double* coarsen_qualities(
     unsigned const* elems_of_verts_directions,
     double const* coords,
     double quality_floor,
-    double const* elem_quals,
-    unsigned require_better);
+    double const* elem_quals);
 
 #endif
