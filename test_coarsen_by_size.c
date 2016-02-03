@@ -54,7 +54,7 @@ int main()
   it = 0;
   mesh_free_tag(m, 0, "adapt_size");
   mesh_eval_field(m, 0, "adapt_size", 1, coarse_fun);
-  while (coarsen_by_size(&m, minq, 0.5)) {
+  while (coarsen_by_size(m, minq, 0.5)) {
     printf("%u elements\n", mesh_count(m, mesh_dim(m)));
     sprintf(fname, "cor_%u.vtu", it++);
     write_mesh_vtk(m, fname);

@@ -19,11 +19,10 @@ LOOP_KERNEL(coarsen_size_code,
 }
 
 unsigned coarsen_by_size(
-    struct mesh** p_m,
+    struct mesh* m,
     double quality_floor,
     double size_ratio_floor)
 {
-  struct mesh* m = *p_m;
   unsigned nedges = mesh_count(m, 1);
   double* edge_sizes = mesh_measure_edges_for_adapt(m);
   unsigned* col_codes = LOOP_MALLOC(unsigned, nedges);
@@ -31,7 +30,7 @@ unsigned coarsen_by_size(
       edge_sizes, size_ratio_floor, col_codes);
   loop_free(edge_sizes);
   mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
-  return coarsen_common(*p_m, quality_floor, 0);
+  return coarsen_common(m, quality_floor, 0);
 }
 
 LOOP_KERNEL(coarsen_sliver_code,
@@ -48,13 +47,12 @@ LOOP_KERNEL(coarsen_sliver_code,
 }
 
 unsigned coarsen_slivers(
-    struct mesh** p_m,
+    struct mesh* m,
     double quality_floor,
     unsigned nlayers)
 {
-  if (mesh_is_parallel(*p_m))
-    mesh_ensure_ghosting(*p_m, 1);
-  struct mesh* m = *p_m;
+  if (mesh_is_parallel(m))
+    mesh_ensure_ghosting(m, 1);
   unsigned elem_dim = mesh_dim(m);
   unsigned* slivers = mesh_mark_slivers(m, quality_floor, nlayers);
   unsigned* marked_verts = mesh_mark_down(m, elem_dim, 0, slivers);
@@ -66,5 +64,5 @@ unsigned coarsen_slivers(
       verts_of_edges, marked_verts, col_codes);
   loop_free(marked_verts);
   mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
-  return coarsen_common(*p_m, 0.0, 1);
+  return coarsen_common(m, 0.0, 1);
 }
