@@ -8,6 +8,37 @@
 #include "parallel_mesh.h"
 #include "tables.h"
 
+LOOP_KERNEL(collapse_to_vert,
+    unsigned const* edges_of_verts_offsets,
+    unsigned const* edges_of_verts,
+    unsigned const* edges_of_verts_directions,
+    unsigned const* col_codes,
+    double const* col_quals_of_edges,
+    unsigned* candidates,
+    double* col_qual_of_verts)
+
+  unsigned first_use = edges_of_verts_offsets[i];
+  unsigned end_use = edges_of_verts_offsets[i + 1];
+  double maxq = 0;
+  unsigned is_collapsing = 0;
+  for (unsigned j = first_use; j < end_use; ++j) {
+    unsigned edge = edges_of_verts[j];
+    unsigned direction = edges_of_verts_directions[j];
+    if (!collapses(col_codes[edge], direction))
+      continue;
+    double q = col_quals_of_edges[edge * 2 + direction];
+    if (!is_collapsing) {
+      is_collapsing = 1;
+      maxq = q;
+    } else if (q > maxq) {
+      maxq = q;
+    }
+  }
+  candidates[i] = is_collapsing;
+  if (is_collapsing)
+    col_qual_of_verts[i] = maxq;
+}
+
 void valid_collapses_to_verts(struct mesh* m)
 {
   unsigned const* col_codes = mesh_find_tag(m, 1, "col_codes")->d.u32;
@@ -22,28 +53,14 @@ void valid_collapses_to_verts(struct mesh* m)
     mesh_ask_up(m, 0, 1)->directions;
   unsigned* candidates = LOOP_MALLOC(unsigned, nverts);
   double* col_qual_of_verts = LOOP_MALLOC(double, nverts);
-  for (unsigned i = 0; i < nverts; ++i) {
-    unsigned first_use = edges_of_verts_offsets[i];
-    unsigned end_use = edges_of_verts_offsets[i + 1];
-    double maxq = 0;
-    unsigned is_collapsing = 0;
-    for (unsigned j = first_use; j < end_use; ++j) {
-      unsigned edge = edges_of_verts[j];
-      unsigned direction = edges_of_verts_directions[j];
-      if (!collapses(col_codes[edge], direction))
-        continue;
-      double q = col_quals_of_edges[edge * 2 + direction];
-      if (!is_collapsing) {
-        is_collapsing = 1;
-        maxq = q;
-      } else if (q > maxq) {
-        maxq = q;
-      }
-    }
-    candidates[i] = is_collapsing;
-    if (is_collapsing)
-      col_qual_of_verts[i] = maxq;
-  }
+  LOOP_EXEC(collapse_to_vert, nverts,
+      edges_of_verts_offsets,
+      edges_of_verts,
+      edges_of_verts_directions,
+      col_codes,
+      col_quals_of_edges,
+      candidates,
+      col_qual_of_verts);
   mesh_conform_uints(m, 0, 1, &candidates);
   mesh_conform_doubles(m, 0, 1, &col_qual_of_verts);
   mesh_add_tag(m, 0, TAG_U32, "candidates", 1, candidates);
