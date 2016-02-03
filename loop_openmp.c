@@ -2,5 +2,5 @@
 
 unsigned loop_size(void)
 {
-  return omp_get_max_threads();
+  return (unsigned) omp_get_max_threads();
 }

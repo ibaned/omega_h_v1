@@ -215,14 +215,14 @@ static void free_ghosts(struct ghost_state* s)
      that gets input to mesh_migrate */
 }
 
-void ghost_mesh(struct mesh** p_m, unsigned nlayers)
+void ghost_mesh(struct mesh* m, unsigned nlayers)
 {
-  assert(mesh_ghost_layers(*p_m) == 0);
+  assert(mesh_ghost_layers(m) == 0);
   if (nlayers == 0)
     return;
   struct ghost_state s;
   memset(&s, 0, sizeof(s));
-  init_ghosts(&s, *p_m);
+  init_ghosts(&s, m);
   push_ghosts(&s, VERT);
   close_ghosts(&s, VERT);
   /* now we have the resident elements for 1 layer of ghosting */
@@ -240,18 +240,17 @@ void ghost_mesh(struct mesh** p_m, unsigned nlayers)
    since we are using element ownership to identify ghost layers,
    we need to strictly preserve the same owner rank for entities
    as we increase their copies through ghosting */
-  for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
-    if (mesh_has_dim(*p_m, d))
-      mesh_tag_own_rank(*p_m, d);
-  migrate_mesh(p_m, s.resident[ELEM].n,
+  for (unsigned d = 0; d <= mesh_dim(m); ++d)
+    if (mesh_has_dim(m, d))
+      mesh_tag_own_rank(m, d);
+  migrate_mesh(m, s.resident[ELEM].n,
       s.resident[ELEM].ranks, s.resident[ELEM].ids);
   free_resident(&s.resident[ELEM]);
-  mesh_set_ghost_layers(*p_m, nlayers);
+  mesh_set_ghost_layers(m, nlayers);
 }
 
-void unghost_mesh(struct mesh** p_m)
+void unghost_mesh(struct mesh* m)
 {
-  struct mesh* m = *p_m;
   unsigned dim = mesh_dim(m);
   for (unsigned d = 0; d <= dim; ++d)
     if (mesh_has_dim(m, d))
@@ -260,18 +259,17 @@ void unghost_mesh(struct mesh** p_m)
   unsigned* owned_elems = mesh_get_owned(m, dim);
   unsigned* offsets = uints_exscan(owned_elems, nelems);
   loop_free(owned_elems);
-  struct mesh* ugm = subset_mesh(m, dim, offsets);
+  struct mesh* m_out = subset_mesh(m, dim, offsets);
   loop_free(offsets);
-  free_mesh(m);
-  *p_m = ugm;
+  overwrite_mesh(m, m_out);
 }
 
-void mesh_ensure_ghosting(struct mesh** p_m, unsigned nlayers)
+void mesh_ensure_ghosting(struct mesh* m, unsigned nlayers)
 {
-  if (nlayers == mesh_ghost_layers(*p_m))
+  if (nlayers == mesh_ghost_layers(m))
     return;
-  if (mesh_ghost_layers(*p_m))
-    unghost_mesh(p_m);
+  if (mesh_ghost_layers(m))
+    unghost_mesh(m);
   if (nlayers)
-    ghost_mesh(p_m, nlayers);
+    ghost_mesh(m, nlayers);
 }

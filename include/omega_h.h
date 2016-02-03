@@ -53,9 +53,9 @@ void osh_conform(osh_t m, char const* name);
 void osh_mark_classified(osh_t m, unsigned ent_dim,
     unsigned class_dim, unsigned class_id, unsigned* marked);
 
-void osh_ghost(osh_t* m, unsigned nlayers);
+void osh_ghost(osh_t m, unsigned nlayers);
 
-unsigned osh_adapt(osh_t* m,
+unsigned osh_adapt(osh_t m,
     double size_ratio_floor,
     double good_element_quality,
     unsigned nsliver_layers,

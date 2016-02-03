@@ -93,10 +93,7 @@ entity_quality(unsigned dim, double (*coords)[3])
     case 3: return tet_quality(coords);
     case 2: return triangle_quality(coords);
   }
-  assert(0);
-#ifdef __CUDACC__
-  return 0;
-#endif
+  LOOP_NORETURN(0);
 }
 
 LOOP_INOUT static inline double
@@ -106,10 +103,7 @@ element_quality(unsigned dim, double (*coords)[3])
     case 3: return tet_quality(coords);
     case 2: return triangle_xy_quality(coords);
   }
-  assert(0);
-#ifdef __CUDACC__
-  return 0;
-#endif
+  LOOP_NORETURN(0);
 }
 
 double* element_qualities(

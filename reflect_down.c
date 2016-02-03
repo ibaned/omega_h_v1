@@ -63,10 +63,7 @@ LOOP_INOUT static inline unsigned find_edge_up(
     if (verts_of_low[1 - dir] == verts_wanted[1])
       return low;
   }
-  assert(0);
-#ifdef __CUDACC__
-  return INVALID;
-#endif
+  LOOP_NORETURN(INVALID);
 }
 
 LOOP_INOUT static inline unsigned find_low(

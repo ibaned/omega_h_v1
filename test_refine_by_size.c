@@ -38,7 +38,7 @@ int main()
   }
   write_mesh_vtk(m, "out_0.vtu");
   for (unsigned it = 1; 1; ++it) {
-    if (!refine_by_size(&m, 0))
+    if (!refine_by_size(m, 0))
       break;
     printf("%u elements, %u vertices\n", mesh_count(m, mesh_dim(m)), mesh_count(m, 0));
     double* quals = element_qualities(mesh_dim(m), mesh_count(m, mesh_dim(m)),

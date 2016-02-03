@@ -132,11 +132,10 @@ void recursive_inertial_bisect(
   comm_free(subcomm);
 }
 
-void balance_mesh_inertial(struct mesh** p_m)
+void balance_mesh_inertial(struct mesh* m)
 {
-  assert(mesh_is_parallel(*p_m));
-  mesh_ensure_ghosting(p_m, 0);
-  struct mesh* m = *p_m;
+  assert(mesh_is_parallel(m));
+  mesh_ensure_ghosting(m, 0);
   unsigned dim = mesh_dim(m);
   unsigned had_elem_coords =
     (0 != mesh_find_tag(m, dim, "coordinates"));
@@ -151,7 +150,7 @@ void balance_mesh_inertial(struct mesh** p_m)
   unsigned* orig_ids = uints_linear(n, 1);
   recursive_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
   loop_free(coords);
-  migrate_mesh(p_m, n, orig_ranks, orig_ids);
+  migrate_mesh(m, n, orig_ranks, orig_ids);
   loop_free(orig_ranks);
   loop_free(orig_ids);
 }

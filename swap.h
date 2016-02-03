@@ -4,7 +4,7 @@
 struct mesh;
 
 unsigned swap_slivers(
-    struct mesh** p_m,
+    struct mesh* m,
     double good_qual,
     unsigned nlayers);
 

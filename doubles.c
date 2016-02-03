@@ -4,7 +4,7 @@
 
 #include "loop.h"
 
-#ifdef __CUDACC__
+#ifdef LOOP_CUDA_H
 #include <thrust/reduce.h>
 #include <thrust/device_ptr.h>
 #include <thrust/functional.h>

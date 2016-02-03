@@ -97,7 +97,7 @@ unsigned mesh_count(struct mesh* m, unsigned dim)
   return m->counts[dim];
 }
 
-void free_mesh(struct mesh* m)
+static void free_mesh_contents(struct mesh* m)
 {
   for (unsigned high_dim = 0; high_dim <= m->elem_dim; ++high_dim)
     for (unsigned low_dim = 0; low_dim <= high_dim; ++low_dim) {
@@ -110,6 +110,11 @@ void free_mesh(struct mesh* m)
     free_tags(&m->tags[d]);
   if (m->parallel)
     free_parallel_mesh(m->parallel);
+}
+
+void free_mesh(struct mesh* m)
+{
+  free_mesh_contents(m);
   loop_host_free(m);
 }
 
@@ -319,13 +324,9 @@ void mesh_make_parallel(struct mesh* m)
       mesh_set_globals(m, d, ulongs_linear(mesh_count(m, d), 1));
 }
 
-double mesh_estimate_degree(struct mesh* m, unsigned dim_a, unsigned dim_b)
+void overwrite_mesh(struct mesh* old, struct mesh* with)
 {
-  if (dim_a == dim_b)
-    return 1;
-  if (dim_a > dim_b)
-    return the_down_degrees[dim_a][dim_b];
-  return mesh_estimate_degree(m, dim_b, dim_a)
-       * ((double)(mesh_count(m, dim_b)))
-       / ((double)(mesh_count(m, dim_a)));
+  free_mesh_contents(old);
+  *old = *with;
+  loop_host_free(with);
 }

@@ -209,3 +209,24 @@ void free_orders(unsigned** a, unsigned dim1, unsigned dim2)
     loop_free(b[i]);
   loop_host_free(b);
 }
+
+static char const* const the_ent_names[4] = {
+  "vertex",
+  "edge",
+  "triangle",
+  "tet"
+};
+
+static char const* const the_plural_ent_names[4] = {
+  "vertices",
+  "edges",
+  "triangles",
+  "tets"
+};
+
+char const* get_ent_name(unsigned dim, unsigned long n)
+{
+  if (n == 1)
+    return the_ent_names[dim];
+  return the_plural_ent_names[dim];
+}
