@@ -37,6 +37,48 @@ GENERIC_COPY(unsigned, uints)
 GENERIC_COPY(unsigned long, ulongs)
 GENERIC_COPY(double, doubles)
 
+#if defined(LOOP_CUDA_H)
+#define GENERIC_TO_DEVICE(T, name) \
+T* name##_to_device(T const* a, unsigned n) \
+{ \
+  T* b = LOOP_MALLOC(T, n); \
+  CUDACALL(cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyHostToDevice)); \
+  return b; \
+}
+#else
+#define GENERIC_TO_DEVICE(T, name) \
+T* name##_to_device(T const* a, unsigned n) \
+{ \
+  return name##_copy(a, n); \
+}
+#endif
+
+GENERIC_TO_DEVICE(unsigned char, uchars)
+GENERIC_TO_DEVICE(unsigned, uints)
+GENERIC_TO_DEVICE(unsigned long, ulongs)
+GENERIC_TO_DEVICE(double, doubles)
+
+#if defined(LOOP_CUDA_H)
+#define GENERIC_TO_HOST(T, name) \
+T* name##_to_host(T const* a, unsigned n) \
+{ \
+  T* b = LOOP_MALLOC(T, n); \
+  CUDACALL(cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyDeviceToHost)); \
+  return b; \
+}
+#else
+#define GENERIC_TO_HOST(T, name) \
+T* name##_to_host(T const* a, unsigned n) \
+{ \
+  return name##_copy(a, n); \
+}
+#endif
+
+GENERIC_TO_HOST(unsigned char, uchars)
+GENERIC_TO_HOST(unsigned, uints)
+GENERIC_TO_HOST(unsigned long, ulongs)
+GENERIC_TO_HOST(double, doubles)
+
 #define GENERIC_SHUFFLE(T, name) \
 LOOP_KERNEL(shuffle_##name##_kern, T const* a, unsigned width, \
     unsigned const* out_of_in, T* o) \
