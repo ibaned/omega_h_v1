@@ -112,12 +112,11 @@ static void move_ents(struct mesh* m, struct mesh* m_out, unsigned dim,
 }
 
 void migrate_mesh(
-    struct mesh** p_m,
+    struct mesh* m,
     unsigned nelems_recvd,
     unsigned const* recvd_elem_ranks,
     unsigned const* recvd_elem_ids)
 {
-  struct mesh* m = *p_m;
   unsigned dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, dim);
   struct exchanger* elem_push = make_reverse_exchanger(nelems,
@@ -155,6 +154,5 @@ void migrate_mesh(
   loop_free(lid_of_copies);
   free_exchanger(vert_push);
   free_exchanger(elem_push);
-  free_mesh(*p_m);
-  *p_m = m_out;
+  overwrite_mesh(m, m_out);
 }

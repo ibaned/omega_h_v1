@@ -29,7 +29,7 @@ int main()
     elem_coords[i * 3 + 1] = 0;
     elem_coords[i * 3 + 2] = 0;
   }
-  balance_mesh_inertial(&m);
+  balance_mesh_inertial(m);
   write_mesh_vtk(m, "split.pvtu");
   free_mesh(m);
   comm_fini();

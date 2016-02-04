@@ -110,6 +110,11 @@ unsigned const* osh_own_id(osh_t m, unsigned dim)
   return mesh_ask_own_ids((struct mesh*)m, dim);
 }
 
+unsigned long const* osh_global(osh_t m, unsigned dim)
+{
+  return mesh_ask_globals((struct mesh*)m, dim);
+}
+
 double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
   if (mesh_find_tag((struct mesh*)m, dim, name))
@@ -209,18 +214,18 @@ void osh_free_label(osh_t m, char const* name)
   mesh_free_tag((struct mesh*)m, 0, name);
 }
 
-void osh_ghost(osh_t* m, unsigned nlayers)
+void osh_ghost(osh_t m, unsigned nlayers)
 {
-  ghost_mesh((struct mesh**)m, nlayers);
+  ghost_mesh((struct mesh*)m, nlayers);
 }
 
-unsigned osh_adapt(osh_t* m,
+unsigned osh_adapt(osh_t m,
     double size_ratio_floor,
     double good_element_quality,
     unsigned nsliver_layers,
     unsigned max_passes)
 {
-  return mesh_adapt((struct mesh**)m,
+  return mesh_adapt((struct mesh*)m,
       size_ratio_floor,
       good_element_quality,
       nsliver_layers,

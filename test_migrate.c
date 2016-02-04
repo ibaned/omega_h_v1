@@ -26,11 +26,11 @@ int main()
   if (comm_rank() == 0) {
     unsigned recvd_elem_ranks[1] = {0};
     unsigned recvd_elem_ids[1] = {0};
-    migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
+    migrate_mesh(m, n, recvd_elem_ranks, recvd_elem_ids);
   } else {
     unsigned recvd_elem_ranks[1] = {0};
     unsigned recvd_elem_ids[1] = {1};
-    migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
+    migrate_mesh(m, n, recvd_elem_ranks, recvd_elem_ids);
   }
   write_mesh_vtk(m, "after.pvtu");
   free_mesh(m);

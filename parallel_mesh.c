@@ -311,7 +311,7 @@ struct mesh* read_and_partition_serial_mesh(char const* filename)
     comm_use(comm_world());
   }
   mesh_partition_out(&m, comm_size());
-  balance_mesh_inertial(&m);
+  balance_mesh_inertial(m);
   return m;
 }
 

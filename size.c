@@ -1,6 +1,7 @@
 #include "size.h"
 
 #include "algebra.h"
+#include "comm.h"
 #include "doubles.h"
 #include "loop.h"
 #include "mesh.h"
@@ -68,7 +69,7 @@ double mesh_domain_size(struct mesh* m)
   double* sizes = mesh_element_sizes(m);
   double domsize = doubles_sum(sizes, mesh_count(m, mesh_dim(m)));
   loop_free(sizes);
-  return domsize;
+  return comm_add_double(domsize);
 }
 
 LOOP_KERNEL(measure_edge,

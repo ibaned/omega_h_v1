@@ -35,7 +35,7 @@ int main()
 {
   struct mesh* m = new_box_mesh(3);
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
-  while (refine_by_size(&m, 0));
+  while (refine_by_size(m, 0));
   mesh_eval_field(m, 0, "dye", 1, dye_fun);
   mesh_element_gradients(m, "dye");
   mesh_recover_by_volume(m, "grad_dye");

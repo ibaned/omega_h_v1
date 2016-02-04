@@ -1,6 +1,7 @@
 #include "refine_common.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "arrays.h"
 #include "comm.h"
@@ -121,14 +122,13 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
 }
 
 static unsigned choose_refinement_indset(
-    struct mesh** p_m,
+    struct mesh* m,
     unsigned src_dim,
     double qual_floor,
     unsigned require_better)
 {
-  if (mesh_is_parallel(*p_m))
-    mesh_ensure_ghosting(p_m, 1);
-  struct mesh* m = *p_m;
+  if (mesh_is_parallel(m))
+    mesh_ensure_ghosting(m, 1);
   unsigned nsrcs = mesh_count(m, src_dim);
   unsigned const* candidates = mesh_find_tag(m, src_dim, "candidate")->d.u32;
   if (!comm_max_uint(uints_max(candidates, nsrcs))) {
@@ -153,28 +153,30 @@ static unsigned choose_refinement_indset(
 }
 
 unsigned refine_common(
-    struct mesh** p_m,
+    struct mesh* m,
     unsigned src_dim,
     double qual_floor,
     unsigned require_better)
 {
-  if (mesh_is_parallel(*p_m))
-    assert(mesh_get_rep(*p_m) == MESH_FULL);
-  if (!choose_refinement_indset(p_m, src_dim, qual_floor, require_better))
+  if (mesh_is_parallel(m))
+    assert(mesh_get_rep(m) == MESH_FULL);
+  if (!choose_refinement_indset(m, src_dim, qual_floor, require_better))
     return 0;
-  if (mesh_is_parallel(*p_m)) {
-    set_own_ranks_by_indset(*p_m, src_dim);
-    unghost_mesh(p_m);
+  if (mesh_is_parallel(m)) {
+    set_own_ranks_by_indset(m, src_dim);
+    unghost_mesh(m);
   }
-  struct mesh* m = *p_m;
   unsigned const* indset = mesh_find_tag(m, src_dim, "indset")->d.u32;
-  unsigned* gen_offset_of_srcs = uints_exscan(indset, mesh_count(m, src_dim));
+  unsigned nsrcs = mesh_count(m, src_dim);
+  unsigned long total = comm_add_ulong(uints_sum(indset, nsrcs));
+  unsigned* gen_offset_of_srcs = uints_exscan(indset, nsrcs);
   mesh_free_tag(m, src_dim, "indset");
   struct mesh* m_out = new_mesh(mesh_dim(m), mesh_get_rep(m), mesh_is_parallel(m));
   refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
   refine_ents(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);
-  free_mesh(m);
-  *p_m = m_out;
+  if (comm_rank() == 0)
+    printf("split %10lu %s\n", total, get_ent_name(src_dim, total));
+  overwrite_mesh(m, m_out);
   return 1;
 }

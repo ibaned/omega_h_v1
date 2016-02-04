@@ -5,18 +5,27 @@
 #include "mesh.h"
 #include "tag.h"
 
+/* for now, we carry this out on the host.
+   if we want this done on the device, then
+   we'll have to use a __device__ function
+   pointer and probably relocatable device code */
+
 double* eval_field(
     unsigned nents,
     double const* coords,
     unsigned ncomps,
     void (*fun)(double const* x, double* out))
 {
-  double* out = LOOP_MALLOC(double, ncomps * nents);
+  double* host_coords = LOOP_TO_HOST(double, coords, nents * 3);
+  double* host_out = LOOP_HOST_MALLOC(double, ncomps * nents);
   for (unsigned i = 0; i < nents; ++i) {
-    double const* ent_coords = coords + i * 3;
-    double* ent_out = out + i * ncomps;
+    double const* ent_coords = host_coords + i * 3;
+    double* ent_out = host_out + i * ncomps;
     fun(ent_coords, ent_out);
   }
+  loop_host_free(host_coords);
+  double* out = LOOP_TO_DEVICE(double, host_out, ncomps * nents);
+  loop_host_free(host_out);
   return out;
 }
 

@@ -17,6 +17,6 @@ void recursive_inertial_bisect(
 
 struct mesh;
 
-void balance_mesh_inertial(struct mesh** p_m);
+void balance_mesh_inertial(struct mesh* m);
 
 #endif

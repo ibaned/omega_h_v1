@@ -23,12 +23,12 @@ static struct mesh* make_2_tri_parallel(void)
     unsigned n = 1;
     unsigned recvd_elem_ranks[1] = {0};
     unsigned recvd_elem_ids[1] = {0};
-    migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
+    migrate_mesh(m, n, recvd_elem_ranks, recvd_elem_ids);
   } else {
     unsigned n = 1;
     unsigned recvd_elem_ranks[1] = {0};
     unsigned recvd_elem_ids[1] = {1};
-    migrate_mesh(&m, n, recvd_elem_ranks, recvd_elem_ids);
+    migrate_mesh(m, n, recvd_elem_ranks, recvd_elem_ids);
   }
   return m;
 }
