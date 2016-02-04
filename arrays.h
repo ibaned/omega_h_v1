@@ -28,6 +28,7 @@ unsigned char* uchars_to_host(unsigned char const* a, unsigned n);
 unsigned* uints_to_host(unsigned const* a, unsigned n);
 unsigned long* ulongs_to_host(unsigned long const* a, unsigned n);
 double* doubles_to_host(double const* a, unsigned n);
+unsigned** uintptrs_to_host(unsigned* const* a, unsigned n);
 
 unsigned* uints_shuffle(unsigned n, unsigned const* a,
     unsigned width, unsigned const* out_of_in);

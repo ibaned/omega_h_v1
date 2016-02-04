@@ -81,6 +81,7 @@ GENERIC_TO_HOST(unsigned char, uchars)
 GENERIC_TO_HOST(unsigned, uints)
 GENERIC_TO_HOST(unsigned long, ulongs)
 GENERIC_TO_HOST(double, doubles)
+GENERIC_TO_HOST(unsigned*, uintptrs)
 
 #define GENERIC_SHUFFLE(T, name) \
 LOOP_KERNEL(shuffle_##name##_kern, T const* a, unsigned width, \

@@ -204,7 +204,7 @@ unsigned** orders_to_device(unsigned dim1, unsigned dim2, unsigned dim3)
 void free_orders(unsigned** a, unsigned dim1, unsigned dim2)
 {
   unsigned deg1 = the_down_degrees[dim1][dim2];
-  unsigned** b = LOOP_TO_HOST(unsigned*, a, deg1);
+  unsigned** b = uintptrs_to_host(a, deg1);
   loop_free(a);
   for (unsigned i = 0; i < deg1; ++i)
     loop_free(b[i]);
