@@ -13,17 +13,11 @@ void* loop_cuda_malloc(unsigned long n);
   ((T*)loop_cuda_malloc(sizeof(T) * (n)))
 void loop_cuda_free(void* p);
 
-void* loop_cuda_to_host(void const* p, unsigned long n);
-#define LOOP_CUDA_TO_HOST(T, p, n) \
-  ((T*)loop_cuda_to_host(p, sizeof(T) * (n)))
-
 static inline LOOP_IN unsigned
 loop_cuda_atomic_increment(unsigned* p)
 {
   return atomicAdd(p, 1);
 }
-
-#define LOOP_TO_HOST LOOP_CUDA_TO_HOST
 
 #define loop_atomic_increment loop_cuda_atomic_increment
 

@@ -8,8 +8,6 @@
 #define LOOP_MALLOC(T, n) LOOP_HOST_MALLOC(T, n)
 #define loop_free loop_host_free
 
-#define LOOP_TO_HOST LOOP_HOST_COPY
-
 #define loop_atomic_increment loop_host_atomic_increment
 
 #define LOOP_KERNEL(fname, ...) \
