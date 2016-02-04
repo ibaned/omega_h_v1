@@ -332,7 +332,7 @@ static void set_equal_order_class_id(struct mesh* m, unsigned dim)
   loop_host_free(stack);
   loop_host_free(state);
   mesh_add_tag(m, dim, TAG_U32, "class_id", 1,
-      LOOP_TO_DEVICE(unsigned, class_id, n));
+      uints_to_device(class_id, n));
   loop_host_free(class_id);
 }
 
