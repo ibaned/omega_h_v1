@@ -2,14 +2,33 @@
 
 #include "loop.h"
 
-#define GENERIC_COPY(T, name) \
-LOOP_KERNEL(copy_##name##_kern, T const* a, T* b) \
-  b[i] = a[i]; \
+#if defined(LOOP_CUDA_H)
+#define GENERIC_MEMCPY(T, name) \
+void name##_memcpy(T* dst, T const* src, unsigned n) \
+{ \
+  CUDACALL(cudaMemcpy(dst, src, n * sizeof(T), cudaMemcpyDeviceToDevice)); \
+}
+#else
+#define GENERIC_MEMCPY(T, name) \
+LOOP_KERNEL(name##_memcpy_kern, T* dst, T const* src) \
+  dst[i] = src[i]; \
 } \
+void name##_memcpy(T* dst, T const* src, unsigned n) \
+{ \
+  LOOP_EXEC(name##_memcpy_kern, n, dst, src); \
+}
+#endif
+
+GENERIC_MEMCPY(unsigned char, uchars)
+GENERIC_MEMCPY(unsigned, uints)
+GENERIC_MEMCPY(unsigned long, ulongs)
+GENERIC_MEMCPY(double, doubles)
+
+#define GENERIC_COPY(T, name) \
 T* name##_copy(T const* a, unsigned n) \
 { \
   T* b = LOOP_MALLOC(T, n); \
-  LOOP_EXEC(copy_##name##_kern, n, a, b); \
+  name##_memcpy(b, a, n); \
   return b; \
 }
 
@@ -127,3 +146,4 @@ T name##_at(T const* a, unsigned i) \
 
 GENERIC_AT(unsigned char, uchars)
 GENERIC_AT(unsigned, uints)
+

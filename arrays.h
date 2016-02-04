@@ -1,6 +1,15 @@
 #ifndef ARRAYS_H
 #define ARRAYS_H
 
+void uchars_memcpy(unsigned char* dst,
+    unsigned char const* src, unsigned n);
+void uints_memcpy(unsigned* dst,
+    unsigned const* src, unsigned n);
+void ulongs_memcpy(unsigned long* dst,
+    unsigned long const* src, unsigned n);
+void doubles_memcpy(double* dst,
+    double const* src, unsigned n);
+
 unsigned char* uchars_copy(unsigned char const* a, unsigned n);
 unsigned* uints_copy(unsigned const* a, unsigned n);
 unsigned long* ulongs_copy(unsigned long const* a, unsigned n);
