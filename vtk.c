@@ -263,28 +263,28 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
       unsigned char* in = LOOP_HOST_MALLOC(unsigned char, n);
       for (unsigned i = 0; i < n; ++i)
         safe_scanf(file, 1, "%hhu", &in[i]);
-      out = LOOP_TO_DEVICE(unsigned char, in, n);
+      out = uchars_to_device(in, n);
       loop_host_free(in);
     }
     case TAG_U32: {
       unsigned* in = LOOP_HOST_MALLOC(unsigned, n);
       for (unsigned i = 0; i < n; ++i)
         safe_scanf(file, 1, "%u", &in[i]);
-      out = LOOP_TO_DEVICE(unsigned, in, n);
+      out = uints_to_device(in, n);
       loop_host_free(in);
     }
     case TAG_U64: {
       unsigned long* in = LOOP_HOST_MALLOC(unsigned long, n);
       for (unsigned i = 0; i < n; ++i)
         safe_scanf(file, 1, "%lu", &in[i]);
-      out = LOOP_TO_DEVICE(unsigned long, in, n);
+      out = ulongs_to_device(in, n);
       loop_host_free(in);
     }
     case TAG_F64: {
       double* in = LOOP_HOST_MALLOC(double, n);
       for (unsigned i = 0; i < n; ++i)
         safe_scanf(file, 1, "%lf", &in[i]);
-      out = LOOP_TO_DEVICE(unsigned long, in, n);
+      out = doubles_to_device(in, n);
       loop_host_free(in);
     }
   }
