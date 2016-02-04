@@ -10,7 +10,6 @@
 
 #define LOOP_TO_HOST LOOP_HOST_COPY
 #define LOOP_TO_DEVICE LOOP_HOST_COPY
-#define LOOP_MEMCPY LOOP_HOST_MEMCPY
 
 #define loop_atomic_increment loop_host_atomic_increment
 

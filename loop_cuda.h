@@ -28,7 +28,6 @@ loop_cuda_atomic_increment(unsigned* p)
 
 #define LOOP_TO_HOST LOOP_CUDA_TO_HOST
 #define LOOP_TO_DEVICE LOOP_CUDA_TO_DEVICE
-#define LOOP_MEMCPY LOOP_CUDA_MEMCPY
 
 #define loop_atomic_increment loop_cuda_atomic_increment
 
