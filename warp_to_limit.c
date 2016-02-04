@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "doubles.h"
+#include "comm.h"
 #include "loop.h"
 #include "mesh.h"
 #include "quality.h"
@@ -15,8 +16,9 @@ static unsigned exceeds_limit(
     double const* coords,
     double qual_floor)
 {
-  double qual = min_element_quality(elem_dim, nelems,
-      verts_of_elems, coords);
+  double qual = comm_min_double(
+      min_element_quality(elem_dim, nelems,
+          verts_of_elems, coords));
   if (qual < qual_floor) {
     printf("quality %f exceeds limit\n", qual);
     return 1;
