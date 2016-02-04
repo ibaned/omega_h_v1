@@ -33,6 +33,21 @@ double* identity_size_field(
   return out;
 }
 
+LOOP_KERNEL(elem_size,
+    unsigned elem_dim,
+    unsigned verts_per_elem,
+    unsigned const* verts_of_elems,
+    double const* coords,
+    double* out)
+  unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
+  double elem_coords[4][3];
+  for (unsigned j = 0; j < verts_per_elem; ++j) {
+    unsigned vert = verts_of_elem[j];
+    copy_vector(coords + vert * 3, elem_coords[j], 3);
+  }
+  out[i] = measure_entity(elem_dim, elem_coords);
+}
+
 double* element_sizes(
     unsigned elem_dim,
     unsigned nelems,
@@ -41,15 +56,12 @@ double* element_sizes(
 {
   double* out = LOOP_MALLOC(double, nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  for (unsigned i = 0; i < nelems; ++i) {
-    unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
-    double elem_coords[4][3];
-    for (unsigned j = 0; j < verts_per_elem; ++j) {
-      unsigned vert = verts_of_elem[j];
-      copy_vector(coords + vert * 3, elem_coords[j], 3);
-    }
-    out[i] = measure_entity(elem_dim, elem_coords);
-  }
+  LOOP_EXEC(elem_size, nelems,
+      elem_dim,
+      verts_per_elem,
+      verts_of_elems,
+      coords,
+      out);
   return out;
 }
 
