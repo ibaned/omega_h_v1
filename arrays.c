@@ -23,6 +23,7 @@ GENERIC_MEMCPY(unsigned char, uchars)
 GENERIC_MEMCPY(unsigned, uints)
 GENERIC_MEMCPY(unsigned long, ulongs)
 GENERIC_MEMCPY(double, doubles)
+GENERIC_MEMCPY(unsigned*, uintptrs)
 
 #define GENERIC_COPY(T, name) \
 T* name##_copy(T const* a, unsigned n) \
@@ -36,6 +37,7 @@ GENERIC_COPY(unsigned char, uchars)
 GENERIC_COPY(unsigned, uints)
 GENERIC_COPY(unsigned long, ulongs)
 GENERIC_COPY(double, doubles)
+GENERIC_COPY(unsigned*, uintptrs)
 
 #if defined(LOOP_CUDA_H)
 #define GENERIC_TO_DEVICE(T, name) \
@@ -57,6 +59,7 @@ GENERIC_TO_DEVICE(unsigned char, uchars)
 GENERIC_TO_DEVICE(unsigned, uints)
 GENERIC_TO_DEVICE(unsigned long, ulongs)
 GENERIC_TO_DEVICE(double, doubles)
+GENERIC_TO_DEVICE(unsigned*, uintptrs)
 
 #if defined(LOOP_CUDA_H)
 #define GENERIC_TO_HOST(T, name) \

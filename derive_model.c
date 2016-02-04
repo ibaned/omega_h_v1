@@ -385,7 +385,7 @@ void mesh_derive_class_id(struct mesh* m)
         vert_class_id[i] = nmodel_verts++;
     loop_host_free(vert_class_dim);
     mesh_add_tag(m, 0, TAG_U32, "class_id", 1,
-        LOOP_TO_DEVICE(unsigned, vert_class_id, nverts));
+        uints_to_device(vert_class_id, nverts));
     loop_host_free(vert_class_id);
   }
   unsigned dim = mesh_dim(m);
