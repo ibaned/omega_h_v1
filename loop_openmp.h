@@ -11,7 +11,6 @@
 /* TODO: these could actually be parallelized across
    threads instead of being left as serial operations */
 #define LOOP_TO_HOST LOOP_HOST_COPY
-#define LOOP_TO_DEVICE LOOP_HOST_COPY
 
 static inline unsigned loop_openmp_atomic_increment(unsigned* p)
 {

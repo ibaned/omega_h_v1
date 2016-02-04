@@ -16,9 +16,6 @@ void loop_cuda_free(void* p);
 void* loop_cuda_to_host(void const* p, unsigned long n);
 #define LOOP_CUDA_TO_HOST(T, p, n) \
   ((T*)loop_cuda_to_host(p, sizeof(T) * (n)))
-void* loop_cuda_to_device(void const* p, unsigned long n);
-#define LOOP_CUDA_TO_DEVICE(T, p, n) \
-  ((T*)loop_cuda_to_device(p, sizeof(T) * (n)))
 
 static inline LOOP_IN unsigned
 loop_cuda_atomic_increment(unsigned* p)
@@ -27,7 +24,6 @@ loop_cuda_atomic_increment(unsigned* p)
 }
 
 #define LOOP_TO_HOST LOOP_CUDA_TO_HOST
-#define LOOP_TO_DEVICE LOOP_CUDA_TO_DEVICE
 
 #define loop_atomic_increment loop_cuda_atomic_increment
 

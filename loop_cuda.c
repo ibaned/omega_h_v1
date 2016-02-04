@@ -28,13 +28,6 @@ void* loop_cuda_to_host(void const* p, unsigned long n)
   return out;
 }
 
-void* loop_cuda_to_device(void const* p, unsigned long n)
-{
-  void* out = loop_cuda_malloc(n);
-  CUDACALL(cudaMemcpy(out, p, n, cudaMemcpyHostToDevice));
-  return out;
-}
-
 unsigned loop_size(void)
 {
   int device;

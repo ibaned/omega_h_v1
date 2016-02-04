@@ -9,7 +9,6 @@
 #define loop_free loop_host_free
 
 #define LOOP_TO_HOST LOOP_HOST_COPY
-#define LOOP_TO_DEVICE LOOP_HOST_COPY
 
 #define loop_atomic_increment loop_host_atomic_increment
 
