@@ -11,19 +11,29 @@
 #include "mesh.h"
 #include "tables.h"
 
+LOOP_KERNEL(edge_topo_offset,
+    unsigned ent_dim,
+    unsigned const* indset,
+    unsigned const* ring_sizes,
+    unsigned* nents_of_edges)
+  nents_of_edges[i] = indset[i] ?
+    count_swap_ents(ring_sizes[i], ent_dim) : 0;
+}
+
 unsigned* get_swap_topology_offsets(
     unsigned ent_dim,
     unsigned nedges,
     unsigned const* indset,
     unsigned const* ring_sizes)
 {
-  unsigned* nents_of_edge = LOOP_MALLOC(unsigned, nedges);
-  for (unsigned i = 0; i < nedges; ++i) {
-    nents_of_edge[i] = indset[i] ?
-      count_swap_ents(ring_sizes[i], ent_dim) : 0;
-  }
-  unsigned* offsets = uints_exscan(nents_of_edge, nedges);
-  loop_free(nents_of_edge);
+  unsigned* nents_of_edges = LOOP_MALLOC(unsigned, nedges);
+  LOOP_EXEC(edge_topo_offset, nedges,
+      ent_dim,
+      indset,
+      ring_sizes,
+      nents_of_edges);
+  unsigned* offsets = uints_exscan(nents_of_edges, nedges);
+  loop_free(nents_of_edges);
   return offsets;
 }
 
