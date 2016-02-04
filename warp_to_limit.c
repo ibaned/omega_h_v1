@@ -24,7 +24,7 @@ static unsigned exceeds_limit(
   return 0;
 }
 
-unsigned warp_to_limit(
+static unsigned warp_to_limit(
     unsigned elem_dim,
     unsigned nelems,
     unsigned nverts,
