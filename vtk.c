@@ -149,7 +149,7 @@ static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
   unsigned tsize = tag_size(t);
   unsigned size = tsize * ncomps * nents;
   unsigned long comp_size;
-  void* host_data = LOOP_TO_HOST(unsigned char, data, size);
+  void* host_data = uchars_to_host(data, size);
   void* comp = my_compress(host_data, size, &comp_size);
   loop_host_free(host_data);
   if (can_compress) {
@@ -211,7 +211,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
 {
   switch (t) {
     case TAG_U8: {
-      unsigned char* p = LOOP_TO_HOST(unsigned char, data, nents * ncomps);
+      unsigned char* p = uchars_to_host(data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %hhu", p[i * ncomps + j]);
@@ -221,7 +221,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
       break;
     }
     case TAG_U32: {
-      unsigned* p = LOOP_TO_HOST(unsigned, data, nents * ncomps);
+      unsigned* p = uints_to_host(data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %u", p[i * ncomps + j]);
@@ -231,7 +231,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
       break;
     }
     case TAG_U64: {
-      unsigned long* p = LOOP_TO_HOST(unsigned long, data, nents * ncomps);
+      unsigned long* p = ulongs_to_host(data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %lu", p[i * ncomps + j]);
@@ -241,7 +241,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
       break;
     }
     case TAG_F64: {
-      double* p = LOOP_TO_HOST(double, data, nents * ncomps);
+      double* p = doubles_to_host(data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %.15e", p[i * ncomps + j]);

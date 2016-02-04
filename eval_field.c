@@ -17,7 +17,7 @@ double* eval_field(
     unsigned ncomps,
     void (*fun)(double const* x, double* out))
 {
-  double* host_coords = LOOP_TO_HOST(double, coords, nents * 3);
+  double* host_coords = doubles_to_host(coords, nents * 3);
   double* host_out = LOOP_HOST_MALLOC(double, ncomps * nents);
   for (unsigned i = 0; i < nents; ++i) {
     double const* ent_coords = host_coords + i * 3;
