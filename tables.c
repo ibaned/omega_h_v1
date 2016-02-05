@@ -1,5 +1,6 @@
 #include "tables.h"
 
+#include "arrays.h"
 #include "loop.h"
 
 static unsigned const box_1d_conn[1 * 2] = {
@@ -195,15 +196,15 @@ unsigned** orders_to_device(unsigned dim1, unsigned dim2, unsigned dim3)
   unsigned deg2 = the_down_degrees[dim2][dim3];
   unsigned* a[MAX_DOWN];
   for (unsigned i = 0; i < deg1; ++i)
-    a[i] = LOOP_TO_DEVICE(unsigned,
+    a[i] = uints_to_device(
         the_canonical_orders[dim1][dim2][dim3][i], deg2);
-  return LOOP_TO_DEVICE(unsigned*, a, deg1);
+  return uintptrs_to_device(a, deg1);
 }
 
 void free_orders(unsigned** a, unsigned dim1, unsigned dim2)
 {
   unsigned deg1 = the_down_degrees[dim1][dim2];
-  unsigned** b = LOOP_TO_HOST(unsigned*, a, deg1);
+  unsigned** b = uintptrs_to_host(a, deg1);
   loop_free(a);
   for (unsigned i = 0; i < deg1; ++i)
     loop_free(b[i]);

@@ -99,11 +99,6 @@ void* loop_host_copy(void const* p, unsigned long n)
   return out;
 }
 
-void loop_host_memcpy(void* dst, void const* src, unsigned long n)
-{
-  memcpy(dst, src, n);
-}
-
 unsigned long loop_host_memory(void)
 {
   return measure_memory();

@@ -90,7 +90,7 @@ double* coarsen_qualities(
     return doubles_filled(nedges * 2, 1.0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = elem_dim - 1;
-  unsigned* elem_bases_opp_verts = LOOP_TO_DEVICE(unsigned,
+  unsigned* elem_bases_opp_verts = uints_to_device(
     the_opposite_orders[elem_dim][0], verts_per_elem);
   unsigned** elem_verts_of_bases = orders_to_device(elem_dim, base_dim, 0);
   double* out = LOOP_MALLOC(double, nedges * 2);

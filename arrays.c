@@ -2,14 +2,34 @@
 
 #include "loop.h"
 
-#define GENERIC_COPY(T, name) \
-LOOP_KERNEL(copy_##name##_kern, T const* a, T* b) \
-  b[i] = a[i]; \
+#if defined(LOOP_CUDA_H)
+#define GENERIC_MEMCPY(T, name) \
+void name##_memcpy(T* dst, T const* src, unsigned n) \
+{ \
+  CUDACALL(cudaMemcpy(dst, src, n * sizeof(T), cudaMemcpyDeviceToDevice)); \
+}
+#else
+#define GENERIC_MEMCPY(T, name) \
+LOOP_KERNEL(name##_memcpy_kern, T* dst, T const* src) \
+  dst[i] = src[i]; \
 } \
+void name##_memcpy(T* dst, T const* src, unsigned n) \
+{ \
+  LOOP_EXEC(name##_memcpy_kern, n, dst, src); \
+}
+#endif
+
+GENERIC_MEMCPY(unsigned char, uchars)
+GENERIC_MEMCPY(unsigned, uints)
+GENERIC_MEMCPY(unsigned long, ulongs)
+GENERIC_MEMCPY(double, doubles)
+GENERIC_MEMCPY(unsigned*, uintptrs)
+
+#define GENERIC_COPY(T, name) \
 T* name##_copy(T const* a, unsigned n) \
 { \
   T* b = LOOP_MALLOC(T, n); \
-  LOOP_EXEC(copy_##name##_kern, n, a, b); \
+  name##_memcpy(b, a, n); \
   return b; \
 }
 
@@ -17,6 +37,51 @@ GENERIC_COPY(unsigned char, uchars)
 GENERIC_COPY(unsigned, uints)
 GENERIC_COPY(unsigned long, ulongs)
 GENERIC_COPY(double, doubles)
+GENERIC_COPY(unsigned*, uintptrs)
+
+#if defined(LOOP_CUDA_H)
+#define GENERIC_TO_DEVICE(T, name) \
+T* name##_to_device(T const* a, unsigned n) \
+{ \
+  T* b = LOOP_MALLOC(T, n); \
+  CUDACALL(cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyHostToDevice)); \
+  return b; \
+}
+#else
+#define GENERIC_TO_DEVICE(T, name) \
+T* name##_to_device(T const* a, unsigned n) \
+{ \
+  return name##_copy(a, n); \
+}
+#endif
+
+GENERIC_TO_DEVICE(unsigned char, uchars)
+GENERIC_TO_DEVICE(unsigned, uints)
+GENERIC_TO_DEVICE(unsigned long, ulongs)
+GENERIC_TO_DEVICE(double, doubles)
+GENERIC_TO_DEVICE(unsigned*, uintptrs)
+
+#if defined(LOOP_CUDA_H)
+#define GENERIC_TO_HOST(T, name) \
+T* name##_to_host(T const* a, unsigned n) \
+{ \
+  T* b = LOOP_MALLOC(T, n); \
+  CUDACALL(cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyDeviceToHost)); \
+  return b; \
+}
+#else
+#define GENERIC_TO_HOST(T, name) \
+T* name##_to_host(T const* a, unsigned n) \
+{ \
+  return name##_copy(a, n); \
+}
+#endif
+
+GENERIC_TO_HOST(unsigned char, uchars)
+GENERIC_TO_HOST(unsigned, uints)
+GENERIC_TO_HOST(unsigned long, ulongs)
+GENERIC_TO_HOST(double, doubles)
+GENERIC_TO_HOST(unsigned*, uintptrs)
 
 #define GENERIC_SHUFFLE(T, name) \
 LOOP_KERNEL(shuffle_##name##_kern, T const* a, unsigned width, \
@@ -85,8 +150,8 @@ T* concat_##name(unsigned width, \
     T const* b, unsigned nb) \
 { \
   T* out = LOOP_MALLOC(T, (na + nb) * width); \
-  LOOP_MEMCPY(T, out, a, na * width); \
-  LOOP_MEMCPY(T, out + (na * width), b, nb * width); \
+  name##_memcpy(out, a, na * width); \
+  name##_memcpy(out + (na * width), b, nb * width); \
   return out; \
 }
 
@@ -127,3 +192,4 @@ T name##_at(T const* a, unsigned i) \
 
 GENERIC_AT(unsigned char, uchars)
 GENERIC_AT(unsigned, uints)
+
