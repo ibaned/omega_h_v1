@@ -200,7 +200,8 @@ LOOP_KERNEL(max_##name##_into_kern, T const* a, unsigned width, \
     unsigned const* offsets, T* out) \
   unsigned first = offsets[i]; \
   unsigned end = offsets[i + 1]; \
-  assert(end != first); \
+  if (end == first) \
+    return; \
   for (unsigned k = 0; k < width; ++k) { \
     out[i * width + k] = a[first * width + k]; \
   } \
