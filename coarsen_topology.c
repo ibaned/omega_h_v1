@@ -41,7 +41,7 @@ void coarsen_topology(
   unsigned base_dim = get_opposite_dim(elem_dim, 0);
   unsigned ngen_elems = uints_at(gen_offset_of_elems, nelems);
   unsigned** elem_verts_of_bases = orders_to_device(elem_dim, base_dim, 0);
-  unsigned* elem_bases_opp_verts = LOOP_TO_DEVICE(unsigned,
+  unsigned* elem_bases_opp_verts = uints_to_device(
     the_opposite_orders[elem_dim][0], verts_per_elem);
   unsigned* verts_of_gen_elems = LOOP_MALLOC(unsigned,
       ngen_elems * verts_per_elem);

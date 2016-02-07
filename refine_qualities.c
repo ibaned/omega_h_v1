@@ -102,7 +102,7 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   double* src_quals = LOOP_MALLOC(double, nsrcs);
   unsigned** elem_verts_of_srcs = orders_to_device(elem_dim, src_dim, 0);
   unsigned** elem_verts_of_bases = orders_to_device(elem_dim, base_dim, 0);
-  unsigned* elem_base_of_opps = LOOP_TO_DEVICE(unsigned,
+  unsigned* elem_base_of_opps = uints_to_device(
       the_opposite_orders[elem_dim][opp_dim], verts_per_elem);
   LOOP_EXEC(refine_quality, nsrcs,
       elem_dim,

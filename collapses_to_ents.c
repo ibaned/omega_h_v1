@@ -86,7 +86,7 @@ void collapses_to_ents(
   unsigned* gen_vert_of_ents = LOOP_MALLOC(unsigned, nents);
   unsigned* gen_direction_of_ents = LOOP_MALLOC(unsigned, nents);
   unsigned* ent_is_same = LOOP_MALLOC(unsigned, nents);
-  unsigned* ent_sides_opp_verts = LOOP_TO_DEVICE(unsigned,
+  unsigned* ent_sides_opp_verts = uints_to_device(
       the_opposite_orders[ent_dim][0], verts_per_ent);
   LOOP_EXEC(collapse_to_ent, nents,
       verts_of_ents,

@@ -1,10 +1,34 @@
 #ifndef ARRAYS_H
 #define ARRAYS_H
 
+void uchars_memcpy(unsigned char* dst,
+    unsigned char const* src, unsigned n);
+void uints_memcpy(unsigned* dst,
+    unsigned const* src, unsigned n);
+void ulongs_memcpy(unsigned long* dst,
+    unsigned long const* src, unsigned n);
+void doubles_memcpy(double* dst,
+    double const* src, unsigned n);
+void uintptrs_memcpy(unsigned** dst,
+    unsigned* const* src, unsigned n);
+
 unsigned char* uchars_copy(unsigned char const* a, unsigned n);
 unsigned* uints_copy(unsigned const* a, unsigned n);
 unsigned long* ulongs_copy(unsigned long const* a, unsigned n);
 double* doubles_copy(double const* a, unsigned n);
+unsigned** uintptrs_copy(unsigned* const* a, unsigned n);
+
+unsigned char* uchars_to_device(unsigned char const* a, unsigned n);
+unsigned* uints_to_device(unsigned const* a, unsigned n);
+unsigned long* ulongs_to_device(unsigned long const* a, unsigned n);
+double* doubles_to_device(double const* a, unsigned n);
+unsigned** uintptrs_to_device(unsigned* const* a, unsigned n);
+
+unsigned char* uchars_to_host(unsigned char const* a, unsigned n);
+unsigned* uints_to_host(unsigned const* a, unsigned n);
+unsigned long* ulongs_to_host(unsigned long const* a, unsigned n);
+double* doubles_to_host(double const* a, unsigned n);
+unsigned** uintptrs_to_host(unsigned* const* a, unsigned n);
 
 unsigned* uints_shuffle(unsigned n, unsigned const* a,
     unsigned width, unsigned const* out_of_in);
