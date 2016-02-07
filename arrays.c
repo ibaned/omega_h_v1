@@ -135,7 +135,11 @@ LOOP_KERNEL(max_##name##_into_kern, T const* a, unsigned width, \
     unsigned const* offsets, T* out) \
   unsigned first = offsets[i]; \
   unsigned end = offsets[i + 1]; \
-  for (unsigned j = first; j < end; ++j) \
+  assert(end != first); \
+  for (unsigned k = 0; k < width; ++k) { \
+    out[i * width + k] = a[first * width + k]; \
+  } \
+  for (unsigned j = first + 1; j < end; ++j) \
     for (unsigned k = 0; k < width; ++k) { \
       out[i * width + k] = MAX(out[i * width + k], a[j * width + k]); \
     } \
