@@ -84,7 +84,7 @@ void refine_topology(
   unsigned** dom_opps_of_srcs = orders_to_device(dom_dim, src_dim, opp_dim);
   unsigned** dom_verts_of_bases = orders_to_device(dom_dim, base_dim, 0);
   unsigned opps_per_dom = the_down_degrees[dom_dim][opp_dim];
-  unsigned* dom_base_of_opps = LOOP_TO_DEVICE(unsigned,
+  unsigned* dom_base_of_opps = uints_to_device(
       the_opposite_orders[dom_dim][opp_dim], opps_per_dom);
   LOOP_EXEC(refine_domain_entity, ndoms,
       offset_of_doms,

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arrays.h"
 #include "loop.h"
 
 static unsigned count_digits(unsigned x)
@@ -115,7 +116,7 @@ LOOP_KERNEL(swap_kern, unsigned width, unsigned char* b)
 void* generic_swap_if_needed(enum endian e, unsigned n, unsigned width,
     void const* a)
 {
-  unsigned char* b = LOOP_TO_DEVICE(unsigned char, a, n * width);
+  unsigned char* b = uchars_to_device(a, n * width);
   if (e != endianness() && width > 1) {
     assert(width % 2 == 0);
     LOOP_EXEC(swap_kern, n, width, b);

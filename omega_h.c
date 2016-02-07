@@ -6,6 +6,7 @@
 #include "mark.h"
 #include "mesh.h"
 #include "parallel_mesh.h"
+#include "size.h"
 #include "tag.h"
 #include "tables.h"
 #include "vtk.h"
@@ -230,4 +231,9 @@ unsigned osh_adapt(osh_t m,
       good_element_quality,
       nsliver_layers,
       max_passes);
+}
+
+void osh_identity_size(osh_t m, char const* name)
+{
+  mesh_identity_size_field((struct mesh*)m, name);
 }

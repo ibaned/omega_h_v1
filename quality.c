@@ -8,6 +8,21 @@
 #include "tables.h"
 #include "tag.h"
 
+LOOP_KERNEL(elem_quality_kern,
+    unsigned const* verts_of_elems,
+    unsigned elem_dim,
+    unsigned verts_per_elem,
+    double const* coords,
+    double* out)
+  unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
+  double elem_x[MAX_DOWN][3];
+  for (unsigned j = 0; j < verts_per_elem; ++j) {
+    unsigned vert = verts_of_elem[j];
+    copy_vector(coords + vert * 3, elem_x[j], 3);
+  }
+  out[i] = element_quality(elem_dim, elem_x);
+}
+
 double* element_qualities(
     unsigned elem_dim,
     unsigned nelems,
@@ -18,15 +33,12 @@ double* element_qualities(
     return doubles_filled(nelems, 1.0);
   double* out = LOOP_MALLOC(double, nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  for (unsigned i = 0; i < nelems; ++i) {
-    unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
-    double elem_x[MAX_DOWN][3];
-    for (unsigned j = 0; j < verts_per_elem; ++j) {
-      unsigned vert = verts_of_elem[j];
-      copy_vector(coords + vert * 3, elem_x[j], 3);
-    }
-    out[i] = element_quality(elem_dim, elem_x);
-  }
+  LOOP_EXEC(elem_quality_kern, nelems,
+      verts_of_elems,
+      elem_dim,
+      verts_per_elem,
+      coords,
+      out);
   return out;
 }
 

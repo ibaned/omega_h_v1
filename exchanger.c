@@ -251,30 +251,14 @@ struct exchanger* make_reverse_exchanger(unsigned nsent, unsigned nrecvd,
   return ex;
 }
 
-void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into)
+double* exchange_doubles_max(struct exchanger* ex, unsigned width,
+    double const* data, enum exch_dir dir, enum exch_start start)
 {
-  void* data_out = 0;
-  switch (t->type) {
-    case TAG_U8:
-      break;
-    case TAG_U32:
-      data_out = exchange_uints(ex, t->ncomps, t->d.u32, EX_FOR, EX_ROOT);
-      break;
-    case TAG_U64:
-      data_out = exchange_ulongs(ex, t->ncomps, t->d.u64, EX_FOR, EX_ROOT);
-      break;
-    case TAG_F64:
-      data_out = exchange_doubles(ex, t->ncomps, t->d.f64, EX_FOR, EX_ROOT);
-      break;
-  }
-  if (find_tag(into, t->name))
-    modify_tag(into, t->name, data_out);
-  else
-    add_tag(into, t->type, t->name, t->ncomps, data_out);
-}
-
-void push_tags(struct exchanger* ex, struct tags* from, struct tags* into)
-{
-  for (unsigned i = 0; i < count_tags(from); ++i)
-    push_tag(ex, get_tag(from, i), into);
+  double* to_reduce = exchange_doubles(ex, width, data, dir, start);
+  enum exch_dir od = opp_dir(dir);
+  double* out = LOOP_MALLOC(double, width * ex->nroots[od]);
+  doubles_max_into(ex->nroots[od], width, to_reduce,
+      ex->items_of_roots_offsets[od], out);
+  loop_free(to_reduce);
+  return out;
 }

@@ -149,7 +149,7 @@ static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
   unsigned tsize = tag_size(t);
   unsigned size = tsize * ncomps * nents;
   unsigned long comp_size;
-  void* host_data = LOOP_TO_HOST(unsigned char, data, size);
+  void* host_data = uchars_to_host((unsigned char const*) data, size);
   void* comp = my_compress(host_data, size, &comp_size);
   loop_host_free(host_data);
   if (can_compress) {
@@ -211,7 +211,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
 {
   switch (t) {
     case TAG_U8: {
-      unsigned char* p = LOOP_TO_HOST(unsigned char, data, nents * ncomps);
+      unsigned char* p = uchars_to_host((unsigned char const*) data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %hhu", p[i * ncomps + j]);
@@ -221,7 +221,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
       break;
     }
     case TAG_U32: {
-      unsigned* p = LOOP_TO_HOST(unsigned, data, nents * ncomps);
+      unsigned* p = uints_to_host((unsigned int const*) data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %u", p[i * ncomps + j]);
@@ -231,7 +231,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
       break;
     }
     case TAG_U64: {
-      unsigned long* p = LOOP_TO_HOST(unsigned long, data, nents * ncomps);
+      unsigned long* p = ulongs_to_host((unsigned long const*) data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %lu", p[i * ncomps + j]);
@@ -241,7 +241,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
       break;
     }
     case TAG_F64: {
-      double* p = LOOP_TO_HOST(double, data, nents * ncomps);
+      double* p = doubles_to_host((double const*) data, nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
           fprintf(file, " %.15e", p[i * ncomps + j]);
@@ -263,28 +263,28 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
       unsigned char* in = LOOP_HOST_MALLOC(unsigned char, n);
       for (unsigned i = 0; i < n; ++i)
         safe_scanf(file, 1, "%hhu", &in[i]);
-      out = LOOP_TO_DEVICE(unsigned char, in, n);
+      out = uchars_to_device(in, n);
       loop_host_free(in);
     }
     case TAG_U32: {
       unsigned* in = LOOP_HOST_MALLOC(unsigned, n);
       for (unsigned i = 0; i < n; ++i)
         safe_scanf(file, 1, "%u", &in[i]);
-      out = LOOP_TO_DEVICE(unsigned, in, n);
+      out = uints_to_device(in, n);
       loop_host_free(in);
     }
     case TAG_U64: {
       unsigned long* in = LOOP_HOST_MALLOC(unsigned long, n);
       for (unsigned i = 0; i < n; ++i)
         safe_scanf(file, 1, "%lu", &in[i]);
-      out = LOOP_TO_DEVICE(unsigned long, in, n);
+      out = ulongs_to_device(in, n);
       loop_host_free(in);
     }
     case TAG_F64: {
       double* in = LOOP_HOST_MALLOC(double, n);
       for (unsigned i = 0; i < n; ++i)
         safe_scanf(file, 1, "%lf", &in[i]);
-      out = LOOP_TO_DEVICE(unsigned long, in, n);
+      out = doubles_to_device(in, n);
       loop_host_free(in);
     }
   }
@@ -553,6 +553,12 @@ static void read_nverts(FILE* f, unsigned* nverts)
       &ignore2);
 }
 
+LOOP_KERNEL(assert_one_type,
+    unsigned char* types,
+    unsigned char type)
+  assert(types[i] == type);
+}
+
 static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
     unsigned do_com)
 {
@@ -575,13 +581,13 @@ static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
   assert(ncomps == 1);
   unsigned char* types = (unsigned char*) data;
   unsigned dim;
+  unsigned char first_type = uchars_at(types, 0);
   for (dim = 0; dim < 4; ++dim)
-    if (types[0] == simplex_types[dim])
+    if (first_type == simplex_types[dim])
       break;
   assert(dim < 4);
-  for (unsigned i = 1; i < nelems; ++i)
-    assert(types[i] == simplex_types[dim]);
-  loop_host_free(types);
+  LOOP_EXEC(assert_one_type, nelems, types, simplex_types[dim]);
+  loop_free(types);
   return dim;
 }
 

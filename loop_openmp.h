@@ -8,12 +8,6 @@
 #define LOOP_MALLOC(T, n) LOOP_HOST_MALLOC(T, n)
 #define loop_free loop_host_free
 
-/* TODO: these could actually be parallelized across
-   threads instead of being left as serial operations */
-#define LOOP_TO_HOST LOOP_HOST_COPY
-#define LOOP_TO_DEVICE LOOP_HOST_COPY
-#define LOOP_MEMCPY LOOP_HOST_MEMCPY
-
 static inline unsigned loop_openmp_atomic_increment(unsigned* p)
 {
   unsigned o;

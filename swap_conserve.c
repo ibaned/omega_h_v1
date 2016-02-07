@@ -10,6 +10,43 @@
 
 #define MAX_NCOMPS 32
 
+LOOP_KERNEL(swap_conserve_cavity,
+    unsigned ncomps,
+    unsigned nsame_elems,
+    unsigned const* gen_offset_of_edges,
+    unsigned const* elems_of_edges_offsets,
+    unsigned const* elems_of_edges,
+    double const* new_elem_sizes,
+    double const* data_in,
+    double* data_out)
+  if (gen_offset_of_edges[i] ==
+      gen_offset_of_edges[i + 1])
+    return;
+  double sum[MAX_NCOMPS] = {0};
+  {
+    unsigned f = elems_of_edges_offsets[i];
+    unsigned e = elems_of_edges_offsets[i + 1];
+    for (unsigned j = f; j < e; ++j) {
+      unsigned elem = elems_of_edges[j];
+      add_vectors(sum, data_in + elem * ncomps, sum, ncomps);
+    }
+  }
+  {
+    unsigned f = gen_offset_of_edges[i];
+    unsigned e = gen_offset_of_edges[i + 1];
+    double new_cavity_size = 0;
+    for (unsigned j = f; j < e; ++j) {
+      unsigned new_elem = nsame_elems + j;
+      new_cavity_size += new_elem_sizes[new_elem];
+    }
+    for (unsigned j = f; j < e; ++j) {
+      unsigned new_elem = nsame_elems + j;
+      scale_vector(sum, new_elem_sizes[new_elem] / new_cavity_size,
+          data_out + j * ncomps, ncomps);
+    }
+  }
+}
+
 static double* swap_conserve_data(
     struct mesh* m,
     unsigned const* gen_offset_of_edges,
@@ -28,34 +65,15 @@ static double* swap_conserve_data(
     mesh_ask_up(m, 1, elem_dim)->adj;
   double const* data_in = t->d.f64;
   double* data_out = LOOP_MALLOC(double, ngen_elems * ncomps);
-  for (unsigned i = 0; i < nedges; ++i) {
-    if (gen_offset_of_edges[i] ==
-        gen_offset_of_edges[i + 1])
-      continue;
-    double sum[MAX_NCOMPS] = {0};
-    {
-      unsigned f = elems_of_edges_offsets[i];
-      unsigned e = elems_of_edges_offsets[i + 1];
-      for (unsigned j = f; j < e; ++j) {
-        unsigned elem = elems_of_edges[j];
-        add_vectors(sum, data_in + elem * ncomps, sum, ncomps);
-      }
-    }
-    {
-      unsigned f = gen_offset_of_edges[i];
-      unsigned e = gen_offset_of_edges[i + 1];
-      double new_cavity_size = 0;
-      for (unsigned j = f; j < e; ++j) {
-        unsigned new_elem = nsame_elems + j;
-        new_cavity_size += new_elem_sizes[new_elem];
-      }
-      for (unsigned j = f; j < e; ++j) {
-        unsigned new_elem = nsame_elems + j;
-        scale_vector(sum, new_elem_sizes[new_elem] / new_cavity_size,
-            data_out + j * ncomps, ncomps);
-      }
-    }
-  }
+  LOOP_EXEC(swap_conserve_cavity, nedges,
+      ncomps,
+      nsame_elems,
+      gen_offset_of_edges,
+      elems_of_edges_offsets,
+      elems_of_edges,
+      new_elem_sizes,
+      data_in,
+      data_out);
   return data_out;
 }
 

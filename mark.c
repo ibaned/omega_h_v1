@@ -86,6 +86,18 @@ unsigned* mesh_mark_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
       mesh_ask_down(m, high_dim, low_dim), marked_lows);
 }
 
+LOOP_KERNEL(dual_kern,
+    unsigned degree,
+    unsigned const* dual,
+    unsigned const* marked,
+    unsigned* out)
+  out[i] = marked[i];
+  unsigned const* elems_of_elem = dual + i * degree;
+  for (unsigned j = 0; j < degree; ++j)
+    if (elems_of_elem[j] != INVALID && marked[elems_of_elem[j]])
+      out[i] = 1;
+}
+
 static unsigned* mark_dual(
     unsigned elem_dim,
     unsigned nelems,
@@ -94,13 +106,11 @@ static unsigned* mark_dual(
 {
   unsigned degree = the_down_degrees[elem_dim][elem_dim - 1];
   unsigned* out = LOOP_MALLOC(unsigned, nelems);
-  for (unsigned i = 0; i < nelems; ++i) {
-    out[i] = marked[i];
-    unsigned const* elems_of_elem = dual + i * degree;
-    for (unsigned j = 0; j < degree; ++j)
-      if (elems_of_elem[j] != INVALID && marked[elems_of_elem[j]])
-        out[i] = 1;
-  }
+  LOOP_EXEC(dual_kern, nelems,
+      degree,
+      dual,
+      marked,
+      out);
   return out;
 }
 

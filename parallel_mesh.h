@@ -47,4 +47,7 @@ struct mesh* read_and_partition_serial_mesh(char const* filename);
 
 unsigned* mesh_get_owned(struct mesh* m, unsigned dim);
 
+void mesh_reduce_doubles_max(struct mesh* m, unsigned dim, unsigned width,
+    double** a);
+
 #endif

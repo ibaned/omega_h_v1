@@ -1,5 +1,6 @@
 #include "eval_field.h"
 
+#include "arrays.h"
 #include "cloud.h"
 #include "loop.h"
 #include "mesh.h"
@@ -16,7 +17,7 @@ double* eval_field(
     unsigned ncomps,
     void (*fun)(double const* x, double* out))
 {
-  double* host_coords = LOOP_TO_HOST(double, coords, nents * 3);
+  double* host_coords = doubles_to_host(coords, nents * 3);
   double* host_out = LOOP_HOST_MALLOC(double, ncomps * nents);
   for (unsigned i = 0; i < nents; ++i) {
     double const* ent_coords = host_coords + i * 3;
@@ -24,7 +25,7 @@ double* eval_field(
     fun(ent_coords, ent_out);
   }
   loop_host_free(host_coords);
-  double* out = LOOP_TO_DEVICE(double, host_out, ncomps * nents);
+  double* out = doubles_to_device(host_out, ncomps * nents);
   loop_host_free(host_out);
   return out;
 }

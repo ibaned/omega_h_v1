@@ -160,6 +160,8 @@ void mesh_conform_tag(struct mesh* m, unsigned dim, const char* name)
   push_tag(ex, t, mesh_tags(m, dim));
 }
 
+/* TODO: consolidate this with the reduction code
+   like doubles_max_into and exchange_doubles_max */
 void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
 {
   if (!mesh_is_parallel(m))
@@ -325,3 +327,18 @@ unsigned* mesh_get_owned(struct mesh* m, unsigned dim)
     out[i] = (own_ranks[i] == self);
   return out;
 }
+
+#define GENERIC_MESH_MAX(T, name) \
+void mesh_reduce_##name##_max(struct mesh* m, unsigned dim, unsigned width, \
+    T** a) \
+{ \
+  if (!mesh_is_parallel(m)) \
+    return; \
+  T* in = *a; \
+  T* out = exchange_##name##_max(mesh_ask_exchanger(m, dim), width, in, \
+      EX_REV, EX_ITEM); \
+  loop_free(in); \
+  *a = out; \
+}
+
+GENERIC_MESH_MAX(double, doubles)
