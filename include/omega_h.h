@@ -61,6 +61,8 @@ unsigned osh_adapt(osh_t m,
     unsigned nsliver_layers,
     unsigned max_passes);
 
+void osh_identity_size(osh_t m, char const* name);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
