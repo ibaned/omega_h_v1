@@ -52,4 +52,7 @@ double* doubles_filled(unsigned n, double v);
 unsigned char uchars_at(unsigned char const* a, unsigned i);
 unsigned uints_at(unsigned const* a, unsigned i);
 
+void doubles_max_into(unsigned n, unsigned width,
+    double const* a, unsigned const* offsets, double* out);
+
 #endif

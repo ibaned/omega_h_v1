@@ -127,3 +127,24 @@ T name##_at(T const* a, unsigned i) \
 
 GENERIC_AT(unsigned char, uchars)
 GENERIC_AT(unsigned, uints)
+
+#define MAX(a, b) ((b) > (a) ? (b) : (a))
+
+#define GENERIC_MAX_INTO(T, name) \
+LOOP_KERNEL(max_##name##_into_kern, T const* a, unsigned width, \
+    unsigned const* offsets, T* out) \
+  unsigned first = offsets[i]; \
+  unsigned end = offsets[i + 1]; \
+  for (unsigned j = first; j < end; ++j) \
+    for (unsigned k = 0; k < width; ++k) { \
+      out[i * width + k] = MAX(out[i * width + k], a[j * width + k]); \
+    } \
+} \
+void name##_max_into(unsigned n, unsigned width, \
+    T const* a, unsigned const* offsets, \
+    T* out) \
+{ \
+  LOOP_EXEC(max_##name##_into_kern, n, a, width, offsets, out); \
+}
+
+GENERIC_MAX_INTO(double, doubles)
