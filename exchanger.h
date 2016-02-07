@@ -95,4 +95,7 @@ void reverse_exchanger(struct exchanger* ex);
 struct exchanger* make_reverse_exchanger(unsigned nsent, unsigned nrecvd,
     unsigned const* recvd_ranks, unsigned const* recvd_ids);
 
+double* exchange_doubles_max(struct exchanger* ex, unsigned width,
+    double const* data, enum exch_dir dir, enum exch_start start);
+
 #endif

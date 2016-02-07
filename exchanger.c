@@ -250,3 +250,15 @@ struct exchanger* make_reverse_exchanger(unsigned nsent, unsigned nrecvd,
   reverse_exchanger(ex);
   return ex;
 }
+
+double* exchange_doubles_max(struct exchanger* ex, unsigned width,
+    double const* data, enum exch_dir dir, enum exch_start start)
+{
+  double* to_reduce = exchange_doubles(ex, width, data, dir, start);
+  enum exch_dir od = opp_dir(dir);
+  double* out = LOOP_MALLOC(double, width * ex->nroots[od]);
+  doubles_max_into(ex->nroots[od], width, to_reduce,
+      ex->items_of_roots_offsets[od], out);
+  loop_free(to_reduce);
+  return out;
+}
