@@ -7,6 +7,7 @@
 include config.mk
 
 test_sources := \
+test_identity.c \
 test_flounder.c \
 test_one_refine.c \
 test_one_coarsen.c \
