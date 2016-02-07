@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include "exchanger.h"
 #include "loop.h"
 
 struct tag {
@@ -120,4 +121,32 @@ void modify_tag(struct tags* ts, char const* name, void* data)
   struct tag* t = ts->at[i];
   loop_free(t->data);
   t->data = data;
+}
+
+void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into)
+{
+  void* data_out = 0;
+  switch (t->type) {
+    case TAG_U8:
+      break;
+    case TAG_U32:
+      data_out = exchange_uints(ex, t->ncomps, t->d.u32, EX_FOR, EX_ROOT);
+      break;
+    case TAG_U64:
+      data_out = exchange_ulongs(ex, t->ncomps, t->d.u64, EX_FOR, EX_ROOT);
+      break;
+    case TAG_F64:
+      data_out = exchange_doubles(ex, t->ncomps, t->d.f64, EX_FOR, EX_ROOT);
+      break;
+  }
+  if (find_tag(into, t->name))
+    modify_tag(into, t->name, data_out);
+  else
+    add_tag(into, t->type, t->name, t->ncomps, data_out);
+}
+
+void push_tags(struct exchanger* ex, struct tags* from, struct tags* into)
+{
+  for (unsigned i = 0; i < count_tags(from); ++i)
+    push_tag(ex, get_tag(from, i), into);
 }

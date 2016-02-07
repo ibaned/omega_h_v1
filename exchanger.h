@@ -95,10 +95,4 @@ void reverse_exchanger(struct exchanger* ex);
 struct exchanger* make_reverse_exchanger(unsigned nsent, unsigned nrecvd,
     unsigned const* recvd_ranks, unsigned const* recvd_ids);
 
-struct const_tag;
-struct tags;
-
-void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into);
-void push_tags(struct exchanger* push, struct tags* from, struct tags* into);
-
 #endif
