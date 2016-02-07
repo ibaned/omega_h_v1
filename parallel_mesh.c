@@ -334,7 +334,7 @@ void mesh_reduce_##name##_max(struct mesh* m, unsigned dim, unsigned width, \
     return; \
   T* in = *a; \
   T* out = exchange_##name##_max(mesh_ask_exchanger(m, dim), width, in, \
-      EX_FOR, EX_ROOT); \
+      EX_REV, EX_ITEM); \
   loop_free(in); \
   *a = out; \
 }
