@@ -160,6 +160,8 @@ void mesh_conform_tag(struct mesh* m, unsigned dim, const char* name)
   push_tag(ex, t, mesh_tags(m, dim));
 }
 
+/* TODO: consolidate this with the reduction code
+   like doubles_max_into and exchange_doubles_max */
 void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
 {
   if (!mesh_is_parallel(m))
