@@ -9,6 +9,7 @@
 
 LOOP_KERNEL(coarsen_quality,
     unsigned elem_dim,
+    unsigned base_dim,
     unsigned const* verts_of_edges,
     unsigned const* elems_of_verts_offsets,
     unsigned const* elems_of_verts,
@@ -18,13 +19,15 @@ LOOP_KERNEL(coarsen_quality,
     double const* coords,
     double const* elem_quals,
     double quality_floor,
-    unsigned* elem_bases_opp_verts,
-    unsigned** elem_verts_of_bases,
     unsigned* col_codes,
     double* out)
 
   if (col_codes[i] == DONT_COLLAPSE)
     return;
+  unsigned const* const* elem_verts_of_bases =
+      the_canonical_orders[elem_dim][base_dim][0];
+  unsigned const* elem_bases_opp_verts =
+      the_opposite_orders[elem_dim][0];
   unsigned const* verts_of_edge = verts_of_edges + i * 2;
   unsigned require_better = (elem_quals != 0);
   for (unsigned j = 0; j < 2; ++j) {
@@ -90,12 +93,10 @@ double* coarsen_qualities(
     return doubles_filled(nedges * 2, 1.0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = elem_dim - 1;
-  unsigned* elem_bases_opp_verts = uints_to_device(
-    the_opposite_orders[elem_dim][0], verts_per_elem);
-  unsigned** elem_verts_of_bases = orders_to_device(elem_dim, base_dim, 0);
   double* out = LOOP_MALLOC(double, nedges * 2);
   LOOP_EXEC(coarsen_quality, nedges,
       elem_dim,
+      base_dim,
       verts_of_edges,
       elems_of_verts_offsets,
       elems_of_verts,
@@ -105,11 +106,7 @@ double* coarsen_qualities(
       coords,
       elem_quals,
       quality_floor,
-      elem_bases_opp_verts,
-      elem_verts_of_bases,
       col_codes,
       out);
-  loop_free(elem_bases_opp_verts);
-  free_orders(elem_verts_of_bases, elem_dim, base_dim);
   return out;
 }
