@@ -13,7 +13,6 @@ test_one_refine.c \
 test_one_coarsen.c \
 test_one_swap.c \
 test_partition.c \
-test_print_swap_edges.c \
 test_box.c \
 test_node_ele.c \
 test_from_gmsh.c \
@@ -29,7 +28,6 @@ test_migrate.c \
 test_conform.c \
 test_ghost.c \
 test_form_cloud.c \
-test_push_cloud.c \
 test_fusion_part.c \
 test_memory.c \
 test_ask_up.c \
@@ -92,7 +90,6 @@ tag.c \
 form_cloud.c \
 element_field.c \
 mesh_diff.c \
-push_cloud.c \
 qr.c \
 omega_h.c \
 comm.c \
@@ -139,6 +136,8 @@ objs/loop_host.o : CPPFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
 lib_sources += loop_$(LOOP_MODE).c
 ifeq "$(LOOP_MODE)" "cuda"
 objs/loop_cuda.o : CPPFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
+else
+test_sources += test_print_swap_edges.c
 endif
 objs/compress.o : CPPFLAGS += -DUSE_ZLIB=$(USE_ZLIB)
 ifeq "$(USE_ZLIB)" "1"

@@ -43,7 +43,7 @@ int main()
         nint_edges[i] = nedges - uints_sum(bdry_edges, nedges);
       else
         assert(nint_edges[i] == nedges - uints_sum(bdry_edges, nedges));
-      fprintf(f, "static unsigned const edges_%u_%u[%u * 2] =\n{",
+      fprintf(f, "LOOP_CONST static unsigned const edges_%u_%u[%u * 2] =\n{",
           i, j, nint_edges[i]);
       unsigned const* verts_of_edges = mesh_ask_down(m, 1, 0);
       unsigned l = 0;
@@ -63,7 +63,8 @@ int main()
   }
   for (unsigned i = 4; i <= MAX_EDGE_SWAP; ++i) {
     unsigned nmeshes = swap_mesh_counts[i];
-    fprintf(f, "static unsigned const* const edges_%u[%u] =\n{", i, nmeshes);
+    fprintf(f, "LOOP_CONST static unsigned const* const edges_%u[%u] =\n{",
+        i, nmeshes);
     for (unsigned j = 0; j < nmeshes; ++j) {
       if (j)
         fprintf(f, ",");
@@ -71,7 +72,7 @@ int main()
     }
     fprintf(f, "};\n");
   }
-  fprintf(f, "unsigned const* const* const"
+  fprintf(f, "LOOP_CONST unsigned const* const* const"
              " swap_int_edges[MAX_EDGE_SWAP + 1] =\n{");
   for (unsigned i = 0; i < 4; ++i) {
     if (i)
@@ -81,7 +82,8 @@ int main()
   for (unsigned i = 4; i <= MAX_EDGE_SWAP; ++i)
     fprintf(f, ",edges_%u\n", i);
   fprintf(f, "};\n");
-  fprintf(f, "unsigned const swap_nint_edges[MAX_EDGE_SWAP + 1] =\n{");
+  fprintf(f, "LOOP_CONST unsigned const "
+             "swap_nint_edges[MAX_EDGE_SWAP + 1] =\n{");
   for (unsigned i = 0; i <= MAX_EDGE_SWAP; ++i) {
     if (i)
       fprintf(f, ",");
