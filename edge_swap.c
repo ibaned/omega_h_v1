@@ -225,7 +225,7 @@ unsigned const* const swap_meshes[MAX_EDGE_SWAP+1] =
 ,meshes_7
 };
 
-struct swap_choice choose_edge_swap(
+LOOP_INOUT struct swap_choice choose_edge_swap(
     unsigned ring_size,
     double (*edge_x)[3],
     double (*ring_x)[3])
@@ -352,7 +352,7 @@ static void get_swap_tris(
   }
 }
 
-void get_swap_ents(
+LOOP_INOUT void get_swap_ents(
     unsigned ring_size,
     unsigned code,
     unsigned ent_dim,
@@ -371,7 +371,7 @@ void get_swap_ents(
   }
 }
 
-unsigned count_swap_ents(
+LOOP_INOUT unsigned count_swap_ents(
     unsigned ring_size,
     unsigned ent_dim)
 {

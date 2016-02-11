@@ -1,6 +1,8 @@
 #ifndef EDGE_SWAP_H
 #define EDGE_SWAP_H
 
+#include "loop.h"
+
 #define MAX_EDGE_SWAP 7
 
 extern unsigned const swap_mesh_sizes[MAX_EDGE_SWAP+1];
@@ -18,12 +20,12 @@ struct swap_choice {
   double quality;
 };
 
-struct swap_choice choose_edge_swap(
+LOOP_INOUT struct swap_choice choose_edge_swap(
     unsigned ring_size,
     double (*edge_x)[3],
     double (*ring_x)[3]);
 
-void get_swap_ents(
+LOOP_INOUT void get_swap_ents(
     unsigned ring_size,
     unsigned code,
     unsigned ent_dim,
@@ -31,7 +33,7 @@ void get_swap_ents(
     unsigned const* ring_v,
     unsigned* out);
 
-unsigned count_swap_ents(
+LOOP_INOUT unsigned count_swap_ents(
     unsigned ring_size,
     unsigned ent_dim);
 

@@ -7,7 +7,7 @@
 
 struct ev { unsigned a; unsigned b; };
 
-unsigned find_edge_ring(
+LOOP_INOUT unsigned find_edge_ring(
     unsigned edge,
     unsigned const* tets_of_edges_offsets,
     unsigned const* tets_of_edges,
