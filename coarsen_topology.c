@@ -5,9 +5,9 @@
 #include "tables.h"
 
 LOOP_KERNEL(coarsen_elem,
+    unsigned elem_dim,
+    unsigned base_dim,
     unsigned verts_per_elem,
-    unsigned** elem_verts_of_bases,
-    unsigned* elem_bases_opp_verts,
     unsigned const* gen_offset_of_elems,
     unsigned const* gen_vert_of_elems,
     unsigned const* gen_direction_of_elems,
@@ -16,6 +16,10 @@ LOOP_KERNEL(coarsen_elem,
 
   if (gen_offset_of_elems[i] == gen_offset_of_elems[i + 1])
     return;
+  unsigned const* const* elem_verts_of_bases =
+      the_canonical_orders[elem_dim][base_dim][0];
+  unsigned const* elem_bases_opp_verts =
+    the_opposite_orders[elem_dim][0];
   unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
   unsigned* verts_of_gen_elem = verts_of_gen_elems +
     gen_offset_of_elems[i] * verts_per_elem;
@@ -40,22 +44,17 @@ void coarsen_topology(
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = get_opposite_dim(elem_dim, 0);
   unsigned ngen_elems = uints_at(gen_offset_of_elems, nelems);
-  unsigned** elem_verts_of_bases = orders_to_device(elem_dim, base_dim, 0);
-  unsigned* elem_bases_opp_verts = uints_to_device(
-    the_opposite_orders[elem_dim][0], verts_per_elem);
   unsigned* verts_of_gen_elems = LOOP_MALLOC(unsigned,
       ngen_elems * verts_per_elem);
   LOOP_EXEC(coarsen_elem, nelems,
+      elem_dim,
+      base_dim,
       verts_per_elem,
-      elem_verts_of_bases,
-      elem_bases_opp_verts,
       gen_offset_of_elems,
       gen_vert_of_elems,
       gen_direction_of_elems,
       verts_of_elems,
       verts_of_gen_elems);
-  free_orders(elem_verts_of_bases, elem_dim, base_dim);
-  loop_free(elem_bases_opp_verts);
   *ngen_elems_out = ngen_elems;
   *verts_of_gen_elems_out = verts_of_gen_elems;
 }

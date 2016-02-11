@@ -8,6 +8,8 @@
 #define LOOP_IN __device__
 #define LOOP_INOUT __device__ __host__
 
+#define LOOP_CONST __constant__
+
 void* loop_cuda_malloc(unsigned long n);
 #define LOOP_CUDA_MALLOC(T, n) \
   ((T*)loop_cuda_malloc(sizeof(T) * (n)))
