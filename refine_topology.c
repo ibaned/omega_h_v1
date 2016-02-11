@@ -24,20 +24,23 @@
 LOOP_KERNEL(refine_domain_entity,
     unsigned const* offset_of_doms,
     unsigned const* direction_of_doms,
-    unsigned** dom_opps_of_srcs,
     unsigned const* verts_of_doms,
     unsigned const* vert_of_doms,
     unsigned verts_per_prod,
     unsigned verts_per_dom,
     unsigned opps_per_src,
     unsigned verts_per_base,
-    unsigned const* dom_base_of_opps,
-    unsigned** dom_verts_of_bases,
     unsigned* verts_of_prods)
 
   if (offset_of_doms[i] == offset_of_doms[i + 1])
     return;
   unsigned direction = direction_of_doms[i];
+  unsigned const* const* dom_opps_of_srcs =
+      the_canonical_orders[dom_dim][src_dim][opp_dim];
+  unsigned const* const* dom_verts_of_bases =
+      the_canonical_orders[dom_dim][base_dim][0];
+  unsigned const* dom_base_of_opps =
+      the_opposite_orders[dom_dim][opp_dim];
   unsigned const* dom_opps_of_src = dom_opps_of_srcs[direction];
   unsigned const* verts_of_dom = verts_of_doms + i * verts_per_dom;
   unsigned vert = vert_of_doms[i];
@@ -81,27 +84,17 @@ void refine_topology(
   unsigned verts_per_prod = the_down_degrees[prod_dim][0];
   unsigned verts_per_base = verts_per_prod - 1;
   unsigned verts_per_dom = the_down_degrees[dom_dim][0];
-  unsigned** dom_opps_of_srcs = orders_to_device(dom_dim, src_dim, opp_dim);
-  unsigned** dom_verts_of_bases = orders_to_device(dom_dim, base_dim, 0);
   unsigned opps_per_dom = the_down_degrees[dom_dim][opp_dim];
-  unsigned* dom_base_of_opps = uints_to_device(
-      the_opposite_orders[dom_dim][opp_dim], opps_per_dom);
   LOOP_EXEC(refine_domain_entity, ndoms,
       offset_of_doms,
       direction_of_doms,
-      dom_opps_of_srcs,
       verts_of_doms,
       vert_of_doms,
       verts_per_prod,
       verts_per_dom,
       opps_per_src,
       verts_per_base,
-      dom_base_of_opps,
-      dom_verts_of_bases,
       verts_of_prods);
-  free_orders(dom_opps_of_srcs, dom_dim, src_dim);
-  free_orders(dom_verts_of_bases, dom_dim, base_dim);
-  loop_free(dom_base_of_opps);
 }
 
 unsigned get_prods_per_dom(
