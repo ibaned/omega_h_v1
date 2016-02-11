@@ -7,12 +7,12 @@
 #include "tables.h"
 
 LOOP_KERNEL(collapse_to_ent,
+    unsigned ent_dim,
     unsigned const* verts_of_ents,
     unsigned verts_per_ent,
     unsigned sides_per_ent,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_vert_of_verts,
-    unsigned* ent_sides_opp_verts,
     unsigned const* sides_of_ents,
     unsigned const* fused_ents,
     unsigned* ent_is_same,
@@ -21,6 +21,8 @@ LOOP_KERNEL(collapse_to_ent,
     unsigned* gen_vert_of_ents,
     unsigned* gen_direction_of_ents)
 
+  unsigned const* ent_sides_opp_verts =
+      the_opposite_orders[ent_dim][0];
   unsigned const* verts_of_ent = verts_of_ents + i * verts_per_ent;
   unsigned col_vert = INVALID;
   unsigned direction = INVALID;
@@ -86,15 +88,13 @@ void collapses_to_ents(
   unsigned* gen_vert_of_ents = LOOP_MALLOC(unsigned, nents);
   unsigned* gen_direction_of_ents = LOOP_MALLOC(unsigned, nents);
   unsigned* ent_is_same = LOOP_MALLOC(unsigned, nents);
-  unsigned* ent_sides_opp_verts = uints_to_device(
-      the_opposite_orders[ent_dim][0], verts_per_ent);
   LOOP_EXEC(collapse_to_ent, nents,
+      ent_dim,
       verts_of_ents,
       verts_per_ent,
       sides_per_ent,
       gen_offset_of_verts,
       gen_vert_of_verts,
-      ent_sides_opp_verts,
       sides_of_ents,
       fused_ents,
       ent_is_same,
@@ -102,7 +102,6 @@ void collapses_to_ents(
       ent_will_gen,
       gen_vert_of_ents,
       gen_direction_of_ents);
-  loop_free(ent_sides_opp_verts);
   *p_gen_offset_of_ents = uints_exscan(ent_will_gen, nents);
   loop_free(ent_will_gen);
   *p_gen_vert_of_ents = gen_vert_of_ents;

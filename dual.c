@@ -34,15 +34,18 @@ LOOP_INOUT static unsigned intersect(
 }
 
 LOOP_KERNEL(element_dual_from_verts,
+    unsigned elem_dim,
+    unsigned side_dim,
     unsigned const* verts_of_elems,
     unsigned const* elems_of_verts_offsets,
     unsigned const* elems_of_verts,
     unsigned verts_per_elem,
     unsigned sides_per_elem,
     unsigned verts_per_side,
-    unsigned* elems_of_elems,
-    unsigned** elem_verts_of_sides)
+    unsigned* elems_of_elems)
 
+  unsigned const* const* elem_verts_of_sides =
+      the_canonical_orders[elem_dim][side_dim][0];
   unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
   unsigned* elems_of_elem = elems_of_elems + i * sides_per_elem;
   for (unsigned j = 0; j < sides_per_elem; ++j) {
@@ -85,17 +88,16 @@ unsigned* dual_from_verts(
   unsigned sides_per_elem = the_down_degrees[elem_dim][side_dim];
   unsigned verts_per_side = the_down_degrees[side_dim][0];
   unsigned* elems_of_elems = LOOP_MALLOC(unsigned, nelems * sides_per_elem);
-  unsigned** elem_verts_of_sides = orders_to_device(elem_dim, side_dim, 0);
   LOOP_EXEC(element_dual_from_verts, nelems,
+      elem_dim,
+      side_dim,
       verts_of_elems,
       elems_of_verts_offsets,
       elems_of_verts,
       verts_per_elem,
       sides_per_elem,
       verts_per_side,
-      elems_of_elems,
-      elem_verts_of_sides);
-  free_orders(elem_verts_of_sides, elem_dim, side_dim);
+      elems_of_elems);
   return elems_of_elems;
 }
 
