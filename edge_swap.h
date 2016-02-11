@@ -21,12 +21,12 @@ struct swap_choice {
   double quality;
 };
 
-LOOP_INOUT struct swap_choice choose_edge_swap(
+LOOP_IN struct swap_choice choose_edge_swap(
     unsigned ring_size,
     double (*edge_x)[3],
     double (*ring_x)[3]);
 
-LOOP_INOUT void get_swap_ents(
+LOOP_IN void get_swap_ents(
     unsigned ring_size,
     unsigned code,
     unsigned ent_dim,
@@ -34,7 +34,7 @@ LOOP_INOUT void get_swap_ents(
     unsigned const* ring_v,
     unsigned* out);
 
-LOOP_INOUT unsigned count_swap_ents(
+LOOP_IN unsigned count_swap_ents(
     unsigned ring_size,
     unsigned ent_dim);
 

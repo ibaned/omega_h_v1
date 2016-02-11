@@ -225,7 +225,7 @@ LOOP_CONST unsigned const* const swap_meshes[MAX_EDGE_SWAP+1] =
 ,meshes_7
 };
 
-LOOP_INOUT struct swap_choice choose_edge_swap(
+LOOP_IN struct swap_choice choose_edge_swap(
     unsigned ring_size,
     double (*edge_x)[3],
     double (*ring_x)[3])
@@ -278,7 +278,7 @@ LOOP_INOUT struct swap_choice choose_edge_swap(
   return out;
 }
 
-LOOP_INOUT static void get_swap_tets(
+LOOP_IN static void get_swap_tets(
     unsigned ring_size,
     unsigned code,
     unsigned const edge_v[2],
@@ -308,7 +308,7 @@ LOOP_INOUT static void get_swap_tets(
   assert(out - p == ntets * 4);
 }
 
-LOOP_INOUT static void get_swap_edges(
+LOOP_IN static void get_swap_edges(
     unsigned ring_size,
     unsigned code,
     unsigned const* ring_v,
@@ -323,7 +323,7 @@ LOOP_INOUT static void get_swap_edges(
       out[i * 2 + j] = ring_v[edges[i * 2 + j]];
 }
 
-LOOP_INOUT static void get_swap_tris(
+LOOP_IN static void get_swap_tris(
     unsigned ring_size,
     unsigned code,
     unsigned const edge_v[2],
@@ -352,7 +352,7 @@ LOOP_INOUT static void get_swap_tris(
   }
 }
 
-LOOP_INOUT void get_swap_ents(
+LOOP_IN void get_swap_ents(
     unsigned ring_size,
     unsigned code,
     unsigned ent_dim,
@@ -371,7 +371,7 @@ LOOP_INOUT void get_swap_ents(
   }
 }
 
-LOOP_INOUT unsigned count_swap_ents(
+LOOP_IN unsigned count_swap_ents(
     unsigned ring_size,
     unsigned ent_dim)
 {
