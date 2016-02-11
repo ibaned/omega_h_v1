@@ -182,6 +182,14 @@ unsigned* mesh_mark_class_closure_verts(struct mesh* m, unsigned target_dim,
   return out;
 }
 
+LOOP_KERNEL(unmark_boundary,
+    unsigned elem_dim,
+    unsigned const* class_dim,
+    unsigned* marked)
+  if (class_dim[i] != elem_dim)
+    marked[i] = 0;
+}
+
 void mesh_unmark_boundary(
     struct mesh* m,
     unsigned ent_dim,
@@ -191,9 +199,7 @@ void mesh_unmark_boundary(
     mesh_find_tag(m, ent_dim, "class_dim")->d.u32;
   unsigned elem_dim = mesh_dim(m);
   unsigned nents = mesh_count(m, ent_dim);
-  for (unsigned i = 0; i < nents; ++i)
-    if (class_dim[i] != elem_dim)
-      marked[i] = 0;
+  LOOP_EXEC(unmark_boundary, nents, elem_dim, class_dim, marked);
 }
 
 LOOP_KERNEL(mark_sliver,
