@@ -29,7 +29,6 @@ test_migrate.c \
 test_conform.c \
 test_ghost.c \
 test_form_cloud.c \
-test_push_cloud.c \
 test_fusion_part.c \
 test_memory.c \
 test_ask_up.c \
@@ -92,7 +91,6 @@ tag.c \
 form_cloud.c \
 element_field.c \
 mesh_diff.c \
-push_cloud.c \
 qr.c \
 omega_h.c \
 comm.c \
