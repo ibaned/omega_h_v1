@@ -65,7 +65,7 @@ GENERIC_TO_DEVICE(unsigned*, uintptrs)
 #define GENERIC_TO_HOST(T, name) \
 T* name##_to_host(T const* a, unsigned n) \
 { \
-  T* b = LOOP_MALLOC(T, n); \
+  T* b = LOOP_HOST_MALLOC(T, n); \
   CUDACALL(cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyDeviceToHost)); \
   return b; \
 }
