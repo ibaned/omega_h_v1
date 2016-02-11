@@ -16,7 +16,7 @@
    computed based on the unique triangle which can then be
    reused when evaluating the quality of triangulations. */
 
-unsigned const swap_mesh_sizes[MAX_EDGE_SWAP+1] =
+LOOP_CONST unsigned const swap_mesh_sizes[MAX_EDGE_SWAP+1] =
 {0 //0
 ,0 //1
 ,0 //2
@@ -27,7 +27,7 @@ unsigned const swap_mesh_sizes[MAX_EDGE_SWAP+1] =
 ,5 //7
 };
 
-unsigned const swap_mesh_counts[MAX_EDGE_SWAP+1] =
+LOOP_CONST unsigned const swap_mesh_counts[MAX_EDGE_SWAP+1] =
 {0  //0
 ,0  //1
 ,0  //2
@@ -40,25 +40,25 @@ unsigned const swap_mesh_counts[MAX_EDGE_SWAP+1] =
 
 #define MAX_UNIQUE_TRIS 35
 
-static unsigned const triangles_3[1][3] = {{0,1,2}};
+LOOP_CONST static unsigned const triangles_3[1][3] = {{0,1,2}};
 
-static unsigned const meshes_3[1] =
+LOOP_CONST static unsigned const meshes_3[1] =
 {0
 };
 
-static unsigned const triangles_4[4][3] =
+LOOP_CONST static unsigned const triangles_4[4][3] =
 {{0,1,2}
 ,{0,2,3}
 ,{0,1,3}
 ,{1,2,3}
 };
 
-static unsigned const meshes_4[2 * 2] =
+LOOP_CONST static unsigned const meshes_4[2 * 2] =
 {0,1
 ,2,3
 };
 
-static unsigned const triangles_5[10][3] =
+LOOP_CONST static unsigned const triangles_5[10][3] =
 {{0,1,2}
 ,{0,2,3}
 ,{0,3,4}
@@ -71,7 +71,7 @@ static unsigned const triangles_5[10][3] =
 ,{1,2,4}
 };
 
-static unsigned const meshes_5[5 * 3] =
+LOOP_CONST static unsigned const meshes_5[5 * 3] =
 {0,1,2
 ,3,4,5
 ,0,6,7
@@ -79,7 +79,7 @@ static unsigned const meshes_5[5 * 3] =
 ,3,6,9
 };
 
-static unsigned const triangles_6[20][3] =
+LOOP_CONST static unsigned const triangles_6[20][3] =
 {{0,1,2}
 ,{0,2,3}
 ,{0,3,4}
@@ -102,7 +102,7 @@ static unsigned const triangles_6[20][3] =
 ,{1,2,5}
 };
 
-static unsigned const meshes_6[14 * 4] =
+LOOP_CONST static unsigned const meshes_6[14 * 4] =
 {0, 1 ,2 ,3
 ,0, 4 ,5 ,6
 ,0, 1 ,7 ,8
@@ -119,7 +119,7 @@ static unsigned const meshes_6[14 * 4] =
 ,8 ,10,13,19
 };
 
-static unsigned const triangles_7[35][3] =
+LOOP_CONST static unsigned const triangles_7[35][3] =
 {{0,1,2}
 ,{0,2,3}
 ,{0,3,4}
@@ -157,7 +157,7 @@ static unsigned const triangles_7[35][3] =
 ,{1,2,6}
 };
 
-static unsigned const meshes_7[42 * 5] =
+LOOP_CONST static unsigned const meshes_7[42 * 5] =
 {0 ,1 ,2 ,3 ,4
 ,0 ,1 ,5 ,6 ,7
 ,0 ,1 ,2 ,8 ,9
@@ -203,7 +203,7 @@ static unsigned const meshes_7[42 * 5] =
 };
 
 /* array [8] of pointer to array [3] of unsigned const */
-swap_tri_t const* const swap_triangles[MAX_EDGE_SWAP+1] =
+LOOP_CONST swap_tri_t const* const swap_triangles[MAX_EDGE_SWAP+1] =
 {0
 ,0
 ,0
@@ -214,7 +214,7 @@ swap_tri_t const* const swap_triangles[MAX_EDGE_SWAP+1] =
 ,triangles_7
 };
 
-unsigned const* const swap_meshes[MAX_EDGE_SWAP+1] =
+LOOP_CONST unsigned const* const swap_meshes[MAX_EDGE_SWAP+1] =
 {0
 ,0
 ,0
@@ -278,7 +278,7 @@ LOOP_INOUT struct swap_choice choose_edge_swap(
   return out;
 }
 
-static void get_swap_tets(
+LOOP_INOUT static void get_swap_tets(
     unsigned ring_size,
     unsigned code,
     unsigned const edge_v[2],
@@ -308,7 +308,7 @@ static void get_swap_tets(
   assert(out - p == ntets * 4);
 }
 
-static void get_swap_edges(
+LOOP_INOUT static void get_swap_edges(
     unsigned ring_size,
     unsigned code,
     unsigned const* ring_v,
@@ -323,7 +323,7 @@ static void get_swap_edges(
       out[i * 2 + j] = ring_v[edges[i * 2 + j]];
 }
 
-static void get_swap_tris(
+LOOP_INOUT static void get_swap_tris(
     unsigned ring_size,
     unsigned code,
     unsigned const edge_v[2],
