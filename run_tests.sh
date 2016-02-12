@@ -17,10 +17,10 @@ if [ "$USE_MPI" = "1" ]; then
   $MPIRUN -np 2 $VALGRIND ./bin/one_coarsen.exe ./scratch/split.pvtu ./scratch/one_cor.pvtu
   $MPIRUN -np 2 $VALGRIND ./bin/one_coarsen.exe ./scratch/one_cor.pvtu ./scratch/two_cor.pvtu
 fi
-$VALGRIND ./bin/warp.exe
+$VALGRIND ./bin/warp.exe ./scratch
 if [ -e ./gold/2d_warp_0008.vtu ]; then
-  $VALGRIND ./bin/vtkdiff.exe warp_0008.vtu ./gold/2d_warp_0008.vtu
-  diff warp_0008.vtu ./gold/2d_warp_0008.vtu
+  $VALGRIND ./bin/vtkdiff.exe ./scratch/warp_0008.vtu ./gold/2d_warp_0008.vtu
+  diff ./scratch/warp_0008.vtu ./gold/2d_warp_0008.vtu
 fi
 cp warp_0008.vtu ./gold/2d_warp_0008.vtu
 if [ "$PATIENT" = "1" ]; then
