@@ -251,10 +251,14 @@ install: all
 	install -d $(PREFIX)/include
 	install -m 644 include/omega_h.h $(PREFIX)/include
 
-check: data $(exes)
+check: $(exes) data gold scratch
 	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) \
   USE_MPI=$(USE_MPI) PATIENT=$(PATIENT) \
   LOOP_MODE=$(LOOP_MODE) ./run_tests.sh
 
 data:
 	git clone https://github.com/ibaned/omega_h_data.git data
+gold:
+	mkdir gold
+scratch:
+	mkdir scratch
