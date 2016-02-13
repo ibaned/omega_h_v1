@@ -48,8 +48,8 @@ static char const* type_name(enum tag_type t)
     case TAG_U32: return "UInt32";
     case TAG_U64: return "UInt64";
     case TAG_F64: return "Float64";
-    default: return "";
   }
+  LOOP_NORETURN("");
 }
 
 static char const* format_name(enum vtk_format fmt)
@@ -57,8 +57,8 @@ static char const* format_name(enum vtk_format fmt)
   switch (fmt) {
     case VTK_ASCII: return "ascii";
     case VTK_BINARY: return "binary";
-    default: return "";
   }
+  LOOP_NORETURN("");
 }
 
 static unsigned try_read_attrib(char const* elem, char const* name,
@@ -542,14 +542,6 @@ void write_vtk_step(struct mesh* m)
   sprintf(fname, "%s_%04u.vtu", the_step_prefix, the_step);
   write_vtu(m, fname);
   ++the_step;
-}
-
-static void read_nverts(FILE* f, unsigned* nverts)
-{
-  unsigned ignore;
-  enum mesh_rep ignore2;
-  read_piece_header(f, nverts, &ignore, &ignore, &ignore, &ignore, &ignore,
-      &ignore2);
 }
 
 LOOP_KERNEL(assert_one_type,
