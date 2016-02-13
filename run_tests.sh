@@ -6,7 +6,8 @@ if [ "$LOOP_MODE" = "cuda" ]; then
 fi
 $VALGRIND ./bin/box.exe --file ./scratch/box.vtu --dim 2 --refinements 6
 $VALGRIND ./bin/vtkdiff.exe --help
-$VALGRIND ./bin/vtkdiff.exe -tolerance 1e-6 -Floor 1e-15 ./data/bgq_box.vtu ./scratch/box.vtu
+$VALGRIND ./bin/vtk_ascii.exe ./data/bgq_box.vtu ./scratch/bgq_ascii_box.vtu
+$VALGRIND ./bin/vtkdiff.exe -tolerance 1e-6 -Floor 1e-15 ./scratch/bgq_ascii_box.vtu ./scratch/box.vtu
 $VALGRIND ./bin/node_ele.exe ./data/xgc.node ./data/xgc.ele ./scratch/xgc.vtu
 $VALGRIND ./bin/from_gmsh.exe ./data/cube.msh ./scratch/cube.vtu
 $VALGRIND ./bin/grad.exe ./scratch
