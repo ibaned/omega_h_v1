@@ -5,7 +5,8 @@ if [ "$LOOP_MODE" = "cuda" ]; then
   return
 fi
 $VALGRIND ./bin/box.exe --file ./scratch/box.vtu --dim 2 --refinements 6
-$VALGRIND ./bin/vtkdiff.exe ./scratch/box.vtu ./scratch/box.vtu
+$VALGRIND ./bin/vtkdiff.exe --help
+$VALGRIND ./bin/vtkdiff.exe -tolerance 1e-6 -Floor 1e-15 ./data/bgq_box.vtu ./scratch/box.vtu
 $VALGRIND ./bin/node_ele.exe ./data/xgc.node ./data/xgc.ele ./scratch/xgc.vtu
 $VALGRIND ./bin/from_gmsh.exe ./data/cube.msh ./scratch/cube.vtu
 if [ "$USE_MPI" = "1" ]; then
@@ -26,7 +27,7 @@ cp ./scratch/warp_0008.vtu ./gold/2d_warp_0008.vtu
 if [ "$PATIENT" = "1" ]; then
   $VALGRIND ./bin/warp_3d.exe ./scratch
   if [ -e ./gold/warp_0016.vtu ]; then
-    $VALGRIND ./bin/vtkdiff.exe ./scratch/warp_0016.vtu ./gold/warp_0016.vtu
+    $VALGRIND ./bin/vtkdiff.exe -superset ./scratch/warp_0016.vtu ./gold/warp_0016.vtu
     diff ./scratch/warp_0016.vtu ./gold/warp_0016.vtu
   fi
   cp ./scratch/warp_0016.vtu ./gold/warp_0016.vtu
