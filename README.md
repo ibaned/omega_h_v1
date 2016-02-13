@@ -19,9 +19,6 @@ warp_3d.exe: Runs a 3D mesh adaptation test
 similar to test_warp.exe except the size field
 is constant.
 
-vtk_surfer.exe: A VTK file post-processing tool,
-run with no arguments for more information.
-
 vtkdiff.exe: A VTK file comparison tool with
 floating point tolerances, run with no arguments
 or with -help for information.

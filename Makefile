@@ -17,7 +17,6 @@ test_box.c \
 test_node_ele.c \
 test_from_gmsh.c \
 test_vtk_ascii.c \
-test_vtk_surfer.c \
 test_vtkdiff.c \
 test_coarsen_by_size.c \
 test_refine_by_size.c \
