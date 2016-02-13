@@ -8,6 +8,7 @@
 #include "loop.h"
 #include "mesh.h"
 #include "migrate_mesh.h"
+#include "include/omega_h.h"
 #include "parallel_mesh.h"
 #include "vtk.h"
 
@@ -36,7 +37,7 @@ static struct mesh* make_2_tri_parallel(void)
 
 int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init();
   char const* path;
   if (argc == 2)
     path = argv[1];
@@ -55,5 +56,5 @@ int main(int argc, char** argv)
   sprintf(file, "%s/three.pvtu", path);
   write_mesh_vtk(m, file);
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }

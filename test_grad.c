@@ -1,10 +1,10 @@
 #include <stdio.h>
 
 #include "algebra.h"
-#include "comm.h"
 #include "element_gradients.h"
 #include "eval_field.h"
 #include "mesh.h"
+#include "include/omega_h.h"
 #include "recover_by_volume.h"
 #include "refine.h"
 #include "size_from_hessian.h"
@@ -36,7 +36,7 @@ static void size_fun(double const* x, double* s)
 
 int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init();
   char const* path;
   if (argc == 2)
     path = argv[1];
@@ -57,5 +57,5 @@ int main(int argc, char** argv)
   sprintf(file, "%s/grad.vtu", path);
   write_mesh_vtk(m, file);
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }

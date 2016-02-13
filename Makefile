@@ -27,9 +27,6 @@ test_migrate.c \
 test_conform.c \
 test_ghost.c \
 test_memory.c \
-test_ask_up.c \
-test_ask_down.c \
-test_derive_model.c \
 test_subdim.c \
 test_loop.c
 

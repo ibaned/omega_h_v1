@@ -3,11 +3,11 @@
 #include <time.h>
 
 #include "algebra.h"
-#include "comm.h"
 #include "derive_model.h"
 #include "eval_field.h"
 #include "loop.h"
 #include "mesh.h"
+#include "include/omega_h.h"
 #include "refine.h"
 #include "vtk.h"
 
@@ -43,7 +43,7 @@ static void sinusoid(double const* x, double* size)
 
 int main()
 {
-  comm_init();
+  osh_init();
 #ifdef LOOP_CUDA_H
   trigger_cuda_init();
 #endif
@@ -66,5 +66,5 @@ int main()
       t1 - t0, mesh_count(m, 2));
 #endif
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }
