@@ -563,7 +563,6 @@ static void seek_types(FILE* f, line_t line, line_t name)
     if (!strcmp(name, "types"))
       return;
   }
-  LOOP_NORETURN();
 }
 
 static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
