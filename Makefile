@@ -27,7 +27,6 @@ test_warp_3d.c \
 test_migrate.c \
 test_conform.c \
 test_ghost.c \
-test_fusion_part.c \
 test_memory.c \
 test_ask_up.c \
 test_ask_down.c \
