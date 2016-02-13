@@ -9,6 +9,9 @@ extern "C" {
 
 typedef struct osh_mesh* osh_t;
 
+void osh_init(void) OSH_PUBLIC;
+void osh_fini(void) OSH_PUBLIC;
+
 void osh_free(osh_t m) OSH_PUBLIC;
 
 osh_t osh_read_vtk(char const* filename) OSH_PUBLIC;

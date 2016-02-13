@@ -1,6 +1,7 @@
 #include "include/omega_h.h"
 
 #include "adapt.h"
+#include "comm.h"
 #include "ghost_mesh.h"
 #include "loop.h"
 #include "mark.h"
@@ -10,6 +11,16 @@
 #include "tag.h"
 #include "tables.h"
 #include "vtk.h"
+
+void osh_init(void)
+{
+  comm_init();
+}
+
+void osh_fini(void)
+{
+  comm_fini();
+}
 
 void osh_free(osh_t m)
 {
