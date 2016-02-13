@@ -264,6 +264,7 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%hhu", &in[i]);
       out = uchars_to_device(in, n);
       loop_host_free(in);
+      break;
     }
     case TAG_U32: {
       unsigned* in = LOOP_HOST_MALLOC(unsigned, n);
@@ -271,6 +272,7 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%u", &in[i]);
       out = uints_to_device(in, n);
       loop_host_free(in);
+      break;
     }
     case TAG_U64: {
       unsigned long* in = LOOP_HOST_MALLOC(unsigned long, n);
@@ -278,6 +280,7 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%lu", &in[i]);
       out = ulongs_to_device(in, n);
       loop_host_free(in);
+      break;
     }
     case TAG_F64: {
       double* in = LOOP_HOST_MALLOC(double, n);
@@ -285,6 +288,7 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%lf", &in[i]);
       out = doubles_to_device(in, n);
       loop_host_free(in);
+      break;
     }
   }
   return out;
@@ -550,19 +554,25 @@ LOOP_KERNEL(assert_one_type,
   assert(types[i] == type);
 }
 
+static void seek_types(FILE* f, line_t line, line_t name)
+{
+  seek_prefix(f, line, sizeof(line_t), "<Cells");
+  while (1) {
+    seek_prefix(f, line, sizeof(line_t), "<DataArray");
+    read_array_name(line, name);
+    if (!strcmp(name, "types"))
+      return;
+  }
+  LOOP_NORETURN();
+}
+
 static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
     unsigned do_com)
 {
   assert(nelems);
   line_t line;
-  seek_prefix(f, line, sizeof(line), "<Cells");
   line_t name;
-  while (1) {
-    seek_prefix(f, line, sizeof(line), "<DataArray");
-    read_array_name(line, name);
-    if (!strcmp(name, "types"))
-      break;
-  }
+  seek_types(f, line, name);
   enum tag_type type;
   unsigned ncomps;
   void* data;
