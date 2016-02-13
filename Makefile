@@ -119,6 +119,7 @@ LOOP_MODE ?= serial
 MPIRUN ?= mpirun
 VALGRIND ?= ""
 PATIENT ?= 0
+SHARED ?= 0
 #comm.c is compiled with -DUSE_MPI=
 objs/comm.o : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
 deps/comm.dep : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
@@ -138,6 +139,12 @@ objs/compress.o : CPPFLAGS += -DUSE_ZLIB=$(USE_ZLIB)
 ifeq "$(USE_ZLIB)" "1"
 objs/compress.o : CPPFLAGS += -I$(ZLIB_INCLUDE)
 endif
+ifeq "$(SHARED)" "1"
+CFLAGS += -fPIC
+library := lib/libomega_h.so
+else
+library := lib/libomega_h.a
+endif
 
 #generated file names are derived from source
 #file names by simple patterns:
@@ -147,11 +154,9 @@ lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
 depfiles := $(patsubst %.c,deps/%.dep,$(lib_sources)) \
 $(patsubst %.c,deps/%.dep,$(test_sources))
 
-lib := lib/libomega_h.a
-
 #the default compilation target is to compile
 #the library and all executables
-all: $(lib) $(exes)
+all: $(library) $(exes)
 
 #cleanup removes dependency files, object files,
 #and executables
@@ -166,16 +171,22 @@ clean:
 objs/%.o: %.c | objs
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
-$(lib): $(lib_objects) | lib
+lib/libomega_h.a: $(lib_objects) | lib
 	ar cru $@ $(lib_objects)
 	ranlib $@
 
+lib/libomega_h.so: $(lib_objects) | lib
+	$(CC) $(LDFLAGS) -shared -fPIC -o $@ $(lib_objects) $(LDLIBS)
+
 #general rule for an executable: link its object
-#file with all the $(common_objects)
-# $@ is the thing being built and $^ is all
-#the things it depends on (the objects)
-bin/%.exe: objs/test_%.o $(lib) | bin
-	$(CC) $(LDFLAGS) -o $@ objs/test_$*.o $(lib) $(LDLIBS)
+#file with the library
+ifeq "$(SHARED)" "1"
+bin/%.exe: objs/test_%.o $(library) | bin
+	$(CC) -L./lib -o $@ objs/test_$*.o -lomega_h
+else
+bin/%.exe: objs/test_%.o $(library) | bin
+	$(CC) $(LDFLAGS) -L./lib -o $@ objs/test_$*.o -lomega_h $(LDLIBS)
+endif
 
 #loop.h is a copy of one of several existing files,
 #chosen at compile time based on the kind of
