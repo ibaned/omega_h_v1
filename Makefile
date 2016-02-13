@@ -13,7 +13,6 @@ test_one_refine.c \
 test_one_coarsen.c \
 test_one_swap.c \
 test_partition.c \
-test_print_swap_edges.c \
 test_box.c \
 test_node_ele.c \
 test_from_gmsh.c \
@@ -28,9 +27,6 @@ test_warp_3d.c \
 test_migrate.c \
 test_conform.c \
 test_ghost.c \
-test_form_cloud.c \
-test_push_cloud.c \
-test_fusion_part.c \
 test_memory.c \
 test_ask_up.c \
 test_ask_down.c \
@@ -87,12 +83,9 @@ loop_host.c \
 inertia.c \
 derive_sides.c \
 node_ele_io.c \
-cloud.c \
 tag.c \
-form_cloud.c \
 element_field.c \
 mesh_diff.c \
-push_cloud.c \
 qr.c \
 omega_h.c \
 comm.c \
@@ -107,7 +100,6 @@ copy_tags.c \
 parallel_inertial_bisect.c \
 parallel_mesh.c \
 parallel_modify.c \
-migrate_cloud.c \
 arrays.c \
 migrate_mesh.c \
 bcast.c \
@@ -120,7 +112,7 @@ inherit.c
 #handle optional features:
 USE_ZLIB ?= 0
 USE_MPI ?= 0
-USE_MPI3 ?= 0
+USE_MPI3 ?= 1
 USE_CUDA_MALLOC_MANAGED ?= 0
 MEASURE_MEMORY ?= 0
 LOOP_MODE ?= serial
@@ -139,6 +131,8 @@ objs/loop_host.o : CPPFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
 lib_sources += loop_$(LOOP_MODE).c
 ifeq "$(LOOP_MODE)" "cuda"
 objs/loop_cuda.o : CPPFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
+else
+test_sources += test_print_swap_edges.c
 endif
 objs/compress.o : CPPFLAGS += -DUSE_ZLIB=$(USE_ZLIB)
 ifeq "$(USE_ZLIB)" "1"
@@ -165,7 +159,7 @@ clean:
 	rm -rf deps/ objs/ bin/ lib/ loop.h
 
 #just targets, not files or directories
-.PHONY: all clean check install dep
+.PHONY: all clean check install dep coverage
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
@@ -252,10 +246,18 @@ install: all
 	install -d $(PREFIX)/include
 	install -m 644 include/omega_h.h $(PREFIX)/include
 
-check: data $(exes)
+check: $(exes) data gold scratch
 	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) \
   USE_MPI=$(USE_MPI) PATIENT=$(PATIENT) \
   LOOP_MODE=$(LOOP_MODE) ./run_tests.sh
 
 data:
 	git clone https://github.com/ibaned/omega_h_data.git data
+gold:
+	mkdir gold
+scratch:
+	mkdir scratch
+
+coverage: objs scratch
+	lcov --capture --directory objs --output-file scratch/coverage.info
+	genhtml scratch/coverage.info --output-directory lcov-output

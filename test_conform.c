@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 
 #include "arrays.h"
 #include "bcast.h"
@@ -33,17 +34,26 @@ static struct mesh* make_2_tri_parallel(void)
   return m;
 }
 
-int main()
+int main(int argc, char** argv)
 {
   comm_init();
+  char const* path;
+  if (argc == 2)
+    path = argv[1];
+  else
+    path = ".";
   struct mesh* m = make_2_tri_parallel();
   double* data = doubles_filled(3, (double) (comm_rank() + 1));
   mesh_add_tag(m, 0, TAG_F64, "field", 1, data);
-  write_mesh_vtk(m, "one.pvtu");
+  char file[128];
+  sprintf(file, "%s/one.pvtu", path);
+  write_mesh_vtk(m, file);
   mesh_accumulate_tag(m, 0, "field");
-  write_mesh_vtk(m, "two.pvtu");
+  sprintf(file, "%s/two.pvtu", path);
+  write_mesh_vtk(m, file);
   mesh_conform_tag(m, 0, "field");
-  write_mesh_vtk(m, "three.pvtu");
+  sprintf(file, "%s/three.pvtu", path);
+  write_mesh_vtk(m, file);
   free_mesh(m);
   comm_fini();
 }

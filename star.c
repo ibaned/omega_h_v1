@@ -225,10 +225,10 @@ LOOP_KERNEL(edge_tet_kern_2,
     unsigned const* tets_of_edges_offsets,
     unsigned const* tets_of_edges,
     unsigned const* tets_of_edges_directions,
-    unsigned const* tet_edge_opp_edges,
     unsigned const* edges_of_tets,
     unsigned* star)
 
+  unsigned const* tet_edge_opp_edges = the_opposite_orders[3][1];
   unsigned o = star_offsets[i];
   {
     unsigned f = edge_tri_star_offsets[i];
@@ -280,11 +280,10 @@ static void get_edge_tet_star(
   loop_free(star_degrees);
   unsigned nadj = uints_at(star_offsets, nedges);
   unsigned* star = uints_filled(nadj, INVALID);
-  unsigned const* tet_edge_opp_edges = the_opposite_orders[3][1];
   LOOP_EXEC(edge_tet_kern_2, nedges,
       star_offsets, edge_tri_star_offsets, edge_tri_star,
       tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
-      tet_edge_opp_edges, edges_of_tets, star);
+      edges_of_tets, star);
   loop_free(edge_tri_star_offsets);
   loop_free(edge_tri_star);
   *p_star_offsets = star_offsets;

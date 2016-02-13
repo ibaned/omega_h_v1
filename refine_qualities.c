@@ -13,6 +13,9 @@
 
 LOOP_KERNEL(refine_quality,
     unsigned elem_dim,
+    unsigned src_dim,
+    unsigned base_dim,
+    unsigned opp_dim,
     unsigned const* elems_of_srcs_offsets,
     unsigned const* elems_of_srcs,
     unsigned const* elems_of_srcs_directions,
@@ -22,15 +25,18 @@ LOOP_KERNEL(refine_quality,
     double const* elem_quals,
     unsigned const* verts_of_elems,
     unsigned verts_per_elem,
-    unsigned** elem_verts_of_srcs,
-    unsigned** elem_verts_of_bases,
-    unsigned* elem_base_of_opps,
     double qual_floor,
     unsigned* candidate_srcs,
     double* out)
 
   if (!candidate_srcs[i])
     return;
+  unsigned const* const* elem_verts_of_srcs =
+      the_canonical_orders[elem_dim][src_dim][0];
+  unsigned const* const* elem_verts_of_bases =
+      the_canonical_orders[elem_dim][base_dim][0];
+  unsigned const* elem_base_of_opps =
+      the_opposite_orders[elem_dim][opp_dim];
   unsigned first_use = elems_of_srcs_offsets[i];
   unsigned end_use = elems_of_srcs_offsets[i + 1];
   unsigned const* verts_of_src = verts_of_srcs + i * verts_per_src;
@@ -100,12 +106,11 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   unsigned verts_per_src = the_down_degrees[src_dim][0];
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   double* src_quals = LOOP_MALLOC(double, nsrcs);
-  unsigned** elem_verts_of_srcs = orders_to_device(elem_dim, src_dim, 0);
-  unsigned** elem_verts_of_bases = orders_to_device(elem_dim, base_dim, 0);
-  unsigned* elem_base_of_opps = uints_to_device(
-      the_opposite_orders[elem_dim][opp_dim], verts_per_elem);
   LOOP_EXEC(refine_quality, nsrcs,
       elem_dim,
+      src_dim,
+      base_dim,
+      opp_dim,
       elems_of_srcs_offsets,
       elems_of_srcs,
       elems_of_srcs_directions,
@@ -115,15 +120,9 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
       elem_quals,
       verts_of_elems,
       verts_per_elem,
-      elem_verts_of_srcs,
-      elem_verts_of_bases,
-      elem_base_of_opps,
       qual_floor,
       *p_candidates,
       src_quals);
-  free_orders(elem_verts_of_srcs, elem_dim, src_dim);
-  free_orders(elem_verts_of_bases, elem_dim, base_dim);
-  loop_free(elem_base_of_opps);
   loop_free(elem_quals);
   mesh_conform_doubles(m, src_dim, 1, &src_quals);
   mesh_conform_uints(m, src_dim, 1, p_candidates);

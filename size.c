@@ -52,14 +52,6 @@ double* mesh_element_sizes(struct mesh* m)
         mesh_find_tag(m, 0, "coordinates")->d.f64);
 }
 
-double mesh_domain_size(struct mesh* m)
-{
-  double* sizes = mesh_element_sizes(m);
-  double domsize = doubles_sum(sizes, mesh_count(m, mesh_dim(m)));
-  loop_free(sizes);
-  return comm_add_double(domsize);
-}
-
 LOOP_KERNEL(measure_edge,
     unsigned const* verts_of_edges,
     double const* coords,
