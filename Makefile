@@ -140,6 +140,7 @@ ifeq "$(USE_ZLIB)" "1"
 objs/compress.o : CPPFLAGS += -I$(ZLIB_INCLUDE)
 endif
 ifeq "$(SHARED)" "1"
+#CFLAGS += -fPIC -fvisibility=hidden
 CFLAGS += -fPIC
 library := lib/libomega_h.so
 else
