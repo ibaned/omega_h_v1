@@ -135,12 +135,10 @@ objs/compress.o : CPPFLAGS += -DUSE_ZLIB=$(USE_ZLIB)
 ifeq "$(USE_ZLIB)" "1"
 objs/compress.o : CPPFLAGS += -I$(ZLIB_INCLUDE)
 endif
+libraries := lib/libomega_h.a
 ifeq "$(SHARED)" "1"
-#CFLAGS += -fPIC -fvisibility=hidden
-CFLAGS += -fPIC
-library := lib/libomega_h.so
-else
-library := lib/libomega_h.a
+CFLAGS += -fPIC -fvisibility=hidden
+libraries += lib/libomega_h.so
 endif
 
 #generated file names are derived from source
@@ -153,7 +151,7 @@ $(patsubst %.c,deps/%.dep,$(test_sources))
 
 #the default compilation target is to compile
 #the library and all executables
-all: $(library) $(exes)
+all: $(libraries) $(exes)
 
 #cleanup removes dependency files, object files,
 #and executables
@@ -168,22 +166,20 @@ clean:
 objs/%.o: %.c | objs
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
-lib/libomega_h.a: $(lib_objects) | lib
+lib/libomega_h_internal.a: $(lib_objects) | lib
 	ar cru $@ $(lib_objects)
 	ranlib $@
+
+lib/libomega_h.a: lib/libomega_h_internal.a
+	cp $< $@
 
 lib/libomega_h.so: $(lib_objects) | lib
 	$(CC) $(LDFLAGS) -shared -fPIC -o $@ $(lib_objects) $(LDLIBS)
 
 #general rule for an executable: link its object
 #file with the library
-ifeq "$(SHARED)" "1"
-bin/%.exe: objs/test_%.o $(library) | bin
-	$(CC) -L./lib -o $@ objs/test_$*.o -lomega_h
-else
-bin/%.exe: objs/test_%.o $(library) | bin
-	$(CC) $(LDFLAGS) -L./lib -o $@ objs/test_$*.o -lomega_h $(LDLIBS)
-endif
+bin/%.exe: objs/test_%.o lib/libomega_h_internal.a | bin
+	$(CC) $(LDFLAGS) -L./lib -o $@ objs/test_$*.o -lomega_h_internal $(LDLIBS)
 
 #loop.h is a copy of one of several existing files,
 #chosen at compile time based on the kind of
