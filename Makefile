@@ -164,7 +164,7 @@ clean:
 	rm -rf deps/ objs/ bin/ lib/ loop.h
 
 #just targets, not files or directories
-.PHONY: all clean check install dep
+.PHONY: all clean check install dep coverage
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
@@ -262,3 +262,7 @@ gold:
 	mkdir gold
 scratch:
 	mkdir scratch
+
+coverage: objs scratch
+	lcov --capture --directory objs --output-file scratch/coverage.info
+	genhtml scratch/coverage.info --output-directory lcov-output
