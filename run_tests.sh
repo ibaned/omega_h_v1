@@ -20,6 +20,8 @@ if [ "$USE_MPI" = "1" ]; then
   $MPIRUN -np 2 $VALGRIND ./bin/one_coarsen.exe ./scratch/split.pvtu ./scratch/one_cor.pvtu
   $MPIRUN -np 2 $VALGRIND ./bin/one_coarsen.exe ./scratch/one_cor.pvtu ./scratch/two_cor.pvtu
 fi
+$VALGRIND ./bin/identity.exe ./scratch/box.vtu ./scratch/identity.vtu
+$VALGRIND ./bin/vtkdiff.exe ./scratch/box.vtu ./scratch/identity.vtu
 $VALGRIND ./bin/warp.exe ./scratch
 if [ -e ./gold/2d_warp_0008.vtu ]; then
   $VALGRIND ./bin/vtkdiff.exe ./scratch/warp_0008.vtu ./gold/2d_warp_0008.vtu

@@ -246,7 +246,7 @@ install: all
 	install -d $(PREFIX)/bin
 	install -m 755 $(exes) $(PREFIX)/bin
 	install -d $(PREFIX)/lib
-	install -m 644 $(lib) $(PREFIX)/lib
+	install -m 644 $(libraries) $(PREFIX)/lib
 	install -d $(PREFIX)/include
 	install -m 644 include/omega_h.h $(PREFIX)/include
 
