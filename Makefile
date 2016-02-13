@@ -27,7 +27,6 @@ test_warp_3d.c \
 test_migrate.c \
 test_conform.c \
 test_ghost.c \
-test_form_cloud.c \
 test_fusion_part.c \
 test_memory.c \
 test_ask_up.c \
@@ -85,9 +84,7 @@ loop_host.c \
 inertia.c \
 derive_sides.c \
 node_ele_io.c \
-cloud.c \
 tag.c \
-form_cloud.c \
 element_field.c \
 mesh_diff.c \
 qr.c \
@@ -104,7 +101,6 @@ copy_tags.c \
 parallel_inertial_bisect.c \
 parallel_mesh.c \
 parallel_modify.c \
-migrate_cloud.c \
 arrays.c \
 migrate_mesh.c \
 bcast.c \
