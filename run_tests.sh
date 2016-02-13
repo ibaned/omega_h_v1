@@ -10,7 +10,7 @@ $VALGRIND ./bin/node_ele.exe ./data/xgc.node ./data/xgc.ele ./scratch/xgc.vtu
 $VALGRIND ./bin/from_gmsh.exe ./data/cube.msh ./scratch/cube.vtu
 if [ "$USE_MPI" = "1" ]; then
   $MPIRUN -np 2 $VALGRIND ./bin/migrate.exe
-  $MPIRUN -np 2 $VALGRIND ./bin/conform.exe
+  $MPIRUN -np 2 $VALGRIND ./bin/conform.exe ./scratch
   $MPIRUN -np 2 $VALGRIND ./bin/partition.exe ./scratch/box.vtu ./scratch/split.pvtu
   $MPIRUN -np 2 $VALGRIND ./bin/one_refine.exe ./scratch/split.pvtu ./scratch/one_ref.pvtu
   $MPIRUN -np 2 $VALGRIND ./bin/one_refine.exe ./scratch/one_ref.pvtu ./scratch/two_ref.pvtu
