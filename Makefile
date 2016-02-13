@@ -117,7 +117,7 @@ inherit.c
 #handle optional features:
 USE_ZLIB ?= 0
 USE_MPI ?= 0
-USE_MPI3 ?= 0
+USE_MPI3 ?= 1
 USE_CUDA_MALLOC_MANAGED ?= 0
 MEASURE_MEMORY ?= 0
 LOOP_MODE ?= serial
