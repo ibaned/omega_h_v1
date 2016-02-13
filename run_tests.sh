@@ -9,6 +9,7 @@ $VALGRIND ./bin/vtkdiff.exe --help
 $VALGRIND ./bin/vtkdiff.exe -tolerance 1e-6 -Floor 1e-15 ./data/bgq_box.vtu ./scratch/box.vtu
 $VALGRIND ./bin/node_ele.exe ./data/xgc.node ./data/xgc.ele ./scratch/xgc.vtu
 $VALGRIND ./bin/from_gmsh.exe ./data/cube.msh ./scratch/cube.vtu
+$VALGRIND ./bin/grad.exe ./scratch
 if [ "$USE_MPI" = "1" ]; then
   $MPIRUN -np 2 $VALGRIND ./bin/migrate.exe ./scratch
   $MPIRUN -np 2 $VALGRIND ./bin/conform.exe ./scratch
