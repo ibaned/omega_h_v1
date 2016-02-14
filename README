@@ -53,24 +53,24 @@ HOW DO I USE IT ?
 
 WHAT DO THE PROGRAMS DO ?
 
-warp.exe - runs an example mesh motion + adaptivity example in 2D,
-           outputs files warp_000N.vtu
-warp_3d.exe - similar to warp.exe, runs a 3D example
+  warp.exe - runs an example mesh motion + adaptivity example in 2D,
+             outputs files warp_000N.vtu
+  warp_3d.exe - similar to warp.exe, runs a 3D example
 
-box.exe - generates a uniform mesh of an N-dimensional box
-          (square, cube, line)
-from_gmsh.exe - converts a Gmsh .msh file into a .vtu file.
-node_ele.exe - converts .node and .ele files into a .vtu file.
-vtkdiff.exe - compares two .vtu files with floating point
-              tolerance, modeled after the exodiff program.
-partition.exe - partitions a single .vtu file into multiple
-                .vtu files and a .pvtu file.
-ghost.exe - adds ghost/halo layers to a partitioned mesh.
-vtk_ascii.exe - converts a .vtu file to its equivalent in
-                plain ASCII form, with human-readable arrays.
-subdim.exe - extracts boundary entities as their own mesh,
-             for example the edges of a tetrahedral mesh.
-             useful for advanced rendering / debugging.
+  box.exe - generates a uniform mesh of an N-dimensional box
+            (square, cube, line)
+  from_gmsh.exe - converts a Gmsh .msh file into a .vtu file.
+  node_ele.exe - converts .node and .ele files into a .vtu file.
+  vtkdiff.exe - compares two .vtu files with floating point
+                tolerance, modeled after the exodiff program.
+  partition.exe - partitions a single .vtu file into multiple
+                  .vtu files and a .pvtu file.
+  ghost.exe - adds ghost/halo layers to a partitioned mesh.
+  vtk_ascii.exe - converts a .vtu file to its equivalent in
+                  plain ASCII form, with human-readable arrays.
+  subdim.exe - extracts boundary entities as their own mesh,
+               for example the edges of a tetrahedral mesh.
+               useful for advanced rendering / debugging.
 
 WHAT IS THE FILE FORMAT ?
 
