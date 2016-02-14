@@ -24,7 +24,7 @@ WHAT CAN IT DO ?
       and swaps to maintain a conformal representation,
       all the while transferring simulation data.
     - Do all of the above using either OpenMP or CUDA within
-      one of the MPI ranks
+      each of the MPI ranks.
 
 HOW DO I INSTALL IT ?
 
