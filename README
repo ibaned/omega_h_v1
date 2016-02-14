@@ -11,7 +11,7 @@ WHAT CAN IT DO ?
 
   Omega_h can do the following:
     - Accept meshes from mesh generators including
-      Gmsh (http://gmsh.info/).
+      Gmsh (gmsh.info) and TetGen (wias-berlin.de/software/tetgen)
     - Associate and maintain simulation data with the mesh
     - Store meshes in a partitioned, lossless, flexible format
       based on VTK's UnstructuredGrid format.
@@ -67,7 +67,8 @@ WHAT DO THE PROGRAMS DO ?
   box.exe - generates a uniform mesh of an N-dimensional box
             (square, cube, line)
   from_gmsh.exe - converts a Gmsh .msh file into a .vtu file.
-  node_ele.exe - converts .node and .ele files into a .vtu file.
+  node_ele.exe - converts .node and .ele files into a .vtu file
+                 (this is the format output by TetGen)
   vtkdiff.exe - compares two .vtu files with floating point
                 tolerance, modeled after the exodiff program.
   partition.exe - partitions a single .vtu file into multiple
@@ -82,13 +83,13 @@ WHAT DO THE PROGRAMS DO ?
 WHAT IS THE FILE FORMAT ?
 
   Omega_h uses a superset of the VTK UnstructuredGrid format
-  (www.vtk.org/VTK/img/file-formats.pdf).
+  (vtk.org/VTK/img/file-formats.pdf).
   It consists of .vtu files for each mesh partition, and a
   .pvtu file that describes the partitions, in case there
   is more than one.
   Each of these files can be opened directly by the Paraview
-  program (http://www.paraview.org/), and also by VisIt
-  (https://wci.llnl.gov/simulation/computer-codes/visit/).
+  program (paraview.org), and also by VisIt
+  (wci.llnl.gov/simulation/computer-codes/visit).
 
   The format encodes binary information as ASCII using base64.
   It also uses XML headers at the top level for metadata,
