@@ -9,6 +9,8 @@ $VALGRIND ./bin/vtkdiff.exe --help
 $VALGRIND ./bin/vtk_ascii.exe data/bgq_box.vtu scratch/bgq_ascii_box.vtu
 $VALGRIND ./bin/vtkdiff.exe -tolerance 1e-6 -Floor 1e-15 scratch/bgq_ascii_box.vtu scratch/box.vtu
 $VALGRIND ./bin/node_ele.exe data/xgc.node data/xgc.ele scratch/xgc.vtu
+$VALGRIND ./bin/node_ele_attrib.exe scratch/xgc.vtu scratch/attrib.node scratch/attrib.ele
+$VALGRIND ./bin/node_ele.exe scratch/attrib.node scratch/attrib.ele scratch/xgc_attrib.vtu
 $VALGRIND ./bin/from_gmsh.exe data/cube.msh scratch/cube.vtu
 $VALGRIND ./bin/grad.exe scratch
 if [ "$USE_MPI" = "1" ]; then
@@ -21,7 +23,7 @@ if [ "$USE_MPI" = "1" ]; then
   $MPIRUN -np 2 $VALGRIND ./bin/one_coarsen.exe scratch/one_cor.pvtu scratch/two_cor.pvtu
 fi
 $VALGRIND ./bin/identity.exe scratch/box.vtu scratch/identity.vtu
-$VALGRIND ./bin/vtkdiff.exe scratch/box.vtu scratch/identity.vtu
+$VALGRIND ./bin/vtkdiff.exe -superset scratch/box.vtu scratch/identity.vtu
 $VALGRIND ./bin/warp.exe scratch
 if [ -e gold/2d_warp_0008.vtu ]; then
   $VALGRIND ./bin/vtkdiff.exe scratch/warp_0008.vtu gold/2d_warp_0008.vtu
