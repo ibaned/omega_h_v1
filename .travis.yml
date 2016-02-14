@@ -1,1 +1,5 @@
 language: c
+script:
+  - ./configure CFLAGS="-std=c99"
+  - make
+  - make check
