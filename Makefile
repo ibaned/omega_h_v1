@@ -106,9 +106,10 @@ compress.c \
 inherit.c
 
 #handle optional features:
+PREFIX ?= /usr/local
 USE_ZLIB ?= 0
 USE_MPI ?= 0
-USE_MPI3 ?= 1
+USE_MPI3 ?= $(USE_MPI)
 USE_CUDA_MALLOC_MANAGED ?= 0
 MEASURE_MEMORY ?= 0
 LOOP_MODE ?= serial
