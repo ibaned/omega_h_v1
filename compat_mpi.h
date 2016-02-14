@@ -3,6 +3,10 @@
 
 #include <mpi.h>
 
+#if MPI_VERSION < 2 || (MPI_VERSION == 2 && MPI_SUBVERSION < 2)
+#error "omega_h does not support MPI versions less than 2.2"
+#endif
+
 #include <assert.h>
 
 #define CALL(f) do { int err = (f); assert(err == MPI_SUCCESS); } while(0)

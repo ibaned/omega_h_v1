@@ -6,7 +6,7 @@
    it implements some of the high-level Neighbor
    functions used by omega_h */
 
-#if USE_MPI3
+#if MPI_VERSION >= 3 && USE_MPI3
 
 int compat_Neighbor_alltoallv(
     const void *sendbuf,

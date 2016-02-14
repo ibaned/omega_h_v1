@@ -4,16 +4,16 @@
 #include <string.h>
 
 #include "algebra.h"
-#include "comm.h"
 #include "derive_model.h"
 #include "eval_field.h"
 #include "mesh.h"
+#include "include/omega_h.h"
 #include "refine.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init();
   unsigned dim = 3;
   unsigned nrefs = 0;
   unsigned full = 1;
@@ -58,5 +58,5 @@ int main(int argc, char** argv)
     uniformly_refine(m);
   write_mesh_vtk(m, file);
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }

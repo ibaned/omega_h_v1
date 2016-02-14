@@ -1,5 +1,5 @@
-#ifndef VTK_H
-#define VTK_H
+#ifndef VTK_IO_H
+#define VTK_IO_H
 
 struct mesh;
 struct cloud;

@@ -15,9 +15,9 @@ test_one_swap.c \
 test_partition.c \
 test_box.c \
 test_node_ele.c \
+test_node_ele_attrib.c \
 test_from_gmsh.c \
 test_vtk_ascii.c \
-test_vtk_surfer.c \
 test_vtkdiff.c \
 test_coarsen_by_size.c \
 test_refine_by_size.c \
@@ -28,9 +28,6 @@ test_migrate.c \
 test_conform.c \
 test_ghost.c \
 test_memory.c \
-test_ask_up.c \
-test_ask_down.c \
-test_derive_model.c \
 test_subdim.c \
 test_loop.c
 
@@ -39,7 +36,7 @@ star.c \
 tables.c \
 up_from_down.c \
 ints.c \
-vtk.c \
+vtk_io.c \
 refine_topology.c \
 splits_to_domains.c \
 quality.c \
@@ -96,7 +93,6 @@ invert_map.c \
 owners_from_global.c \
 gmsh_io.c \
 exchanger.c \
-copy_tags.c \
 parallel_inertial_bisect.c \
 parallel_mesh.c \
 parallel_modify.c \
@@ -110,15 +106,17 @@ compress.c \
 inherit.c
 
 #handle optional features:
+PREFIX ?= /usr/local
 USE_ZLIB ?= 0
 USE_MPI ?= 0
-USE_MPI3 ?= 1
+USE_MPI3 ?= $(USE_MPI)
 USE_CUDA_MALLOC_MANAGED ?= 0
 MEASURE_MEMORY ?= 0
 LOOP_MODE ?= serial
 MPIRUN ?= mpirun
 VALGRIND ?= ""
 PATIENT ?= 0
+SHARED ?= 0
 #comm.c is compiled with -DUSE_MPI=
 objs/comm.o : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
 deps/comm.dep : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
@@ -138,6 +136,11 @@ objs/compress.o : CPPFLAGS += -DUSE_ZLIB=$(USE_ZLIB)
 ifeq "$(USE_ZLIB)" "1"
 objs/compress.o : CPPFLAGS += -I$(ZLIB_INCLUDE)
 endif
+libraries := lib/libomega_h.a
+ifeq "$(SHARED)" "1"
+CFLAGS += -fPIC -fvisibility=hidden
+libraries += lib/libomega_h.so
+endif
 
 #generated file names are derived from source
 #file names by simple patterns:
@@ -147,11 +150,9 @@ lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
 depfiles := $(patsubst %.c,deps/%.dep,$(lib_sources)) \
 $(patsubst %.c,deps/%.dep,$(test_sources))
 
-lib := lib/libomega_h.a
-
 #the default compilation target is to compile
 #the library and all executables
-all: $(lib) $(exes)
+all: $(libraries) $(exes)
 
 #cleanup removes dependency files, object files,
 #and executables
@@ -166,16 +167,20 @@ clean:
 objs/%.o: %.c | objs
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
-$(lib): $(lib_objects) | lib
+lib/libomega_h_internal.a: $(lib_objects) | lib
 	ar cru $@ $(lib_objects)
 	ranlib $@
 
+lib/libomega_h.a: lib/libomega_h_internal.a
+	cp $< $@
+
+lib/libomega_h.so: $(lib_objects) | lib
+	$(CC) $(LDFLAGS) -shared -fPIC -o $@ $(lib_objects) $(LDLIBS)
+
 #general rule for an executable: link its object
-#file with all the $(common_objects)
-# $@ is the thing being built and $^ is all
-#the things it depends on (the objects)
-bin/%.exe: objs/test_%.o $(lib) | bin
-	$(CC) $(LDFLAGS) -o $@ objs/test_$*.o $(lib) $(LDLIBS)
+#file with the library
+bin/%.exe: objs/test_%.o lib/libomega_h_internal.a | bin
+	$(CC) $(LDFLAGS) -L./lib -o $@ objs/test_$*.o -lomega_h_internal $(LDLIBS)
 
 #loop.h is a copy of one of several existing files,
 #chosen at compile time based on the kind of
@@ -242,7 +247,7 @@ install: all
 	install -d $(PREFIX)/bin
 	install -m 755 $(exes) $(PREFIX)/bin
 	install -d $(PREFIX)/lib
-	install -m 644 $(lib) $(PREFIX)/lib
+	install -m 644 $(libraries) $(PREFIX)/lib
 	install -d $(PREFIX)/include
 	install -m 644 include/omega_h.h $(PREFIX)/include
 

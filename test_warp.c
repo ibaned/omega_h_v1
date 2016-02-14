@@ -12,7 +12,7 @@
 #include "recover_by_volume.h"
 #include "refine.h"
 #include "size_from_hessian.h"
-#include "vtk.h"
+#include "vtk_io.h"
 #include "warp_to_limit.h"
 
 struct mesh;

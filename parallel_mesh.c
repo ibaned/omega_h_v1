@@ -15,7 +15,7 @@
 #include "mesh.h"
 #include "owners_from_global.h"
 #include "parallel_inertial_bisect.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 struct parallel_mesh {
   unsigned long* globals[4];

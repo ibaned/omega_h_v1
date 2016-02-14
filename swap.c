@@ -5,7 +5,6 @@
 
 #include "arrays.h"
 #include "comm.h"
-#include "copy_tags.h"
 #include "doubles.h"
 #include "ghost_mesh.h"
 #include "indset.h"

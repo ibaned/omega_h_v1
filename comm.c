@@ -12,14 +12,24 @@ static struct comm world = { MPI_COMM_WORLD };
 static struct comm self = { MPI_COMM_SELF };
 static struct comm* using = &world;
 
+static int we_called_mpi_init = 0;
+
 void comm_init(void)
 {
-  CALL(MPI_Init(0,0));
+  int was_initialized;
+  CALL(MPI_Initialized(&was_initialized));
+  if (!was_initialized) {
+    CALL(MPI_Init(0,0));
+    we_called_mpi_init = 1;
+  }
 }
 
 void comm_fini(void)
 {
-  CALL(MPI_Finalize());
+  if (we_called_mpi_init) {
+    CALL(MPI_Finalize());
+    we_called_mpi_init = 0;
+  }
 }
 
 struct comm* comm_world(void)
