@@ -11,7 +11,8 @@ WHAT CAN IT DO ?
 
   Omega_h can do the following:
     - Accept meshes from mesh generators including
-      Gmsh (gmsh.info) and TetGen (wias-berlin.de/software/tetgen)
+      Gmsh (gmsh.info), TetGen (wias-berlin.de/software/tetgen),
+      and Triangle (www.cs.cmu.edu/~quake/triangle.html)
     - Associate and maintain simulation data with the mesh
     - Store meshes in a partitioned, lossless, flexible format
       based on VTK's UnstructuredGrid format.
@@ -68,7 +69,7 @@ WHAT DO THE PROGRAMS DO ?
             (square, cube, line)
   from_gmsh.exe - converts a Gmsh .msh file into a .vtu file.
   node_ele.exe - converts .node and .ele files into a .vtu file
-                 (this is the format output by TetGen)
+                 (this is the format output by TetGen and Triangle)
   vtkdiff.exe - compares two .vtu files with floating point
                 tolerance, modeled after the exodiff program.
   partition.exe - partitions a single .vtu file into multiple
