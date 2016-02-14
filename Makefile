@@ -15,6 +15,7 @@ test_one_swap.c \
 test_partition.c \
 test_box.c \
 test_node_ele.c \
+test_node_ele_attrib.c \
 test_from_gmsh.c \
 test_vtk_ascii.c \
 test_vtkdiff.c \
