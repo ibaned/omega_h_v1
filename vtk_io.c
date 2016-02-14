@@ -1,4 +1,4 @@
-#include "vtk.h"
+#include "vtk_io.h"
 
 #include <assert.h>
 #include <stdio.h>

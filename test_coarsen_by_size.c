@@ -12,7 +12,7 @@
 #include "quality.h"
 #include "refine.h"
 #include "subset.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 static void fine_fun(double const* x, double* s)
 {

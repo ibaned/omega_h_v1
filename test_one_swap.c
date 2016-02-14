@@ -3,7 +3,7 @@
 #include "comm.h"
 #include "mesh.h"
 #include "swap.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 int main(int argc, char** argv)
 {

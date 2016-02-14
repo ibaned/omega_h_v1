@@ -11,7 +11,7 @@
 #include "eval_field.h"
 #include "mesh.h"
 #include "refine.h"
-#include "vtk.h"
+#include "vtk_io.h"
 #include "warp_to_limit.h"
 
 static double const warp_qual_floor = 0.2;

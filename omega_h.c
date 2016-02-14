@@ -10,7 +10,7 @@
 #include "size.h"
 #include "tag.h"
 #include "tables.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 void osh_init(void)
 {

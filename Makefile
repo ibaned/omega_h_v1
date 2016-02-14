@@ -35,7 +35,7 @@ star.c \
 tables.c \
 up_from_down.c \
 ints.c \
-vtk.c \
+vtk_io.c \
 refine_topology.c \
 splits_to_domains.c \
 quality.c \

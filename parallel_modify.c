@@ -10,7 +10,7 @@
 #include "mesh.h"
 #include "parallel_mesh.h"
 #include "tables.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 /* given a ghosted mesh with an independent set
    of some key entities tagged as "indset",

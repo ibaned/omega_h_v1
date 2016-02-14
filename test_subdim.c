@@ -7,7 +7,7 @@
 #include "mesh.h"
 #include "parallel_mesh.h"
 #include "subset.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 int main(int argc, char** argv)
 {

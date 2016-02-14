@@ -9,7 +9,7 @@
 #include "mesh.h"
 #include "include/omega_h.h"
 #include "refine.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 #ifdef LOOP_CUDA_H
 static double get_time(void)
