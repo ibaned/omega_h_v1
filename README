@@ -53,6 +53,10 @@ HOW DO I USE IT ?
 
 WHAT DO THE PROGRAMS DO ?
 
+warp.exe - runs an example mesh motion + adaptivity example in 2D,
+           outputs files warp_000N.vtu
+warp_3d.exe - similar to warp.exe, runs a 3D example
+
 box.exe - generates a uniform mesh of an N-dimensional box
           (square, cube, line)
 from_gmsh.exe - converts a Gmsh .msh file into a .vtu file.
