@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 
 #include "bcast.h"
 #include "comm.h"
@@ -10,9 +11,14 @@
 #include "subset.h"
 #include "vtk.h"
 
-int main()
+int main(int argc, char** argv)
 {
   comm_init();
+  char const* path;
+  if (argc == 2)
+    path = argv[1];
+  else
+    path = ".";
   assert(comm_size() == 2);
   struct mesh* m = 0;
   if (comm_rank() == 0) {
@@ -21,7 +27,9 @@ int main()
   }
   m = bcast_mesh_metadata(m);
   mesh_make_parallel(m);
-  write_mesh_vtk(m, "before.pvtu");
+  char file[128];
+  sprintf(file, "%s/before.pvtu", path);
+  write_mesh_vtk(m, file);
   unsigned n = 1;
   if (comm_rank() == 0) {
     unsigned recvd_elem_ranks[1] = {0};
@@ -32,7 +40,8 @@ int main()
     unsigned recvd_elem_ids[1] = {1};
     migrate_mesh(m, n, recvd_elem_ranks, recvd_elem_ids);
   }
-  write_mesh_vtk(m, "after.pvtu");
+  sprintf(file, "%s/after.pvtu", path);
+  write_mesh_vtk(m, file);
   free_mesh(m);
   comm_fini();
 }

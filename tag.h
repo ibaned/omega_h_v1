@@ -41,6 +41,8 @@ void modify_tag(struct tags* ts, char const* name, void* data);
 
 unsigned tag_size(enum tag_type t);
 
+void copy_tags(struct tags* a, struct tags* b, unsigned n);
+
 struct exchanger;
 
 void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into);

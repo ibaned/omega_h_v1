@@ -1,0 +1,98 @@
+$\Omega_h$ - Parallel adaptive simplex meshes
+
+WHY WOULD I USE OMEGA_H ?
+
+  You are doing something with tetrahedral or triangle meshes,
+  probably solving PDEs on them, probably on HPC hardware.
+  You would like a library and/or programs which handle
+  mesh parallelization, topology, and adaptivity.
+
+WHAT CAN IT DO ?
+
+  Omega_h can do the following:
+    - Accept meshes from mesh generators including
+      Gmsh (gmsh.info), TetGen (wias-berlin.de/software/tetgen),
+      and Triangle (www.cs.cmu.edu/~quake/triangle.html)
+    - Associate and maintain simulation data with the mesh
+    - Store meshes in a partitioned, lossless, flexible format
+      based on VTK's UnstructuredGrid format.
+    - Derive topological information about a given mesh
+      (vertices-to-vertices, derive element boundaries...)
+    - Partition a mesh with an arbitrary number of halo/ghost layers
+    - Maintain a partitioned data structure and take care
+      of scalably exchanging information among the partitions
+    - Adapt a partitioned mesh using edge splits, collapses,
+      and swaps to maintain a conformal representation,
+      all the while transferring simulation data.
+    - Do all of the above using either OpenMP or CUDA within
+      each of the MPI ranks.
+
+HOW DO I INSTALL IT ?
+
+  Omega_h supports the usual procedure:
+
+    ./configure && make && make install
+
+  However, our configure is not yet very smart, so
+  you may have to be quite specific about some things.
+  Run this to determine the available options:
+
+    ./configure --help
+
+  Running our configure script produces a config.mk
+  file, and an equally valid way to compile omega_h
+  is to write your own config.mk file.
+  Several examples are included in the source,
+  look for *_config.mk.
+
+HOW DO I USE IT ?
+
+  Omega_h creates two things:
+    - A library libomega_h and a corresponding API in omega_h.h
+      The API functions are C functions.
+    - A series of programs that help accomplish basic operations.
+
+  The source tree contains the same layout as you
+  would expect to see in the installation PREFIX,
+  i.e. running `make' produces bin/, lib/, include/, etc.
+  In that sense, one can easily use the source directory
+  as the PREFIX in most cases, but we support `make install'
+  for copying files into a separate PREFIX.
+
+WHAT DO THE PROGRAMS DO ?
+
+  warp.exe - runs an example mesh motion + adaptivity example in 2D,
+             outputs files warp_000N.vtu
+  warp_3d.exe - similar to warp.exe, runs a 3D example
+
+  box.exe - generates a uniform mesh of an N-dimensional box
+            (square, cube, line)
+  from_gmsh.exe - converts a Gmsh .msh file into a .vtu file.
+  node_ele.exe - converts .node and .ele files into a .vtu file
+                 (this is the format output by TetGen and Triangle)
+  vtkdiff.exe - compares two .vtu files with floating point
+                tolerance, modeled after the exodiff program.
+  partition.exe - partitions a single .vtu file into multiple
+                  .vtu files and a .pvtu file.
+  ghost.exe - adds ghost/halo layers to a partitioned mesh.
+  vtk_ascii.exe - converts a .vtu file to its equivalent in
+                  plain ASCII form, with human-readable arrays.
+  subdim.exe - extracts boundary entities as their own mesh,
+               for example the edges of a tetrahedral mesh.
+               useful for advanced rendering / debugging.
+
+WHAT IS THE FILE FORMAT ?
+
+  Omega_h uses a superset of the VTK UnstructuredGrid format
+  (vtk.org/VTK/img/file-formats.pdf).
+  It consists of .vtu files for each mesh partition, and a
+  .pvtu file that describes the partitions, in case there
+  is more than one.
+  Each of these files can be opened directly by the Paraview
+  program (paraview.org), and also by VisIt
+  (wci.llnl.gov/simulation/computer-codes/visit).
+
+  The format encodes binary information as ASCII using base64.
+  It also uses XML headers at the top level for metadata,
+  so for the most part it is quite human readable and can
+  be opened in a text editor.

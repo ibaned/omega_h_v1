@@ -7,7 +7,6 @@
 
 #include "arrays.h"
 #include "base64.h"
-#include "cloud.h"
 #include "comm.h"
 #include "compress.h"
 #include "files.h"
@@ -49,8 +48,8 @@ static char const* type_name(enum tag_type t)
     case TAG_U32: return "UInt32";
     case TAG_U64: return "UInt64";
     case TAG_F64: return "Float64";
-    default: return "";
   }
+  LOOP_NORETURN("");
 }
 
 static char const* format_name(enum vtk_format fmt)
@@ -58,8 +57,8 @@ static char const* format_name(enum vtk_format fmt)
   switch (fmt) {
     case VTK_ASCII: return "ascii";
     case VTK_BINARY: return "binary";
-    default: return "";
   }
+  LOOP_NORETURN("");
 }
 
 static unsigned try_read_attrib(char const* elem, char const* name,
@@ -265,6 +264,7 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%hhu", &in[i]);
       out = uchars_to_device(in, n);
       loop_host_free(in);
+      break;
     }
     case TAG_U32: {
       unsigned* in = LOOP_HOST_MALLOC(unsigned, n);
@@ -272,6 +272,7 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%u", &in[i]);
       out = uints_to_device(in, n);
       loop_host_free(in);
+      break;
     }
     case TAG_U64: {
       unsigned long* in = LOOP_HOST_MALLOC(unsigned long, n);
@@ -279,6 +280,7 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%lu", &in[i]);
       out = ulongs_to_device(in, n);
       loop_host_free(in);
+      break;
     }
     case TAG_F64: {
       double* in = LOOP_HOST_MALLOC(double, n);
@@ -286,6 +288,7 @@ static void* read_ascii_array(FILE* file, enum tag_type type, unsigned nents,
         safe_scanf(file, 1, "%lf", &in[i]);
       out = doubles_to_device(in, n);
       loop_host_free(in);
+      break;
     }
   }
   return out;
@@ -545,18 +548,21 @@ void write_vtk_step(struct mesh* m)
   ++the_step;
 }
 
-static void read_nverts(FILE* f, unsigned* nverts)
-{
-  unsigned ignore;
-  enum mesh_rep ignore2;
-  read_piece_header(f, nverts, &ignore, &ignore, &ignore, &ignore, &ignore,
-      &ignore2);
-}
-
 LOOP_KERNEL(assert_one_type,
     unsigned char* types,
     unsigned char type)
   assert(types[i] == type);
+}
+
+static void seek_types(FILE* f, line_t line, line_t name)
+{
+  seek_prefix(f, line, sizeof(line_t), "<Cells");
+  while (1) {
+    seek_prefix(f, line, sizeof(line_t), "<DataArray");
+    read_array_name(line, name);
+    if (!strcmp(name, "types"))
+      return;
+  }
 }
 
 static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
@@ -564,14 +570,8 @@ static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
 {
   assert(nelems);
   line_t line;
-  seek_prefix(f, line, sizeof(line), "<Cells");
   line_t name;
-  while (1) {
-    seek_prefix(f, line, sizeof(line), "<DataArray");
-    read_array_name(line, name);
-    if (!strcmp(name, "types"))
-      break;
-  }
+  seek_types(f, line, name);
   enum tag_type type;
   unsigned ncomps;
   void* data;
@@ -711,65 +711,6 @@ static struct mesh* read_vtu_opts(char const* filename, unsigned is_parallel)
   return m;
 }
 
-void write_vtu_cloud_opts(struct cloud* c, char const* filename,
-    enum vtk_format fmt)
-{
-  unsigned npts = cloud_count(c);
-  FILE* file = safe_fopen(filename, "w");
-  write_unstructured_header(file, fmt);
-  fprintf(file, "<UnstructuredGrid>\n");
-  fprintf(file, "<Piece NumberOfPoints=\"%u\" NumberOfCells=\"1\">\n", npts);
-  fprintf(file, "<Points>\n");
-  struct const_tag* coord_tag = cloud_find_tag(c, "coordinates");
-  write_tag(file, npts, coord_tag, fmt);
-  fprintf(file, "</Points>\n");
-  fprintf(file, "<Cells>\n");
-  unsigned* conn = uints_linear(npts, 1);
-  write_array(file, TAG_U32, "connectivity", npts, 1, conn, fmt);
-  loop_free(conn);
-  unsigned* off = uints_filled(1, npts);
-  write_array(file, TAG_U32, "offsets", 1, 1, off, fmt);
-  loop_free(off);
-  unsigned char* type = uchars_filled(1, VTK_POLY_VERTEX);
-  write_array(file, TAG_U8, "types", 1, 1, type, fmt);
-  loop_free(type);
-  fprintf(file, "</Cells>\n");
-  fprintf(file, "<PointData>\n");
-  for (unsigned i = 0; i < cloud_count_tags(c); ++i) {
-    struct const_tag* tag = cloud_get_tag(c, i);
-    if (tag != coord_tag)
-      write_tag(file, npts, tag, fmt);
-  }
-  fprintf(file, "</PointData>\n");
-  fprintf(file, "<CellData>\n");
-  fprintf(file, "</CellData>\n");
-  fprintf(file, "</Piece>\n");
-  fprintf(file, "</UnstructuredGrid>\n");
-  fprintf(file, "</VTKFile>\n");
-  fclose(file);
-}
-
-void write_vtu_cloud(struct cloud* c, char const* filename)
-{
-  write_vtu_cloud_opts(c, filename, VTK_BINARY);
-}
-
-struct cloud* read_vtu_cloud(char const* filename)
-{
-  FILE* file = safe_fopen(filename, "r");
-  enum endian end;
-  unsigned do_com;
-  read_unstructured_header(file, &end, &do_com);
-  unsigned npts;
-  read_nverts(file, &npts);
-  assert(npts);
-  struct cloud* c = new_cloud(npts);
-  read_points(file, cloud_tags(c), npts, end, do_com);
-  read_tags(file, "<PointData", cloud_tags(c), npts, end, do_com);
-  fclose(file);
-  return c;
-}
-
 static void write_pieces(FILE* file, char const* pathname, unsigned npieces)
 {
   line_t a;
@@ -828,34 +769,6 @@ static void get_ghost_level(struct mesh* m, char const* pvtu_filename)
   fclose(file);
 }
 
-void write_pvtu_cloud(struct cloud* c, char const* filename,
-    unsigned npieces)
-{
-  FILE* file = safe_fopen(filename, "w");
-  fprintf(file, "<VTKFile type=\"PUnstructuredGrid\">\n");
-  fprintf(file, "<PUnstructuredGrid>\n");
-  struct const_tag* coord_tag = cloud_find_tag(c, "coordinates");
-  fprintf(file, "<PPointData>\n");
-  for (unsigned i = 0; i < cloud_count_tags(c); ++i) {
-    struct const_tag* t = cloud_get_tag(c, i);
-    if (t != coord_tag) {
-      fprintf(file, "<PDataArray ");
-      describe_tag(file, t);
-      fprintf(file, "/>\n");
-    }
-  }
-  fprintf(file, "</PPointData>\n");
-  fprintf(file, "<PPoints>\n");
-  fprintf(file, "<PDataArray ");
-  describe_tag(file, coord_tag);
-  fprintf(file, "/>\n");
-  fprintf(file, "</PPoints>\n");
-  write_pieces(file, filename, npieces);
-  fprintf(file, "</PUnstructuredGrid>\n");
-  fprintf(file, "</VTKFile>\n");
-  fclose(file);
-}
-
 struct mesh* read_mesh_vtk(char const* inpath)
 {
   char* suffix;
@@ -897,34 +810,4 @@ void write_mesh_vtk_opts(struct mesh* m, char const* outpath,
 void write_mesh_vtk(struct mesh* m, char const* outpath)
 {
   write_mesh_vtk_opts(m, outpath, VTK_BINARY);
-}
-
-struct cloud* read_parallel_vtu_cloud(char const* inpath)
-{
-  char* suffix;
-  line_t prefix;
-  split_pathname(inpath, prefix, sizeof(prefix), 0, &suffix);
-  line_t piecepath;
-  enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
-      piecepath, sizeof(piecepath));
-  struct cloud* c = read_vtu_cloud(piecepath);
-  if (cloud_find_tag(c, "piece"))
-    cloud_free_tag(c, "piece");
-  return c;
-}
-
-void write_parallel_vtu_cloud(struct cloud* c, char const* outpath)
-{
-  char* suffix;
-  line_t prefix;
-  split_pathname(outpath, prefix, sizeof(prefix), 0, &suffix);
-  line_t piecepath;
-  enum_pathname(prefix, comm_size(), comm_rank(), "vtu",
-      piecepath, sizeof(piecepath));
-  unsigned* piece = uints_filled(cloud_count(c), comm_rank());
-  cloud_add_tag(c, TAG_U32, "piece", 1, piece);
-  write_vtu_cloud(c, piecepath);
-  if (!comm_rank() && !strcmp(suffix, "pvtu"))
-    write_pvtu_cloud(c, outpath, comm_size());
-  cloud_free_tag(c, "piece");
 }

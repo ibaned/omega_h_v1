@@ -64,8 +64,6 @@ struct mesh;
 
 double* mesh_element_sizes(struct mesh* m);
 
-double mesh_domain_size(struct mesh* m);
-
 double* mesh_measure_edges_for_adapt(struct mesh* m);
 
 void mesh_identity_size_field(struct mesh* m, char const* output_name);
