@@ -3,7 +3,7 @@
 
 if [[ $1 == -h ]] || [[ $1 == --help ]]; then
     cat << 'EOF'
-`configure' configures MPICH 3.2 to adapt to many kinds of systems.
+`configure' configures omega_h to adapt to many kinds of systems.
 
 Usage: ./configure [VAR=VALUE]... [OPTION]... 
 
