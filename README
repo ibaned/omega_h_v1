@@ -51,6 +51,13 @@ HOW DO I USE IT ?
       The API functions are C functions.
     - A series of programs that help accomplish basic operations.
 
+  The source tree contains the same layout as you
+  would expect to see in the installation PREFIX,
+  i.e. running `make' produces bin/, lib/, include/, etc.
+  In that sense, one can easily use the source directory
+  as the PREFIX in most cases, but we support `make install'
+  for copying files into a separate PREFIX.
+
 WHAT DO THE PROGRAMS DO ?
 
   warp.exe - runs an example mesh motion + adaptivity example in 2D,
