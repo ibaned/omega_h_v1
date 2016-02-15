@@ -211,7 +211,7 @@ deps:
 #such that the output is both an object file and a
 #dependency file.
 #It warrants further explanation:
-#  cc -MM foo.c
+#  cc -M foo.c
 #will produce a dependency line such as:
 #  foo.o : foo.c foo.h bar.h
 #The SED script changes this to:
@@ -222,7 +222,7 @@ deps:
 #
 #loop.h is thrown in as a dependency because it
 #may not exist when the depfiles are being generated,
-#causing an error when cc -MM doesn't find it,
+#causing an error when cc -M doesn't find it,
 #and the knowedge that the depfile depends on it
 #in the depfile itself !
 deps/%.dep: %.c loop.h | deps
