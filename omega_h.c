@@ -345,7 +345,7 @@ unsigned const* osh_down(osh_t m, unsigned high_dim, unsigned low_dim)
 
   Level: beginner
 
-.seealso: osh_up_offs(), osh_dim(), osh_count()
+.seealso: osh_up_offs(), osh_up_dir(), osh_down(), osh_dim(), osh_count()
 @*/
 unsigned const* osh_up(osh_t m, unsigned low_dim, unsigned high_dim)
 {
@@ -369,11 +369,45 @@ unsigned const* osh_up(osh_t m, unsigned low_dim, unsigned high_dim)
 
   Level: beginner
 
-.seealso: osh_up(), osh_dim(), osh_count()
+.seealso: osh_up(), osh_up_dir(), osh_down(), osh_dim(), osh_count()
 @*/
 unsigned const* osh_up_offs(osh_t m, unsigned low_dim, unsigned high_dim)
 {
   return mesh_ask_up((struct mesh*)m, low_dim, high_dim)->offsets;
+}
+
+/*@
+  osh_up_dirs - Get the downward order of upward connectivity
+
+   Returns a read-only array that lines up with the osh_up() array.
+   It indicates the local downward order for one connectivity relation
+   ship.
+   For example, say that triangle 42 has vertices {22,18,33}.
+   Then, for the (18 -> 42) entry in osh_up(), this array contains (1).
+
+   In other words:
+.vb
+   unsigned const* offs = osh_up_offs(m,0,2);
+   unsigned const* up = osh_up(m,0,2);
+   unsigned const* dir = osh_up_dir(m,0,2);
+   unsigned const* down = osh_down(m,0,2);
+   for (unsigned i = 0; i < osh_count(m,0); ++i)
+     for (unsigned j = offs[i]; j < offs[i + 1]; ++j)
+       assert(i == down[up[j] * 3 + dir[j]]);
+.ve
+
+  Input Parameters:
++ m - mesh handle
+. low_dim - the lower dimension
+- high_dim - the higher dimension
+
+  Level: intermediate
+
+.seealso: osh_up(), osh_up_offs(), osh_down(), osh_dim(), osh_count()
+@*/
+unsigned const* osh_up_dirs(osh_t m, unsigned low_dim, unsigned high_dim)
+{
+  return mesh_ask_up((struct mesh*)m, low_dim, high_dim)->directions;
 }
 
 /*@
@@ -437,16 +471,47 @@ unsigned const* osh_star_offs(osh_t m, unsigned low_dim, unsigned high_dim)
   return mesh_ask_star((struct mesh*)m, low_dim, high_dim)->offsets;
 }
 
-unsigned const* osh_up_dirs(osh_t m, unsigned low_dim, unsigned high_dim)
-{
-  return mesh_ask_up((struct mesh*)m, low_dim, high_dim)->directions;
-}
+/*@
+  osh_coords - Get the vertex coordinates.
 
+   Returns a read-only array containing the {x,y,z}
+   coordinates for each vertex, organized by vertex.
+   This array has three entries per vertex regardless
+   of mesh dimension.
+
+   In CUDA mode, the array is in device memory.
+
+  Input Parameters:
+. m - mesh handle
+
+  Level: beginner
+
+.seealso: osh_down(), osh_count(), osh_nverts()
+@*/
 double const* osh_coords(osh_t m)
 {
   return mesh_find_tag((struct mesh*)m, 0, "coordinates")->d.f64;
 }
 
+/*@
+  osh_own_rank - Get the owning MPI ranks of entities.
+
+   Returns a read-only array containing the owner
+   MPI rank for each entity of a given dimension.
+   This ownership is often determined by omega_h
+   and affects the behavior of osh_accumulate_to_owner()
+   and osh_conform().
+
+   In CUDA mode, the array is in device memory.
+
+  Input Parameters:
++ m - mesh handle
+- dim - the dimension of entities to inquire about
+
+  Level: intermediate
+
+.seealso: osh_accumulate_to_owner(), osh_conform(), osh_global()
+@*/
 unsigned const* osh_own_rank(osh_t m, unsigned dim)
 {
   return mesh_ask_own_ranks((struct mesh*)m, dim);
