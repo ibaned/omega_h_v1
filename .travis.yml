@@ -1,5 +1,6 @@
 language: c
-script:
-  - ./configure CFLAGS="-std=c99" LDLIBS="-lm"
-  - make
-  - make check
+matrix:
+  - compiler: clang
+    env: CFLAGS="-g -O0 -std=c99 -Weverything -Werror -Wno-float-equal -Wno-format-nonliteral"
+  - compiler: gcc
+    env: CFLAGS="-g -O0 -std=c99 -Wall" LDLIBS="-lm"
