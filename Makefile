@@ -160,7 +160,7 @@ clean:
 	rm -rf deps/ objs/ bin/ lib/ loop.h
 
 #just targets, not files or directories
-.PHONY: all clean check install dep coverage
+.PHONY: all clean check test install dep coverage
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
@@ -257,6 +257,7 @@ check: $(exes) data gold scratch
 	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) \
   USE_MPI=$(USE_MPI) PATIENT=$(PATIENT) \
   LOOP_MODE=$(LOOP_MODE) ./run_tests.sh
+test: check
 
 data:
 	git clone https://github.com/ibaned/omega_h_data.git data
