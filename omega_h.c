@@ -510,23 +510,87 @@ double const* osh_coords(osh_t m)
 
   Level: intermediate
 
-.seealso: osh_accumulate_to_owner(), osh_conform(), osh_global()
+.seealso: osh_own_id(), osh_accumulate_to_owner(), osh_conform(), osh_global()
 @*/
 unsigned const* osh_own_rank(osh_t m, unsigned dim)
 {
   return mesh_ask_own_ranks((struct mesh*)m, dim);
 }
 
+/*@
+  osh_own_id - Get the owning MPI ranks of entities.
+
+   Returns a read-only array containing the owner
+   local index for each entity of a given dimension.
+   This ownership is often determined by omega_h
+   and affects the behavior of osh_accumulate_to_owner()
+   and osh_conform().
+   The indices listed here are for the owner MPI
+   rank, so they are usually only useful when transmitted
+   to the owner rank.
+
+   In CUDA mode, the array is in device memory.
+
+  Input Parameters:
++ m - mesh handle
+- dim - the dimension of entities to inquire about
+
+  Level: advanced
+
+.seealso: osh_own_rank(), osh_accumulate_to_owner(), osh_conform(), osh_global()
+@*/
 unsigned const* osh_own_id(osh_t m, unsigned dim)
 {
   return mesh_ask_own_ids((struct mesh*)m, dim);
 }
 
+/*@
+  osh_global - Get the global numbers of entities.
+
+   Returns a read-only array containing the global number
+   for each entity of a given dimension.
+   This numbering is often determined by omega_h.
+
+   In CUDA mode, the array is in device memory.
+
+  Input Parameters:
++ m - mesh handle
+- dim - the dimension of entities to inquire about
+
+  Level: beginner
+
+.seealso: osh_own_rank(), own_id()
+@*/
 unsigned long const* osh_global(osh_t m, unsigned dim)
 {
   return mesh_ask_globals((struct mesh*)m, dim);
 }
 
+/*@
+  osh_new_field - Create a floating-point field unless it exists.
+
+   If a field by this name does not exist over entities
+   of the given dimension, one will be created.
+   Otherwise this is equivalent to osh_get_field().
+   The internally allocated array of data is returned,
+   and can be filled in after this call.
+   The components for each entity are contiguous.
+
+   The array is returned rather than received to
+   allow omega_h to use its own allocators.
+
+   In CUDA mode, the array is in device memory.
+
+  Input Parameters:
++ m - mesh handle
+. dim - the dimension of entities
+. name - the field name
+- ncomps - the number of components (doubles) per entity
+
+  Level: beginner
+
+.seealso: osh_free_field(), osh_get_field()
+@*/
 double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
   if (mesh_find_tag((struct mesh*)m, dim, name))
@@ -536,16 +600,57 @@ double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
   return data;
 }
 
+/*@
+  osh_get_field - Access data for a field.
+
+   Returns the internal data array of a field.
+
+   In CUDA mode, the array is in device memory.
+
+  Input Parameters:
++ m - mesh handle
+. dim - the dimension of entities
+- name - the field name
+
+  Level: beginner
+
+.seealso: osh_new_field()
+@*/
 double* osh_get_field(osh_t m, unsigned dim, char const* name)
 {
   return mesh_find_tag((struct mesh*)m, dim, name)->d.f64;
 }
 
+/*@
+  osh_free_field - Destroy a field.
+
+  Input Parameters:
++ m - mesh handle
+- name - the field name
+
+  Level: beginner
+
+.seealso: osh_new_field()
+@*/
 void osh_free_field(osh_t m, char const* name)
 {
   mesh_free_tag((struct mesh*)m, 0, name);
 }
 
+/*@
+  osh_nfields - Count the number of fields in a dimension.
+
+   This is useful in conjunction with osh_field() to iterate
+   over all fields.
+
+  Input Parameters:
++ m - mesh handle
+- dim - the dimension of entities
+
+  Level: intermediate
+
+.seealso: osh_field()
+@*/
 unsigned osh_nfields(osh_t om, unsigned dim)
 {
   struct mesh* m = (struct mesh*) om;
@@ -556,6 +661,22 @@ unsigned osh_nfields(osh_t om, unsigned dim)
   return n;
 }
 
+/*@
+  osh_field - Access the i'th field.
+
+   Returns the name of the i'th field in
+   this dimension.
+   The name can then be given to osh_get_field(), etc.
+
+  Input Parameters:
++ m - mesh handle
+. dim - the dimension of entities
+- i - index of the field
+
+  Level: intermediate
+
+.seealso: osh_nfields(), osh_get_field()
+@*/
 char const* osh_field(osh_t om, unsigned dim, unsigned i)
 {
   struct mesh* m = (struct mesh*) om;
@@ -567,11 +688,48 @@ char const* osh_field(osh_t om, unsigned dim, unsigned i)
   return 0;
 }
 
+/*@
+  osh_components - Get the number of components of a field or label.
+
+  Input Parameters:
++ m - mesh handle
+. dim - the dimension of entities
+- name - the field or label name
+
+  Level: intermediate
+
+.seealso: osh_nfields()
+@*/
 unsigned osh_components(osh_t m, unsigned dim, char const* name)
 {
   return mesh_find_tag((struct mesh*)m, dim, name)->ncomps;
 }
 
+/*@
+  osh_new_label - Create an integer label unless it exists
+
+   If a label with this name does not exist over entities
+   of the given dimension, one will be created.
+   Otherwise this is equivalent to osh_get_label().
+   The internally allocated array of data is returned,
+   and can be filled in after this call.
+   The components for each entity are contiguous.
+
+   The array is returned rather than received to
+   allow omega_h to use its own allocators.
+
+   In CUDA mode, the array is in device memory.
+
+  Input Parameters:
++ m - mesh handle
+. dim - the dimension of entities
+. name - the label name
+- name - the number of components (integers)
+
+  Level: beginner
+
+.seealso: osh_get_label()
+@*/
 unsigned* osh_new_label(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
   if (mesh_find_tag((struct mesh*)m, dim, name))
@@ -582,11 +740,49 @@ unsigned* osh_new_label(osh_t m, unsigned dim, char const* name, unsigned ncomps
   return data;
 }
 
+/*@
+  osh_get_label - Access data for a label.
+
+   Returns the internal data array of a label.
+
+   In CUDA mode, the array is in device memory.
+
+  Input Parameters:
++ m - mesh handle
+. dim - the dimension of entities
+- name - the label name
+
+  Level: beginner
+
+.seealso: osh_new_label()
+@*/
 unsigned* osh_get_label(osh_t m, unsigned dim, char const* name)
 {
   return mesh_find_tag((struct mesh*)m, dim, name)->d.u32;
 }
 
+/*@
+  osh_new_global - Create a global numbering of entities
+
+   This should only be used in conjunction with
+   osh_new() to create a mesh manually in parallel.
+   The internally allocated array of global numbers is returned,
+   and should be filled in after this call and before
+   any subsequent API calls.
+
+   The array is returned rather than received to
+   allow omega_h to use its own allocators.
+
+   In CUDA mode, the array is in device memory.
+
+  Input Parameters:
++ m - mesh handle
+- dim - the dimension of entities
+
+  Level: advanced
+
+.seealso: osh_global()
+@*/
 unsigned long* osh_new_global(osh_t m, unsigned dim)
 {
   unsigned nents = mesh_count((struct mesh*)m, dim);
