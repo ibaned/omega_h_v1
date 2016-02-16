@@ -1,6 +1,3 @@
 language: c
-matrix:
-  - compiler: clang
-    env: CFLAGS="-g -O0 -std=c99 -Weverything -Werror -Wno-float-equal -Wno-format-nonliteral"
-  - compiler: gcc
-    env: CFLAGS="-g -O0 -std=c99 -Wall" LDLIBS="-lm"
+env:
+- CFLAGS="-g -O0 -std=c99 -Wall -Werror" LDLIBS="-lm"
