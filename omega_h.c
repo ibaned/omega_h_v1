@@ -728,7 +728,7 @@ unsigned osh_components(osh_t m, unsigned dim, char const* name)
 
   Level: beginner
 
-.seealso: osh_get_label()
+.seealso: osh_get_label(), osh_free_label()
 @*/
 unsigned* osh_new_label(osh_t m, unsigned dim, char const* name, unsigned ncomps)
 {
@@ -761,6 +761,11 @@ unsigned* osh_get_label(osh_t m, unsigned dim, char const* name)
   return mesh_find_tag((struct mesh*)m, dim, name)->d.u32;
 }
 
+void osh_free_label(osh_t m, char const* name)
+{
+  mesh_free_tag((struct mesh*)m, 0, name);
+}
+
 /*@
   osh_new_global - Create a global numbering of entities
 
@@ -791,11 +796,43 @@ unsigned long* osh_new_global(osh_t m, unsigned dim)
   return global;
 }
 
+/*@
+  osh_accumulate_to_owner - Sum field values between MPI ranks.
+
+   For the specified field, omega_h will transmit
+   value from non-owned entities to owned entities
+   and add them to the owned entity values.
+   Ownership is defined as in osh_own_rank() and osh_own_id().
+
+  Input Parameters:
++ m - mesh handle
+- name - the field name
+
+  Level: intermediate
+
+.seealso: osh_own_rank(), osh_own_id(), osh_conform()
+@*/
 void osh_accumulate_to_owner(osh_t m, char const* name)
 {
   mesh_accumulate_tag((struct mesh*)m, 0, name);
 }
 
+/*@
+  osh_conform - Ensure consistent field values between MPI ranks.
+
+   For the specified field, omega_h will transmit
+   value from owned entities to non-owned entities
+   and overwrite non-owned values.
+   Ownership is defined as in osh_own_rank() and osh_own_id().
+
+  Input Parameters:
++ m - mesh handle
+- name - the field name
+
+  Level: intermediate
+
+.seealso: osh_own_rank(), osh_own_id(), osh_accumulate_to_owner()
+@*/
 void osh_conform(osh_t m, char const* name)
 {
   mesh_conform_tag((struct mesh*)m, 0, name);
@@ -808,6 +845,28 @@ LOOP_KERNEL(mark_or_kern,
     marked[i] = 1;
 }
 
+/*@
+  osh_mark_classified - Mark entities classified on a certain boundary.
+
+   Given a dimension and boundary classification specification
+   in the form of boundary dimension and integer id,
+   as well as a user-allocated array that indicates marked
+   entities, this function will modify the marked array
+   to include entities classified on the specified boundary.
+
+   Boundary markers are either derived by omega_h or taken
+   to be consistent with the Gmsh geometry if that is the
+   origin of the mesh.
+
+  Input Parameters:
++ m - mesh handle
+. ent_dim - the dimension of the entities
+. class_dim - the dimension of the boundary entity
+. class_id - the ID of the boundary entity
+- marked - user array, marked[i] = 0 or 1
+
+  Level: intermediate
+@*/
 void osh_mark_classified(osh_t m, unsigned ent_dim,
     unsigned class_dim, unsigned class_id, unsigned* marked)
 {
@@ -818,11 +877,35 @@ void osh_mark_classified(osh_t m, unsigned ent_dim,
   loop_free(to_mark);
 }
 
-void osh_free_label(osh_t m, char const* name)
-{
-  mesh_free_tag((struct mesh*)m, 0, name);
-}
+/*@
+  osh_ghost - Create ghost/halo layers of elements.
 
+   This function adds ghost copies of elements from other
+   MPI ranks.
+   Adding a layer begins by looking at all vertices
+   (owned and not) which are visible on this MPI rank,
+   and requesting all elements which use those vertices
+   (and subsequently all entities on the boundary of those elements).
+   This is done recursively until the desired number
+   of layers is established.
+   Ghost elements may be identified by osh_own_rank(),
+   they will have owner MPI ranks other than the local one.
+
+   If the desired number of layers already exists,
+   no change occurs.
+   One may specify nlayers=0 to remove ghost layers.
+
+   This operation modifies all connectivity / field
+   arrays, so any user information that relies on
+   their pointers or content must be reconstructed
+   afterwards.
+
+  Input Parameters:
++ m - mesh handle
+- nlayers - number of ghost layers to add
+
+  Level: advanced
+@*/
 void osh_ghost(osh_t m, unsigned nlayers)
 {
   ghost_mesh((struct mesh*)m, nlayers);
@@ -853,7 +936,7 @@ void osh_ghost(osh_t m, unsigned nlayers)
   Level: advanced
 
 .keywords: adapt
-.seealso: osh_new_field()
+.seealso: osh_new_field(), osh_identity_size()
 @*/
 unsigned osh_adapt(osh_t m,
     double size_ratio_floor,
@@ -868,6 +951,37 @@ unsigned osh_adapt(osh_t m,
       max_passes);
 }
 
+/*@
+  osh_identity_size - Compute the "current" size field.
+
+  This function computes a size field which,
+  when used by osh_adapt(), will cause little to no
+  change in the mesh edge lengths.
+  To be precise, it computes at each vertex the
+  length of the longest adjacent edge.
+
+  There are several reasons why this might be useful.
+  First, one can use this to limit adaptation to
+  just shape correction, and improve the quality of
+  elements while maintaining resolution.
+
+  One can also compute this field before Langrangian
+  mesh motion (moving vertices) and later use osh_adapt
+  to restore the previous resolution while roughly
+  maintaining new vertex locations.
+
+  Finally, the identity size field may be used as the
+  starting point for the final size field, for example
+  it may be divided by some factor in order to increase
+  resolution throughout by that factor, even if the
+  initial resolution was not uniform.
+
+  Input Parameters:
++ m - mesh handle
+- name - the name used for the resulting field
+
+  Level: advanced
+@*/
 void osh_identity_size(osh_t m, char const* name)
 {
   mesh_identity_size_field((struct mesh*)m, name);
