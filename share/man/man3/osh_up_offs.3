@@ -1,0 +1,25 @@
+.TH osh_up_offs 3 "2/16/2016" " " ""
+.SH NAME
+osh_up_offs \-  Get the connectivity from low dimension to high (2) 
+.SH SYNOPSIS
+.nf
+unsigned const* osh_up_offs(osh_t m, unsigned low_dim, unsigned high_dim)
+.fi
+Returns a read-only array describing connectivity offsets
+from the low dimension to the higher one, on this MPI rank.
+Works together with osh_up().
+This array is of size (osh_count(m, low_dim) + 1).
+
+In CUDA mode, the array is in device memory.
+
+.SH INPUT PARAMETERS
++ m - mesh handle
+\&.
+low_dim - the lower dimension
+- high_dim - the higher dimension
+
+Level: beginner
+
+.SH SEE ALSO
+osh_up(), osh_up_dir(), osh_down(), osh_dim(), osh_count()
+.br

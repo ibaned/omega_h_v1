@@ -1,0 +1,42 @@
+.TH osh_identity_size 3 "2/16/2016" " " ""
+.SH NAME
+osh_identity_size \-  Compute the "current" size field. 
+.SH SYNOPSIS
+.nf
+void osh_identity_size(osh_t m, char const* name)
+.fi
+This function computes a size field which,
+when used by osh_adapt(), will cause little to no
+change in the mesh edge lengths.
+To be precise, it computes at each vertex the
+length of the longest adjacent edge.
+
+There are several reasons why this might be useful.
+First, one can use this to limit adaptation to
+just shape correction, and improve the quality of
+elements while maintaining resolution.
+
+One can also compute this field before Langrangian
+mesh motion (moving vertices) and later use osh_adapt
+to restore the previous resolution while roughly
+maintaining new vertex locations.
+
+Finally, the identity size field may be used as the
+starting point for the final size field, for example
+it may be divided by some factor in order to increase
+resolution throughout by that factor, even if the
+initial resolution was not uniform.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B name 
+- the name used for the resulting field
+.PD 1
+
+Level: advanced

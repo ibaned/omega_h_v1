@@ -1,0 +1,46 @@
+.TH osh_build_ents 3 "2/16/2016" " " ""
+.SH NAME
+osh_build_ents \-  Create entities manually. 
+.SH SYNOPSIS
+.nf
+unsigned* osh_build_ents(osh_t m, unsigned ent_dim, unsigned nents)
+.fi
+This function allocates an array for the entity-to-vertex
+connectivity of the given dimension entities,
+sets it to represent connectivity in the mesh,
+and returns it to the user.
+
+The user should fill in the array right after
+receiving it from this function, and before
+calling any other API functions.
+See osh_down for the format of this array.
+
+The array is returned rather than received to
+allow omega_h to use its own allocators.
+
+In CUDA mode, the array will be in device memory.
+
+Collective
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle returned from osh_new
+.PD 1
+.PD 0
+.TP
+.B ent_dim 
+- dimension of the entities
+.PD 1
+.PD 0
+.TP
+.B nents 
+- the number of entities
+.PD 1
+
+Level: advanced
+
+.SH SEE ALSO
+osh_new(), osh_down()
+.br

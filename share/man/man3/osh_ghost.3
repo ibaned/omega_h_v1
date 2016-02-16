@@ -1,0 +1,40 @@
+.TH osh_ghost 3 "2/16/2016" " " ""
+.SH NAME
+osh_ghost \-  Create ghost/halo layers of elements. 
+.SH SYNOPSIS
+.nf
+void osh_ghost(osh_t m, unsigned nlayers)
+.fi
+This function adds ghost copies of elements from other
+MPI ranks.
+Adding a layer begins by looking at all vertices
+(owned and not) which are visible on this MPI rank,
+and requesting all elements which use those vertices
+(and subsequently all entities on the boundary of those elements).
+This is done recursively until the desired number
+of layers is established.
+Ghost elements may be identified by osh_own_rank(),
+they will have owner MPI ranks other than the local one.
+
+If the desired number of layers already exists,
+no change occurs.
+One may specify nlayers=0 to remove ghost layers.
+
+This operation modifies all connectivity / field
+arrays, so any user information that relies on
+their pointers or content must be reconstructed
+afterwards.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B nlayers 
+- number of ghost layers to add
+.PD 1
+
+Level: advanced

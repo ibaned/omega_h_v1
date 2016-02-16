@@ -1,0 +1,47 @@
+.TH osh_up_dirs 3 "2/16/2016" " " ""
+.SH NAME
+osh_up_dirs \-  Get the downward order of upward connectivity 
+.SH SYNOPSIS
+.nf
+unsigned const* osh_up_dirs(osh_t m, unsigned low_dim, unsigned high_dim)
+.fi
+Returns a read-only array that lines up with the osh_up() array.
+It indicates the local downward order for one connectivity relation
+ship.
+For example, say that triangle 42 has vertices {22,18,33}.
+Then, for the (18 -> 42) entry in osh_up(), this array contains (1).
+
+.SH IN OTHER WORDS
+.nf
+unsigned const* offs = osh_up_offs(m,0,2);
+unsigned const* up = osh_up(m,0,2);
+unsigned const* dir = osh_up_dir(m,0,2);
+unsigned const* down = osh_down(m,0,2);
+for (unsigned i = 0; i < osh_count(m,0); ++i)
+for (unsigned j = offs[i]; j < offs[i + 1]; ++j)
+assert(i == down[up[j] * 3 + dir[j]]);
+.fi
+
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B low_dim 
+- the lower dimension
+.PD 1
+.PD 0
+.TP
+.B high_dim 
+- the higher dimension
+.PD 1
+
+Level: intermediate
+
+.SH SEE ALSO
+osh_up(), osh_up_offs(), osh_down(), osh_dim(), osh_count()
+.br
