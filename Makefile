@@ -211,7 +211,7 @@ deps:
 #such that the output is both an object file and a
 #dependency file.
 #It warrants further explanation:
-#  cc -MM foo.c
+#  cc -M foo.c
 #will produce a dependency line such as:
 #  foo.o : foo.c foo.h bar.h
 #The SED script changes this to:
@@ -222,7 +222,7 @@ deps:
 #
 #loop.h is thrown in as a dependency because it
 #may not exist when the depfiles are being generated,
-#causing an error when cc -MM doesn't find it,
+#causing an error when cc -M doesn't find it,
 #and the knowedge that the depfile depends on it
 #in the depfile itself !
 deps/%.dep: %.c loop.h | deps
@@ -250,6 +250,8 @@ install: all
 	install -m 644 $(libraries) $(PREFIX)/lib
 	install -d $(PREFIX)/include
 	install -m 644 include/omega_h.h $(PREFIX)/include
+	install -d $(PREFIX)/share/man/man3
+	install -m 644 share/man/man3/*.3 $(PREFIX)/share/man/man3
 
 check: $(exes) data gold scratch
 	MPIRUN=$(MPIRUN) VALGRIND=$(VALGRIND) \
@@ -266,3 +268,6 @@ scratch:
 coverage: objs scratch
 	lcov --capture --directory objs --output-file scratch/coverage.info
 	genhtml scratch/coverage.info --output-directory lcov-output
+
+doc:
+	doctext -mpath share/man/man3 -ext 3 -nolocation omega_h.c

@@ -1,0 +1,29 @@
+.TH osh_conform 3 "2/16/2016" " " ""
+.SH NAME
+osh_conform \-  Ensure consistent field values between MPI ranks. 
+.SH SYNOPSIS
+.nf
+void osh_conform(osh_t m, char const* name)
+.fi
+For the specified field, omega_h will transmit
+value from owned entities to non-owned entities
+and overwrite non-owned values.
+Ownership is defined as in osh_own_rank() and osh_own_id().
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B name 
+- the field name
+.PD 1
+
+Level: intermediate
+
+.SH SEE ALSO
+osh_own_rank(), osh_own_id(), osh_accumulate_to_owner()
+.br

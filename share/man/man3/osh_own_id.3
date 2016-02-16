@@ -1,0 +1,35 @@
+.TH osh_own_id 3 "2/16/2016" " " ""
+.SH NAME
+osh_own_id \-  Get the owning MPI ranks of entities. 
+.SH SYNOPSIS
+.nf
+unsigned const* osh_own_id(osh_t m, unsigned dim)
+.fi
+Returns a read-only array containing the owner
+local index for each entity of a given dimension.
+This ownership is often determined by omega_h
+and affects the behavior of osh_accumulate_to_owner()
+and osh_conform().
+The indices listed here are for the owner MPI
+rank, so they are usually only useful when transmitted
+to the owner rank.
+
+In CUDA mode, the array is in device memory.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B dim 
+- the dimension of entities to inquire about
+.PD 1
+
+Level: advanced
+
+.SH SEE ALSO
+osh_own_rank(), osh_accumulate_to_owner(), osh_conform(), osh_global()
+.br

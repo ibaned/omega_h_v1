@@ -1,0 +1,46 @@
+.TH osh_new_field 3 "2/16/2016" " " ""
+.SH NAME
+osh_new_field \-  Create a floating-point field unless it exists. 
+.SH SYNOPSIS
+.nf
+double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
+.fi
+If a field by this name does not exist over entities
+of the given dimension, one will be created.
+Otherwise this is equivalent to osh_get_field().
+The internally allocated array of data is returned,
+and can be filled in after this call.
+The components for each entity are contiguous.
+
+The array is returned rather than received to
+allow omega_h to use its own allocators.
+
+In CUDA mode, the array is in device memory.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B dim 
+- the dimension of entities
+.PD 1
+.PD 0
+.TP
+.B name 
+- the field name
+.PD 1
+.PD 0
+.TP
+.B ncomps 
+- the number of components (doubles) per entity
+.PD 1
+
+Level: beginner
+
+.SH SEE ALSO
+osh_free_field(), osh_get_field()
+.br

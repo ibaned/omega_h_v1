@@ -60,6 +60,11 @@ HOW DO I USE IT ?
   as the PREFIX in most cases, but we support `make install'
   for copying files into a separate PREFIX.
 
+  The API is documented as man pages.
+  If omega_h is not installed in a system directory,
+  set your environment:
+    export MANPATH=$MANPATH:$PREFIX/share/man
+
 WHAT DO THE PROGRAMS DO ?
 
   warp.exe - runs an example mesh motion + adaptivity example in 2D,

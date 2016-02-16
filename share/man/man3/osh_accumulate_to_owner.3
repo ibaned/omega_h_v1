@@ -1,0 +1,29 @@
+.TH osh_accumulate_to_owner 3 "2/16/2016" " " ""
+.SH NAME
+osh_accumulate_to_owner \-  Sum field values between MPI ranks. 
+.SH SYNOPSIS
+.nf
+void osh_accumulate_to_owner(osh_t m, char const* name)
+.fi
+For the specified field, omega_h will transmit
+value from non-owned entities to owned entities
+and add them to the owned entity values.
+Ownership is defined as in osh_own_rank() and osh_own_id().
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B name 
+- the field name
+.PD 1
+
+Level: intermediate
+
+.SH SEE ALSO
+osh_own_rank(), osh_own_id(), osh_conform()
+.br
