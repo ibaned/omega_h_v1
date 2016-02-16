@@ -626,15 +626,16 @@ double* osh_get_field(osh_t m, unsigned dim, char const* name)
 
   Input Parameters:
 + m - mesh handle
+. dim - the entity dimension over which the field is defined
 - name - the field name
 
   Level: beginner
 
 .seealso: osh_new_field()
 @*/
-void osh_free_field(osh_t m, char const* name)
+void osh_free_field(osh_t m, unsigned dim, char const* name)
 {
-  mesh_free_tag((struct mesh*)m, 0, name);
+  mesh_free_tag((struct mesh*)m, dim, name);
 }
 
 /*@
@@ -761,9 +762,21 @@ unsigned* osh_get_label(osh_t m, unsigned dim, char const* name)
   return mesh_find_tag((struct mesh*)m, dim, name)->d.u32;
 }
 
-void osh_free_label(osh_t m, char const* name)
+/*@
+  osh_free_label - Destroy a label.
+
+  Input Parameters:
++ m - mesh handle
+. dim - the entity dimension over which the label is defined
+- name - the label name
+
+  Level: beginner
+
+.seealso: osh_new_label()
+@*/
+void osh_free_label(osh_t m, unsigned dim, char const* name)
 {
-  mesh_free_tag((struct mesh*)m, 0, name);
+  mesh_free_tag((struct mesh*)m, dim, name);
 }
 
 /*@
@@ -806,15 +819,16 @@ unsigned long* osh_new_global(osh_t m, unsigned dim)
 
   Input Parameters:
 + m - mesh handle
+. dim - the entity dimension over which the field is defined
 - name - the field name
 
   Level: intermediate
 
 .seealso: osh_own_rank(), osh_own_id(), osh_conform()
 @*/
-void osh_accumulate_to_owner(osh_t m, char const* name)
+void osh_accumulate_to_owner(osh_t m, unsigned dim, char const* name)
 {
-  mesh_accumulate_tag((struct mesh*)m, 0, name);
+  mesh_accumulate_tag((struct mesh*)m, dim, name);
 }
 
 /*@
@@ -827,15 +841,16 @@ void osh_accumulate_to_owner(osh_t m, char const* name)
 
   Input Parameters:
 + m - mesh handle
+. dim - the entity dimension over which the field is defined
 - name - the field name
 
   Level: intermediate
 
 .seealso: osh_own_rank(), osh_own_id(), osh_accumulate_to_owner()
 @*/
-void osh_conform(osh_t m, char const* name)
+void osh_conform(osh_t m, unsigned dim, char const* name)
 {
-  mesh_conform_tag((struct mesh*)m, 0, name);
+  mesh_conform_tag((struct mesh*)m, dim, name);
 }
 
 LOOP_KERNEL(mark_or_kern,
