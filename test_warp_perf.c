@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "adapt.h"
 #include "algebra.h"
@@ -23,7 +24,7 @@ static unsigned const max_ops = 50;
 static void size_fun(double const* x, double* s)
 {
   (void)x;
-  s[0] = 0.1;
+  s[0] = 0.05;
 }
 
 static double the_rotation = PI / 4;
@@ -82,7 +83,7 @@ static void warped_adapt(struct mesh* m)
     printf("\n WARP TO LIMIT %u\n", i);
     unsigned done = mesh_warp_to_limit(m, warp_qual_floor);
     mesh_adapt(m, size_floor, good_qual_floor, nsliver_layers, max_ops);
-    write_vtk_step(m);
+  //write_vtk_step(m);
     if (done)
       return;
   }
@@ -90,9 +91,34 @@ static void warped_adapt(struct mesh* m)
   abort();
 }
 
+static double get_time(void)
+{
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  double t = tv.tv_usec;
+  t /= 1000;
+  t += tv.tv_sec;
+  return t;
+}
+
+#ifdef LOOP_CUDA_H
+static void trigger_cuda_init(void)
+{
+  double t0 = get_time();
+  int* p;
+  cudaMalloc(&p, sizeof(int));
+  cudaFree(p);
+  double t1 = get_time();
+  printf("CUDA takes %f seconds to initialize\n", t1 - t0);
+}
+#endif
+
 int main(int argc, char** argv)
 {
   comm_init();
+#ifdef LOOP_CUDA_H
+  trigger_cuda_init();
+#endif
   char const* path;
   if (argc == 2)
     path = argv[1];
@@ -114,9 +140,10 @@ int main(int argc, char** argv)
     mesh_free_tag(m, mesh_dim(m), "coordinates");
   }
   write_vtk_step(m);
+  double t0 = get_time();
   for (unsigned i = 0; i < 1; ++i) {
     printf("\nOUTER DIRECTION %u\n", i);
-    for (unsigned j = 0; j < 4; ++j) {
+    for (unsigned j = 0; j < 3; ++j) {
       printf("\nWARP FIELD %u\n", j);
       mesh_eval_field(m, 0, "warp", 3, warp_fun);
       printf("new warp field\n");
@@ -125,7 +152,8 @@ int main(int argc, char** argv)
     }
     the_rotation = -the_rotation;
   }
+  double t1 = get_time();
+  printf("time for main code: %.5e seconds\n", t1 - t0);
   free_mesh(m);
-  printf("max memory use: %lu bytes\n", loop_host_high_water());
   comm_fini();
 }
