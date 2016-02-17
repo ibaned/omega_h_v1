@@ -24,6 +24,7 @@ test_refine_by_size.c \
 test_grad.c \
 test_warp.c \
 test_warp_3d.c \
+test_warp_perf.c \
 test_migrate.c \
 test_conform.c \
 test_ghost.c \
