@@ -34,12 +34,6 @@ unsigned get_prods_per_dom(
 
 struct mesh;
 
-void refined_prod_counts(
-    struct mesh* m,
-    unsigned src_dim,
-    unsigned* offset_of_doms[4],
-    unsigned ngen_ents[4][4]);
-
 void mesh_refine_topology(struct mesh* m,
     unsigned dom_dim,
     unsigned src_dim,
