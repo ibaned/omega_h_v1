@@ -116,7 +116,7 @@ int main(int argc, char** argv)
   write_vtk_step(m);
   for (unsigned i = 0; i < 1; ++i) {
     printf("\nOUTER DIRECTION %u\n", i);
-    for (unsigned j = 0; j < 16; ++j) {
+    for (unsigned j = 0; j < 4; ++j) {
       printf("\nWARP FIELD %u\n", j);
       mesh_eval_field(m, 0, "warp", 3, warp_fun);
       printf("new warp field\n");
@@ -126,5 +126,6 @@ int main(int argc, char** argv)
     the_rotation = -the_rotation;
   }
   free_mesh(m);
+  printf("max memory use: %lu bytes\n", loop_host_high_water());
   comm_fini();
 }
