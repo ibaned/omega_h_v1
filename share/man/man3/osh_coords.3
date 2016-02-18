@@ -1,0 +1,26 @@
+.TH osh_coords 3 "2/16/2016" " " ""
+.SH NAME
+osh_coords \-  Get the vertex coordinates. 
+.SH SYNOPSIS
+.nf
+double const* osh_coords(osh_t m)
+.fi
+Returns a read-only array containing the {x,y,z}
+coordinates for each vertex, organized by vertex.
+This array has three entries per vertex regardless
+of mesh dimension.
+
+In CUDA mode, the array is in device memory.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+
+Level: beginner
+
+.SH SEE ALSO
+osh_down(), osh_count(), osh_nverts()
+.br

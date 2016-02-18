@@ -12,7 +12,7 @@
 #include "recover_by_volume.h"
 #include "refine.h"
 #include "size_from_hessian.h"
-#include "vtk.h"
+#include "vtk_io.h"
 #include "warp_to_limit.h"
 
 struct mesh;
@@ -97,15 +97,22 @@ static void warped_adapt(struct mesh* m)
   abort();
 }
 
-int main()
+int main(int argc, char** argv)
 {
   comm_init();
+  char const* path;
+  if (argc == 2)
+    path = argv[1];
+  else
+    path = ".";
   struct mesh* m = new_box_mesh(2);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
   while (refine_by_size(m, 0));
-  start_vtk_steps("warp");
+  char prefix[128];
+  sprintf(prefix, "%s/warp", path);
+  start_vtk_steps(prefix);
   mesh_eval_field(m, 0, "dye", 1, dye_fun);
   set_size_field(m);
   write_vtk_step(m);

@@ -4,15 +4,15 @@
 #include "algebra.h"
 #include "arrays.h"
 #include "coarsen.h"
-#include "comm.h"
 #include "derive_model.h"
 #include "doubles.h"
 #include "eval_field.h"
 #include "mesh.h"
+#include "include/omega_h.h"
 #include "quality.h"
 #include "refine.h"
 #include "subset.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 static void fine_fun(double const* x, double* s)
 {
@@ -31,7 +31,7 @@ static void coarse_fun(double const* x, double* s)
 
 int main()
 {
-  comm_init();
+  osh_init();
   struct mesh* m = new_box_mesh(2);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
@@ -60,5 +60,5 @@ int main()
     write_mesh_vtk(m, fname);
   }
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }

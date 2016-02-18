@@ -2,7 +2,7 @@
 
 #include "comm.h"
 #include "mesh.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 int main(int argc, char** argv)
 {

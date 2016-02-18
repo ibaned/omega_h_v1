@@ -12,7 +12,7 @@
 #include "quality.h"
 #include "refine.h"
 #include "tag.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 static void size_fun(double const* x, double* s)
 {

@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include "arrays.h"
 #include "exchanger.h"
 #include "loop.h"
 
@@ -20,8 +21,8 @@ unsigned tag_size(enum tag_type t)
     case TAG_U32: return sizeof(unsigned);
     case TAG_U64: return sizeof(unsigned long);
     case TAG_F64: return sizeof(double);
-    default: return 0;
   }
+  LOOP_NORETURN(0);
 }
 
 static struct tag* new_tag(char const* name, enum tag_type type,
@@ -121,6 +122,25 @@ void modify_tag(struct tags* ts, char const* name, void* data)
   struct tag* t = ts->at[i];
   loop_free(t->data);
   t->data = data;
+}
+
+void copy_tags(struct tags* a, struct tags* b, unsigned n)
+{
+  for (unsigned i = 0; i < count_tags(a); ++i) {
+    struct const_tag* t = get_tag(a, i);
+    void* data = 0;
+    switch (t->type) {
+      case TAG_U8:  data = uchars_copy(t->d.u8, n * t->ncomps);
+                    break;
+      case TAG_U32: data = uints_copy(t->d.u32, n * t->ncomps);
+                    break;
+      case TAG_U64: data = ulongs_copy(t->d.u64, n * t->ncomps);
+                    break;
+      case TAG_F64: data = doubles_copy(t->d.f64, n * t->ncomps);
+                    break;
+    };
+    add_tag(b, t->type, t->name, t->ncomps, data);
+  }
 }
 
 void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into)

@@ -1,0 +1,25 @@
+.TH osh_free 3 "2/16/2016" " " ""
+.SH NAME
+osh_free \-  Destroys a mesh. 
+.SH SYNOPSIS
+.nf
+void osh_free(osh_t m)
+.fi
+All memory associated with the mesh
+is freed, and the mesh handle is invalid
+after this call.
+
+Collective
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- the mesh handle
+.PD 1
+
+Level: beginner
+
+.SH SEE ALSO
+osh_new(), osh_read_vtk()
+.br

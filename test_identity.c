@@ -1,20 +1,17 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "comm.h"
-#include "mesh.h"
-#include "size.h"
-#include "vtk.h"
+#include "include/omega_h.h"
 
 int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init();
   assert(argc == 3);
-  struct mesh* m = 0;
-  m = read_mesh_vtk(argv[1]);
-  mesh_identity_size_field(m, "identity_size");
-  write_mesh_vtk(m, argv[2]);
-  free_mesh(m);
-  comm_fini();
+  osh_t m = osh_read_vtk(argv[1]);
+  osh_identity_size(m, "adapt_size");
+  osh_adapt(m, 1./3., 0.3, 4, 10);
+  osh_write_vtk(m, argv[2]);
+  osh_free(m);
+  osh_fini();
 }
 

@@ -1,0 +1,30 @@
+.TH osh_new 3 "2/16/2016" " " ""
+.SH NAME
+osh_new \-  Create a raw empty mesh. 
+.SH SYNOPSIS
+.nf
+osh_t osh_new(unsigned elem_dim)
+.fi
+This is the advanced method of constructing
+meshes; it allows the user to define connectivity
+arrays directly.
+Don't use this unless you know about full
+topology representation.
+The mesh handle returned from this function is
+an empty mesh for which all dimensions
+have to be defined.
+
+Collective
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B elem_dim 
+- Range [1,3], default 3, the dimension of elements
+.PD 1
+
+Level: advanced
+
+.SH SEE ALSO
+osh_build_ents(), osh_dim()
+.br

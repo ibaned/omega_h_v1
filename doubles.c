@@ -38,18 +38,6 @@ double doubles_sum(double const* a, unsigned n)
   return sum;
 }
 
-double* doubles_exscan(double const* a, unsigned n)
-{
-  double * o = LOOP_MALLOC(double , n + 1);
-  thrust::device_ptr<double const> inp(a);
-  thrust::device_ptr<double> outp(o);
-  thrust::exclusive_scan(inp, inp + n, outp);
-  /* fixup the last element quirk */
-  double sum = thrust::reduce(inp, inp + n);
-  CUDACALL(cudaMemcpy(o + n, &sum, sizeof(double), cudaMemcpyHostToDevice));
-  return o;
-}
-
 #else
 
 double doubles_max(double const* a, unsigned n)
@@ -81,18 +69,6 @@ double doubles_sum(double const* a, unsigned n)
   for (unsigned i = 0; i < n; ++i)
     s += a[i];
   return s;
-}
-
-double* doubles_exscan(double const* a, unsigned n)
-{
-  double* o = LOOP_MALLOC(double, (n + 1));
-  double sum = 0;
-  o[0] = 0;
-  for (unsigned i = 0; i < n; ++i) {
-    sum += a[i];
-    o[i + 1] = sum;
-  }
-  return o;
 }
 
 #endif
