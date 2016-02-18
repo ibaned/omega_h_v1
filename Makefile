@@ -30,7 +30,8 @@ test_conform.c \
 test_ghost.c \
 test_memory.c \
 test_subdim.c \
-test_loop.c
+test_loop.c \
+test_to_la.c
 
 lib_sources := \
 star.c \
