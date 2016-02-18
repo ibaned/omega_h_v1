@@ -22,6 +22,10 @@
  */
 
 LOOP_KERNEL(refine_domain_entity,
+    unsigned dom_dim,
+    unsigned src_dim,
+    unsigned opp_dim,
+    unsigned base_dim,
     unsigned const* offset_of_doms,
     unsigned const* direction_of_doms,
     unsigned const* verts_of_doms,
@@ -84,8 +88,11 @@ void refine_topology(
   unsigned verts_per_prod = the_down_degrees[prod_dim][0];
   unsigned verts_per_base = verts_per_prod - 1;
   unsigned verts_per_dom = the_down_degrees[dom_dim][0];
-  unsigned opps_per_dom = the_down_degrees[dom_dim][opp_dim];
   LOOP_EXEC(refine_domain_entity, ndoms,
+      dom_dim,
+      src_dim,
+      opp_dim,
+      base_dim,
       offset_of_doms,
       direction_of_doms,
       verts_of_doms,

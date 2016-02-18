@@ -3,8 +3,7 @@
 
 #include "loop.h"
 
-
-LOOP_INOUT unsigned find_edge_ring(
+LOOP_IN unsigned find_edge_ring(
     unsigned edge,
     unsigned const* tets_of_edges_offsets,
     unsigned const* tets_of_edges,

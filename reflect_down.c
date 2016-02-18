@@ -83,6 +83,8 @@ LOOP_INOUT static inline unsigned find_low(
 }
 
 LOOP_KERNEL(reflect_down_entity,
+    unsigned high_dim,
+    unsigned low_dim,
     unsigned const* verts_of_highs,
     unsigned const* verts_of_lows,
     unsigned const* lows_of_verts_offsets,
@@ -91,9 +93,10 @@ LOOP_KERNEL(reflect_down_entity,
     unsigned verts_per_high,
     unsigned lows_per_high,
     unsigned verts_per_low,
-    unsigned* lows_of_highs,
-    unsigned** high_verts_of_lows)
+    unsigned* lows_of_highs)
 
+  unsigned const* const* high_verts_of_lows =
+      the_canonical_orders[high_dim][low_dim][0];
   unsigned const* verts_of_high = verts_of_highs + i * verts_per_high;
   unsigned* lows_of_high = lows_of_highs + i * lows_per_high;
   for (unsigned j = 0; j < lows_per_high; ++j) {
@@ -121,8 +124,9 @@ static unsigned* reflect_down(
   unsigned verts_per_low = the_down_degrees[low_dim][0];
   assert(verts_per_low == 2 || verts_per_low == 3);
   unsigned* lows_of_highs = LOOP_MALLOC(unsigned, nhighs * lows_per_high);
-  unsigned** high_verts_of_lows = orders_to_device(high_dim, low_dim, 0);
   LOOP_EXEC(reflect_down_entity, nhighs,
+      high_dim,
+      low_dim,
       verts_of_highs,
       verts_of_lows,
       lows_of_verts_offsets,
@@ -131,9 +135,7 @@ static unsigned* reflect_down(
       verts_per_high,
       lows_per_high,
       verts_per_low,
-      lows_of_highs,
-      high_verts_of_lows);
-  free_orders(high_verts_of_lows, high_dim, low_dim);
+      lows_of_highs);
   return lows_of_highs;
 }
 
