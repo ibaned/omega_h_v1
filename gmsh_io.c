@@ -169,10 +169,13 @@ struct mesh* read_msh(char const* filename)
       ent = eq - (neqs - nelems);
     } else {
       /* general reverse lookup via vertices. */
-      ent = find_by_verts(eq_dim + 1, eq_verts,
+      ent = find_by_verts(
+          eq_dim,
+          eq_verts,
           mesh_ask_down(m, eq_dim, 0),
+          mesh_ask_up(m, 0, eq_dim)->offsets,
           mesh_ask_up(m, 0, eq_dim)->adj,
-          mesh_ask_up(m, 0, eq_dim)->offsets);
+          mesh_ask_up(m, 0, eq_dim)->directions);
     }
     assert(ent != INVALID);
     class_dims[eq_dim][ent] = eq_dim;
