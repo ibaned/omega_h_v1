@@ -137,14 +137,11 @@ struct mesh* read_msh(char const* filename)
       ++nelems;
   unsigned verts_per_elem = dim + 1;
   unsigned* verts_of_elems = LOOP_HOST_MALLOC(unsigned, nelems * verts_per_elem);
-  unsigned ei = 0;
-  for (unsigned i = 0; i < neqs; ++i) {
-    if (dim_of_eqs[i] != dim)
-      continue;
+  for (unsigned i = neqs - nelems; i < neqs; ++i) {
+    unsigned ei = i - (neqs - nelems);
     for (unsigned j = 0; j < verts_per_elem; ++j)
       verts_of_elems[ei * verts_per_elem + j] =
           verts_of_eqs[i * 4 + j];
-    ++ei;
   }
   mesh_set_ents(m, dim, nelems, verts_of_elems);
   /* now for the tricky bit. for each equal-order entity from the file,
