@@ -12,6 +12,10 @@ $VALGRIND ./bin/node_ele.exe data/xgc.node data/xgc.ele scratch/xgc.vtu
 $VALGRIND ./bin/node_ele_attrib.exe scratch/xgc.vtu scratch/attrib.node scratch/attrib.ele
 $VALGRIND ./bin/node_ele.exe scratch/attrib.node scratch/attrib.ele scratch/xgc_attrib.vtu
 $VALGRIND ./bin/from_gmsh.exe data/cube.msh scratch/cube.vtu
+if [ -e gold/gmsh_cube.vtu ]; then
+  diff scratch/cube.vtu gold/gmsh_cube.vtu
+fi
+cp scratch/cube.vtu gold/gmsh_cube.vtu
 $VALGRIND ./bin/grad.exe scratch
 if [ "$USE_MPI" = "1" ]; then
   $MPIRUN -np 2 $VALGRIND ./bin/migrate.exe scratch
@@ -34,7 +38,7 @@ if [ "$PATIENT" = "1" ]; then
   $VALGRIND ./bin/warp_3d.exe scratch
   if [ -e gold/warp_0016.vtu ]; then
     $VALGRIND ./bin/vtkdiff.exe -superset scratch/warp_0016.vtu gold/warp_0016.vtu
-    diff ./scratch/warp_0016.vtu gold/warp_0016.vtu
+    diff scratch/warp_0016.vtu gold/warp_0016.vtu
   fi
-  cp ./scratch/warp_0016.vtu gold/warp_0016.vtu
+  cp scratch/warp_0016.vtu gold/warp_0016.vtu
 fi
