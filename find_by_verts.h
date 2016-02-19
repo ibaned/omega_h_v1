@@ -29,7 +29,7 @@ LOOP_INOUT static inline unsigned find_tri_up(
          (verts_of_tri[(dir + 2) % 3] == verts_wanted[1])))
       return tri;
   }
-  LOOP_NORETURN(INVALID);
+  LOOP_NORETURN(0);
 }
 
 LOOP_INOUT static inline unsigned find_edge_up(
@@ -49,7 +49,7 @@ LOOP_INOUT static inline unsigned find_edge_up(
     if (verts_of_edge[1 - dir] == verts_wanted[1])
       return edge;
   }
-  LOOP_NORETURN(INVALID);
+  LOOP_NORETURN(0);
 }
 
 LOOP_INOUT static inline unsigned find_by_verts(
