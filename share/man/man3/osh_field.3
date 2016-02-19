@@ -1,0 +1,33 @@
+.TH osh_field 3 "2/16/2016" " " ""
+.SH NAME
+osh_field \-  Access the i'th field. 
+.SH SYNOPSIS
+.nf
+char const* osh_field(osh_t om, unsigned dim, unsigned i)
+.fi
+Returns the name of the i'th field in
+this dimension.
+The name can then be given to osh_get_field(), etc.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B dim 
+- the dimension of entities
+.PD 1
+.PD 0
+.TP
+.B i 
+- index of the field
+.PD 1
+
+Level: intermediate
+
+.SH SEE ALSO
+osh_nfields(), osh_get_field()
+.br

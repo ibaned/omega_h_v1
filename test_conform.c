@@ -10,7 +10,7 @@
 #include "migrate_mesh.h"
 #include "include/omega_h.h"
 #include "parallel_mesh.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 static struct mesh* make_2_tri_parallel(void)
 {

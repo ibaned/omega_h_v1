@@ -4,7 +4,7 @@
 #include "ghost_mesh.h"
 #include "mesh.h"
 #include "include/omega_h.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 int main(int argc, char** argv)
 {

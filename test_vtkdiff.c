@@ -5,7 +5,7 @@
 #include "comm.h"
 #include "mesh.h"
 #include "mesh_diff.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 int main(int argc, char** argv)
 {
@@ -70,6 +70,7 @@ int main(int argc, char** argv)
     printf("    -help (Print this summary and exit.)\n");
     printf("    -tolerance <$val> (Overrides the default tolerance of 1.0E-6.)\n");
     printf("    -Floor <$val> (Overrides the default floor tolerance of 0.0.)\n");
+    comm_fini();
     return 0;
   }
   struct mesh* a = read_mesh_vtk(filea);

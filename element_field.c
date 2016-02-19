@@ -5,6 +5,17 @@
 #include "tables.h"
 #include "tag.h"
 
+LOOP_KERNEL(interp_to_elem,
+    unsigned const* verts_of_elems,
+    unsigned verts_per_elem,
+    double const* in,
+    unsigned ncomps,
+    double* out)
+  unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
+  average_element_field(verts_per_elem, verts_of_elem, in, ncomps,
+      out + i * ncomps);
+}
+
 double* interp_to_elems(
     unsigned elem_dim,
     unsigned nelems,
@@ -14,11 +25,8 @@ double* interp_to_elems(
 {
   double* out = LOOP_MALLOC(double, nelems * ncomps);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  for (unsigned i = 0; i < nelems; ++i) {
-    unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
-    average_element_field(verts_per_elem, verts_of_elem, in, ncomps,
-        out + i * ncomps);
-  }
+  LOOP_EXEC(interp_to_elem, nelems, verts_of_elems, verts_per_elem,
+      in, ncomps, out);
   return out;
 }
 

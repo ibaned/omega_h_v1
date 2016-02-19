@@ -1,0 +1,19 @@
+.TH osh_fini 3 "2/16/2016" " " ""
+.SH NAME
+osh_fini \-  Finalizes omega_h (opposite osh_init). 
+.SH SYNOPSIS
+.nf
+void osh_fini(void)
+.fi
+If osh_init calls MPI_Init, this will call MPI_Finalize.
+It currently does nothing else, but please
+consider it standard practice to call this
+after all other omega_h APIs.
+
+Collective
+
+Level: beginner
+
+.SH SEE ALSO
+osh_init()
+.br

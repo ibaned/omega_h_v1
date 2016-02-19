@@ -8,7 +8,7 @@
 #include "recover_by_volume.h"
 #include "refine.h"
 #include "size_from_hessian.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 static void dye_fun(double const* coords, double* v)
 {

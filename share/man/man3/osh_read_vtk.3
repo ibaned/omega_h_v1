@@ -1,0 +1,41 @@
+.TH osh_read_vtk 3 "2/16/2016" " " ""
+.SH NAME
+osh_read_vtk \-  Read a mesh from our VTK format. 
+.SH SYNOPSIS
+.nf
+osh_t osh_read_vtk(char const* filename)
+.fi
+This is the preferred way of creating a mesh
+data structure.
+See our conversion programs for converting
+meshes from Gmsh, TetGen, Triangle, etc. into
+VTK format.
+Also see our box program which generates a
+mesh of a simple unit domain.
+
+If a ".vtu" filename is given while running
+a single MPI rank, a serial mesh will be read
+from that file.
+If a ".vtu" filename is given while running more
+than one MPI rank, the serial mesh will subsequently
+be partitioned amongs the ranks.
+If a ".pvtu" filename is given, the pre-partitioned
+mesh will be loaded from the associated ".vtu" files,
+one file per MPI rank.
+
+The mesh new handle is returned.
+
+Collective
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B filename 
+- the path to the mesh file(s), see description
+.PD 1
+
+Level: beginner
+
+.SH SEE ALSO
+osh_write_vtk(), osh_free(), osh_new()
+.br

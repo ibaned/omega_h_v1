@@ -1,0 +1,36 @@
+.TH osh_star_offs 3 "2/16/2016" " " ""
+.SH NAME
+osh_star_offs \-  Get the connectivity across other entities (2) 
+.SH SYNOPSIS
+.nf
+unsigned const* osh_star_offs(osh_t m, unsigned low_dim, unsigned high_dim)
+.fi
+Returns a read-only array describing connectivity
+from the low dimension across the higher one
+and back to the low dimension, on this MPI rank.
+Works together with osh_star().
+
+In CUDA mode, the array is in device memory.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B low_dim 
+- the lower dimension
+.PD 1
+.PD 0
+.TP
+.B high_dim 
+- the higher dimension
+.PD 1
+
+Level: intermediate
+
+.SH SEE ALSO
+osh_star(), osh_dim(), osh_count()
+.br

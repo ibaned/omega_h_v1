@@ -1,0 +1,56 @@
+.TH osh_up 3 "2/16/2016" " " ""
+.SH NAME
+osh_up \-  Get the connectivity from low dimension to high (1) 
+.SH SYNOPSIS
+.nf
+unsigned const* osh_up(osh_t m, unsigned low_dim, unsigned high_dim)
+.fi
+Returns a read-only array describing connectivity
+from the low dimension to the higher one, on this MPI rank.
+Works together with osh_up_offs().
+
+Similar to osh_down(), upward adjacencies are organized
+by lower entities, for each lower entity there
+are contiguous entries pointing to higher entities.
+However, the number of entries per lower entity is variable
+so there is a separate array of offsets describing where
+they start and stop.
+For example, from vertices to triangles, the array
+would be of size (osh_offs(m,0,2)[osh_count(m,0)]),
+and the entries
+
+.nf
+unsigned const* offs = osh_up_offs(m,0,2);
+unsigned const* up = osh_up(m,0,2);
+for (unsigned j = offs[i]; j < offs[i + 1]; ++j)
+up[j];
+.fi
+
+
+contain the vertex indices of triangle (i).
+All indices are local to the MPI rank.
+
+In CUDA mode, the array is in device memory.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B low_dim 
+- the lower dimension
+.PD 1
+.PD 0
+.TP
+.B high_dim 
+- the higher dimension
+.PD 1
+
+Level: beginner
+
+.SH SEE ALSO
+osh_up_offs(), osh_up_dir(), osh_down(), osh_dim(), osh_count()
+.br

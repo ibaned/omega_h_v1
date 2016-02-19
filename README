@@ -11,8 +11,9 @@ WHAT CAN IT DO ?
 
   Omega_h can do the following:
     - Accept meshes from mesh generators including
-      Gmsh (gmsh.info), TetGen (wias-berlin.de/software/tetgen),
-      and Triangle (www.cs.cmu.edu/~quake/triangle.html)
+      Gmsh (http://gmsh.info/),
+      TetGen (http://wias-berlin.de/software/tetgen/),
+      and Triangle (http://www.cs.cmu.edu/~quake/triangle.html)
     - Associate and maintain simulation data with the mesh
     - Store meshes in a partitioned, lossless, flexible format
       based on VTK's UnstructuredGrid format.
@@ -59,6 +60,11 @@ HOW DO I USE IT ?
   as the PREFIX in most cases, but we support `make install'
   for copying files into a separate PREFIX.
 
+  The API is documented as man pages.
+  If omega_h is not installed in a system directory,
+  set your environment:
+    export MANPATH=$MANPATH:$PREFIX/share/man
+
 WHAT DO THE PROGRAMS DO ?
 
   warp.exe - runs an example mesh motion + adaptivity example in 2D,
@@ -84,13 +90,13 @@ WHAT DO THE PROGRAMS DO ?
 WHAT IS THE FILE FORMAT ?
 
   Omega_h uses a superset of the VTK UnstructuredGrid format
-  (vtk.org/VTK/img/file-formats.pdf).
+  (http://www.vtk.org/wp-content/uploads/2015/04/file-formats.pdf).
   It consists of .vtu files for each mesh partition, and a
   .pvtu file that describes the partitions, in case there
   is more than one.
-  Each of these files can be opened directly by the Paraview
-  program (paraview.org), and also by VisIt
-  (wci.llnl.gov/simulation/computer-codes/visit).
+  Each of these files can be opened directly by
+  Paraview (http://www.paraview.org/), and also by VisIt
+  (https://wci.llnl.gov/simulation/computer-codes/visit).
 
   The format encodes binary information as ASCII using base64.
   It also uses XML headers at the top level for metadata,

@@ -1,0 +1,46 @@
+.TH osh_new_label 3 "2/16/2016" " " ""
+.SH NAME
+osh_new_label \-  Create an integer label unless it exists 
+.SH SYNOPSIS
+.nf
+unsigned* osh_new_label(osh_t m, unsigned dim, char const* name, unsigned ncomps)
+.fi
+If a label with this name does not exist over entities
+of the given dimension, one will be created.
+Otherwise this is equivalent to osh_get_label().
+The internally allocated array of data is returned,
+and can be filled in after this call.
+The components for each entity are contiguous.
+
+The array is returned rather than received to
+allow omega_h to use its own allocators.
+
+In CUDA mode, the array is in device memory.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B dim 
+- the dimension of entities
+.PD 1
+.PD 0
+.TP
+.B name 
+- the label name
+.PD 1
+.PD 0
+.TP
+.B name 
+- the number of components (integers)
+.PD 1
+
+Level: beginner
+
+.SH SEE ALSO
+osh_get_label(), osh_free_label()
+.br

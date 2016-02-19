@@ -3,7 +3,7 @@
 #include "comm.h"
 #include "node_ele_io.h"
 #include "mesh.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 int main(int argc, char** argv)
 {

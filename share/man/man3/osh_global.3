@@ -1,0 +1,30 @@
+.TH osh_global 3 "2/16/2016" " " ""
+.SH NAME
+osh_global \-  Get the global numbers of entities. 
+.SH SYNOPSIS
+.nf
+unsigned long const* osh_global(osh_t m, unsigned dim)
+.fi
+Returns a read-only array containing the global number
+for each entity of a given dimension.
+This numbering is often determined by omega_h.
+
+In CUDA mode, the array is in device memory.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B dim 
+- the dimension of entities to inquire about
+.PD 1
+
+Level: beginner
+
+.SH SEE ALSO
+osh_own_rank(), own_id()
+.br
