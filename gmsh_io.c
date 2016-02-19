@@ -172,6 +172,7 @@ struct mesh* read_msh(char const* filename)
       ent = find_by_verts(
           eq_dim,
           eq_verts,
+          /* TODO: don't request these when eq_dim == 0 */
           mesh_ask_down(m, eq_dim, 0),
           mesh_ask_up(m, 0, eq_dim)->offsets,
           mesh_ask_up(m, 0, eq_dim)->adj,
