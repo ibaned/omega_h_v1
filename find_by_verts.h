@@ -1,7 +1,7 @@
 #ifndef FIND_BY_VERTS_H
 #define FIND_BY_VERTS_H
 
-#include "tables.h"
+#include "loop.h"
 
 static inline unsigned find_by_verts(
     unsigned verts_per_ent,
@@ -24,7 +24,7 @@ static inline unsigned find_by_verts(
     if (nmatches == verts_per_ent)
       return ent;
   }
-  return INVALID;
+  LOOP_NORETURN(0);
 }
 
 #endif
