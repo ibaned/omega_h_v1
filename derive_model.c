@@ -341,7 +341,6 @@ static void form_boundary_graph(struct mesh* m, unsigned dim,
   LOOP_EXEC(fill_boundary_graph, nents, eq_offsets, bridges_of_ents,
       bridges_per_ent, bridges, ents_of_bridges_offsets, ents_of_bridges,
       offsets, adj);
-  loop_free(eq_ents);
   loop_free(bridges);
   *p_eq_offsets = eq_offsets;
   *p_offsets = uints_to_host(offsets, nents + 1);
