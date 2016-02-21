@@ -322,7 +322,7 @@ static void form_boundary_graph(struct mesh* m, unsigned dim,
   unsigned nents = mesh_count(m, dim);
   unsigned* eq_ents = mesh_mark_class(m, dim, dim, INVALID);
   unsigned* eq_offsets = uints_exscan(eq_ents, nents);
-  unsigned neqs = eq_offsets[nents];
+  unsigned neqs = uints_at(eq_offsets, nents);
   loop_free(eq_ents);
   unsigned* bridges = mesh_mark_class(m, dim - 1, dim, INVALID);
   unsigned bridges_per_ent = the_down_degrees[dim][dim - 1];
