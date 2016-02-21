@@ -293,18 +293,25 @@ LOOP_KERNEL(fill_boundary_graph,
     unsigned* adj)
   if (eq_offsets[i] == eq_offsets[i + 1])
     return;
+  printf("ent %u is an eq\n", i);
   unsigned eq = eq_offsets[i];
   unsigned k = offsets[eq];
   unsigned const* bridges_of_ent = bridges_of_ents + i * bridges_per_ent;
   for (unsigned j = 0; j < bridges_per_ent; ++j) {
     unsigned bridge = bridges_of_ent[j];
     if (bridges[bridges_of_ent[j]]) {
+      printf("bridge %u of ent %u is a bridge\n", j, i);
       unsigned a = ents_of_bridges_offsets[bridge];
       unsigned b = ents_of_bridges_offsets[bridge + 1];
       unsigned l;
       for (l = a; l < b; ++l) {
         unsigned other = ents_of_bridges[l];
+        if (other == i)
+          continue;
+        printf("ents_of_bridges[%u] = %u\n", l, other);
         if (eq_offsets[other] != eq_offsets[other + 1]) {
+          printf("setting adj[%u] = %u = eq_offsets[%u]\n",
+              k, eq_offsets[other], other);
           adj[k++] = eq_offsets[other];
           break;
         }
