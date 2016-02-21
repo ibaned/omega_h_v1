@@ -1,6 +1,8 @@
 #ifndef BFS_H
 #define BFS_H
 
+/* all arrays on HOST ! */
+
 void bfs_continue(
     unsigned* queue,
     unsigned* p_begin,
@@ -28,5 +30,11 @@ void bfs_full(
     unsigned* comp,
     unsigned* layer,
     unsigned* sorted);
+
+void connected_components(
+    unsigned n,
+    unsigned const* offsets,
+    unsigned const* adj,
+    unsigned* comp);
 
 #endif

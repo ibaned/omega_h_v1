@@ -1,5 +1,6 @@
 #include "bfs.h"
 
+#include "loop.h"
 #include "tables.h"
 
 /* none of the functions in this file
@@ -8,7 +9,7 @@
    will have to be executed on the host.
    the reasoning is that BFS is somewhat
    inherently serial (#layers), and parallelizing
-   each layer would be more trouble than its worth */
+   each layer seems like more trouble than its worth */
 
 void bfs_continue(
     unsigned* queue,
@@ -30,7 +31,8 @@ void bfs_continue(
       if (layer[v] == INVALID) {
         queue[end++] = v;
         layer[v] = layer[u] + 1;
-        comp[v] = comp[u];
+        if (comp)
+          comp[v] = comp[u];
       }
     }
   }
@@ -53,7 +55,8 @@ void bfs_from(
   unsigned end = *p_end;
   queue[end++] = start;
   layer[start] = 0;
-  comp[start] = the_comp;
+  if (comp)
+    comp[start] = the_comp;
   bfs_continue(queue, &begin, &end,
       offsets, adj, comp, layer);
   *p_begin = begin;
@@ -78,3 +81,17 @@ void bfs_full(
       bfs_from(i, the_comp++, sorted, &begin, &end,
           offsets, adj, comp, layer);
 }
+
+void connected_components(
+    unsigned n,
+    unsigned const* offsets,
+    unsigned const* adj,
+    unsigned* comp)
+{
+  unsigned* layer = LOOP_HOST_MALLOC(unsigned, n);
+  unsigned* sorted = LOOP_HOST_MALLOC(unsigned, n);
+  bfs_full(n, offsets, adj, comp, layer, sorted);
+  loop_host_free(layer);
+  loop_host_free(sorted);
+}
+
