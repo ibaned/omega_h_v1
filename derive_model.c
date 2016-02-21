@@ -267,25 +267,23 @@ void mesh_derive_class_dim(struct mesh* m, double crease_angle)
 }
 
 LOOP_KERNEL(count_boundary_graph,
-    unsigned const* eq_ents,
+    unsigned const* eq_offsets,
     unsigned const* bridges_of_ents,
     unsigned bridges_per_ent,
     unsigned const* bridges,
     unsigned* degrees)
-  if (!eq_ents[i]) {
-    degrees[i] = 0;
+  if (eq_offsets[i] == eq_offsets[i + 1])
     return;
-  }
   unsigned d = 0;
   unsigned const* bridges_of_ent = bridges_of_ents + i * bridges_per_ent;
   for (unsigned j = 0; j < bridges_per_ent; ++j)
     if (bridges[bridges_of_ent[j]])
       ++d;
-  degrees[i] = d;
+  degrees[eq_offsets[i]] = d;
 }
 
 LOOP_KERNEL(fill_boundary_graph,
-    unsigned const* eq_ents,
+    unsigned const* eq_offsets,
     unsigned const* bridges_of_ents,
     unsigned bridges_per_ent,
     unsigned const* bridges,
@@ -293,9 +291,10 @@ LOOP_KERNEL(fill_boundary_graph,
     unsigned const* ents_of_bridges,
     unsigned const* offsets,
     unsigned* adj)
-  if (!eq_ents[i])
+  if (eq_offsets[i] == eq_offsets[i + 1])
     return;
-  unsigned k = offsets[i];
+  unsigned eq = eq_offsets[i];
+  unsigned k = offsets[eq];
   unsigned const* bridges_of_ent = bridges_of_ents + i * bridges_per_ent;
   for (unsigned j = 0; j < bridges_per_ent; ++j) {
     unsigned bridge = bridges_of_ent[j];
@@ -305,8 +304,8 @@ LOOP_KERNEL(fill_boundary_graph,
       unsigned l;
       for (l = a; l < b; ++l) {
         unsigned other = ents_of_bridges[l];
-        if (eq_ents[other]) {
-          adj[k++] = other;
+        if (eq_offsets[other] != eq_offsets[other + 1]) {
+          adj[k++] = eq_offsets[other];
           break;
         }
       }
@@ -316,50 +315,68 @@ LOOP_KERNEL(fill_boundary_graph,
 }
 
 static void form_boundary_graph(struct mesh* m, unsigned dim,
-    unsigned** p_offsets, unsigned** p_adj)
+    unsigned** p_eq_offsets, unsigned** p_offsets, unsigned** p_adj)
 {
   assert(dim > 0);
   printf("forming dim %u boundary graph\n", dim);
-  unsigned* eq_ents = mesh_mark_class(m, dim, dim, INVALID);
-  unsigned* bridges = mesh_mark_class(m, dim - 1, dim, INVALID);
   unsigned nents = mesh_count(m, dim);
+  unsigned* eq_ents = mesh_mark_class(m, dim, dim, INVALID);
+  unsigned* eq_offsets = uints_exscan(eq_ents, nents);
+  unsigned neqs = eq_offsets[nents];
+  loop_free(eq_ents);
+  unsigned* bridges = mesh_mark_class(m, dim - 1, dim, INVALID);
   unsigned bridges_per_ent = the_down_degrees[dim][dim - 1];
   unsigned const* bridges_of_ents = mesh_ask_down(m, dim, dim - 1);
-  unsigned* degrees = LOOP_MALLOC(unsigned, nents);
-  LOOP_EXEC(count_boundary_graph, nents, eq_ents, bridges_of_ents,
+  unsigned* degrees = LOOP_MALLOC(unsigned, neqs);
+  LOOP_EXEC(count_boundary_graph, nents, eq_offsets, bridges_of_ents,
       bridges_per_ent, bridges, degrees);
-  unsigned* offsets = uints_exscan(degrees, nents);
+  unsigned* offsets = uints_exscan(degrees, neqs);
   loop_free(degrees);
-  unsigned nadj = uints_at(offsets, nents);
+  unsigned nadj = uints_at(offsets, neqs);
   unsigned* adj = LOOP_MALLOC(unsigned, nadj);
   unsigned const* ents_of_bridges_offsets =
     mesh_ask_up(m, dim - 1, dim)->offsets;
   unsigned const* ents_of_bridges =
     mesh_ask_up(m, dim - 1, dim)->adj;
-  LOOP_EXEC(fill_boundary_graph, nents, eq_ents, bridges_of_ents,
+  LOOP_EXEC(fill_boundary_graph, nents, eq_offsets, bridges_of_ents,
       bridges_per_ent, bridges, ents_of_bridges_offsets, ents_of_bridges,
       offsets, adj);
   loop_free(eq_ents);
   loop_free(bridges);
+  *p_eq_offsets = eq_offsets;
   *p_offsets = uints_to_host(offsets, nents + 1);
   loop_free(offsets);
   *p_adj = uints_to_host(adj, nadj);
   loop_free(adj);
 }
 
+LOOP_KERNEL(extract_eq_class_id,
+    unsigned const* eq_offsets,
+    unsigned const* comp,
+    unsigned* class_id)
+  if (eq_offsets[i] != eq_offsets[i + 1])
+    class_id[i] = comp[eq_offsets[i]];
+}
+
 static void set_equal_order_class_id(struct mesh* m, unsigned dim)
 {
+  unsigned* eq_offsets;
   unsigned* offsets;
   unsigned* adj;
-  form_boundary_graph(m, dim, &offsets, &adj);
+  form_boundary_graph(m, dim, &eq_offsets, &offsets, &adj);
   unsigned nents = mesh_count(m, dim);
-  unsigned* host_comp = LOOP_HOST_MALLOC(unsigned, nents);
+  unsigned neqs = uints_at(eq_offsets, nents);
+  unsigned* host_comp = LOOP_HOST_MALLOC(unsigned, neqs);
   connected_components(nents, offsets, adj, host_comp);
   loop_host_free(offsets);
   loop_host_free(adj);
-  mesh_add_tag(m, dim, TAG_U32, "class_id", 1,
-      uints_to_device(host_comp, nents));
+  unsigned* comp = uints_to_device(host_comp, neqs);
   loop_host_free(host_comp);
+  unsigned* class_id = LOOP_MALLOC(unsigned, nents);
+  LOOP_EXEC(extract_eq_class_id, nents, eq_offsets, comp, class_id);
+  loop_free(comp);
+  loop_free(eq_offsets);
+  mesh_add_tag(m, dim, TAG_U32, "class_id", 1, class_id);
 }
 
 LOOP_KERNEL(project_class_kern,
