@@ -366,7 +366,7 @@ static void set_equal_order_class_id(struct mesh* m, unsigned dim)
   unsigned nents = mesh_count(m, dim);
   unsigned neqs = uints_at(eq_offsets, nents);
   unsigned* host_comp = LOOP_HOST_MALLOC(unsigned, neqs);
-  connected_components(nents, offsets, adj, host_comp);
+  connected_components(neqs, offsets, adj, host_comp);
   loop_host_free(offsets);
   loop_host_free(adj);
   unsigned* comp = uints_to_device(host_comp, neqs);
