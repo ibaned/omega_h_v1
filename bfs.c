@@ -1,3 +1,5 @@
+#include "bfs.h"
+
 #include "tables.h"
 
 /* none of the functions in this file
