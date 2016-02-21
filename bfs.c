@@ -1,6 +1,6 @@
 #include "bfs.h"
 
-#include <stdio.h>
+#include <assert.h>
 
 #include "loop.h"
 #include "tables.h"
@@ -30,7 +30,6 @@ void bfs_continue(
     unsigned b = offsets[u + 1];
     for (unsigned j = a; j < b; ++j) {
       unsigned v = adj[j];
-      printf("adj[%u] of %u is %u\n", j-a, u, v);
       if (layer[v] == INVALID) {
         queue[end++] = v;
         layer[v] = layer[u] + 1;
@@ -83,6 +82,7 @@ void bfs_full(
     if (layer[i] == INVALID)
       bfs_from(i, the_comp++, sorted, &begin, &end,
           offsets, adj, comp, layer);
+  assert(end == n);
 }
 
 void connected_components(
