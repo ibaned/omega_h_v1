@@ -9,11 +9,11 @@
 
 LOOP_INOUT static inline void
 zero_vector(
-    double* b,
+    double* v,
     unsigned n)
 {
   for (unsigned i = 0; i < n; ++i)
-    b[i] = a[i];
+    v[i] = 0;
 }
 
 LOOP_INOUT static inline void
