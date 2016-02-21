@@ -317,6 +317,8 @@ static void form_boundary_graph(struct mesh* m, unsigned dim,
   unsigned* adj = LOOP_MALLOC(unsigned, nadj);
   LOOP_EXEC(fill_boundary_graph, nents, eq_ents, bridges_of_ents,
       bridges_per_ent, bridges, offsets, adj);
+  loop_free(eq_ents);
+  loop_free(bridges);
   *p_offsets = uints_to_host(offsets, nents + 1);
   loop_free(offsets);
   *p_adj = uints_to_host(adj, nadj);
@@ -331,6 +333,8 @@ static void set_equal_order_class_id(struct mesh* m, unsigned dim)
   unsigned nents = mesh_count(m, dim);
   unsigned* host_comp = LOOP_HOST_MALLOC(unsigned, nents);
   connected_components(nents, offsets, adj, host_comp);
+  loop_host_free(offsets);
+  loop_host_free(adj);
   mesh_add_tag(m, dim, TAG_U32, "class_id", 1,
       uints_to_device(host_comp, nents));
   loop_host_free(host_comp);
