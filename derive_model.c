@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <math.h>
-#include <stdio.h>
 
 #include "algebra.h"
 #include "arrays.h"
@@ -293,14 +292,12 @@ LOOP_KERNEL(fill_boundary_graph,
     unsigned* adj)
   if (eq_offsets[i] == eq_offsets[i + 1])
     return;
-  printf("ent %u is an eq\n", i);
   unsigned eq = eq_offsets[i];
   unsigned k = offsets[eq];
   unsigned const* bridges_of_ent = bridges_of_ents + i * bridges_per_ent;
   for (unsigned j = 0; j < bridges_per_ent; ++j) {
     unsigned bridge = bridges_of_ent[j];
     if (bridges[bridges_of_ent[j]]) {
-      printf("bridge %u of ent %u is a bridge\n", j, i);
       unsigned a = ents_of_bridges_offsets[bridge];
       unsigned b = ents_of_bridges_offsets[bridge + 1];
       unsigned l;
@@ -308,10 +305,7 @@ LOOP_KERNEL(fill_boundary_graph,
         unsigned other = ents_of_bridges[l];
         if (other == i)
           continue;
-        printf("ents_of_bridges[%u] = %u\n", l, other);
         if (eq_offsets[other] != eq_offsets[other + 1]) {
-          printf("setting adj[%u] = %u = eq_offsets[%u]\n",
-              k, eq_offsets[other], other);
           adj[k++] = eq_offsets[other];
           break;
         }
@@ -325,7 +319,6 @@ static void form_boundary_graph(struct mesh* m, unsigned dim,
     unsigned** p_eq_offsets, unsigned** p_offsets, unsigned** p_adj)
 {
   assert(dim > 0);
-  printf("forming dim %u boundary graph\n", dim);
   unsigned nents = mesh_count(m, dim);
   unsigned* eq_ents = mesh_mark_class(m, dim, dim, INVALID);
   unsigned* eq_offsets = uints_exscan(eq_ents, nents);
