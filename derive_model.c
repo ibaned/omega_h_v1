@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdio.h>
 
 #include "algebra.h"
 #include "arrays.h"
@@ -288,21 +289,37 @@ LOOP_KERNEL(fill_boundary_graph,
     unsigned const* bridges_of_ents,
     unsigned bridges_per_ent,
     unsigned const* bridges,
+    unsigned const* ents_of_bridges_offsets,
+    unsigned const* ents_of_bridges,
     unsigned const* offsets,
     unsigned* adj)
   if (!eq_ents[i])
     return;
   unsigned k = offsets[i];
   unsigned const* bridges_of_ent = bridges_of_ents + i * bridges_per_ent;
-  for (unsigned j = 0; j < bridges_per_ent; ++j)
-    if (bridges[bridges_of_ent[j]])
-      adj[k++] = bridges_of_ent[j];
+  for (unsigned j = 0; j < bridges_per_ent; ++j) {
+    unsigned bridge = bridges_of_ent[j];
+    if (bridges[bridges_of_ent[j]]) {
+      unsigned a = ents_of_bridges_offsets[bridge];
+      unsigned b = ents_of_bridges_offsets[bridge + 1];
+      unsigned l;
+      for (l = a; l < b; ++l) {
+        unsigned other = ents_of_bridges[l];
+        if (eq_ents[other]) {
+          adj[k++] = other;
+          break;
+        }
+      }
+      assert(l < b);
+    }
+  }
 }
 
 static void form_boundary_graph(struct mesh* m, unsigned dim,
     unsigned** p_offsets, unsigned** p_adj)
 {
   assert(dim > 0);
+  printf("forming dim %u boundary graph\n", dim);
   unsigned* eq_ents = mesh_mark_class(m, dim, dim, INVALID);
   unsigned* bridges = mesh_mark_class(m, dim - 1, dim, INVALID);
   unsigned nents = mesh_count(m, dim);
@@ -315,8 +332,13 @@ static void form_boundary_graph(struct mesh* m, unsigned dim,
   loop_free(degrees);
   unsigned nadj = uints_at(offsets, nents);
   unsigned* adj = LOOP_MALLOC(unsigned, nadj);
+  unsigned const* ents_of_bridges_offsets =
+    mesh_ask_up(m, dim - 1, dim)->offsets;
+  unsigned const* ents_of_bridges =
+    mesh_ask_up(m, dim - 1, dim)->adj;
   LOOP_EXEC(fill_boundary_graph, nents, eq_ents, bridges_of_ents,
-      bridges_per_ent, bridges, offsets, adj);
+      bridges_per_ent, bridges, ents_of_bridges_offsets, ents_of_bridges,
+      offsets, adj);
   loop_free(eq_ents);
   loop_free(bridges);
   *p_offsets = uints_to_host(offsets, nents + 1);

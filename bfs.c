@@ -1,5 +1,7 @@
 #include "bfs.h"
 
+#include <stdio.h>
+
 #include "loop.h"
 #include "tables.h"
 
@@ -28,6 +30,7 @@ void bfs_continue(
     unsigned b = offsets[u + 1];
     for (unsigned j = a; j < b; ++j) {
       unsigned v = adj[j];
+      printf("adj[%u] of %u is %u\n", j-a, u, v);
       if (layer[v] == INVALID) {
         queue[end++] = v;
         layer[v] = layer[u] + 1;
