@@ -13,7 +13,19 @@
 #include <stdlib.h>
 #endif
 
-#ifdef LOOP_CUDA_H
+static unsigned* serial_uints_exscan(unsigned const* a, unsigned n)
+{
+  unsigned* o = LOOP_HOST_MALLOC(unsigned, (n + 1));
+  unsigned sum = 0;
+  o[0] = 0;
+  for (unsigned i = 0; i < n; ++i) {
+    sum += a[i];
+    o[i + 1] = sum;
+  }
+  return o;
+}
+
+#if defined(LOOP_CUDA_H)
 
 unsigned uints_max(unsigned const* a, unsigned n)
 {
@@ -25,7 +37,7 @@ unsigned uints_max(unsigned const* a, unsigned n)
 
 unsigned* uints_exscan(unsigned const* a, unsigned n)
 {
-  unsigned * o = LOOP_MALLOC(unsigned , n + 1);
+  unsigned* o = LOOP_MALLOC(unsigned , n + 1);
   thrust::device_ptr<unsigned const> inp(a);
   thrust::device_ptr<unsigned> outp(o);
   thrust::exclusive_scan(inp, inp + n, outp);
@@ -51,6 +63,84 @@ unsigned long ulongs_max(unsigned long const* a, unsigned n)
   return max;
 }
 
+#elif defined(LOOP_OPENMP_H)
+
+unsigned uints_max(unsigned const* a, unsigned n)
+{
+  unsigned max = 0;
+  #pragma omp parallel
+  {
+    unsigned thread_max = 0;
+    #pragma omp for
+    for (unsigned i = 0; i < n; ++i)
+      if (a[i] > thread_max)
+        thread_max = a[i];
+    #pragma omp critical
+    {
+      if (thread_max > max)
+        max = thread_max;
+    }
+  }
+  return max;
+}
+
+unsigned* uints_exscan(unsigned const* a, unsigned n)
+{
+  unsigned nthreads = (unsigned) omp_get_max_threads();
+  unsigned* thread_sums = LOOP_HOST_MALLOC(sizeof(unsigned) * nthreads);
+  #pragma omp parallel
+  {
+    unsigned thread_sum = 0;
+    #pragma omp for schedule(static)
+    for (unsigned i = 0; i < n; ++i)
+      thread_sum += a[i];
+    thread_sums[omp_get_thread_num()] = thread_sum;
+  }
+  unsigned* thread_exscan = serial_uints_exscan(thread_sums, nthreads);
+  loop_host_free(thread_sums);
+  unsigned* o = LOOP_HOST_MALLOC(unsigned, (n + 1));
+  o[0] = 0;
+  #pragma omp parallel
+  {
+    unsigned sum = thread_exscan[omp_get_thread_num()];
+    #pragma omp for schedule(static)
+    for (unsigned i = 0; i < n; ++i) {
+      sum += a[i];
+      o[i + 1] = sum;
+    }
+  }
+  loop_host_free(thread_exscan);
+  return o;
+}
+
+unsigned* uints_sum(unsigned const* a, unsigned n)
+{
+  unsigned sum = 0;
+  #pragma omp parallel for reduction (+:sum)
+  for (unsigned i = 0; i < n; ++i)
+    sum = sum + a[i];
+  return sum;
+}
+
+unsigned long ulongs_max(unsigned long const* a, unsigned n)
+{
+  unsigned long max = 0;
+  #pragma omp parallel
+  {
+    unsigned long thread_max = 0;
+    #pragma omp for
+    for (unsigned i = 0; i < n; ++i)
+      if (a[i] > thread_max)
+        thread_max = a[i];
+    #pragma omp critical
+    {
+      if (thread_max > max)
+        max = thread_max;
+    }
+  }
+  return max;
+}
+
 #else
 
 unsigned uints_max(unsigned const* a, unsigned n)
@@ -64,14 +154,7 @@ unsigned uints_max(unsigned const* a, unsigned n)
 
 unsigned* uints_exscan(unsigned const* a, unsigned n)
 {
-  unsigned* o = LOOP_MALLOC(unsigned, (n + 1));
-  unsigned sum = 0;
-  o[0] = 0;
-  for (unsigned i = 0; i < n; ++i) {
-    sum += a[i];
-    o[i + 1] = sum;
-  }
-  return o;
+  return serial_uints_exscan(a, n);
 }
 
 unsigned uints_sum(unsigned const* a, unsigned n)
