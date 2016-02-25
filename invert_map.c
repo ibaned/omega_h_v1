@@ -37,6 +37,7 @@ LOOP_KERNEL(fill, unsigned const* in,
    there is a reward for someone who comes up with
    an equally efficient implementation that is deterministic
    from the start */
+/*
 LOOP_KERNEL(sort,
     unsigned* offsets,
     unsigned* out)
@@ -52,7 +53,7 @@ LOOP_KERNEL(sort,
     out[min_k] = tmp;
   }
 }
-
+*/
 
 
 
@@ -85,7 +86,9 @@ void Count_Sort_Dance(unsigned const*in , struct Counter*  out, unsigned nin)
   unsigned * n_sorted = LOOP_MALLOC( unsigned , nin);
   LOOP_EXEC( copy , nin , in , n_sorted);
   LOOP_EXEC( Pointer_assign, nin, out, ref);
-  thrust::stable_sort_by_key( n_sorted ,n_sorted+nin , ref );
+  thrust::stable_sort_by_key( thrust::device_ptr(n_sorted),
+		  thrust::device_ptr(n_sorted+nin) ,
+		  thrust::device_ptr(ref) );
   LOOP_EXEC( count_work , nin, ref , n_sorted);
 }
 
@@ -109,7 +112,7 @@ void invert_map(
   counts = uints_filled(nout, 0);
   LOOP_EXEC(fill, nin, in, offsets, counts, out, counters);
   loop_free(counts);
-  LOOP_EXEC(sort, nout, offsets, out);
+  //LOOP_EXEC(sort, nout, offsets, out);
   *p_out = out;
   *p_offsets = offsets;
 }
