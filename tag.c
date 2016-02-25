@@ -56,9 +56,13 @@ struct const_tag* add_tag(struct tags* ts, enum tag_type type, char const* name,
 {
   assert(!find_tag(ts, name));
   struct tag* t = new_tag(name, type, ncomps, data);
-  ts->n++;
-  ts->at = LOOP_HOST_REALLOC(struct tag*, ts->at, ts->n);
-  ts->at[ts->n - 1] = t;
+  if (ts->n == ts->cap) {
+    ts->cap = (3 * ts->cap) / 2;
+    if (ts->cap < 10)
+      ts->cap = 10;
+    ts->at = LOOP_HOST_REALLOC(struct tag*, ts->at, ts->cap);
+  }
+  ts->at[ts->n++] = t;
   return (struct const_tag*) t;
 }
 

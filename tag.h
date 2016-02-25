@@ -25,7 +25,7 @@ struct const_tag {
 
 struct tags {
   unsigned n;
-  int padding__;
+  unsigned cap;
   struct tag** at;
 };
 

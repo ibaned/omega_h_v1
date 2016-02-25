@@ -96,7 +96,7 @@ static double get_time(void)
   struct timeval tv;
   gettimeofday(&tv, NULL);
   double t = tv.tv_usec;
-  t /= 1000;
+  t /= 1e6;
   t += tv.tv_sec;
   return t;
 }
