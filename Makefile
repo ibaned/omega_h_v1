@@ -24,14 +24,17 @@ test_refine_by_size.c \
 test_grad.c \
 test_warp.c \
 test_warp_3d.c \
+test_warp_perf.c \
 test_migrate.c \
 test_conform.c \
 test_ghost.c \
 test_memory.c \
 test_subdim.c \
-test_loop.c
+test_loop.c \
+test_to_la.c
 
 lib_sources := \
+bfs.c \
 star.c \
 tables.c \
 up_from_down.c \

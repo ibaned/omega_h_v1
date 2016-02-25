@@ -6,81 +6,7 @@
 #include "loop.h"
 #include "mesh.h"
 #include "tables.h"
-
-/* some optimization here due to the relatively
-   high cost of these operations.
-   first, nverts_wanted is either 2 or 3.
-   that is because reflect_down is only
-   used to derive intermediate downward adjacencies,
-   and we always have the n->0 adjacency, so it must
-   be one of:
-     3->2
-     3->1
-     2->1
-   and for d=2, d=1, the number of vertices of a simplex
-   is n=3, n=2, respectively.
-
-TODO: consolidate this with find_by_verts.h
-*/
-
-LOOP_INOUT static inline unsigned find_face_up(
-    unsigned const* verts_wanted,
-    unsigned const* verts_of_lows,
-    unsigned const* lows_of_verts_offsets,
-    unsigned const* lows_of_verts,
-    unsigned const* lows_of_verts_directions)
-{
-  unsigned v0 = verts_wanted[0];
-  unsigned f = lows_of_verts_offsets[v0];
-  unsigned e = lows_of_verts_offsets[v0 + 1];
-  for (unsigned i = f; i < e; ++i) {
-    unsigned low = lows_of_verts[i];
-    unsigned dir = lows_of_verts_directions[i];
-    unsigned const* verts_of_low = verts_of_lows + low * 3;
-    if (((verts_of_low[(dir + 1) % 3] == verts_wanted[1]) &&
-         (verts_of_low[(dir + 2) % 3] == verts_wanted[2])) ||
-        ((verts_of_low[(dir + 1) % 3] == verts_wanted[2]) &&
-         (verts_of_low[(dir + 2) % 3] == verts_wanted[1])))
-      return low;
-  }
-  LOOP_NORETURN(INVALID);
-}
-
-LOOP_INOUT static inline unsigned find_edge_up(
-    unsigned const* verts_wanted,
-    unsigned const* verts_of_lows,
-    unsigned const* lows_of_verts_offsets,
-    unsigned const* lows_of_verts,
-    unsigned const* lows_of_verts_directions)
-{
-  unsigned v0 = verts_wanted[0];
-  unsigned f = lows_of_verts_offsets[v0];
-  unsigned e = lows_of_verts_offsets[v0 + 1];
-  for (unsigned i = f; i < e; ++i) {
-    unsigned low = lows_of_verts[i];
-    unsigned dir = lows_of_verts_directions[i];
-    unsigned const* verts_of_low = verts_of_lows + low * 2;
-    if (verts_of_low[1 - dir] == verts_wanted[1])
-      return low;
-  }
-  LOOP_NORETURN(INVALID);
-}
-
-LOOP_INOUT static inline unsigned find_low(
-    unsigned nverts_wanted,
-    unsigned const* verts_wanted,
-    unsigned const* verts_of_lows,
-    unsigned const* lows_of_verts_offsets,
-    unsigned const* lows_of_verts,
-    unsigned const* lows_of_verts_directions)
-{
-  if (nverts_wanted == 2)
-    return find_edge_up(verts_wanted, verts_of_lows,
-        lows_of_verts_offsets, lows_of_verts, lows_of_verts_directions);
-  else
-    return find_face_up(verts_wanted, verts_of_lows,
-        lows_of_verts_offsets, lows_of_verts, lows_of_verts_directions);
-}
+#include "find_by_verts.h"
 
 LOOP_KERNEL(reflect_down_entity,
     unsigned high_dim,
@@ -104,7 +30,7 @@ LOOP_KERNEL(reflect_down_entity,
     unsigned verts_wanted[3];
     for (unsigned k = 0; k < verts_per_low; ++k)
       verts_wanted[k] = verts_of_high[high_verts_of_low[k]];
-    lows_of_high[j] = find_low(verts_per_low, verts_wanted, verts_of_lows,
+    lows_of_high[j] = find_by_verts(low_dim, verts_wanted, verts_of_lows,
         lows_of_verts_offsets, lows_of_verts, lows_of_verts_directions);
   }
 }
