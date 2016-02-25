@@ -4,14 +4,15 @@
 
 #include "adapt.h"
 #include "algebra.h"
-#include "classify_box.h"
+#include "comm.h"
+#include "derive_model.h"
+#include "doubles.h"
+#include "element_field.h"
 #include "eval_field.h"
 #include "mesh.h"
-#include "refine_by_size.h"
-#include "vtk.h"
+#include "refine.h"
+#include "vtk_io.h"
 #include "warp_to_limit.h"
-
-struct mesh;
 
 static double const warp_qual_floor = 0.2;
 static double const good_qual_floor = 0.3;
@@ -64,14 +65,24 @@ static void dye_fun(double const* coords, double* v)
   v[0] = 4 * dir * (.25 - vector_norm(x, 3));
 }
 
-static void warped_adapt(struct mesh** p_m)
+static unsigned global_nelems_for_mass;
+
+static void mass_fun(double const* coords, double* v)
+{
+  if (coords[0] > 0.5)
+    *v = 1.0 / global_nelems_for_mass;
+  else
+    *v = 0;
+}
+
+static void warped_adapt(struct mesh* m)
 {
   static unsigned const n = 6;
   for (unsigned i = 0; i < n; ++i) {
     printf("\n WARP TO LIMIT %u\n", i);
-    unsigned done = mesh_warp_to_limit(*p_m, warp_qual_floor);
-    write_vtk_step(*p_m);
-    mesh_adapt(p_m, size_floor, good_qual_floor, nsliver_layers, max_ops);
+    unsigned done = mesh_warp_to_limit(m, warp_qual_floor);
+    mesh_adapt(m, size_floor, good_qual_floor, nsliver_layers, max_ops);
+    write_vtk_step(m);
     if (done)
       return;
   }
@@ -79,14 +90,29 @@ static void warped_adapt(struct mesh** p_m)
   abort();
 }
 
-int main()
+int main(int argc, char** argv)
 {
+  comm_init();
+  char const* path;
+  if (argc == 2)
+    path = argv[1];
+  else
+    path = ".";
   struct mesh* m = new_box_mesh(3);
+  mesh_derive_model(m, PI / 4);
+  mesh_set_rep(m, MESH_FULL);
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
-  while (refine_by_size(&m, 0));
-  mesh_classify_box(m);
-  start_vtk_steps("warp");
+  while (refine_by_size(m, 0));
+  char prefix[128];
+  sprintf(prefix, "%s/warp", path);
+  start_vtk_steps(prefix);
   mesh_eval_field(m, 0, "dye", 1, dye_fun);
+  { //set mass field to test conservative transfer
+    mesh_interp_to_elems(m, "coordinates");
+    global_nelems_for_mass = mesh_count(m, mesh_dim(m));
+    mesh_eval_field(m, mesh_dim(m), "mass", 1, mass_fun);
+    mesh_free_tag(m, mesh_dim(m), "coordinates");
+  }
   write_vtk_step(m);
   for (unsigned i = 0; i < 2; ++i) {
     printf("\nOUTER DIRECTION %u\n", i);
@@ -94,10 +120,11 @@ int main()
       printf("\nWARP FIELD %u\n", j);
       mesh_eval_field(m, 0, "warp", 3, warp_fun);
       printf("new warp field\n");
-      warped_adapt(&m);
+      warped_adapt(m);
       mesh_free_tag(m, 0, "warp");
     }
     the_rotation = -the_rotation;
   }
   free_mesh(m);
+  comm_fini();
 }

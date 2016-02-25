@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "comm.h"
 #include "mesh.h"
 #include "mesh_diff.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 int main(int argc, char** argv)
 {
+  comm_init();
   double tol = 1e-6;
   double floor = 0;
   unsigned get_tol = 0;
@@ -15,6 +17,7 @@ int main(int argc, char** argv)
   unsigned get_help = 0;
   char const* filea = 0;
   char const* fileb = 0;
+  unsigned allow_superset = 0;
   for (int i = 1; i < argc; ++i) {
     if (get_tol) {
       tol = atof(argv[i]);
@@ -36,6 +39,10 @@ int main(int argc, char** argv)
     }
     if (!strcmp(argv[i], "-help")) {
       get_help = 1;
+      continue;
+    }
+    if (!strcmp(argv[i], "-superset")) {
+      allow_superset = 1;
       continue;
     }
     if (!filea) {
@@ -63,13 +70,14 @@ int main(int argc, char** argv)
     printf("    -help (Print this summary and exit.)\n");
     printf("    -tolerance <$val> (Overrides the default tolerance of 1.0E-6.)\n");
     printf("    -Floor <$val> (Overrides the default floor tolerance of 0.0.)\n");
-    return -1;
+    return 0;
   }
-  struct mesh* a = read_vtu(filea);
-  struct mesh* b = read_vtu(fileb);
-  unsigned differ = mesh_diff(a, b, tol, floor);
+  struct mesh* a = read_mesh_vtk(filea);
+  struct mesh* b = read_mesh_vtk(fileb);
+  unsigned differ = mesh_diff(a, b, tol, floor, allow_superset);
   free_mesh(a);
   free_mesh(b);
+  comm_fini();
   if (differ)
     return 2;
   return 0;

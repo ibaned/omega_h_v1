@@ -60,7 +60,7 @@ struct exchanger {
   unsigned* shuffles[EX_DIRS];
 /* message index for each input and output item */
   unsigned* msg_of_items[EX_DIRS];
-/* one-to-many mapping from roots to offsets */
+/* one-to-many mapping from roots to items */
   unsigned* items_of_roots_offsets[EX_DIRS];
 };
 
@@ -89,5 +89,13 @@ unsigned long* exchange_ulongs(struct exchanger* ex, unsigned width,
     unsigned long const* data, enum exch_dir dir, enum exch_start start);
 
 void free_exchanger(struct exchanger* ex);
+
+void reverse_exchanger(struct exchanger* ex);
+
+struct exchanger* make_reverse_exchanger(unsigned nsent, unsigned nrecvd,
+    unsigned const* recvd_ranks, unsigned const* recvd_ids);
+
+double* exchange_doubles_max(struct exchanger* ex, unsigned width,
+    double const* data, enum exch_dir dir, enum exch_start start);
 
 #endif

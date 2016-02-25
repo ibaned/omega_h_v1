@@ -1,0 +1,24 @@
+.TH osh_write_vtk 3 "2/16/2016" " " ""
+.SH NAME
+osh_write_vtk \-  Write a mesh to our VTK format. 
+.SH SYNOPSIS
+.nf
+void osh_write_vtk(osh_t m, char const* filename)
+.fi
+If the mesh is parallel, a ".pvtu" extension
+should be used which creates a ".pvtu" file and
+corresponding ".vtu" files for each MPI rank.
+
+Otherwise, use the ".vtu" extension.
+
+Collective
+
+.SH INPUT PARAMETERS
++ m - the mesh
+- filename - the output path, see description
+
+Level: beginner
+
+.SH SEE ALSO
+osh_read_vtk()
+.br

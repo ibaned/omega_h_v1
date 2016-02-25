@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "files.h"
 #include "find_by_verts.h"
@@ -21,15 +22,32 @@ static unsigned get_gmsh_type_dim(unsigned type)
   }
 }
 
-struct mesh* read_msh(char const* filename)
+static unsigned find_nodes_start(FILE* f)
 {
-  FILE* f = fopen(filename, "r");
-  assert(f != NULL);
+  static char const* const plain_prefix = "$Nodes";
+  static char const* const param_prefix = "$ParametricNodes";
+  unsigned long plain_len = strlen(plain_prefix);
+  unsigned long param_len = strlen(param_prefix);
   line_t line;
-  seek_prefix(f, line, sizeof(line), "$Nodes");
+  while (fgets(line, (int) sizeof(line), f)) {
+    if (!strncmp(line, plain_prefix, plain_len))
+      return 0;
+    if (!strncmp(line, param_prefix, param_len))
+      return 1;
+  }
+  LOOP_NORETURN(0);
+}
+
+static void read_nodes(FILE* f, unsigned* p_nnodes,
+    double** p_node_coords, double** p_node_params)
+{
+  unsigned has_param = find_nodes_start(f);
   unsigned nnodes;
   safe_scanf(f, 1, "%u", &nnodes);
   double* node_coords = LOOP_HOST_MALLOC(double, nnodes * 3);
+  double* node_params = 0;
+  if (has_param)
+    node_params = LOOP_HOST_MALLOC(double, nnodes * 2);
   for (unsigned i = 0; i < nnodes; ++i) {
     unsigned node_id;
     safe_scanf(f, 4, "%u %lf %lf %lf",
@@ -38,7 +56,39 @@ struct mesh* read_msh(char const* filename)
         node_coords + i * 3 + 1,
         node_coords + i * 3 + 2);
     assert(node_id == i + 1);
+    unsigned geom_dim;
+    if (has_param) {
+      safe_scanf(f, 1, "%u %*u", &geom_dim);
+      switch (geom_dim) {
+        case 0:
+        case 3: node_params[i * 2 + 0] = 0.0; 
+                node_params[i * 2 + 1] = 0.0; 
+                break;
+        case 1: safe_scanf(f, 1, "%lf", node_params + i * 2);
+                node_params[i * 2 + 1] = 0.0;
+                break;
+        case 2: safe_scanf(f, 2, "%lf %lf",
+                    node_params + i * 2 + 0,
+                    node_params + i * 2 + 1);
+                break;
+        default: assert(0);
+      }
+    }
   }
+  *p_nnodes = nnodes;
+  *p_node_coords = node_coords;
+  *p_node_params = node_params;
+}
+
+struct mesh* read_msh(char const* filename)
+{
+  FILE* f = safe_fopen(filename, "r");
+  assert(f != NULL);
+  unsigned nnodes;
+  double* node_coords;
+  double* node_params;
+  read_nodes(f, &nnodes, &node_coords, &node_params);
+  line_t line;
   seek_prefix(f, line, sizeof(line), "$Elements");
   /* we call these "eq"s, for equal-order classified mesh entities */
   unsigned neqs;
@@ -74,9 +124,11 @@ struct mesh* read_msh(char const* filename)
   /* alright, we can tell the highest-dimensional entity
      and store the vertices at least */
   unsigned dim = uints_max(dim_of_eqs, neqs);
-  struct mesh* m = new_mesh(dim);
+  struct mesh* m = new_mesh(dim, MESH_REDUCED, 0);
   mesh_set_ents(m, 0, nnodes, 0);
   mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, node_coords);
+  if (node_params)
+    mesh_add_tag(m, 0, TAG_F64, "parametric", 2, node_params);
   /* we can also form the elements and derive all intermediate
      entities based on the elements */
   unsigned nelems = 0;
@@ -137,5 +189,6 @@ struct mesh* read_msh(char const* filename)
     mesh_add_tag(m, i, TAG_U32, "class_dim", 1, class_dims[i]);
     mesh_add_tag(m, i, TAG_U32, "class_id", 1, class_ids[i]);
   }
+  mesh_set_rep(m, MESH_FULL);
   return m;
 }

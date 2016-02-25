@@ -1,0 +1,20 @@
+.TH osh_init 3 "2/16/2016" " " ""
+.SH NAME
+osh_init \-  Initializes omega_h. 
+.SH SYNOPSIS
+.nf
+void osh_init(void)
+.fi
+If MPI was not already initialized, this
+will call MPI_Init.
+It currently does nothing else, but please
+consider it standard practice to call this
+before any other omega_h APIs.
+
+Collective
+
+Level: beginner
+
+.SH SEE ALSO
+osh_fini()
+.br

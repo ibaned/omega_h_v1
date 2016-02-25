@@ -5,7 +5,8 @@
 
 #include "arrays.h"
 #include "bridge_graph.h"
-#include "derive_faces.h"
+#include "derive_sides.h"
+#include "dual.h"
 #include "graph.h"
 #include "ints.h"
 #include "loop.h"
@@ -23,7 +24,7 @@ struct up {
 
 struct mesh {
   unsigned elem_dim;
-  int padding__;
+  enum mesh_rep rep;
   unsigned counts[4];
   unsigned* down[4][4];
   struct up* up[4][4];
@@ -52,29 +53,29 @@ static void free_up(struct up* u)
   loop_host_free(u);
 }
 
-struct mesh* new_mesh(unsigned elem_dim)
+struct mesh* new_mesh(unsigned elem_dim, enum mesh_rep rep, unsigned is_parallel)
 {
   struct mesh* m = LOOP_HOST_MALLOC(struct mesh, 1);
   memset(m, 0, sizeof(*m));
   m->elem_dim = elem_dim;
-  m->parallel = new_parallel_mesh(m);
+  m->rep = rep;
+  if (is_parallel)
+    m->parallel = new_parallel_mesh();
   return m;
 }
 
 struct mesh* new_box_mesh(unsigned elem_dim)
 {
-  struct mesh* m = new_mesh(elem_dim);
+  struct mesh* m = new_mesh(elem_dim, MESH_REDUCED, 0);
   unsigned nelems = the_box_nelems[elem_dim];
   unsigned nverts = the_box_nverts[elem_dim];
   mesh_set_ents(m, 0, nverts, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned nbytes = sizeof(unsigned) * verts_per_elem * nelems;
-  unsigned* verts_of_elems = LOOP_MALLOC(unsigned, verts_per_elem * nelems);
-  memcpy(verts_of_elems, the_box_conns[elem_dim], nbytes);
-  double* coords = LOOP_MALLOC(double, 3 * nverts);
-  nbytes = sizeof(double) * 3 * nverts;
-  memcpy(coords, the_box_coords[elem_dim], nbytes);
+  unsigned* verts_of_elems = uints_to_device(
+      the_box_conns[elem_dim], verts_per_elem * nelems);
   mesh_set_ents(m, elem_dim, nelems, verts_of_elems);
+  double* coords = doubles_to_device(
+      the_box_coords[elem_dim], 3 * nverts);
   mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, coords);
   return m;
 }
@@ -96,18 +97,24 @@ unsigned mesh_count(struct mesh* m, unsigned dim)
   return m->counts[dim];
 }
 
-void free_mesh(struct mesh* m)
+static void free_mesh_contents(struct mesh* m)
 {
   for (unsigned high_dim = 0; high_dim <= m->elem_dim; ++high_dim)
     for (unsigned low_dim = 0; low_dim <= high_dim; ++low_dim) {
       loop_free(m->down[high_dim][low_dim]);
       free_up(m->up[low_dim][high_dim]);
-      free_graph(m->star[low_dim][high_dim]);
+      osh_free_graph(m->star[low_dim][high_dim]);
     }
   loop_free(m->dual);
   for (unsigned d = 0; d < 4; ++d)
     free_tags(&m->tags[d]);
-  free_parallel_mesh(m->parallel);
+  if (m->parallel)
+    free_parallel_mesh(m->parallel);
+}
+
+void free_mesh(struct mesh* m)
+{
+  free_mesh_contents(m);
   loop_host_free(m);
 }
 
@@ -126,6 +133,7 @@ static void set_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
 
 unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_dim)
 {
+  assert(high_dim <= mesh_dim(m));
   assert(low_dim <= high_dim);
   if (m->down[high_dim][low_dim])
     return m->down[high_dim][low_dim];
@@ -133,18 +141,15 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
     /* waste memory to prevent algorithms from having to deal
        with equal-order cases separately */
     unsigned n = m->counts[high_dim];
-    unsigned* lows_of_highs = uints_linear(n);
+    unsigned* lows_of_highs = uints_linear(n, 1);
     set_down(m, high_dim, low_dim, lows_of_highs);
   } else {
-    if (low_dim) {/* deriving intermediate downward adjacency */
-      unsigned nhighs = m->counts[high_dim];
-      unsigned const* verts_of_highs = mesh_ask_down(m, high_dim, 0);
-      struct const_up* lows_of_verts = mesh_ask_up(m, 0, low_dim);
-      unsigned* lows_of_highs = reflect_down(high_dim, low_dim, nhighs,
-          verts_of_highs, lows_of_verts->offsets, lows_of_verts->adj);
-      set_down(m, high_dim, low_dim, lows_of_highs);
-    } else {/* deriving intermediate entities (entity to vertex connectivity) */
-      if (high_dim == 1) { /* deriving edges */
+    if (low_dim > 0) {/* deriving intermediate downward adjacency */
+      set_down(m, high_dim, low_dim,
+          mesh_reflect_down(m, high_dim, low_dim));
+    } else {/* deriving implicit entity to vertex connectivity */
+      assert(mesh_get_rep(m) == MESH_REDUCED);
+      if (high_dim == 1 && m->elem_dim == 3) { /* deriving edges in 3D */
         struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
         unsigned nverts = m->counts[0];
         unsigned nedges;
@@ -152,22 +157,21 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
         bridge_graph(nverts, verts_of_verts->offsets, verts_of_verts->adj,
             &nedges, &verts_of_edges);
         mesh_set_ents(m, 1, nedges, verts_of_edges);
-      } else { /* deriving faces in 3D */
-        assert(high_dim == 2);
-        assert(m->elem_dim == 3);
+      } else { /* deriving sides (2D edges, 3D faces) */
+        assert(high_dim == m->elem_dim - 1);
         unsigned const* elems_of_elems = mesh_ask_dual(m);
         unsigned nelems = m->counts[m->elem_dim];
         unsigned const* verts_of_elems = m->down[m->elem_dim][0];
-        unsigned nfaces;
-        unsigned* elems_of_faces;
-        unsigned* elem_face_of_faces;
+        unsigned nsides;
+        unsigned* elems_of_sides;
+        unsigned* elem_side_of_sides;
         bridge_dual_graph(m->elem_dim, nelems, elems_of_elems,
-            &nfaces, &elems_of_faces, &elem_face_of_faces);
-        unsigned* verts_of_faces = derive_faces(nfaces, verts_of_elems,
-            elems_of_faces, elem_face_of_faces);
-        loop_free(elems_of_faces);
-        loop_free(elem_face_of_faces);
-        mesh_set_ents(m, 2, nfaces, verts_of_faces);
+            &nsides, &elems_of_sides, &elem_side_of_sides);
+        unsigned* verts_of_sides = derive_sides(m->elem_dim, nsides,
+            verts_of_elems, elems_of_sides, elem_side_of_sides);
+        loop_free(elems_of_sides);
+        loop_free(elem_side_of_sides);
+        mesh_set_ents(m, high_dim, nsides, verts_of_sides);
       }
     }
   }
@@ -227,16 +231,12 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
        with equal-order cases separately */
     unsigned n = m->counts[low_dim];
     unsigned* offsets = uints_filled(n + 1, 0);
-    set_star(m, low_dim, high_dim, new_graph(offsets, 0));
+    set_star(m, low_dim, high_dim, osh_new_graph(offsets, 0));
   } else {
-    unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
-    struct const_up* highs_of_lows = mesh_ask_up(m, low_dim, high_dim);
-    unsigned nlows = m->counts[low_dim];
     unsigned* offsets;
     unsigned* adj;
-    get_star(low_dim, high_dim, nlows, highs_of_lows->offsets, highs_of_lows->adj,
-        lows_of_highs, &offsets, &adj);
-    set_star(m, low_dim, high_dim, new_graph(offsets, adj));
+    mesh_get_star(m, low_dim, high_dim, &offsets, &adj);
+    set_star(m, low_dim, high_dim, osh_new_graph(offsets, adj));
   }
   return (struct const_graph*) m->star[low_dim][high_dim];
 }
@@ -249,14 +249,12 @@ static void set_dual(struct mesh* m, unsigned* adj)
 
 unsigned const* mesh_ask_dual(struct mesh* m)
 {
-  if (m->dual)
-    return m->dual;
-  unsigned nelems = m->counts[m->elem_dim];
-  unsigned const* verts_of_elems = m->down[m->elem_dim][0];
-  struct const_up* elems_of_verts = mesh_ask_up(m, 0, m->elem_dim);
-  unsigned* elems_of_elems = get_dual(m->elem_dim, nelems, verts_of_elems,
-      elems_of_verts->offsets, elems_of_verts->adj);
-  set_dual(m, elems_of_elems);
+  if (!m->dual) {
+    if (mesh_has_dim(m, mesh_dim(m) - 1))
+      set_dual(m, mesh_get_dual_from_sides(m));
+    else
+      set_dual(m, mesh_get_dual_from_verts(m));
+  }
   return m->dual;
 }
 
@@ -297,7 +295,38 @@ unsigned mesh_has_dim(struct mesh* m, unsigned dim)
   return dim == 0 || m->down[dim][0] != 0;
 }
 
+enum mesh_rep mesh_get_rep(struct mesh* m)
+{
+  return m->rep;
+}
+
+void mesh_set_rep(struct mesh* m, enum mesh_rep rep)
+{
+  m->rep = rep;
+}
+
+unsigned mesh_is_parallel(struct mesh* m)
+{
+  return m->parallel != 0;
+}
+
 struct parallel_mesh* mesh_parallel(struct mesh* m)
 {
   return m->parallel;
+}
+
+void mesh_make_parallel(struct mesh* m)
+{
+  assert(!mesh_is_parallel(m));
+  m->parallel = new_parallel_mesh();
+  for (unsigned d = 0; d <= mesh_dim(m); ++d)
+    if (mesh_has_dim(m, d))
+      mesh_set_globals(m, d, ulongs_linear(mesh_count(m, d), 1));
+}
+
+void overwrite_mesh(struct mesh* old, struct mesh* with)
+{
+  free_mesh_contents(old);
+  *old = *with;
+  loop_host_free(with);
 }

@@ -9,6 +9,7 @@
 #include "ints.h"
 #include "invert_map.h"
 #include "loop.h"
+#include "tag.h"
 
 /* given an array that indicates which rank an
    entry is going to,
@@ -44,7 +45,7 @@ static void sends_from_dest_ranks(
   for (send = 0; send < nsent; ++send) {
     unsigned current_rank = 0;
     unsigned* queue_offsets = uints_exscan(queued, nsent);
-    unsigned nqueued = queue_offsets[nsent];
+    unsigned nqueued = uints_at(queue_offsets, nsent);
     if (nqueued == 0) {
       loop_free(queue_offsets);
       break; /* stop when all entries are part of a message */
@@ -67,7 +68,7 @@ static void sends_from_dest_ranks(
       }
     }
     unsigned* send_idxs = uints_exscan(to_rank, nsent);
-    send_offsets[send + 1] = send_offsets[send] + send_idxs[nsent];
+    send_offsets[send + 1] = send_offsets[send] + uints_at(send_idxs, nsent);
     for (unsigned i = 0; i < nsent; ++i)
       if (to_rank[i])
         send_shuffle[i] = send_idxs[i] + send_offsets[send];
@@ -147,6 +148,10 @@ void set_exchanger_dests(
   invert_map(ex->nitems[R], dest_idx_of_recvd, ndests,
       &ex->shuffles[R], &ex->items_of_roots_offsets[R]);
   loop_free(dest_idx_of_recvd);
+  unsigned* msg_of_items = uints_unshuffle(ex->nitems[R],
+      ex->msg_of_items[R], 1, ex->shuffles[R]);
+  loop_free(ex->msg_of_items[R]);
+  ex->msg_of_items[R] = msg_of_items;
 }
 
 void set_exchanger_srcs(
@@ -172,8 +177,8 @@ T* exchange_##name(struct exchanger* ex, unsigned width, \
   enum exch_dir odir = opp_dir(dir); \
   T const* current = data; \
   T* last = 0; \
-  if (start == EX_ROOT) { \
-    T* expanded = name##_expand(ex->nroots[dir], current, width, \
+  if (start == EX_ROOT && ex->items_of_roots_offsets[dir]) { \
+    T* expanded = name##_expand(ex->nroots[dir], width, current, \
         ex->items_of_roots_offsets[dir]); \
     current = last = expanded; \
   } \
@@ -214,4 +219,46 @@ void free_exchanger(struct exchanger* ex)
     loop_free(ex->items_of_roots_offsets[i]);
   }
   loop_host_free(ex);
+}
+
+#define SWAP(T,a) \
+do { \
+  T tmp = (a)[0]; \
+  (a)[0] = (a)[1]; \
+  (a)[1] = tmp; \
+} while (0);
+
+void reverse_exchanger(struct exchanger* ex)
+{
+  SWAP(struct comm*, ex->comms);
+  SWAP(unsigned, ex->nitems);
+  SWAP(unsigned, ex->nroots);
+  SWAP(unsigned, ex->nmsgs);
+  SWAP(unsigned*, ex->ranks);
+  SWAP(unsigned*, ex->msg_counts);
+  SWAP(unsigned*, ex->msg_offsets);
+  SWAP(unsigned*, ex->shuffles);
+  SWAP(unsigned*, ex->msg_of_items);
+  SWAP(unsigned*, ex->items_of_roots_offsets);
+}
+
+struct exchanger* make_reverse_exchanger(unsigned nsent, unsigned nrecvd,
+    unsigned const* recvd_ranks, unsigned const* recvd_ids)
+{
+  struct exchanger* ex = new_exchanger(nrecvd, recvd_ranks);
+  set_exchanger_dests(ex, nsent, recvd_ids);
+  reverse_exchanger(ex);
+  return ex;
+}
+
+double* exchange_doubles_max(struct exchanger* ex, unsigned width,
+    double const* data, enum exch_dir dir, enum exch_start start)
+{
+  double* to_reduce = exchange_doubles(ex, width, data, dir, start);
+  enum exch_dir od = opp_dir(dir);
+  double* out = LOOP_MALLOC(double, width * ex->nroots[od]);
+  doubles_max_into(ex->nroots[od], width, to_reduce,
+      ex->items_of_roots_offsets[od], out);
+  loop_free(to_reduce);
+  return out;
 }

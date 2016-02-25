@@ -3,7 +3,11 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+#include "arrays.h"
+#include "loop.h"
 
 static unsigned count_digits(unsigned x)
 {
@@ -94,4 +98,39 @@ void seek_prefix(FILE* f,
     if (!strncmp(line, prefix, pl))
       return;
   assert(0);
+}
+
+enum endian endianness(void)
+{
+  static unsigned short canary = 0x1;
+  unsigned char* p = (unsigned char*) (&canary);
+  if (*p == 0x1)
+    return MY_LITTLE_ENDIAN;
+  return MY_BIG_ENDIAN;
+}
+
+LOOP_KERNEL(swap_kern, unsigned width, unsigned char* b)
+  swap_one(b + i * width, width);
+}
+
+void* generic_swap_if_needed(enum endian e, unsigned n, unsigned width,
+    void const* a)
+{
+  unsigned char* b = uchars_to_device((unsigned char const*) a, n * width);
+  if (e != endianness() && width > 1) {
+    assert(width % 2 == 0);
+    LOOP_EXEC(swap_kern, n, width, b);
+  }
+  return b;
+}
+
+FILE* safe_fopen(char const* filename, char const* mode)
+{
+  FILE* f = fopen(filename, mode);
+  if (!f) {
+    fprintf(stderr, "could not open \"%s\" for %s !\n",
+        filename, mode[0] == 'w' ? "writing" : "reading");
+    abort();
+  }
+  return f;
 }

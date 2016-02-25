@@ -1,0 +1,58 @@
+.TH osh_adapt 3 "2/16/2016" " " ""
+.SH NAME
+osh_adapt \-  Adapts the mesh to a given size field. 
+.SH SYNOPSIS
+.nf
+unsigned osh_adapt(osh_t m,
+    double size_ratio_floor,
+    double good_element_quality,
+    unsigned nsliver_layers,
+    unsigned max_passes)
+.fi
+The size field is currently a single value per vertex
+describing the desired length of mesh edges at that location,
+it must be called "adapt_size".
+The return value will be zero if no connectivity changes are made.
+
+Collective
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- The mesh object.
+.PD 1
+.PD 0
+.TP
+.B size_quality_floor 
+- Range [0.0 - 0.5], default 1/3. Edges shorter than this
+times their desired size will attempt coarsening.
+.PD 1
+.PD 0
+.TP
+.B good_element_quality 
+- Range [0.0 - 1.0], default 0.3. No elements will lower
+quality will be created, and existing elements with
+lower quality will attempt shape correction.
+.PD 1
+.PD 0
+.TP
+.B nsliver_layers 
+- Range [0 - ?], default 4. Number of layers of elements around
+a sliver to consider for correction.
+.PD 1
+.PD 0
+.TP
+.B max_passes 
+- Range [1 - 100], default 50. Maximum number of modification passes
+before the program fails.
+.PD 1
+
+Level: advanced
+
+.SH KEYWORDS
+adapt
+.br
+.SH SEE ALSO
+osh_new_field(), osh_identity_size()
+.br

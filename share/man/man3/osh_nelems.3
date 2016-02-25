@@ -1,0 +1,22 @@
+.TH osh_nelems 3 "2/16/2016" " " ""
+.SH NAME
+osh_nelems \-  Get the number of mesh elements. 
+.SH SYNOPSIS
+.nf
+unsigned osh_nelems(osh_t m)
+.fi
+Returns the number of elements on this MPI rank.
+Equivalent to osh_count(m, osh_dim(m)).
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+
+Level: beginner
+
+.SH SEE ALSO
+osh_count()
+.br

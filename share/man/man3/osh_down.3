@@ -1,0 +1,48 @@
+.TH osh_down 3 "2/16/2016" " " ""
+.SH NAME
+osh_down \-  Get the connectivity from high dimension to low 
+.SH SYNOPSIS
+.nf
+unsigned const* osh_down(osh_t m, unsigned high_dim, unsigned low_dim)
+.fi
+Returns a read-only array describing connectivity
+from the high dimension to the lower one, on this MPI rank.
+
+The array is organized by higher entity,
+and for each higher entity there are contiguous
+entries pointing to lower entities.
+For example, from triangles to vertices, the array
+would be of size (3 * osh_count(m, 2)), and the entries
+
+.nf
+unsigned const* down = osh_down(m, 2, 0);
+for (unsigned j = i * 3; j < (i + 1) * 3; ++j)
+down[j];
+.fi
+
+
+contain the vertex indices of triangle (i).
+All indices are local to the MPI rank.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B high_dim 
+- the higher dimension
+.PD 1
+.PD 0
+.TP
+.B low_dim 
+- the lower dimension
+.PD 1
+
+Level: beginner
+
+.SH SEE ALSO
+osh_count(), osh_dim(), osh_up(), osh_up_offs()
+.br

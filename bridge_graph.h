@@ -12,8 +12,8 @@ void bridge_dual_graph(
     unsigned elem_dim,
     unsigned nelems,
     unsigned const* elems_of_elems,
-    unsigned* nfaces_out,
-    unsigned** elems_of_faces_out,
-    unsigned** elem_face_of_faces_out);
+    unsigned* nsides_out,
+    unsigned** elems_of_sides_out,
+    unsigned** elem_side_of_sides_out);
 
 #endif

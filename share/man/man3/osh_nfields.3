@@ -1,0 +1,27 @@
+.TH osh_nfields 3 "2/16/2016" " " ""
+.SH NAME
+osh_nfields \-  Count the number of fields in a dimension. 
+.SH SYNOPSIS
+.nf
+unsigned osh_nfields(osh_t om, unsigned dim)
+.fi
+This is useful in conjunction with osh_field() to iterate
+over all fields.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B dim 
+- the dimension of entities
+.PD 1
+
+Level: intermediate
+
+.SH SEE ALSO
+osh_field()
+.br

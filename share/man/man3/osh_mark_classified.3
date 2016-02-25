@@ -1,0 +1,46 @@
+.TH osh_mark_classified 3 "2/16/2016" " " ""
+.SH NAME
+osh_mark_classified \-  Mark entities classified on a certain boundary. 
+.SH SYNOPSIS
+.nf
+void osh_mark_classified(osh_t m, unsigned ent_dim,
+    unsigned class_dim, unsigned class_id, unsigned* marked)
+.fi
+Given a dimension and boundary classification specification
+in the form of boundary dimension and integer id,
+as well as a user-allocated array that indicates marked
+entities, this function will modify the marked array
+to include entities classified on the specified boundary.
+
+Boundary markers are either derived by omega_h or taken
+to be consistent with the Gmsh geometry if that is the
+origin of the mesh.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B m 
+- mesh handle
+.PD 1
+.PD 0
+.TP
+.B ent_dim 
+- the dimension of the entities
+.PD 1
+.PD 0
+.TP
+.B class_dim 
+- the dimension of the boundary entity
+.PD 1
+.PD 0
+.TP
+.B class_id 
+- the ID of the boundary entity
+.PD 1
+.PD 0
+.TP
+.B marked 
+- user array, marked[i] = 0 or 1
+.PD 1
+
+Level: intermediate

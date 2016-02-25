@@ -31,6 +31,12 @@ static unsigned doubles_diff(double const* a, double const* b, unsigned n,
   loop_free(diffs);
   if (maxdiff > tol) {
     printf("max relative difference %e\n", maxdiff);
+    for (unsigned i = 0; i < n; ++i) {
+      if (diffs[i] == maxdiff) {
+        printf("max difference pair is (%e, %e), #%u\n",
+            a[i], b[i], i);
+      }
+    }
     return 1;
   }
   return 0;
@@ -63,11 +69,6 @@ static unsigned ulongs_diff(unsigned long const* a, unsigned long const* b, unsi
 static unsigned tag_diff(struct const_tag* a, struct const_tag* b, unsigned n,
     double tol, double floor)
 {
-  if (strcmp(a->name, b->name)) {
-    printf("tag names \"%s\" and \"%s\" differ\n",
-        a->name, b->name);
-    return 1;
-  }
   if (a->ncomps != b->ncomps) {
     printf("tag \"%s\" sizes %u and %u differ\n",
         a->name, a->ncomps, b->ncomps);
@@ -107,25 +108,31 @@ static unsigned tag_diff(struct const_tag* a, struct const_tag* b, unsigned n,
 }
 
 static unsigned tags_diff(struct tags* a, struct tags* b, unsigned n,
-    double tol, double floor)
+    double tol, double floor, unsigned allow_superset)
 {
-  unsigned ntags = b->n > a->n ? b->n : a->n;
-  for (unsigned i = 0; i < ntags; ++i)
-    if (tag_diff(get_tag(a, i), get_tag(b, i), n, tol, floor))
+  for (unsigned i = 0; i < count_tags(a); ++i) {
+    struct const_tag* ta = get_tag(a, i);
+    struct const_tag* tb = find_tag(b, ta->name);
+    if (!tb) {
+      if (allow_superset)
+        continue;
+      printf("tag \"%s\" only on first mesh\n", ta->name);
       return 1;
-  if (a->n == b->n)
-    return 0;
-  for (unsigned i = ntags; i < a->n; ++i)
-    printf("tag \"%s\" only on first mesh\n",
-        get_tag(a, i)->name);
-  for (unsigned i = ntags; i < b->n; ++i)
-    printf("tag \"%s\" only on second mesh\n",
-        get_tag(b, i)->name);
-  return 1;
+    }
+    if (tag_diff(ta, tb, n, tol, floor))
+      return 1;
+  }
+  if (!allow_superset)
+    for (unsigned i = 0; i < count_tags(b); ++i)
+      if (!find_tag(a, get_tag(b, i)->name)) {
+        printf("tag \"%s\" only on second mesh\n", get_tag(b, i)->name);
+        return 1;
+      }
+  return 0;
 }
 
 unsigned mesh_diff(struct mesh* a, struct mesh* b,
-    double tol, double floor)
+    double tol, double floor, unsigned allow_superset)
 {
   if (mesh_dim(a) != mesh_dim(b)) {
     printf("mesh dimensionalities %u and %u differ\n",
@@ -141,6 +148,8 @@ unsigned mesh_diff(struct mesh* a, struct mesh* b,
       return 1;
     }
     if (!mesh_has_dim(a, d) && mesh_has_dim(b, d)) {
+      if (allow_superset)
+        continue;
       printf("only second mesh has dimension %u\n", d);
       return 1;
     }
@@ -161,7 +170,7 @@ unsigned mesh_diff(struct mesh* a, struct mesh* b,
     }
     struct tags* tsa = mesh_tags(a, d);
     struct tags* tsb = mesh_tags(b, d);
-    if (tags_diff(tsa, tsb, nents, tol, floor)) {
+    if (tags_diff(tsa, tsb, nents, tol, floor, allow_superset)) {
       printf("tags for dimension %u differ\n", d);
       return 1;
     }

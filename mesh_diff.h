@@ -4,6 +4,6 @@
 struct mesh;
 
 unsigned mesh_diff(struct mesh* a, struct mesh* b,
-    double tol, double floor);
+    double tol, double floor, unsigned allow_superset);
 
 #endif

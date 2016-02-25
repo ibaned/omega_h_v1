@@ -1,11 +1,14 @@
+#include <stdio.h>
+
 #include "algebra.h"
 #include "element_gradients.h"
 #include "eval_field.h"
 #include "mesh.h"
+#include "include/omega_h.h"
 #include "recover_by_volume.h"
-#include "refine_by_size.h"
+#include "refine.h"
 #include "size_from_hessian.h"
-#include "vtk.h"
+#include "vtk_io.h"
 
 static void dye_fun(double const* coords, double* v)
 {
@@ -31,11 +34,17 @@ static void size_fun(double const* x, double* s)
   s[0] = 0.1;
 }
 
-int main()
+int main(int argc, char** argv)
 {
+  osh_init();
+  char const* path;
+  if (argc == 2)
+    path = argv[1];
+  else
+    path = ".";
   struct mesh* m = new_box_mesh(3);
   mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
-  while (refine_by_size(&m, 0));
+  while (refine_by_size(m, 0));
   mesh_eval_field(m, 0, "dye", 1, dye_fun);
   mesh_element_gradients(m, "dye");
   mesh_recover_by_volume(m, "grad_dye");
@@ -44,6 +53,9 @@ int main()
   mesh_free_tag(m, 0, "adapt_size");
   double weight[1] = {0.05 / 75.0};
   mesh_size_from_hessian(m, "grad_grad_dye", weight, 0.05, 0.1);
-  write_vtu(m, "grad.vtu");
+  char file[128];
+  sprintf(file, "%s/grad.vtu", path);
+  write_mesh_vtk(m, file);
   free_mesh(m);
+  osh_fini();
 }

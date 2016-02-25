@@ -3,7 +3,6 @@
 
 struct mesh;
 
-void mesh_number_simply(struct mesh* m);
 unsigned long* globalize_offsets(unsigned* local, unsigned n);
 void global_to_linpart(unsigned long const* global, unsigned n,
     unsigned long total, unsigned nparts,

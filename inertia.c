@@ -56,6 +56,27 @@ void least_inertial_axis(double IC[3][3], double a[3])
     a[i] = q[i][best];
 }
 
+/* this function ensures that for the same axis
+   we use the same vector (two are possible,
+   negatives of one another).
+   this helps RIB results look intuitively nice,
+   i.e. if we are in 1D then
+      1 0 3 2
+   is technically a correct answer, but we'd like
+      0 1 2 3 */
+
+static void positivize_axis(double a[3])
+{
+  unsigned signbits = 0;
+  for (unsigned i = 0; i < 3; ++i)
+    if (a[i] > 0)
+      signbits |= (((unsigned)1) << (3-i-1));
+  unsigned opp_signbits = signbits ^ 0x7;
+  if (opp_signbits > signbits)
+    for (unsigned i = 0; i < 3; ++i)
+      a[i] = -a[i];
+}
+
 static void get_weighted_coords(
     unsigned n,
     double const* coords,
@@ -117,6 +138,7 @@ static void get_axis(
   double ic[3][3];
   get_total_inertia(n, coords, masses, c, ic, is_global);
   least_inertial_axis(ic, a);
+  positivize_axis(a);
 }
 
 static double* get_radii(
@@ -163,30 +185,75 @@ static double get_weighted_in_count(
   return s;
 }
 
-static double get_median_radius(
+static void find_median_radius(
     unsigned n,
     double const* radii,
     double const* masses,
     double total_mass,
-    unsigned is_global)
+    unsigned is_global,
+    unsigned** p_in,
+    double* p_wi)
 {
   double r = 0;
   double dr = doubles_max(radii, n) / 2;
+  if (is_global)
+    dr = comm_max_double(dr);
   double hm = total_mass / 2;
   unsigned const fraction_bits = 52;
-  for (unsigned i = 0; i < fraction_bits; ++i) {
+  for (unsigned i = 0; 1; ++i) {
     unsigned* in = mark_in(n, radii, r);
     double wi = get_weighted_in_count(n, in, masses, is_global);
-    loop_free(in);
-    if (wi == hm)
-      break;
+    if (i == fraction_bits || wi == hm) {
+      *p_wi = wi;
+      *p_in = in;
+      return;
+    } else
+      loop_free(in);
     if (wi > hm)
       r += dr;
     else
       r -= dr;
     dr /= 2;
   }
-  return r;
+}
+
+/* some types of input data have points that happen
+   to all be at the same radius, and in the worst
+   case they are at the center, meaning that
+   unless we change the axis we can't find a good
+   median radius.
+   this algorithm tries some silly perturbations
+   if the original axis can't satisfy the
+   imbalance ceiling given */
+
+static void find_median_radius_perturbed(
+    unsigned n,
+    double const* coords,
+    double const* c,
+    double const* a,
+    double const* masses,
+    double total_mass,
+    unsigned is_global,
+    unsigned** p_in)
+{
+  /* magic constants... */
+  double const max_imb = 0.05;
+  double const epsilon = 1e-6;
+  for (unsigned i = 0; 1; ++i) {
+    double pa[3];
+    for (unsigned j = 0; j < 3; ++j)
+      pa[j] = a[j] + ((i>>j)&1) * epsilon;
+    /* pa[j]=a[j] when i=0 */
+    double wi;
+    double* radii = get_radii(n, coords, c, pa);
+    find_median_radius(n, radii, masses, total_mass, is_global, p_in, &wi);
+    loop_free(radii);
+    double imb = fabs(2*(wi / total_mass) - 1);
+    if (imb <= max_imb || i == 7)
+      return;
+    else
+      loop_free(*p_in);
+  }
 }
 
 unsigned* mark_inertial_bisection(
@@ -195,20 +262,19 @@ unsigned* mark_inertial_bisection(
     double const* masses,
     unsigned is_global)
 {
-  double tm;
+  double total_mass;
   if (masses)
-    tm = doubles_sum(masses, n);
+    total_mass = doubles_sum(masses, n);
   else
-    tm = n;
+    total_mass = n;
   if (is_global)
-    tm = comm_add_double(tm);
+    total_mass = comm_add_double(total_mass);
   double c[3];
-  get_center_of_mass(n, coords, masses, tm, c, is_global);
+  get_center_of_mass(n, coords, masses, total_mass, c, is_global);
   double a[3];
   get_axis(n, coords, masses, c, a, is_global);
-  double* radii = get_radii(n, coords, c, a);
-  double r = get_median_radius(n, radii, masses, tm, is_global);
-  unsigned* in = mark_in(n, radii, r);
-  loop_free(radii);
+  unsigned* in;
+  find_median_radius_perturbed(n, coords, c, a,
+      masses, total_mass, is_global, &in);
   return in;
 }

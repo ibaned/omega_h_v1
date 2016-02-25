@@ -3,25 +3,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "classify_box.h"
+#include "algebra.h"
+#include "derive_model.h"
 #include "eval_field.h"
 #include "mesh.h"
-#include "refine_by_size.h"
-#include "vtk.h"
-
-static double size = 0.75;
-
-static void sizefun(double const* x, double* o)
-{
-  (void) x;
-  *o = size;
-}
+#include "include/omega_h.h"
+#include "refine.h"
+#include "vtk_io.h"
 
 int main(int argc, char** argv)
 {
+  osh_init();
   unsigned dim = 3;
-  char const* file = "out.vtu";
-  for (int i = 0; i < argc; ++i) {
+  unsigned nrefs = 0;
+  unsigned full = 1;
+  char const* file = "box.vtu";
+  for (int i = 1; i < argc; ++i) {
     if (!strcmp(argv[i], "--dim")) {
       ++i;
       if (i == argc) {
@@ -30,13 +27,14 @@ int main(int argc, char** argv)
       }
       dim = (unsigned) atoi(argv[i]);
       assert(dim <= 3);
-    } else if (!strcmp(argv[i], "--size")) {
+    } else if (!strcmp(argv[i], "--refinements")) {
       ++i;
       if (i == argc) {
-        printf("--size needs an argument\n");
+        printf("--refinements needs an argument\n");
         return -1;
       }
-      size = atof(argv[i]);
+      nrefs = (unsigned) atoi(argv[i]);
+      assert(nrefs < 30);
     } else if (!strcmp(argv[i], "--file")) {
       ++i;
       if (i == argc) {
@@ -44,13 +42,21 @@ int main(int argc, char** argv)
         return -1;
       }
       file = argv[i];
+    } else if (!strcmp(argv[i], "--reduced")) {
+      full = 0;
+    } else {
+      printf("unknown argument %s\n", argv[i]);
+      return -1;
     }
   }
   struct mesh* m = new_box_mesh(dim);
-  mesh_eval_field(m, 0, "adapt_size", 1, sizefun);
-  while (refine_by_size(&m, 0.0));
-  mesh_free_tag(m, 0, "adapt_size");
-  mesh_classify_box(m);
-  write_vtu(m, file);
+  if (full) {
+    mesh_derive_model(m, PI / 4);
+    mesh_set_rep(m, MESH_FULL);
+  }
+  for (unsigned i = 0; i < nrefs; ++i)
+    uniformly_refine(m);
+  write_mesh_vtk(m, file);
   free_mesh(m);
+  osh_fini();
 }

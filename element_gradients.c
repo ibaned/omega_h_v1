@@ -25,7 +25,6 @@ double* element_gradients(
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   assert(verts_per_elem == elem_dim + 1);
   assert(verts_per_elem > 1);
-  jacobian_inverter jif = the_jacobian_inverters[elem_dim];
   for (unsigned i = 0; i < nelems; ++i) {
     unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
     double elem_coords[4][3];
@@ -38,7 +37,7 @@ double* element_gradients(
     double jac[3][3];
     element_jacobian(elem_dim, elem_coords, jac);
     double jaci[3][3];
-    jif(jac, jaci);
+    invert_jacobian(elem_dim, jac, jaci);
     double* grad = out + i * ncomps_out;
     for (unsigned j = 0; j < ncomps_out; ++j)
       grad[j] = 0;

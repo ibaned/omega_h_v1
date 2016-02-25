@@ -2,7 +2,7 @@
 
 #include "loop.h"
 
-#ifdef __CUDACC__
+#ifdef LOOP_CUDA_H
 #include <thrust/reduce.h>
 #include <thrust/device_ptr.h>
 #include <thrust/functional.h>
@@ -13,13 +13,13 @@
 #include <stdlib.h>
 #endif
 
-#ifdef __CUDACC__
+#ifdef LOOP_CUDA_H
 
 unsigned uints_max(unsigned const* a, unsigned n)
 {
   unsigned max = 0;
   thrust::device_ptr<unsigned const> p(a);
-  max = thrust::reduce(p, p + n, INT_MIN, thrust::maximum<unsigned>());
+  max = thrust::reduce(p, p + n, 0, thrust::maximum<unsigned>());
   return max;
 }
 
@@ -93,13 +93,19 @@ unsigned long ulongs_max(unsigned long const* a, unsigned n)
 
 #endif
 
-unsigned* uints_linear(unsigned n)
-{
-  unsigned* ones = uints_filled(n, 1);
-  unsigned* linear = uints_exscan(ones, n);
-  loop_free(ones);
-  return linear;
+#define GENERAL_LINEAR(T, name) \
+LOOP_KERNEL(name##_linear_kern, T* out, T stride) \
+  out[i] = i * stride; \
+} \
+T* name##_linear(unsigned n, T stride) \
+{ \
+  T* out = LOOP_MALLOC(T, n); \
+  LOOP_EXEC(name##_linear_kern, n, out, stride); \
+  return out; \
 }
+
+GENERAL_LINEAR(unsigned, uints)
+GENERAL_LINEAR(unsigned long, ulongs)
 
 LOOP_KERNEL(unscan_kern, unsigned const* a, unsigned* o)
   o[i] = a[i + 1] - a[i];
@@ -133,13 +139,13 @@ unsigned* uints_negate_offsets(unsigned const* a, unsigned n)
   return out;
 }
 
-LOOP_KERNEL(fill_kern, unsigned* a, unsigned v)
-  a[i] = v;
+LOOP_KERNEL(scale_kern, unsigned const* a, unsigned s, unsigned* o)
+  o[i] = s * a[i];
 }
 
-unsigned* uints_filled(unsigned n, unsigned v)
+unsigned* uints_scale(unsigned const* a, unsigned n, unsigned s)
 {
-  unsigned* a = LOOP_MALLOC(unsigned, n);
-  LOOP_EXEC(fill_kern, n, a, v);
-  return a;
+  unsigned* o = LOOP_MALLOC(unsigned, n);
+  LOOP_EXEC(scale_kern, n, a, s, o);
+  return o;
 }

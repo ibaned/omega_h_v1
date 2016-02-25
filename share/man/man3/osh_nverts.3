@@ -1,0 +1,19 @@
+.TH osh_nverts 3 "2/16/2016" " " ""
+.SH NAME
+osh_nverts \-  Get the number of mesh vertices. 
+.SH SYNOPSIS
+.nf
+unsigned osh_nverts(osh_t m)
+.fi
+Returns the number of vertices on this MPI rank.
+Equivalent to osh_count(m, 0).
+
+.SH INPUT PARAMETERS
+\&.
+m - mesh handle
+
+Level: beginner
+
+.SH SEE ALSO
+osh_count()
+.br

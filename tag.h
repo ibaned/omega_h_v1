@@ -15,11 +15,11 @@ struct const_tag {
   unsigned const ncomps;
   enum tag_type const type;
   union {
-    void const* raw;
-    unsigned char const* u8;
-    unsigned const* u32;
-    unsigned long const* u64;
-    double const* f64;
+    void* raw;
+    unsigned char* u8;
+    unsigned* u32;
+    unsigned long* u64;
+    double* f64;
   } d;
 };
 
@@ -37,7 +37,15 @@ struct const_tag* find_tag(struct tags* ts, char const* name);
 unsigned count_tags(struct tags* ts);
 struct const_tag* get_tag(struct tags* ts, unsigned i);
 void rename_tag(struct tags* ts, char const* oldname, char const* newname);
+void modify_tag(struct tags* ts, char const* name, void* data);
 
 unsigned tag_size(enum tag_type t);
+
+void copy_tags(struct tags* a, struct tags* b, unsigned n);
+
+struct exchanger;
+
+void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into);
+void push_tags(struct exchanger* push, struct tags* from, struct tags* into);
 
 #endif

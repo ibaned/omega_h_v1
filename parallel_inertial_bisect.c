@@ -2,14 +2,18 @@
 
 #include <assert.h>
 
+#include "arrays.h"
 #include "comm.h"
 #include "doubles.h"
+#include "element_field.h"
 #include "exchanger.h"
 #include "global.h"
+#include "ghost_mesh.h"
 #include "inertia.h"
 #include "ints.h"
 #include "loop.h"
-#include "subset.h"
+#include "mesh.h"
+#include "migrate_mesh.h"
 
 void parallel_inertial_bisect(
     unsigned* p_n,
@@ -37,8 +41,8 @@ void parallel_inertial_bisect(
   unsigned* orig_ranks_out = 0;
   unsigned* orig_ids_out = 0;
   for (unsigned dir = 0; dir < 2; ++dir) {
-    unsigned nsub = offsets[n];
-    unsigned* local = uints_linear(nsub);
+    unsigned nsub = uints_at(offsets, n);
+    unsigned* local = uints_linear(nsub + 1, 1);
     unsigned long* global = globalize_offsets(local, nsub);
     loop_free(local);
     unsigned* lin_ranks;
@@ -56,20 +60,20 @@ void parallel_inertial_bisect(
     loop_free(lin_ranks);
     if (in_subgroup)
       n_out = ex->nitems[EX_REV];
-    double* sub_coords = doubles_subset(n, 3, coords, offsets);
+    double* sub_coords = doubles_expand(n, 3, coords, offsets);
     double* coords_recvd = exchange_doubles(ex, 3, sub_coords, EX_FOR, EX_ITEM);
     loop_free(sub_coords);
     double* masses_recvd = 0;
     if (masses) {
-      double* sub_masses = doubles_subset(n, 1, masses, offsets);
+      double* sub_masses = doubles_expand(n, 1, masses, offsets);
       masses_recvd = exchange_doubles(ex, 1, sub_masses, EX_FOR, EX_ITEM);
       loop_free(sub_masses);
     }
-    unsigned* sub_orig_ranks = uints_subset(n, 1, orig_ranks, offsets);
+    unsigned* sub_orig_ranks = uints_expand(n, 1, orig_ranks, offsets);
     unsigned* orig_ranks_recvd = exchange_uints(ex, 1, sub_orig_ranks,
         EX_FOR, EX_ITEM);
     loop_free(sub_orig_ranks);
-    unsigned* sub_orig_ids = uints_subset(n, 1, orig_ids, offsets);
+    unsigned* sub_orig_ids = uints_expand(n, 1, orig_ids, offsets);
     unsigned* orig_ids_recvd = exchange_uints(ex, 1, sub_orig_ids,
         EX_FOR, EX_ITEM);
     loop_free(sub_orig_ids);
@@ -126,4 +130,27 @@ void recursive_inertial_bisect(
       p_orig_ranks, p_orig_ids);
   comm_use(oldcomm);
   comm_free(subcomm);
+}
+
+void balance_mesh_inertial(struct mesh* m)
+{
+  assert(mesh_is_parallel(m));
+  mesh_ensure_ghosting(m, 0);
+  unsigned dim = mesh_dim(m);
+  unsigned had_elem_coords =
+    (0 != mesh_find_tag(m, dim, "coordinates"));
+  if (!had_elem_coords)
+    mesh_interp_to_elems(m, "coordinates");
+  unsigned n = mesh_count(m, dim);
+  double* coords = doubles_copy(
+      mesh_find_tag(m, dim, "coordinates")->d.f64, n * 3);
+  if (!had_elem_coords)
+    mesh_free_tag(m, dim, "coordinates");
+  unsigned* orig_ranks = uints_filled(n, comm_rank());
+  unsigned* orig_ids = uints_linear(n, 1);
+  recursive_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
+  loop_free(coords);
+  migrate_mesh(m, n, orig_ranks, orig_ids);
+  loop_free(orig_ranks);
+  loop_free(orig_ids);
 }

@@ -2,23 +2,24 @@
 #define LOOP_CUDA_H
 
 #include "loop_host.h"
-#include "stdio.h"
+
+#include <assert.h>
+
+#define LOOP_IN __device__
+#define LOOP_INOUT __device__ __host__
+
+#define LOOP_CONST __constant__
 
 void* loop_cuda_malloc(unsigned long n);
 #define LOOP_CUDA_MALLOC(T, n) \
   ((T*)loop_cuda_malloc(sizeof(T) * (n)))
 void loop_cuda_free(void* p);
 
-void* loop_cuda_to_host(void const* p, unsigned long n);
-void* loop_cuda_to_device(void const* p, unsigned long n);
-
-static inline __device__ unsigned loop_cuda_atomic_increment(unsigned* p)
+static inline LOOP_IN unsigned
+loop_cuda_atomic_increment(unsigned* p)
 {
   return atomicAdd(p, 1);
 }
-
-#define loop_to_host loop_cuda_to_host
-#define loop_to_device loop_cuda_to_device
 
 #define loop_atomic_increment loop_cuda_atomic_increment
 
@@ -28,7 +29,7 @@ static inline __device__ unsigned loop_cuda_atomic_increment(unsigned* p)
 #define LOOP_KERNEL(fname, ...) \
 static __global__ void fname(unsigned n, __VA_ARGS__) \
 { \
-  unsigned i = blockIdx.x * blockDim.x + threadIdx.x;\
+  unsigned i = blockIdx.x * blockDim.x + threadIdx.x; \
   if (i >= n) return;
 
 #define LOOP_BLOCK_SIZE 256
@@ -43,17 +44,18 @@ static inline unsigned loop_ceildiv(unsigned a, unsigned b)
 
 #define CUDACALL(f) \
 do { \
-  cudaError_t err = f; \
-  if (err != cudaSuccess) { \
-    const char* errs = cudaGetErrorString(err); \
-    fprintf(stderr, "call %s failed at %s:%d : %s\n", \
-                    #f, __FILE__, __LINE__, errs); \
-    abort(); \
-  } \
+  cudaError_t ret = (f); \
+  assert(ret == cudaSuccess); \
 } while (0)
 
 #define LOOP_EXEC(fname, n, ...) \
-fname<<< loop_ceildiv((n), LOOP_BLOCK_SIZE), LOOP_BLOCK_SIZE >>>(n,__VA_ARGS__);\
-CUDACALL(cudaDeviceSynchronize());
+do { \
+  fname<<<loop_ceildiv((n),LOOP_BLOCK_SIZE),LOOP_BLOCK_SIZE>>>(n,__VA_ARGS__); \
+  CUDACALL(cudaGetLastError()); \
+} while(0)
+
+unsigned loop_size(void);
+
+#define LOOP_NORETURN(x) return x
 
 #endif

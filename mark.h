@@ -16,6 +16,8 @@ unsigned* mark_up(
 
 struct mesh;
 
+unsigned* mesh_mark_down_local(struct mesh* m, unsigned high_dim, unsigned low_dim,
+    unsigned const* marked_highs);
 unsigned* mesh_mark_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
     unsigned const* marked_highs);
 unsigned* mesh_mark_up(struct mesh* m, unsigned low_dim, unsigned high_dim,
@@ -39,19 +41,16 @@ unsigned* mesh_mark_class(struct mesh* m, unsigned ent_dim,
 unsigned* mesh_mark_class_closure_verts(struct mesh* m, unsigned target_dim,
     unsigned target_id);
 
-void unmark_boundary(
-    unsigned elem_dim,
-    unsigned ent_dim,
-    unsigned nents,
-    unsigned const* verts_of_ents,
-    unsigned const* vert_class_dim,
-    unsigned* marked);
-
 unsigned* mesh_mark_slivers(struct mesh* m, double good_qual, unsigned nlayers);
 
 unsigned* mark_part_boundary(
     unsigned nsides,
     unsigned const* elems_of_sides_offsets);
+
+void mesh_unmark_boundary(
+    struct mesh* m,
+    unsigned ent_dim,
+    unsigned* marked);
 
 unsigned* mesh_mark_part_boundary(struct mesh* m);
 

@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <string.h>
 
+#include "arrays.h"
+#include "exchanger.h"
 #include "loop.h"
 
 struct tag {
@@ -19,8 +21,8 @@ unsigned tag_size(enum tag_type t)
     case TAG_U32: return sizeof(unsigned);
     case TAG_U64: return sizeof(unsigned long);
     case TAG_F64: return sizeof(double);
-    default: return 0;
   }
+  LOOP_NORETURN(0);
 }
 
 static struct tag* new_tag(char const* name, enum tag_type type,
@@ -112,4 +114,59 @@ void rename_tag(struct tags* ts, char const* oldname, char const* newname)
   loop_host_free(ts->at[i]->name);
   ts->at[i]->name = LOOP_HOST_MALLOC(char, strlen(newname) + 1);
   strcpy(ts->at[i]->name, newname);
+}
+
+void modify_tag(struct tags* ts, char const* name, void* data)
+{
+  unsigned i = find_i(ts, name);
+  struct tag* t = ts->at[i];
+  loop_free(t->data);
+  t->data = data;
+}
+
+void copy_tags(struct tags* a, struct tags* b, unsigned n)
+{
+  for (unsigned i = 0; i < count_tags(a); ++i) {
+    struct const_tag* t = get_tag(a, i);
+    void* data = 0;
+    switch (t->type) {
+      case TAG_U8:  data = uchars_copy(t->d.u8, n * t->ncomps);
+                    break;
+      case TAG_U32: data = uints_copy(t->d.u32, n * t->ncomps);
+                    break;
+      case TAG_U64: data = ulongs_copy(t->d.u64, n * t->ncomps);
+                    break;
+      case TAG_F64: data = doubles_copy(t->d.f64, n * t->ncomps);
+                    break;
+    };
+    add_tag(b, t->type, t->name, t->ncomps, data);
+  }
+}
+
+void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into)
+{
+  void* data_out = 0;
+  switch (t->type) {
+    case TAG_U8:
+      break;
+    case TAG_U32:
+      data_out = exchange_uints(ex, t->ncomps, t->d.u32, EX_FOR, EX_ROOT);
+      break;
+    case TAG_U64:
+      data_out = exchange_ulongs(ex, t->ncomps, t->d.u64, EX_FOR, EX_ROOT);
+      break;
+    case TAG_F64:
+      data_out = exchange_doubles(ex, t->ncomps, t->d.f64, EX_FOR, EX_ROOT);
+      break;
+  }
+  if (find_tag(into, t->name))
+    modify_tag(into, t->name, data_out);
+  else
+    add_tag(into, t->type, t->name, t->ncomps, data_out);
+}
+
+void push_tags(struct exchanger* ex, struct tags* from, struct tags* into)
+{
+  for (unsigned i = 0; i < count_tags(from); ++i)
+    push_tag(ex, get_tag(from, i), into);
 }
