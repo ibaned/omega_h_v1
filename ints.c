@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #endif
 
+#if defined(LOOP_SERIAL_H) || defined(LOOP_OPENMP_H)
 static unsigned* serial_uints_exscan(unsigned const* a, unsigned n)
 {
   unsigned* o = LOOP_HOST_MALLOC(unsigned, (n + 1));
@@ -26,6 +27,7 @@ static unsigned* serial_uints_exscan(unsigned const* a, unsigned n)
   }
   return o;
 }
+#endif
 
 #if defined(LOOP_CUDA_H)
 
