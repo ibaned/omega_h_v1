@@ -2,13 +2,15 @@
 
 #include "loop.h"
 
-#ifdef LOOP_CUDA_H
+#if defined(LOOP_CUDA_H)
 #include <thrust/reduce.h>
 #include <thrust/device_ptr.h>
 #include <thrust/functional.h>
 #include <thrust/transform.h>
 #include <thrust/reduce.h>
 #include <thrust/sort.h>
+#elif defined(LOOP_OPENMP_H)
+#include <omp.h>
 #else
 #include <stdlib.h>
 #endif
@@ -87,7 +89,7 @@ unsigned uints_max(unsigned const* a, unsigned n)
 unsigned* uints_exscan(unsigned const* a, unsigned n)
 {
   unsigned nthreads = (unsigned) omp_get_max_threads();
-  unsigned* thread_sums = LOOP_HOST_MALLOC(sizeof(unsigned) * nthreads);
+  unsigned* thread_sums = LOOP_HOST_MALLOC(unsigned, nthreads);
   #pragma omp parallel
   {
     unsigned thread_sum = 0;
@@ -113,7 +115,7 @@ unsigned* uints_exscan(unsigned const* a, unsigned n)
   return o;
 }
 
-unsigned* uints_sum(unsigned const* a, unsigned n)
+unsigned uints_sum(unsigned const* a, unsigned n)
 {
   unsigned sum = 0;
   #pragma omp parallel for reduction (+:sum)
