@@ -1,28 +1,32 @@
 #include "invert_map.h"
 
-#include <assert.h>
 
 #include "arrays.h"
 #include "ints.h"
 #include "loop.h"
 
+#include <thrust/sort.h>
+
+struct Counter
+{
+  unsigned origin;
+  unsigned count;
+};
+
 LOOP_KERNEL(count,
-    unsigned nout,
     unsigned const* in,
     unsigned* counts)
-  unsigned d = in[i];
-  assert(d < nout);
-  loop_atomic_increment(&(counts[d]));
+  loop_atomic_increment(&(counts[in[i]]));
 }
 
-LOOP_KERNEL(fill,
-    unsigned const* in,
+LOOP_KERNEL(fill, unsigned const* in,
     unsigned* offsets,
     unsigned* counts,
-    unsigned* out)
+    unsigned* out,
+    Counter* counter)
   unsigned d = in[i];
   unsigned o = offsets[d];
-  unsigned j = loop_atomic_increment(&(counts[d]));
+  unsigned j = counts[d]+ counter[i].count;
   out[o + j] = i;
 }
 
@@ -51,6 +55,76 @@ LOOP_KERNEL(sort,
   }
 }
 
+
+
+
+LOOP_KERNEL( assign , struct Counter * out )
+  out[i].origin = i;
+}
+
+LOOP_KERNEL( Pointer_assign , struct Counter * out, struct Counter** ref )
+  ref[i] = &(out[i]);
+}
+
+LOOP_KERNEL( count_work , struct Counter ** ref , unsigned * in )
+  ref[i]->count = 0;
+  __syncthreads();
+  while( i > 0 && in[i]==in[i-1])
+  {
+	atomicAdd( &(ref[i]->count) , 1 );
+	i--;
+  }
+}
+
+LOOP_KERNEL( copy , unsigned const* in , unsigned * out)
+  out[i] = in[i];
+}
+
+
+#include <thrust/device_vector.h>
+#include <thrust/fill.h>
+
+void Count_Sort_Dance(unsigned const*in , struct Counter*  out, unsigned nin)
+{
+  struct Counter** ref = LOOP_MALLOC( struct Counter* , nin);
+  LOOP_EXEC( assign, nin , out );
+  unsigned * n_sorted = LOOP_MALLOC( unsigned , nin);
+  unsigned *a = (unsigned*)malloc( sizeof(int) * nin);
+  LOOP_EXEC( copy , nin , in , n_sorted);
+  LOOP_EXEC( Pointer_assign, nin, out, ref);
+  LOOP_EXEC( Pointer_assign, nin, out, ref);
+  //thrust::device_ptr<unsigned> t_n_sorted(n_sorted);
+  //thrust::device_ptr<unsigned> t_n_sorted_end(n_sorted+nin);
+  //thrust::device_ptr<struct Counter*> t_ref(ref);
+  //thrust::device_vector<unsigned>
+
+  //thrust::device_vector<unsigned> a_sorted( n_sorted, n_sorted+nin);
+  //thrust::device_vector<Counter*>
+  /*
+  thrust::fill(thrust::device_ptr<unsigned> (n_sorted),
+		  thrust::device_ptr<unsigned> (n_sorted+nin),
+		  0);
+  printf(" DID I DIE!?!?!?\n");
+  */
+
+  cudaError_t ret = cudaGetLastError();
+  assert(ret == cudaSuccess);
+
+  thrust::stable_sort_by_key(
+    thrust::device_ptr<unsigned> (n_sorted) ,
+    thrust::device_ptr<unsigned> (n_sorted+nin),
+    thrust::device_ptr<struct Counter*> (ref) );
+
+  //printf("I'M NOT DEAD\n");
+
+  LOOP_EXEC( count_work , nin, ref , n_sorted);
+
+  loop_free(a);
+}
+
+
+
+
 void invert_map(
     unsigned nin,
     unsigned const* in,
@@ -59,12 +133,14 @@ void invert_map(
     unsigned** p_offsets)
 {
   unsigned* counts = uints_filled(nout, 0);
-  LOOP_EXEC(count, nin, nout, in, counts);
+  LOOP_EXEC(count, nin, in, counts);
+  struct Counter* counters = LOOP_MALLOC( struct Counter , nin);
+  Count_Sort_Dance( in, counters , nin);
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   loop_free(counts);
   counts = uints_filled(nout, 0);
-  LOOP_EXEC(fill, nin, in, offsets, counts, out);
+  LOOP_EXEC(fill, nin, in, offsets, counts, out, counters);
   loop_free(counts);
   LOOP_EXEC(sort, nout, offsets, out);
   *p_out = out;
