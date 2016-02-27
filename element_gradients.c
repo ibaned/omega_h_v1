@@ -10,6 +10,40 @@
 #include "tables.h"
 #include "tag.h"
 
+LOOP_KERNEL(execute,
+    unsigned elem_dim,
+    unsigned const* verts_of_elems,
+    double const* coords_of_verts,
+    unsigned ncomps,
+    double const* comps_of_verts,
+    unsigned ncomps_out,
+    double* out,
+    unsigned verts_per_elem)
+
+  unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
+  double elem_coords[4][3];
+  double const* elem_comps[4];
+  for (unsigned j = 0; j < verts_per_elem; ++j) {
+    unsigned vert = verts_of_elem[j];
+    elem_comps[j] = comps_of_verts + vert * ncomps;
+    copy_vector(coords_of_verts + vert * 3, elem_coords[j], 3);
+  }
+  double jac[3][3];
+  element_jacobian(elem_dim, elem_coords, jac);
+  double jaci[3][3];
+  invert_jacobian(elem_dim, jac, jaci);
+  double* grad = out + i * ncomps_out;
+  for (unsigned j = 0; j < ncomps_out; ++j)
+    grad[j] = 0;
+  for (unsigned j = 0; j < elem_dim; ++j)
+  for (unsigned k = 0; k < ncomps; ++k)
+  for (unsigned l = 0; l < 3; ++l)
+    grad[k * 3 + l] += jaci[j][l] *
+      (elem_comps[j + 1][k] - elem_comps[0][k]);
+
+}
+
+
 double* element_gradients(
     unsigned elem_dim,
     unsigned nelems,
@@ -25,28 +59,15 @@ double* element_gradients(
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   assert(verts_per_elem == elem_dim + 1);
   assert(verts_per_elem > 1);
-  for (unsigned i = 0; i < nelems; ++i) {
-    unsigned const* verts_of_elem = verts_of_elems + i * verts_per_elem;
-    double elem_coords[4][3];
-    double const* elem_comps[4];
-    for (unsigned j = 0; j < verts_per_elem; ++j) {
-      unsigned vert = verts_of_elem[j];
-      elem_comps[j] = comps_of_verts + vert * ncomps;
-      copy_vector(coords_of_verts + vert * 3, elem_coords[j], 3);
-    }
-    double jac[3][3];
-    element_jacobian(elem_dim, elem_coords, jac);
-    double jaci[3][3];
-    invert_jacobian(elem_dim, jac, jaci);
-    double* grad = out + i * ncomps_out;
-    for (unsigned j = 0; j < ncomps_out; ++j)
-      grad[j] = 0;
-    for (unsigned j = 0; j < elem_dim; ++j)
-    for (unsigned k = 0; k < ncomps; ++k)
-    for (unsigned l = 0; l < 3; ++l)
-      grad[k * 3 + l] += jaci[j][l] *
-          (elem_comps[j + 1][k] - elem_comps[0][k]);
-  }
+  LOOP_EXEC(execute,nelems,
+    elem_dim,
+    verts_of_elems,
+    coords_of_verts,
+    ncomps,
+    comps_of_verts,
+    ncomps_out,
+    out,
+    verts_per_elem);
   return out;
 }
 

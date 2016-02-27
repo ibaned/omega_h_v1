@@ -14,27 +14,76 @@
 
 double doubles_max(double const* a, unsigned n)
 {
-  double max = 0;
   thrust::device_ptr<double const> p(a);
   /* DBL_MIN is the smallest positive value, for dealing
      with negatives we should actually initialize to -DBL_MAX */
-  max = thrust::reduce(p, p + n, -DBL_MAX, thrust::maximum<double>());
+  double max = thrust::reduce(
+      p, p + n, -DBL_MAX, thrust::maximum<double>());
   return max;
 }
 
 double doubles_min(double const* a, unsigned n)
 {
-  double min = 0;
   thrust::device_ptr<double const> p(a);
-  min = thrust::reduce(p, p + n, DBL_MAX, thrust::minimum<double>());
+  double min = thrust::reduce(
+      p, p + n, DBL_MAX, thrust::minimum<double>());
+  return min;
+}
+
+double doubles_sum(double const* a, unsigned n)
+{
+  thrust::device_ptr< double const> p (a);
+  double sum = thrust::reduce(
+      p, p + n, (double)0, thrust::plus<double>());
+  return sum;
+}
+
+#elif defined(LOOP_OPENMP_H)
+
+double doubles_max(double const* a, unsigned n)
+{
+  double max = -DBL_MAX;
+  #pragma omp parallel
+  {
+    double thread_max = -DBL_MAX;
+    #pragma omp for
+    for (unsigned i = 0; i < n; ++i)
+      if (a[i] > thread_max)
+        thread_max = a[i];
+    #pragma omp critical
+    {
+      if (thread_max > max)
+        max = thread_max;
+    }
+  }
+  return max;
+}
+
+double doubles_min(double const* a, unsigned n)
+{
+  double min = DBL_MAX;
+  #pragma omp parallel
+  {
+    double thread_min = DBL_MAX;
+    #pragma omp for
+    for (unsigned i = 0; i < n; ++i)
+      if (a[i] < thread_min)
+        thread_min = a[i];
+    #pragma omp critical
+    {
+      if (thread_min < min)
+        min = thread_min;
+    }
+  }
   return min;
 }
 
 double doubles_sum(double const* a, unsigned n)
 {
   double sum = 0;
-  thrust::device_ptr< double const> p (a);
-  sum = thrust::reduce(p, p + n, (double)0, thrust::plus<double>());
+  #pragma omp parallel for reduction (+:sum)
+  for (unsigned i = 0; i < n; ++i)
+    sum = sum + a[i];
   return sum;
 }
 
