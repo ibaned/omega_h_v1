@@ -6,13 +6,10 @@
 #include "ints.h"
 #include "loop.h"
 
+#ifdef  __CUDACC__
 #include <thrust/sort.h>
-
-struct Counter
-{
-  unsigned origin;
-  unsigned count;
-};
+#include <thrust/execution_policy.h>
+#endif
 
 LOOP_KERNEL(count,
     unsigned nout,
@@ -27,11 +24,10 @@ LOOP_KERNEL(fill,
     unsigned const* in,
     unsigned* offsets,
     unsigned* counts,
-    unsigned* out,
-    Counter* counter)
+    unsigned* out)
   unsigned d = in[i];
   unsigned o = offsets[d];
-  unsigned j = counts[d]+ counter[i].count;
+  unsigned j = loop_atomic_increment(&(counts[d]));
   out[o + j] = i;
 }
 
@@ -44,12 +40,15 @@ LOOP_KERNEL(fill,
    there is a reward for someone who comes up with
    an equally efficient implementation that is deterministic
    from the start */
-/*
 LOOP_KERNEL(sort,
     unsigned* offsets,
     unsigned* out)
   unsigned first = offsets[i];
   unsigned end = offsets[i + 1];
+#ifdef  __CUDACC__
+  thrust::sort(thrust::seq, out+first , out + end);
+#else
+  //Why not qsort(out+first,(end - first), sizeof(unsigned), comp )?
   for (unsigned j = first; j < end; ++j) {
     unsigned min_k = j;
     for (unsigned k = j + 1; k < end; ++k)
@@ -59,48 +58,8 @@ LOOP_KERNEL(sort,
     out[j] = out[min_k];
     out[min_k] = tmp;
   }
+#endif
 }
-*/
-
-
-
-LOOP_KERNEL( assign , struct Counter * out )
-  out[i].origin = i;
-}
-
-LOOP_KERNEL( Pointer_assign , struct Counter * out, struct Counter** ref )
-  ref[i] = &(out[i]);
-}
-
-LOOP_KERNEL( count_work , struct Counter ** ref , unsigned * in )
-  ref[i]->count = 0;
-  __syncthreads();
-  while( i > 0 && in[i]==in[i-1])
-  {
-	atomicAdd( &(ref[i]->count) , 1 );
-	i--;
-  }
-}
-
-LOOP_KERNEL( copy , unsigned const* in , unsigned * out)
-  out[i] = in[i];
-}
-
-void Count_Sort_Dance(unsigned const*in , struct Counter*  out, unsigned nin)
-{
-  struct Counter** ref = LOOP_MALLOC( struct Counter* , nin);
-  LOOP_EXEC( assign, nin , out );
-  unsigned * n_sorted = LOOP_MALLOC( unsigned , nin);
-  LOOP_EXEC( copy , nin , in , n_sorted);
-  LOOP_EXEC( Pointer_assign, nin, out, ref);
-  thrust::stable_sort_by_key( thrust::device_ptr(n_sorted),
-		  thrust::device_ptr(n_sorted+nin) ,
-		  thrust::device_ptr(ref) );
-  LOOP_EXEC( count_work , nin, ref , n_sorted);
-}
-
-
-
 
 void invert_map(
     unsigned nin,
@@ -110,20 +69,14 @@ void invert_map(
     unsigned** p_offsets)
 {
   unsigned* counts = uints_filled(nout, 0);
-<<<<<<< HEAD
-  LOOP_EXEC(count, nin, in, counts);
-  struct Counter* counters = LOOP_MALLOC( struct Counter , nin);
-  Count_Sort_Dance( in, counters , nin);
-=======
   LOOP_EXEC(count, nin, nout, in, counts);
->>>>>>> origin/master
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   loop_free(counts);
   counts = uints_filled(nout, 0);
-  LOOP_EXEC(fill, nin, in, offsets, counts, out, counters);
+  LOOP_EXEC(fill, nin, in, offsets, counts, out);
   loop_free(counts);
-  //LOOP_EXEC(sort, nout, offsets, out);
+  LOOP_EXEC(sort, nout, offsets, out);
   *p_out = out;
   *p_offsets = offsets;
 }
