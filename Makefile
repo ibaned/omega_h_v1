@@ -34,6 +34,7 @@ test_loop.c \
 test_to_la.c
 
 lib_sources := \
+bfs.c \
 star.c \
 tables.c \
 up_from_down.c \

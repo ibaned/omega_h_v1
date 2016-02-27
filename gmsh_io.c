@@ -137,14 +137,13 @@ struct mesh* read_msh(char const* filename)
       ++nelems;
   unsigned verts_per_elem = dim + 1;
   unsigned* verts_of_elems = LOOP_HOST_MALLOC(unsigned, nelems * verts_per_elem);
-  unsigned ei = 0;
-  for (unsigned i = 0; i < neqs; ++i) {
-    if (dim_of_eqs[i] != dim)
-      continue;
+  /* load element connectivity */
+  for (unsigned elem = 0; elem < nelems; ++elem) {
+    unsigned eq = elem + (neqs - nelems);
+    assert(dim_of_eqs[eq] == dim);
     for (unsigned j = 0; j < verts_per_elem; ++j)
-      verts_of_elems[ei * verts_per_elem + j] =
-          verts_of_eqs[i * 4 + j];
-    ++ei;
+      verts_of_elems[elem * verts_per_elem + j] =
+          verts_of_eqs[eq * 4 + j];
   }
   mesh_set_ents(m, dim, nelems, verts_of_elems);
   /* now for the tricky bit. for each equal-order entity from the file,
@@ -160,25 +159,35 @@ struct mesh* read_msh(char const* filename)
     class_dims[i] = LOOP_MALLOC(unsigned, n);
     class_ids[i] = LOOP_MALLOC(unsigned, n);
   }
-  for (unsigned ii = 0; ii < neqs; ++ii) {
-    unsigned i = neqs - ii - 1;
-    unsigned eq_dim = dim_of_eqs[i];
-    unsigned const* eq_verts = verts_of_eqs + i * 4;
-    /* general reverse lookup via vertices. */
-    unsigned ent = find_by_verts(eq_dim + 1, eq_verts,
-        mesh_ask_down(m, eq_dim, 0),
-        mesh_ask_up(m, 0, eq_dim)->adj,
-        mesh_ask_up(m, 0, eq_dim)->offsets);
+  for (unsigned reqi = 0; reqi < neqs; ++reqi) {
+    unsigned eq = neqs - reqi - 1;
+    unsigned eq_dim = dim_of_eqs[eq];
+    unsigned const* eq_verts = verts_of_eqs + eq * 4;
+    unsigned ent;
+    if (reqi < nelems) {
+      assert(eq_dim == dim);
+      ent = eq - (neqs - nelems);
+    } else {
+      /* general reverse lookup via vertices. */
+      ent = find_by_verts(
+          eq_dim,
+          eq_verts,
+          /* TODO: don't request these when eq_dim == 0 */
+          mesh_ask_down(m, eq_dim, 0),
+          mesh_ask_up(m, 0, eq_dim)->offsets,
+          mesh_ask_up(m, 0, eq_dim)->adj,
+          mesh_ask_up(m, 0, eq_dim)->directions);
+    }
     assert(ent != INVALID);
     class_dims[eq_dim][ent] = eq_dim;
-    class_ids[eq_dim][ent] = class_id_of_eqs[i];
-    for (unsigned dd = 0; dd < eq_dim; ++dd) {
-      unsigned const* des_of_ents = mesh_ask_down(m, eq_dim, dd);
-      unsigned des_per_ent = the_down_degrees[eq_dim][dd];
-      for (unsigned j = 0; j < des_per_ent; ++j) {
-        unsigned de = des_of_ents[ent * des_per_ent + j];
-        class_dims[dd][de] = eq_dim;
-        class_ids[dd][de] = class_id_of_eqs[i];
+    class_ids[eq_dim][ent] = class_id_of_eqs[eq];
+    for (unsigned low_dim = 0; low_dim < eq_dim; ++low_dim) {
+      unsigned const* lows_of_ents = mesh_ask_down(m, eq_dim, low_dim);
+      unsigned lows_per_ent = the_down_degrees[eq_dim][low_dim];
+      for (unsigned j = 0; j < lows_per_ent; ++j) {
+        unsigned low = lows_of_ents[ent * lows_per_ent + j];
+        class_dims[low_dim][low] = eq_dim;
+        class_ids[low_dim][low] = class_id_of_eqs[eq];
       }
     }
   }
