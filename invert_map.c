@@ -20,9 +20,17 @@ LOOP_KERNEL(count,
 }
 
 LOOP_KERNEL(fill,
+	unsigned* offset,
     unsigned* out,
     Counter* counter)
   out[i] = counter[i].origin;
+  if(i!=0)
+  {
+    if( counter[i].value != counter[i-1].value)
+    {
+      offset[counter[i].value] = i;
+    }
+  }
 }
 
 /* the atomic increments give the fill
@@ -72,24 +80,36 @@ void invert_map(
   //LOOP_EXEC( count_work , nin, counters );
 
 
-  unsigned* counts = uints_filled(nout, 0);
-  LOOP_EXEC(count, nin, in, counts);
-/*
-  struct Counter * refa = (struct Counter*)malloc(sizeof(struct Counter)*nin);
-  cudaMemcpy(refa, counters , sizeof(struct Counter) *nin, cudaMemcpyDeviceToHost);
+  //unsigned* counts = uints_filled(nout, 0);
+  unsigned* aoffsets =uints_filled(nout+1, 0);
+  //LOOP_EXEC(count, nin, in, counts);
 
+  //struct Counter * refa = (struct Counter*)malloc(sizeof(struct Counter)*nin);
+  //cudaMemcpy(refa, counters , sizeof(struct Counter) *nin, cudaMemcpyDeviceToHost);
+/*
   printf("SORTED?\n");
   for(i =0 ; i< nin ; i++) printf("O:%u C:%u  V:%u \n", refa[i].origin, refa[i].count, refa[i].value);
   printf("\n");
 */
-  unsigned* offsets = uints_exscan(counts, nout);
+  //unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
-
-  LOOP_EXEC(fill, nin, out, counters);
-  loop_free(counts);
+  unsigned i = nin;
+  LOOP_EXEC(fill, nin,aoffsets, out, counters);
+  CUDACALL(cudaMemcpy(aoffsets + nout, &(i), sizeof(unsigned), cudaMemcpyHostToDevice));
+  //loop_free(counts);
   loop_free(counters);
-
-
+  /*
+  unsigned * outb = uints_to_host(offsets, nout+1);
+  unsigned * outa = uints_to_host(aoffsets, nout+1);
+  for(i =0 ; i< nout+1 ; i++)
+  {
+    //printf("%u  :  %u\n", outa[i], outb[i]);
+	if(outa[i] != outb[i]){
+    printf("SORT WAS USED!\n");
+    exit(1);}
+  }
+  free(outb);
+  free(outa);
 /*
   printf("AFTER:\n");
   unsigned * outb = uints_to_host(out, nin);
@@ -98,12 +118,14 @@ void invert_map(
   free(outb);
 */
   *p_out = out;
-  *p_offsets = offsets;
+  *p_offsets = aoffsets;
 }
 
 
 
 #if 0
+
+
 
 LOOP_KERNEL(sort,
     unsigned* offsets,
