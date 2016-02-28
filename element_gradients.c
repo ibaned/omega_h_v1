@@ -40,7 +40,6 @@ LOOP_KERNEL(execute,
   for (unsigned l = 0; l < 3; ++l)
     grad[k * 3 + l] += jaci[j][l] *
       (elem_comps[j + 1][k] - elem_comps[0][k]);
-
 }
 
 
@@ -85,6 +84,6 @@ struct const_tag* mesh_element_gradients(
   strcat(grad_name, t->name);
   struct const_tag* out = mesh_add_tag(
       m, mesh_dim(m), TAG_F64, grad_name, t->ncomps * 3, data);
-  loop_free(grad_name);
+  loop_host_free(grad_name);
   return out;
 }
