@@ -297,7 +297,10 @@ void mesh_get_star(
     unsigned** p_star_offsets,
     unsigned** p_star)
 {
-  if (low_dim == 0 && high_dim == mesh_dim(m) && mesh_has_dim(m, 1))
+  if (low_dim == 0 &&
+      high_dim == mesh_dim(m) &&
+      mesh_dim(m) != 1 &&
+      mesh_has_dim(m, 1))
     mesh_get_star(m, low_dim, 1, p_star_offsets, p_star);
   else if (low_dim == 0 && high_dim == 1)
     get_vertex_edge_star(m, p_star_offsets, p_star);

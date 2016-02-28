@@ -16,5 +16,6 @@ void* loop_host_copy(void const* p, unsigned long n);
   ((T*)loop_host_copy(p, sizeof(T) * (n)))
 
 unsigned long loop_host_memory(void);
+unsigned long loop_host_high_water(void);
 
 #endif

@@ -8,6 +8,15 @@
 #define PI 3.14159265359
 
 LOOP_INOUT static inline void
+zero_vector(
+    double* v,
+    unsigned n)
+{
+  for (unsigned i = 0; i < n; ++i)
+    v[i] = 0;
+}
+
+LOOP_INOUT static inline void
 copy_vector(
     double const* a,
     double* b,

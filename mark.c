@@ -176,8 +176,9 @@ unsigned* mesh_mark_class(struct mesh* m, unsigned ent_dim,
 {
   unsigned const* class_dim_of_ents =
     mesh_find_tag(m, ent_dim, "class_dim")->d.u32;
-  unsigned const* class_id_of_ents =
-    mesh_find_tag(m, ent_dim, "class_id")->d.u32;
+  unsigned const* class_id_of_ents = 0;
+  if (target_id != INVALID)
+    class_dim_of_ents = mesh_find_tag(m, ent_dim, "class_id")->d.u32;
   unsigned nents = mesh_count(m, ent_dim);
   return mark_class(nents, target_dim, target_id, class_dim_of_ents,
       class_id_of_ents);

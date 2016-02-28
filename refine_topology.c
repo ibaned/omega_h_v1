@@ -118,39 +118,6 @@ unsigned get_prods_per_dom(
   return the_down_degrees[src_dim][opp_dim];
 }
 
-static unsigned refined_prod_count(
-    struct mesh* m,
-    unsigned dom_dim,
-    unsigned src_dim,
-    unsigned prod_dim,
-    unsigned const* offset_of_doms)
-{
-  unsigned ndoms = mesh_count(m, dom_dim);
-  unsigned nsplit_doms = uints_at(offset_of_doms, ndoms);
-  return nsplit_doms * get_prods_per_dom(dom_dim, src_dim, prod_dim);
-}
-
-void refined_prod_counts(
-    struct mesh* m,
-    unsigned src_dim,
-    unsigned* offset_of_doms[4],
-    unsigned ngen_ents[4][4])
-{
-  unsigned elem_dim = mesh_dim(m);
-  for (unsigned dom_dim = src_dim; dom_dim <= elem_dim; ++dom_dim) {
-    if (mesh_get_rep(m) == MESH_REDUCED && dom_dim != elem_dim)
-      continue;
-    for (unsigned prod_dim = 1; prod_dim <= dom_dim; ++prod_dim) {
-      if (mesh_get_rep(m) == MESH_REDUCED && prod_dim != elem_dim)
-        continue;
-      ngen_ents[prod_dim][dom_dim] = refined_prod_count(
-          m, dom_dim, src_dim, prod_dim, offset_of_doms[dom_dim]);
-    }
-  }
-  unsigned nsrcs = mesh_count(m, src_dim);
-  ngen_ents[0][src_dim] = uints_at(offset_of_doms[src_dim], nsrcs);
-}
-
 void mesh_refine_topology(struct mesh* m,
     unsigned dom_dim,
     unsigned src_dim,
