@@ -10,7 +10,6 @@
 struct Counter
 {
   unsigned origin;
-  unsigned count;
   unsigned value;
 };
 
@@ -20,9 +19,7 @@ LOOP_KERNEL(count,
   loop_atomic_increment(&(counts[in[i]]));
 }
 
-LOOP_KERNEL(fill, unsigned const* in,
-    unsigned* offsets,
-    unsigned* counts,
+LOOP_KERNEL(fill,
     unsigned* out,
     Counter* counter)
   out[i] = counter[i].origin;
@@ -47,15 +44,6 @@ LOOP_KERNEL( assign ,const unsigned * in, struct Counter * ref )
   ref[i].value  = in[i];
 }
 
-LOOP_KERNEL( count_work , struct Counter * ref )
-  ref[i].count = 0;
-  __syncthreads();
-  while( i > 0 && ref[i].value==ref[i-1].value)
-  {
-	atomicAdd( &(ref[i].count) , 1 );
-	i--;
-  }
-}
 
 
 
@@ -64,10 +52,7 @@ LOOP_KERNEL( count_work , struct Counter * ref )
 
 __host__ __device__ bool operator<(const Counter &A, const Counter &B)
 {
-  //if( A.value == B.value)
-	//  return A.origin < B.origin;
-  //else
-	  return A.value < B.value;
+  return (A.value < B.value);
 }
 
 void invert_map(
@@ -77,7 +62,6 @@ void invert_map(
     unsigned** p_out,
     unsigned** p_offsets)
 {
-  int i;
   struct Counter* counters = LOOP_MALLOC( struct Counter, nin);
   LOOP_EXEC( assign, nin , in, counters );
 
@@ -101,7 +85,7 @@ void invert_map(
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
 
-  LOOP_EXEC(fill, nin, in, offsets, counts, out, counters);
+  LOOP_EXEC(fill, nin, out, counters);
   loop_free(counts);
   loop_free(counters);
 
