@@ -5,9 +5,10 @@
 #include "tables.h"
 
 LOOP_KERNEL(separate,
-  unsigned* directions,
-  unsigned* highs_of_lows,
-  unsigned  lows_per_high)
+    unsigned* directions,
+    unsigned* highs_of_lows,
+    unsigned  lows_per_high)
+  
   unsigned both = highs_of_lows[i];
   unsigned high = both/ lows_per_high;
   highs_of_lows[i] = high;
