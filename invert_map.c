@@ -11,6 +11,7 @@ struct Counter
 {
   unsigned origin;
   unsigned count;
+  unsigned value;
 };
 
 LOOP_KERNEL(count,
@@ -24,10 +25,7 @@ LOOP_KERNEL(fill, unsigned const* in,
     unsigned* counts,
     unsigned* out,
     Counter* counter)
-  unsigned d = in[i];
-  unsigned o = offsets[d];
-  unsigned j = counts[d]+ counter[i].count;
-  out[o + j] = i;
+  out[i] = counter[i].origin;
 }
 
 /* the atomic increments give the fill
@@ -39,6 +37,90 @@ LOOP_KERNEL(fill, unsigned const* in,
    there is a reward for someone who comes up with
    an equally efficient implementation that is deterministic
    from the start */
+
+
+
+
+
+LOOP_KERNEL( assign ,const unsigned * in, struct Counter * ref )
+  ref[i].origin = i;
+  ref[i].value  = in[i];
+}
+
+LOOP_KERNEL( count_work , struct Counter * ref )
+  ref[i].count = 0;
+  __syncthreads();
+  while( i > 0 && ref[i].value==ref[i-1].value)
+  {
+	atomicAdd( &(ref[i].count) , 1 );
+	i--;
+  }
+}
+
+
+
+#include <thrust/device_vector.h>
+#include <thrust/fill.h>
+
+__host__ __device__ bool operator<(const Counter &A, const Counter &B)
+{
+  //if( A.value == B.value)
+	//  return A.origin < B.origin;
+  //else
+	  return A.value < B.value;
+}
+
+void invert_map(
+    unsigned nin,
+    unsigned const* in,
+    unsigned nout,
+    unsigned** p_out,
+    unsigned** p_offsets)
+{
+  int i;
+  struct Counter* counters = LOOP_MALLOC( struct Counter, nin);
+  LOOP_EXEC( assign, nin , in, counters );
+
+  thrust::sort(
+      thrust::device_ptr<struct Counter> (counters),
+      thrust::device_ptr<struct Counter> (counters+nin));
+
+  //LOOP_EXEC( count_work , nin, counters );
+
+
+  unsigned* counts = uints_filled(nout, 0);
+  LOOP_EXEC(count, nin, in, counts);
+/*
+  struct Counter * refa = (struct Counter*)malloc(sizeof(struct Counter)*nin);
+  cudaMemcpy(refa, counters , sizeof(struct Counter) *nin, cudaMemcpyDeviceToHost);
+
+  printf("SORTED?\n");
+  for(i =0 ; i< nin ; i++) printf("O:%u C:%u  V:%u \n", refa[i].origin, refa[i].count, refa[i].value);
+  printf("\n");
+*/
+  unsigned* offsets = uints_exscan(counts, nout);
+  unsigned* out = LOOP_MALLOC(unsigned, nin);
+
+  LOOP_EXEC(fill, nin, in, offsets, counts, out, counters);
+  loop_free(counts);
+  loop_free(counters);
+
+
+/*
+  printf("AFTER:\n");
+  unsigned * outb = uints_to_host(out, nin);
+  for(i =0 ; i< nin ; i++) printf("%u\t", outb[i]);
+  printf("\n");
+  free(outb);
+*/
+  *p_out = out;
+  *p_offsets = offsets;
+}
+
+
+
+#if 0
+
 LOOP_KERNEL(sort,
     unsigned* offsets,
     unsigned* out)
@@ -55,48 +137,19 @@ LOOP_KERNEL(sort,
   }
 }
 
-
-
-
-LOOP_KERNEL( assign , struct Counter * out )
-  out[i].origin = i;
-}
-
-LOOP_KERNEL( Pointer_assign , struct Counter * out, struct Counter** ref )
-  ref[i] = &(out[i]);
-}
-
-LOOP_KERNEL( count_work , struct Counter ** ref , unsigned * in )
-  ref[i]->count = 0;
-  __syncthreads();
-  while( i > 0 && in[i]==in[i-1])
-  {
-	atomicAdd( &(ref[i]->count) , 1 );
-	i--;
-  }
-}
-
 LOOP_KERNEL( copy , unsigned const* in , unsigned * out)
   out[i] = in[i];
 }
 
-
-#include <thrust/device_vector.h>
-#include <thrust/fill.h>
-
 void Count_Sort_Dance(unsigned const*in , struct Counter*  out, unsigned nin)
 {
   struct Counter** ref = LOOP_MALLOC( struct Counter* , nin);
-  LOOP_EXEC( assign, nin , out );
+  //LOOP_EXEC( assign, nin , out );
   unsigned * n_sorted = LOOP_MALLOC( unsigned , nin);
   //unsigned *a = (unsigned*)malloc( sizeof(int) * nin);
   LOOP_EXEC( copy , nin , in , n_sorted);
   LOOP_EXEC( Pointer_assign, nin, out, ref);
-  //LOOP_EXEC( Pointer_assign, nin, out, ref);
-  //thrust::device_ptr<unsigned> t_n_sorted(n_sorted);
-  //thrust::device_ptr<unsigned> t_n_sorted_end(n_sorted+nin);
-  //thrust::device_ptr<struct Counter*> t_ref(ref);
-  //thrust::device_vector<unsigned>
+
 
   //thrust::device_vector<unsigned> a_sorted( n_sorted, n_sorted+nin);
   //thrust::device_vector<Counter*>
@@ -115,16 +168,23 @@ void Count_Sort_Dance(unsigned const*in , struct Counter*  out, unsigned nin)
     thrust::device_ptr<unsigned> (n_sorted+nin),
     thrust::device_ptr<struct Counter*> (ref) );
 
-  //printf("I'M NOT DEAD\n");
+  LOOP_EXEC( assign, nin , ref );
+  struct Counter * refa = (struct Counter*)malloc(sizeof(struct Counter)*nin);
+
+  int i;
+
 
   LOOP_EXEC( count_work , nin, ref , n_sorted);
+  cudaMemcpy(refa, out , sizeof(struct Counter) *nin, cudaMemcpyDeviceToHost);
+  printf("SORTED?\n");
+  for(i =0 ; i< nin ; i++) printf("%i\t", refa[i].origin);
+  printf("\n");
+
+
   loop_free(ref);
 
   loop_free(n_sorted);
 }
-
-
-
 
 void invert_map(
     unsigned nin,
@@ -141,16 +201,36 @@ void invert_map(
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   loop_free(counts);
   counts = uints_filled(nout, 0);
+  //unsigned * outa = uints_to_host(out, nin);
   LOOP_EXEC(fill, nin, in, offsets, counts, out, counters);
   loop_free(counts);
+  int i = 0;
+  ///printf("NIN: %i\t NOUT: %i\n", nin, nout);
+  //unsigned * ouffa = uints_to_host(offsets, nout+1);
+  //for(i = 0 ; i < nout+1 ; i++) printf("offsets[%i] = %i\n", i , ouffa[i]);
+  //free(ouffa);
+
+  //LOOP_EXEC(sort, nout, offsets, out);
   //printf("BEFORE:\n");
-  //int i = 0;
-  //for(i =0 ; i< nout ; i++) printf("%i : %i \n", i , out[i]);
-  LOOP_EXEC(sort, nout, offsets, out);
-  //printf("AFTER:\n");
-  //for(i =0 ; i< nout ; i++) printf("%i : %i \n", i , out[i]);
+
+  //for(i =0 ; i< nin ; i++) printf("%i\t", outa[i]);
+  //printf("\n");
+  printf("AFTER:\n");
+  unsigned * outb = uints_to_host(out, nin);
+  for(i =0 ; i< nin ; i++) printf("%i\t", outb[i]);
+  printf("\n");
+  /*
+  for(i =0 ; i< nin ; i++)
+  {
+	  if(outa[i] != outb[i])
+		  printf("SORT WAS USED!\n");
+  }
+  */
+  //free(outa);
+  //free(outb);
   loop_free(counters);
   //printf("DId this kill me\n");
   *p_out = out;
   *p_offsets = offsets;
 }
+#endif
