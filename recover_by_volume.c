@@ -5,14 +5,14 @@
 #include "size.h"
 #include "tag.h"
 
-LOOP_KERNEL(execute,
+LOOP_KERNEL(recover_vert_by_volume,
     unsigned const* elems_of_verts_offsets,
     unsigned const* elems_of_verts,
     double const* size_of_elems,
     unsigned ncomps,
     double const* comps_of_elems,
     double* comps_of_verts)
-  
+
   unsigned first_use = elems_of_verts_offsets[i];
   unsigned end_use = elems_of_verts_offsets[i + 1];
   double* comps_of_vert = comps_of_verts + i * ncomps;
@@ -40,7 +40,7 @@ double* recover_by_volume(
     double const* comps_of_elems)
 {
   double* comps_of_verts = LOOP_MALLOC(double, ncomps * nverts);
-  LOOP_EXEC( execute, nverts,
+  LOOP_EXEC(recover_vert_by_volume, nverts,
     elems_of_verts_offsets,
     elems_of_verts,
     size_of_elems,

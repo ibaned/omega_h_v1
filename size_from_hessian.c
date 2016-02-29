@@ -7,7 +7,7 @@
 #include "mesh.h"
 #include "tag.h"
 
-LOOP_KERNEL(execute,
+LOOP_KERNEL(vert_size_from_hessian,
     unsigned nhess_comps,
     double const* hessians,
     double const* sol_comp_weights,
@@ -28,15 +28,15 @@ LOOP_KERNEL(execute,
   out[i] = total;
 }
 
-LOOP_KERNEL(sort,
+LOOP_KERNEL(clamp,
     double* out,
     double min_h,
     double max_h)
-
   out[i] = max_h - out[i];
   if (out[i] < min_h)
     out[i] = min_h;
 }
+
 double* size_from_hessian(
     unsigned nverts,
     unsigned nhess_comps,
@@ -50,13 +50,13 @@ double* size_from_hessian(
   assert(min_h > 0);
   double* out = LOOP_MALLOC(double, nverts);
   unsigned nsol_comps = nhess_comps / 9;
-  LOOP_EXEC(execute, nverts,
+  LOOP_EXEC(vert_size_from_hessian, nverts,
     nhess_comps,
     hessians,
     sol_comp_weights,
     out,
     nsol_comps);
-  LOOP_EXEC(sort, nverts, out, min_h, max_h);
+  LOOP_EXEC(clamp, nverts, out, min_h, max_h);
   return out;
 }
 
