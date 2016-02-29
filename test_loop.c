@@ -25,7 +25,7 @@ int main()
       printf("%u ", host_graph[i * 3 + j]);
     printf("\n");
   }
-  free(host_graph);
+  loop_host_free(host_graph);
   free_mesh(m);
   osh_fini();
 }
