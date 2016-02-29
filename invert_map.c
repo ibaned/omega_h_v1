@@ -4,8 +4,7 @@
 #include "ints.h"
 #include "loop.h"
 
-
-#ifdef __CUDACC__
+#ifdef LOOP_CUDA_H
 
 #include <thrust/sort.h>
 #include <thrust/device_ptr.h>
@@ -30,12 +29,12 @@ LOOP_KERNEL(fill,
   }
 }
 
-LOOP_KERNEL( assign ,const unsigned * in, struct Counter * ref )
+LOOP_KERNEL(assign, const unsigned* in, Counter* ref )
   ref[i].origin = i;
   ref[i].value  = in[i];
 }
 
-__host__ __device__ bool operator<(const Counter &A, const Counter &B)
+LOOP_IN bool operator<(const Counter &A, const Counter &B)
 {
   return (A.value < B.value);
 }
@@ -47,18 +46,16 @@ void invert_map(
     unsigned** p_out,
     unsigned** p_offsets)
 {
-  struct Counter* counters = LOOP_MALLOC( struct Counter, nin);
-  LOOP_EXEC( assign, nin , in, counters );
-
+  struct Counter* counters = LOOP_MALLOC(Counter, nin);
+  LOOP_EXEC(assign, nin , in, counters );
   thrust::sort(
-      thrust::device_ptr<struct Counter> (counters),
-      thrust::device_ptr<struct Counter> (counters+nin));
-
-  unsigned* aoffsets =uints_filled(nout+1, 0);
+      thrust::device_ptr<Counter>(counters),
+      thrust::device_ptr<Counter>(counters + nin));
+  unsigned* aoffsets =uints_filled(nout + 1, 0);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
-  unsigned i = nin;
   LOOP_EXEC(fill, nin,aoffsets, out, counters);
-  CUDACALL(cudaMemcpy(aoffsets + nout, &(i), sizeof(unsigned), cudaMemcpyHostToDevice));
+  CUDACALL(cudaMemcpy(aoffsets + nout, &(nin),
+        sizeof(unsigned), cudaMemcpyHostToDevice));
   loop_free(counters);
   *p_out = out;
   *p_offsets = aoffsets;
@@ -95,7 +92,7 @@ LOOP_KERNEL(fill,
    there is a reward for someone who comes up with
    an equally efficient implementation that is deterministic
    from the start */
-/*
+
 LOOP_KERNEL(sort,
     unsigned* offsets,
     unsigned* out)
@@ -111,7 +108,7 @@ LOOP_KERNEL(sort,
     out[min_k] = tmp;
   }
 }
-*/
+
 void invert_map(
     unsigned nin,
     unsigned const* in,
@@ -131,4 +128,5 @@ void invert_map(
   *p_out = out;
   *p_offsets = offsets;
 }
+
 #endif
