@@ -39,7 +39,10 @@ static unsigned* compute_boundary_depth(struct mesh* m,
     if (host_bdry_verts[i]) {
       queue[end++] = i;
       depth[i] = 0;
+    } else {
+      depth[i] = INVALID;
     }
+  loop_host_free(host_bdry_verts);
   bfs_continue(queue, &begin, &end, offsets, adj, 0, depth);
   loop_host_free(queue);
   return depth;
@@ -53,14 +56,18 @@ static void enqueue_component_maxima(
   for (unsigned c = 0; c < nverts; ++c) {
     unsigned max_v = INVALID;
     unsigned max_depth = INVALID;
+    unsigned exists = 0;
     for (unsigned v = 0; v < nverts; ++v) {
       if (comp[v] != c)
         continue;
+      exists = 1;
       if (max_v == INVALID || depth[v] > max_depth) {
         max_v = v;
         max_depth = depth[v];
       }
     }
+    if (!exists)
+      break;
     assert(max_v != INVALID);
     queue[(*p_end)++] = max_v;
   }
@@ -73,8 +80,6 @@ unsigned* compute_ordering(struct mesh* m)
   unsigned* offsets;
   unsigned* adj;
   get_host_graph(m, &offsets, &adj);
-  loop_host_free(offsets);
-  loop_host_free(adj);
   unsigned* depth = compute_boundary_depth(m, offsets, adj);
   unsigned* comp = LOOP_HOST_MALLOC(unsigned, nverts);
   connected_components(nverts, offsets, adj, comp);
@@ -84,6 +89,10 @@ unsigned* compute_ordering(struct mesh* m)
   unsigned ncomps = end;
   unsigned begin = 0;
   unsigned* radius = depth;
+  for (unsigned i = 0; i < nverts; ++i)
+    radius[i] = INVALID;
+  for (unsigned i = 0; i < end; ++i)
+    radius[queue[i]] = 0;
   bfs_continue(queue, &begin, &end, offsets, adj, 0, radius);
   assert(end == nverts);
   /* we could do all the components from their boundary seeds
@@ -95,16 +104,20 @@ unsigned* compute_ordering(struct mesh* m)
   enqueue_component_maxima(nverts, radius, comp, comp_seeds, &end);
   assert(end == ncomps);
   loop_host_free(comp);
-  loop_host_free(radius);
+  unsigned* layer = radius;
+  for (unsigned i = 0; i < nverts; ++i)
+    layer[i] = INVALID;
   begin = 0;
   end = 0;
   for (unsigned c = 0; c < ncomps; ++c) {
     queue[end++] = comp_seeds[c];
-    bfs_continue(queue, &begin, &end, offsets, adj, 0, 0);
+    layer[comp_seeds[c]] = 0;
+    bfs_continue(queue, &begin, &end, offsets, adj, 0, layer);
   }
   assert(end == nverts);
   loop_host_free(comp_seeds);
   loop_host_free(offsets);
   loop_host_free(adj);
+  loop_host_free(layer);
   return queue;
 }
