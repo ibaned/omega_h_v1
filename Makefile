@@ -7,6 +7,7 @@
 include config.mk
 
 test_sources := \
+test_reorder.c \
 test_identity.c \
 test_flounder.c \
 test_one_refine.c \
@@ -34,6 +35,7 @@ test_loop.c \
 test_to_la.c
 
 lib_sources := \
+reorder.c \
 bfs.c \
 star.c \
 tables.c \
