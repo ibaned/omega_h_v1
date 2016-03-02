@@ -3,7 +3,4 @@
 
 struct mesh;
 
-unsigned* number_ents(struct mesh* m,
-    unsigned ent_dim, unsigned const* vert_num);
-
 #endif
