@@ -13,25 +13,25 @@
 void tags_subset(struct mesh* in, struct mesh* out,
     unsigned dim, unsigned const* offsets)
 {
-  unsigned nverts = mesh_count(in, dim);
+  unsigned nents = mesh_count(in, dim);
   for (unsigned i = 0; i < mesh_count_tags(in, dim); ++i) {
     struct const_tag* t = mesh_get_tag(in, dim, i);
     void* vals_out = 0;
     switch (t->type) {
       case TAG_U8:
-        vals_out = uchars_expand(nverts, t->ncomps, t->d.u8,
+        vals_out = uchars_expand(nents, t->ncomps, t->d.u8,
             offsets);
         break;
       case TAG_U32:
-        vals_out = uints_expand(nverts, t->ncomps, t->d.u32,
+        vals_out = uints_expand(nents, t->ncomps, t->d.u32,
             offsets);
         break;
       case TAG_U64:
-        vals_out = ulongs_expand(nverts, t->ncomps, t->d.u64,
+        vals_out = ulongs_expand(nents, t->ncomps, t->d.u64,
             offsets);
         break;
       case TAG_F64:
-        vals_out = doubles_expand(nverts, t->ncomps, t->d.f64,
+        vals_out = doubles_expand(nents, t->ncomps, t->d.f64,
             offsets);
         break;
     }

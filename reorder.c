@@ -73,7 +73,14 @@ static void enqueue_component_maxima(
   }
 }
 
-/* returns a map from NEW indices to OLD indices */
+static unsigned* invert_order(unsigned* o, unsigned n)
+{
+  unsigned* io = LOOP_HOST_MALLOC(unsigned, n);
+  for (unsigned i = 0; i < n; ++i)
+    io[o[i]] = i;
+  return io;
+}
+
 unsigned* compute_ordering(struct mesh* m)
 {
   unsigned nverts = mesh_count(m, 0);
@@ -119,5 +126,7 @@ unsigned* compute_ordering(struct mesh* m)
   loop_host_free(offsets);
   loop_host_free(adj);
   loop_host_free(layer);
-  return queue;
+  unsigned* order = invert_order(queue, nverts);
+  loop_host_free(queue);
+  return order;
 }
