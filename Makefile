@@ -35,6 +35,7 @@ test_loop.c \
 test_to_la.c
 
 lib_sources := \
+shuffle_mesh.c \
 reorder.c \
 bfs.c \
 star.c \
