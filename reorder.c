@@ -2,6 +2,7 @@
 
 #include "arrays.h"
 #include "bfs.h"
+#include "ints.h"
 #include "loop.h"
 #include "mark.h"
 #include "mesh.h"

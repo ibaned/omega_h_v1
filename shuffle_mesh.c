@@ -5,13 +5,14 @@
 #include "loop.h"
 #include "mesh.h"
 #include "parallel_mesh.h"
+#include "reorder.h"
 #include "tables.h"
 
 static void shuffle_tags(struct mesh* in, struct mesh* out,
     unsigned dim, unsigned const* old_to_new)
 {
   if (mesh_is_parallel(in))
-    mesh_parallel_to_tags(in, dim);
+    mesh_tag_globals(in, dim);
   unsigned nents = mesh_count(in, dim);
   for (unsigned i = 0; i < mesh_count_tags(in, dim); ++i) {
     struct const_tag* t = mesh_get_tag(in, dim, i);
@@ -61,6 +62,22 @@ static void shuffle_ents(
       verts_per_ent, old_to_new_ents);
   LOOP_EXEC(remap_conn, nents * verts_per_ent, old_to_new_verts,
       verts_of_ents_out);
+  mesh_set_ents(m_out, ent_dim, nents, verts_of_ents_out);
   shuffle_tags(m, m_out, ent_dim, old_to_new_ents);
 }
 
+void shuffle_mesh(struct mesh* m, unsigned const* old_to_new_verts)
+{
+  unsigned dim = mesh_dim(m);
+  struct mesh* m_out = new_mesh(dim, mesh_get_rep(m), mesh_is_parallel(m));
+  mesh_set_ents(m_out, 0, mesh_count(m, 0), 0);
+  shuffle_tags(m, m_out, 0, old_to_new_verts);
+  for (unsigned d = 1; d <= dim; ++d) {
+    if (!mesh_has_dim(m, d))
+      continue;
+    unsigned* old_to_new_ents = number_ents(m, d, old_to_new_verts);
+    shuffle_ents(m, m_out, d, old_to_new_ents, old_to_new_verts);
+    loop_free(old_to_new_ents);
+  }
+  overwrite_mesh(m, m_out);
+}
