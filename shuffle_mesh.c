@@ -165,5 +165,8 @@ unsigned* number_ents(struct mesh* m,
   unsigned* ent_num = LOOP_MALLOC(unsigned, nents);
   LOOP_EXEC(number_fan_ents, nverts, vert_num, fan_ent_offsets, fan_ents,
       new_vert_offsets, ent_num);
+  loop_free(fan_ents);
+  loop_free(fan_ent_offsets);
+  loop_free(new_vert_offsets);
   return ent_num;
 }
