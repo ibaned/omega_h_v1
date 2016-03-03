@@ -27,10 +27,10 @@ loop_cuda_atomic_increment(unsigned* p)
 #define loop_free loop_cuda_free
 
 #define LOOP_KERNEL(fname, ...) \
-static __global__ void fname(unsigned n, __VA_ARGS__) \
+static __global__ void fname(unsigned n__, __VA_ARGS__) \
 { \
   unsigned i = blockIdx.x * blockDim.x + threadIdx.x; \
-  if (i >= n) return;
+  if (i >= n__) return;
 
 #define LOOP_BLOCK_SIZE 256
 
