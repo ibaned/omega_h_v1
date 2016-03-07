@@ -7,6 +7,7 @@
 include config.mk
 
 test_sources := \
+test_qr.c \
 test_reorder.c \
 test_identity.c \
 test_flounder.c \
