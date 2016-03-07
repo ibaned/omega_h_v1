@@ -165,6 +165,39 @@ void qr_decomp2(
     }
 }
 
+static void ls_mult(double q[MAX_PTS][MAX_PTS], double b[MAX_PTS],
+    unsigned npts, double y[4])
+{
+  for (unsigned i = 0; i < 4; ++i) {
+    y[i] = 0;
+    for (unsigned j = 0; j < npts; ++j)
+      y[i] += q[j][i] * b[j];
+  }
+}
+
+static void backsubst(double r[MAX_PTS][4], double y[4],
+    double x[4])
+{
+  for (unsigned ii = 0; ii < 4; ++ii) {
+    unsigned i = 4 - ii - 1;
+    x[i] = y[i];
+    for (unsigned j = i + 1; j < 4; ++j)
+      x[i] -= r[i][j] * x[j];
+    x[i] /= r[i][i];
+  }
+}
+
+void least_squares_fit(double a[MAX_PTS][4], double b[MAX_PTS],
+    unsigned npts, double x[4])
+{
+  double q[MAX_PTS][MAX_PTS];
+  double r[MAX_PTS][4];
+  qr_decomp2(a, q, r, npts);
+  double y[4];
+  ls_mult(q, b, npts, y);
+  backsubst(r, y, x);
+}
+
 static void hessenberg(double a[3][3], double q[3][3], double h[3][3])
 {
   copy(a, h);
