@@ -38,6 +38,29 @@ static unsigned get_reflector(double a[3][3], double v[3], unsigned k,
   return 1;
 }
 
+static unsigned get_reflector2(double a[MAX_PTS][4],
+    double v[MAX_PTS], unsigned k, unsigned npts)
+{
+  double cnorm = 0;
+  for (unsigned i = k; i < npts; ++i)
+    cnorm += square(a[i][k]);
+  cnorm = sqrt(cnorm);
+  if (cnorm < 1e-14)
+    return 0;
+  for (unsigned i = 0; i < k; ++i)
+    v[i] = 0;
+  for (unsigned i = k; i < npts; ++i)
+    v[i] = a[i][k];
+  v[k] += sign(a[k][k]) * cnorm;
+  double rnorm = 0;
+  for (unsigned i = k; i < npts; ++i)
+    rnorm += square(v[i]);
+  rnorm = sqrt(rnorm);
+  for (unsigned i = k; i < npts; ++i)
+    v[i] /= rnorm;
+  return 1;
+}
+
 static void reflect_columns(double v[3], double a[3][3], unsigned k,
     unsigned o)
 {
@@ -46,6 +69,18 @@ static void reflect_columns(double v[3], double a[3][3], unsigned k,
     for (unsigned i = k + o; i < 3; ++i)
       dot += a[i][j] * v[i];
     for (unsigned i = k + o; i < 3; ++i)
+      a[i][j] -= 2 * dot * v[i];
+  }
+}
+
+static void reflect_columns2(double v[MAX_PTS], double a[MAX_PTS][4],
+    unsigned k, unsigned npts)
+{
+  for (unsigned j = 0; j < 4; ++j) {
+    double dot = 0;
+    for (unsigned i = k; i < npts; ++i)
+      dot += a[i][j] * v[i];
+    for (unsigned i = k; i < npts; ++i)
       a[i][j] -= 2 * dot * v[i];
   }
 }
@@ -62,6 +97,18 @@ static void reflect_rows(double v[3], double q[3][3], unsigned k,
   }
 }
 
+static void reflect_rows2(double v[MAX_PTS], double q[MAX_PTS][MAX_PTS],
+    unsigned k, unsigned npts)
+{
+  for (unsigned i = 0; i < npts; ++i) {
+    double dot = 0;
+    for (unsigned j = k; j < npts; ++j)
+      dot += q[i][j] * v[j];
+    for (unsigned j = k; j < npts; ++j)
+      q[i][j] -= 2 * dot * v[j];
+  }
+}
+
 static void copy(double a[3][3], double b[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
@@ -69,10 +116,24 @@ static void copy(double a[3][3], double b[3][3])
     b[i][j] = a[i][j];
 }
 
+static void copy2(double a[MAX_PTS][4], double b[MAX_PTS][4], unsigned npts)
+{
+  for (unsigned i = 0; i < npts; ++i)
+  for (unsigned j = 0; j < 4; ++j)
+    b[i][j] = a[i][j];
+}
+
 static void fill_identity(double q[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
   for (unsigned j = 0; j < 3; ++j)
+    q[i][j] = ((double)(i==j));
+}
+
+static void fill_identity2(double q[MAX_PTS][MAX_PTS], unsigned npts)
+{
+  for (unsigned i = 0; i < npts; ++i)
+  for (unsigned j = 0; j < npts; ++j)
     q[i][j] = ((double)(i==j));
 }
 
@@ -85,6 +146,22 @@ void qr_decomp(double a[3][3], double q[3][3], double r[3][3])
     if (get_reflector(r, v, k, 0)) {
       reflect_columns(v, r, k, 0);
       reflect_rows(v, q, k, 0);
+    }
+}
+
+void qr_decomp2(
+    double a[MAX_PTS][4],
+    double q[MAX_PTS][MAX_PTS],
+    double r[MAX_PTS][4],
+    unsigned npts)
+{
+  copy2(a, r, npts);
+  fill_identity2(q, npts);
+  double v[MAX_PTS] = {0};
+  for (unsigned k = 0; k < 4; ++k)
+    if (get_reflector2(r, v, k, npts)) {
+      reflect_columns2(v, r, k, npts);
+      reflect_rows2(v, q, k, npts);
     }
 }
 
