@@ -1,24 +1,27 @@
-#include "coarsen_conserve.h"
+#include "coarsen_fit.h"
 
 #include <assert.h>
 
 #include "algebra.h"
 #include "arrays.h"
+#include "element_field.h"
 #include "loop.h"
 #include "mesh.h"
+#include "qr.h"
 #include "size.h"
 
 #define MAX_NCOMPS 32
 
-LOOP_KERNEL(coarsen_conserve_cavity,
+LOOP_KERNEL(coarsen_fit_cavity,
     unsigned ncomps,
     unsigned nsame_elems,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_offset_of_elems,
     unsigned const* elems_of_verts_offsets,
     unsigned const* elems_of_verts,
+    double const* old_elem_coords,
+    double const* new_elem_coords,
     double const* data_in,
-    double const* new_elem_sizes,
     double* gen_data)
 
   if (gen_offset_of_verts[i] ==
@@ -26,38 +29,64 @@ LOOP_KERNEL(coarsen_conserve_cavity,
     return;
   unsigned f = elems_of_verts_offsets[i];
   unsigned e = elems_of_verts_offsets[i + 1];
-  double sum[MAX_NCOMPS] = {0};
-  for (unsigned j = f; j < e; ++j) {
-    unsigned elem = elems_of_verts[j];
-    add_vectors(sum, data_in + elem * ncomps, sum, ncomps);
+  unsigned npts = e - f;
+  if (npts > MAX_PTS)
+    npts = MAX_PTS;
+  enum { FIT, AVERAGE } method = FIT;
+  if (npts < 4)
+    method = AVERAGE;
+  double q[MAX_PTS][MAX_PTS];
+  double r[MAX_PTS][4];
+  if (method == FIT) {
+    double a[MAX_PTS][4];
+    for (unsigned j = 0; j < npts; ++j) {
+      unsigned old_elem = elems_of_verts[f + j];
+      a[j][0] = 1.0;
+      copy_vector(old_elem_coords + 3 * old_elem,
+          &(a[j][1]), 3);
+    }
+    unsigned rank = qr_decomp2(a, q, r, npts);
+    if (rank < 4)
+      method = AVERAGE;
   }
-  double new_cavity_size = 0;
-  for (unsigned j = f; j < e; ++j) {
-    unsigned elem = elems_of_verts[j];
-    if (gen_offset_of_elems[elem] ==
-        gen_offset_of_elems[elem + 1])
-      continue;
-    unsigned new_elem = gen_offset_of_elems[elem] + nsame_elems;
-    new_cavity_size += new_elem_sizes[new_elem];
-  }
-  for (unsigned j = f; j < e; ++j) {
-    unsigned elem = elems_of_verts[j];
-    if (gen_offset_of_elems[elem] ==
-        gen_offset_of_elems[elem + 1])
-      continue;
-    unsigned gen_elem = gen_offset_of_elems[elem];
-    unsigned new_elem = gen_elem + nsame_elems;
-    scale_vector(sum, new_elem_sizes[new_elem] / new_cavity_size,
-        gen_data + gen_elem * ncomps, ncomps);
+  for (unsigned j = 0; j < ncomps; ++j) {
+    double b[MAX_PTS];
+    double c[4];
+    double avg = 0;
+    if (method == FIT) {
+      for (unsigned k = 0; k < npts; ++k) {
+        unsigned old_elem = elems_of_verts[f + k];
+        b[k] = data_in[old_elem * ncomps + j];
+      }
+      qr_solve2(q, r, b, npts, c);
+    } else {
+      avg = 0;
+      for (unsigned k = f; k < e; ++k) {
+        unsigned old_elem = elems_of_verts[k];
+        avg += data_in[old_elem * ncomps + j];
+      }
+      avg /= (e - f);
+    }
+    for (unsigned k = f; k < e; ++k) {
+      unsigned old_elem = elems_of_verts[k];
+      unsigned gen_elem = gen_offset_of_elems[old_elem];
+      unsigned new_elem = gen_elem + nsame_elems;
+      if (method == FIT)
+        gen_data[gen_elem * ncomps + j] =
+          c[0] + dot_product(c + 1, new_elem_coords + new_elem * 3, 3);
+      else
+        gen_data[gen_elem * ncomps + j] = avg;
+    }
   }
 }
 
-static double* coarsen_conserve_data(
+static double* coarsen_fit_data(
     struct mesh* m,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_offset_of_elems,
+    double const* old_elem_coords,
+    double const* new_elem_coords,
     unsigned nsame_elems,
-    double const* new_elem_sizes,
     struct const_tag* t)
 {
   unsigned ncomps = t->ncomps;
@@ -72,26 +101,28 @@ static double* coarsen_conserve_data(
   double const* data_in = t->d.f64;
   unsigned ngen_elems = uints_at(gen_offset_of_elems, nelems);
   double* gen_data = LOOP_MALLOC(double, ngen_elems * ncomps);
-  LOOP_EXEC(coarsen_conserve_cavity, nverts,
+  LOOP_EXEC(coarsen_fit_cavity, nverts,
       ncomps,
       nsame_elems,
       gen_offset_of_verts,
       gen_offset_of_elems,
       elems_of_verts_offsets,
       elems_of_verts,
+      old_elem_coords,
+      new_elem_coords,
       data_in,
-      new_elem_sizes,
       gen_data);
   return gen_data;
 }
 
-static void coarsen_conserve_tag(
+static void coarsen_fit_tag(
     struct mesh* m,
     struct mesh* m_out,
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_offset_of_elems,
     unsigned const* offset_of_same_elems,
-    double const* new_elem_sizes,
+    double const* old_elem_coords,
+    double const* new_elem_coords,
     struct const_tag* t)
 {
   unsigned elem_dim = mesh_dim(m);
@@ -99,8 +130,9 @@ static void coarsen_conserve_tag(
   double* same_data = doubles_expand(nelems, t->ncomps,
       t->d.f64, offset_of_same_elems);
   unsigned nsame_elems = uints_at(offset_of_same_elems, nelems);
-  double* gen_data = coarsen_conserve_data(m, gen_offset_of_verts,
-      gen_offset_of_elems, nsame_elems, new_elem_sizes, t);
+  double* gen_data = coarsen_fit_data(m, gen_offset_of_verts,
+      gen_offset_of_elems, old_elem_coords, new_elem_coords,
+      nsame_elems, t);
   double* data_out = concat_doubles(t->ncomps,
       same_data, nsame_elems,
       gen_data, uints_at(gen_offset_of_elems, nelems));
@@ -110,7 +142,7 @@ static void coarsen_conserve_tag(
       t->transfer_type, data_out);
 }
 
-void coarsen_conserve(
+void coarsen_fit(
     struct mesh* m,
     struct mesh* m_out,
     unsigned const* gen_offset_of_verts,
@@ -124,13 +156,19 @@ void coarsen_conserve(
       break;
   if (i == mesh_count_tags(m, elem_dim))
     return;
-  double* new_elem_sizes = mesh_element_sizes(m_out);
+  assert(elem_dim == 3);
+  mesh_interp_to_elems(m, "coordinates");
+  mesh_interp_to_elems(m_out, "coordinates");
+  double const* old_elem_coords =
+    mesh_find_tag(m, elem_dim, "coordinates")->d.f64;
+  double const* new_elem_coords =
+    mesh_find_tag(m_out, elem_dim, "coordinates")->d.f64;
   for (i = 0; i < mesh_count_tags(m, elem_dim); ++i) {
     struct const_tag* t = mesh_get_tag(m, elem_dim, i);
-    if ((t->type == TAG_F64) && (t->transfer_type == OSH_TRANSFER_CONSERVE))
-      coarsen_conserve_tag(m, m_out, gen_offset_of_verts,
+    if ((t->type == TAG_F64) && (t->transfer_type == OSH_TRANSFER_POINTWISE))
+      coarsen_fit_tag(m, m_out, gen_offset_of_verts,
           gen_offset_of_elems, offset_of_same_elems,
-          new_elem_sizes, t);
+          old_elem_coords, new_elem_coords, t);
   }
-  loop_free(new_elem_sizes);
 }
+

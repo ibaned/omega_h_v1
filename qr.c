@@ -149,7 +149,7 @@ void qr_decomp(double a[3][3], double q[3][3], double r[3][3])
     }
 }
 
-void qr_decomp2(
+unsigned qr_decomp2(
     double a[MAX_PTS][4],
     double q[MAX_PTS][MAX_PTS],
     double r[MAX_PTS][4],
@@ -158,11 +158,14 @@ void qr_decomp2(
   copy2(a, r, npts);
   fill_identity2(q, npts);
   double v[MAX_PTS] = {0};
+  unsigned rank = 0;
   for (unsigned k = 0; k < 4; ++k)
     if (get_reflector2(r, v, k, npts)) {
       reflect_columns2(v, r, k, npts);
       reflect_rows2(v, q, k, npts);
+      ++rank;
     }
+  return rank;
 }
 
 static void ls_mult(double q[MAX_PTS][MAX_PTS], double b[MAX_PTS],
@@ -187,15 +190,24 @@ static void backsubst(double r[MAX_PTS][4], double y[4],
   }
 }
 
+void qr_solve2(
+    double q[MAX_PTS][MAX_PTS],
+    double r[MAX_PTS][4],
+    double b[MAX_PTS],
+    unsigned npts, double x[4])
+{
+  double y[4];
+  ls_mult(q, b, npts, y);
+  backsubst(r, y, x);
+}
+
 void least_squares_fit(double a[MAX_PTS][4], double b[MAX_PTS],
     unsigned npts, double x[4])
 {
   double q[MAX_PTS][MAX_PTS];
   double r[MAX_PTS][4];
   qr_decomp2(a, q, r, npts);
-  double y[4];
-  ls_mult(q, b, npts, y);
-  backsubst(r, y, x);
+  qr_solve2(q, r, b, npts, x);
 }
 
 static void hessenberg(double a[3][3], double q[3][3], double h[3][3])
