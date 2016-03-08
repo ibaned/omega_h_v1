@@ -22,7 +22,7 @@ static unsigned get_reflector(double a[3][3], double v[3], unsigned k,
   for (unsigned i = k + o; i < 3; ++i)
     cnorm += square(a[i][k]);
   cnorm = sqrt(cnorm);
-  if (cnorm < 1e-14)
+  if (cnorm < 1e-10)
     return 0;
   for (unsigned i = 0; i < k + o; ++i)
     v[i] = 0;
@@ -45,7 +45,7 @@ static unsigned get_reflector2(double a[MAX_PTS][4],
   for (unsigned i = k; i < npts; ++i)
     cnorm += square(a[i][k]);
   cnorm = sqrt(cnorm);
-  if (cnorm < 1e-14)
+  if (cnorm < 1e-6)
     return 0;
   for (unsigned i = 0; i < k; ++i)
     v[i] = 0;

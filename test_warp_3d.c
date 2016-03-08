@@ -75,6 +75,11 @@ static void mass_fun(double const* coords, double* v)
     *v = 0;
 }
 
+static void pointwise_fun(double const* coords, double* v)
+{
+  copy_vector(coords, v, 3);
+}
+
 static void warped_adapt(struct mesh* m)
 {
   static unsigned const n = 6;
@@ -107,11 +112,15 @@ int main(int argc, char** argv)
   sprintf(prefix, "%s/warp", path);
   start_vtk_steps(prefix);
   mesh_eval_field(m, 0, "dye", 1, dye_fun);
-  { //set mass field to test conservative transfer
+  {
     mesh_interp_to_elems(m, "coordinates");
     global_nelems_for_mass = mesh_count(m, mesh_dim(m));
+    //set mass field to test conservative transfer
     mesh_eval_field2(m, mesh_dim(m), "mass", 1,
         OSH_TRANSFER_CONSERVE, mass_fun);
+    //also now test pointwise transfer
+    mesh_eval_field2(m, mesh_dim(m), "pointwise", 3,
+        OSH_TRANSFER_POINTWISE, pointwise_fun);
     mesh_free_tag(m, mesh_dim(m), "coordinates");
   }
   write_vtk_step(m);

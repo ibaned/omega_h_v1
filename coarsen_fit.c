@@ -69,12 +69,15 @@ LOOP_KERNEL(coarsen_fit_cavity,
     }
     for (unsigned k = f; k < e; ++k) {
       unsigned old_elem = elems_of_verts[k];
+      if (gen_offset_of_elems[old_elem] ==
+          gen_offset_of_elems[old_elem + 1])
+        continue;
       unsigned gen_elem = gen_offset_of_elems[old_elem];
       unsigned new_elem = gen_elem + nsame_elems;
-      if (method == FIT)
-        gen_data[gen_elem * ncomps + j] =
-          c[0] + dot_product(c + 1, new_elem_coords + new_elem * 3, 3);
-      else
+      if (method == FIT) {
+        double d = dot_product(c + 1, new_elem_coords + new_elem * 3, 3);
+        gen_data[gen_elem * ncomps + j] = c[0] + d;
+      } else
         gen_data[gen_elem * ncomps + j] = avg;
     }
   }
@@ -164,7 +167,8 @@ void coarsen_fit(
   if (i == mesh_count_tags(m, elem_dim))
     return;
   assert(elem_dim == 3);
-  mesh_interp_to_elems(m, "coordinates");
+  if (!mesh_find_tag(m, elem_dim, "coordinates"))
+    mesh_interp_to_elems(m, "coordinates");
   mesh_interp_to_elems(m_out, "coordinates");
   double const* old_elem_coords =
     mesh_find_tag(m, elem_dim, "coordinates")->d.f64;
