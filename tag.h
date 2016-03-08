@@ -1,6 +1,8 @@
 #ifndef TAG_H
 #define TAG_H
 
+#include "include/omega_h.h"
+
 enum tag_type {
   TAG_U8,
   TAG_U32,
@@ -10,10 +12,14 @@ enum tag_type {
 
 #define TAG_TYPES (TAG_F64+1)
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
+
 struct const_tag {
   char const* const name;
   unsigned const ncomps;
   enum tag_type const type;
+  enum osh_transfer const transfer_type;
   union {
     void* raw;
     unsigned char* u8;
@@ -22,6 +28,8 @@ struct const_tag {
     double* f64;
   } d;
 };
+
+#pragma clang diagnostic pop
 
 struct tags {
   unsigned n;
@@ -32,6 +40,8 @@ struct tags {
 void free_tags(struct tags* ts);
 struct const_tag* add_tag(struct tags* ts, enum tag_type type, char const* name,
     unsigned ncomps, void* data);
+struct const_tag* add_tag2(struct tags* ts, enum tag_type type, char const* name,
+    unsigned ncomps, enum osh_transfer transfer_type, void* data);
 void remove_tag(struct tags* ts, char const* name);
 struct const_tag* find_tag(struct tags* ts, char const* name);
 unsigned count_tags(struct tags* ts);

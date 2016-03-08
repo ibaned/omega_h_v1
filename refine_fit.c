@@ -1,25 +1,24 @@
-#include "refine_conserve.h"
+#include "refine_fit.h"
 
 #include "arrays.h"
 #include "inherit.h"
 #include "loop.h"
 #include "mesh.h"
 
-LOOP_KERNEL(refine_conserve_elem,
+LOOP_KERNEL(refine_fit_elem,
     unsigned const* prods_of_doms_offsets,
     unsigned width,
     double const* data_in,
     double* data_out)
   unsigned f = prods_of_doms_offsets[i];
   unsigned e = prods_of_doms_offsets[i + 1];
-  double denom = e - f;
   for (unsigned j = f; j < e; ++j)
     for (unsigned k = 0; k < width; ++k)
-      data_out[j * width + k] = data_in[i * width + k] / denom;
+      data_out[j * width + k] = data_in[i * width + k];
 }
 
 
-static double* refine_conserve_data(
+static double* refine_fit_data(
     unsigned nelems,
     unsigned const* prods_of_doms_offsets,
     struct const_tag* t)
@@ -28,12 +27,12 @@ static double* refine_conserve_data(
   double const* data_in = t->d.f64;
   unsigned ngen_elems = uints_at(prods_of_doms_offsets, nelems);
   double* data_out = LOOP_MALLOC(double, width * ngen_elems);
-  LOOP_EXEC(refine_conserve_elem, nelems,
+  LOOP_EXEC(refine_fit_elem, nelems,
       prods_of_doms_offsets, width, data_in, data_out);
   return data_out;
 }
 
-static void refine_conserve_tag(
+static void refine_fit_tag(
     struct mesh* m,
     struct mesh* m_out,
     unsigned ndoms[4],
@@ -48,7 +47,7 @@ static void refine_conserve_tag(
   double* gen_data[4] = {0};
   gen_data[0] = doubles_expand(ndoms[0], t->ncomps, t->d.f64,
       prods_of_doms_offsets[0]);
-  gen_data[elem_dim] = refine_conserve_data(mesh_count(m, elem_dim),
+  gen_data[elem_dim] = refine_fit_data(mesh_count(m, elem_dim),
       prods_of_doms_offsets[elem_dim], t);
   double* data_out = concat_doubles_inherited(
       t->ncomps, ngen_offsets, gen_data);
@@ -56,7 +55,7 @@ static void refine_conserve_tag(
       t->transfer_type, data_out);
 }
 
-void refine_conserve(
+void refine_fit(
     struct mesh* m,
     struct mesh* m_out,
     unsigned ndoms[4],
@@ -65,7 +64,7 @@ void refine_conserve(
   unsigned elem_dim = mesh_dim(m);
   for (unsigned i = 0; i < mesh_count_tags(m, elem_dim); ++i) {
     struct const_tag* t = mesh_get_tag(m, elem_dim, i);
-    if ((t->type == TAG_F64) && (t->transfer_type == OSH_TRANSFER_CONSERVE))
-      refine_conserve_tag(m, m_out, ndoms, prods_of_doms_offsets, t);
+    if ((t->type == TAG_F64) && (t->transfer_type == OSH_TRANSFER_POINTWISE))
+      refine_fit_tag(m, m_out, ndoms, prods_of_doms_offsets, t);
   }
 }
