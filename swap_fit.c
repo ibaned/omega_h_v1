@@ -137,6 +137,13 @@ static void swap_fit_tag(
       t->transfer_type, data_out);
 }
 
+static int should_fit(struct mesh* m, unsigned tag_i)
+{
+  unsigned elem_dim = mesh_dim(m);
+  struct const_tag* t = mesh_get_tag(m, elem_dim, tag_i);
+  return t->type == TAG_F64 && t->transfer_type == OSH_TRANSFER_POINTWISE;
+}
+
 void swap_fit(
     struct mesh* m,
     struct mesh* m_out,
@@ -146,7 +153,7 @@ void swap_fit(
   unsigned elem_dim = mesh_dim(m);
   unsigned i;
   for (i = 0; i < mesh_count_tags(m, elem_dim); ++i)
-    if (mesh_get_tag(m, elem_dim, i)->type == TAG_F64)
+    if (should_fit(m, i))
       break;
   if (i == mesh_count_tags(m, elem_dim))
     return;
