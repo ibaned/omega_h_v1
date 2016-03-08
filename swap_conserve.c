@@ -98,7 +98,8 @@ static void swap_conserve_tag(
       gen_data, uints_at(gen_offset_of_edges, nedges));
   loop_free(same_data);
   loop_free(gen_data);
-  mesh_add_tag(m_out, elem_dim, TAG_F64, t->name, t->ncomps, data_out);
+  add_tag2(mesh_tags(m_out, elem_dim), TAG_F64, t->name, t->ncomps,
+      t->transfer_type, data_out);
 }
 
 /* TODO: try to consolidate with coarsen_conserve */
@@ -119,7 +120,7 @@ void swap_conserve(
   double* new_elem_sizes = mesh_element_sizes(m_out);
   for (i = 0; i < mesh_count_tags(m, elem_dim); ++i) {
     struct const_tag* t = mesh_get_tag(m, elem_dim, i);
-    if (t->type == TAG_F64)
+    if ((t->type == TAG_F64) && (t->transfer_type == OSH_TRANSFER_CONSERVE))
       swap_conserve_tag(m, m_out, gen_offset_of_edges,
           offset_of_same_elems, new_elem_sizes, t);
   }

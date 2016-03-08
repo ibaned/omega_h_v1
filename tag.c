@@ -156,7 +156,7 @@ void copy_tags(struct tags* a, struct tags* b, unsigned n)
       case TAG_F64: data = doubles_copy(t->d.f64, n * t->ncomps);
                     break;
     };
-    add_tag(b, t->type, t->name, t->ncomps, data);
+    add_tag2(b, t->type, t->name, t->ncomps, t->transfer_type, data);
   }
 }
 
@@ -179,7 +179,7 @@ void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into)
   if (find_tag(into, t->name))
     modify_tag(into, t->name, data_out);
   else
-    add_tag(into, t->type, t->name, t->ncomps, data_out);
+    add_tag2(into, t->type, t->name, t->ncomps, t->transfer_type, data_out);
 }
 
 void push_tags(struct exchanger* ex, struct tags* from, struct tags* into)

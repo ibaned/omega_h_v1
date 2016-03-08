@@ -110,7 +110,8 @@ int main(int argc, char** argv)
   { //set mass field to test conservative transfer
     mesh_interp_to_elems(m, "coordinates");
     global_nelems_for_mass = mesh_count(m, mesh_dim(m));
-    mesh_eval_field(m, mesh_dim(m), "mass", 1, mass_fun);
+    mesh_eval_field2(m, mesh_dim(m), "mass", 1,
+        OSH_TRANSFER_CONSERVE, mass_fun);
     mesh_free_tag(m, mesh_dim(m), "coordinates");
   }
   write_vtk_step(m);

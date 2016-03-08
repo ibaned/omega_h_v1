@@ -52,7 +52,8 @@ static void refine_conserve_tag(
       prods_of_doms_offsets[elem_dim], t);
   double* data_out = concat_doubles_inherited(
       t->ncomps, ngen_offsets, gen_data);
-  mesh_add_tag(m_out, elem_dim, TAG_F64, t->name, t->ncomps, data_out);
+  add_tag2(mesh_tags(m_out, elem_dim), TAG_F64, t->name, t->ncomps,
+      t->transfer_type, data_out);
 }
 
 void refine_conserve(
@@ -64,7 +65,7 @@ void refine_conserve(
   unsigned elem_dim = mesh_dim(m);
   for (unsigned i = 0; i < mesh_count_tags(m, elem_dim); ++i) {
     struct const_tag* t = mesh_get_tag(m, elem_dim, i);
-    if (t->type == TAG_F64)
+    if ((t->type == TAG_F64) && (t->transfer_type == OSH_TRANSFER_CONSERVE))
       refine_conserve_tag(m, m_out, ndoms, prods_of_doms_offsets, t);
   }
 }
