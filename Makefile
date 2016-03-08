@@ -36,6 +36,7 @@ test_loop.c \
 test_to_la.c
 
 lib_sources := \
+swap_fit.c \
 coarsen_fit.c \
 refine_fit.c \
 shuffle_mesh.c \
