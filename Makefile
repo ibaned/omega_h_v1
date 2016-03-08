@@ -36,6 +36,7 @@ test_loop.c \
 test_to_la.c
 
 lib_sources := \
+refine_fit.c \
 shuffle_mesh.c \
 reorder.c \
 bfs.c \
