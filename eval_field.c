@@ -36,3 +36,12 @@ void mesh_eval_field(struct mesh* m, unsigned ent_dim, char const* name,
       mesh_find_tag(m, ent_dim, "coordinates")->d.f64, ncomps, fun);
   mesh_add_tag(m, ent_dim, TAG_F64, name, ncomps, data);
 }
+
+void mesh_eval_field2(struct mesh* m, unsigned ent_dim, char const* name,
+    unsigned ncomps, enum osh_transfer tt,
+    void (*fun)(double const* x, double* out))
+{
+  double* data = eval_field(mesh_count(m, ent_dim),
+      mesh_find_tag(m, ent_dim, "coordinates")->d.f64, ncomps, fun);
+  add_tag2(mesh_tags(m, ent_dim), TAG_F64, name, ncomps, tt, data);
+}

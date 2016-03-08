@@ -38,7 +38,15 @@ unsigned const* osh_own_rank(osh_t m, unsigned dim) OSH_PUBLIC;
 unsigned const* osh_own_id(osh_t m, unsigned dim) OSH_PUBLIC;
 unsigned long const* osh_global(osh_t m, unsigned dim) OSH_PUBLIC;
 
-double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps) OSH_PUBLIC;
+enum osh_transfer {
+  OSH_TRANSFER_NOT,
+  OSH_TRANSFER_POINTWISE,
+  OSH_TRANSFER_CONSERVE,
+  OSH_TRANSFER_INHERIT
+};
+
+double* osh_new_field(osh_t m, unsigned dim, char const* name,
+    unsigned ncomps, enum osh_transfer tt) OSH_PUBLIC;
 double* osh_get_field(osh_t m, unsigned dim, char const* name) OSH_PUBLIC;
 void osh_free_field(osh_t m, unsigned dim, char const* name) OSH_PUBLIC;
 

@@ -16,6 +16,7 @@
 #include "parallel_modify.h"
 #include "quality.h"
 #include "refine_conserve.h"
+#include "refine_fit.h"
 #include "refine_nodal.h"
 #include "refine_qualities.h"
 #include "refine_topology.h"
@@ -109,8 +110,10 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
         inherit_globals(m, m_out, prod_dim, prods_of_doms_offsets[0]);
     }
     inherit_class(m, m_out, prod_dim, ndoms, prods_of_doms_offsets);
-    if (prod_dim == elem_dim)
+    if (prod_dim == elem_dim) {
       refine_conserve(m, m_out, ndoms, prods_of_doms_offsets);
+      refine_fit(m, m_out, ndoms, prods_of_doms_offsets);
+    }
     for (unsigned i = 0; i < 4; ++i)
       loop_free(prods_of_doms_offsets[i]);
   }
