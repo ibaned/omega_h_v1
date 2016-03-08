@@ -7,8 +7,10 @@
 #include "exchanger.h"
 #include "loop.h"
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpadded"
+#endif
 
 struct tag {
   char* name;
@@ -18,7 +20,9 @@ struct tag {
   void* data;
 };
 
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 unsigned tag_size(enum tag_type t)
 {

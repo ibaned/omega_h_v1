@@ -12,8 +12,10 @@ enum tag_type {
 
 #define TAG_TYPES (TAG_F64+1)
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpadded"
+#endif
 
 struct const_tag {
   char const* const name;
@@ -29,7 +31,9 @@ struct const_tag {
   } d;
 };
 
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 struct tags {
   unsigned n;
