@@ -4,10 +4,10 @@
 #include <string.h>
 
 #include "comm.hpp"
-#include "int_casts.hpp"
 #include "loop.hpp"
 #include "mesh.hpp"
 #include "tag.hpp"
+#include "int_casts.hpp"
 
 static void bcast_tag(struct const_tag* t, struct tags* into)
 {
