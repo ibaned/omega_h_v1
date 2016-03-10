@@ -1,5 +1,5 @@
-#ifndef FORM_CLOUD_H
-#define FORM_CLOUD_H
+#ifndef FORM_CLOUD_HPP
+#define FORM_CLOUD_HPP
 
 struct mesh;
 

@@ -1,5 +1,5 @@
-#ifndef NODE_ELE_H
-#define NODE_ELE_H
+#ifndef NODE_ELE_HPP
+#define NODE_ELE_HPP
 
 struct mesh;
 

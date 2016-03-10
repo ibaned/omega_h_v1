@@ -1,5 +1,5 @@
-#ifndef PUSH_CLOUD_H
-#define PUSH_CLOUD_H
+#ifndef PUSH_CLOUD_HPP
+#define PUSH_CLOUD_HPP
 
 struct cloud;
 struct mesh;

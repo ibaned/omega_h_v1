@@ -1,5 +1,5 @@
-#ifndef STAR_H
-#define STAR_H
+#ifndef STAR_HPP
+#define STAR_HPP
 
 /* given a dual pair of upward and downward
  * adjacencies between two dimensions,

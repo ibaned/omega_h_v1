@@ -1,5 +1,5 @@
-#ifndef QUALITY_H
-#define QUALITY_H
+#ifndef QUALITY_HPP
+#define QUALITY_HPP
 
 #include <assert.h>
 

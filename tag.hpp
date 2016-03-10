@@ -1,5 +1,5 @@
-#ifndef TAG_H
-#define TAG_H
+#ifndef TAG_HPP
+#define TAG_HPP
 
 #include "include/omega_h.hpp"
 

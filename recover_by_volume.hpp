@@ -1,5 +1,5 @@
-#ifndef RECOVER_BY_VOLUME_H
-#define RECOVER_BY_VOLUME_H
+#ifndef RECOVER_BY_VOLUME_HPP
+#define RECOVER_BY_VOLUME_HPP
 
 double* recover_by_volume(
     unsigned nverts,

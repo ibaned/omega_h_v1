@@ -2,20 +2,20 @@
 
 #include "loop.hpp"
 
-#if defined(LOOP_CUDA_H)
+#if defined(LOOP_CUDA_HPP)
 #include <thrust/reduce.h>
 #include <thrust/device_ptr.h>
 #include <thrust/functional.h>
 #include <thrust/transform.h>
 #include <thrust/reduce.h>
 #include <thrust/sort.h>
-#elif defined(LOOP_OPENMP_H)
+#elif defined(LOOP_OPENMP_HPP)
 #include <omp.h>
 #else
 #include <stdlib.h>
 #endif
 
-#if defined(LOOP_SERIAL_H) || defined(LOOP_OPENMP_H)
+#if defined(LOOP_SERIAL_HPP) || defined(LOOP_OPENMP_HPP)
 static unsigned* serial_uints_exscan(unsigned const* a, unsigned n)
 {
   unsigned* o = LOOP_HOST_MALLOC(unsigned, (n + 1));
@@ -29,7 +29,7 @@ static unsigned* serial_uints_exscan(unsigned const* a, unsigned n)
 }
 #endif
 
-#if defined(LOOP_CUDA_H)
+#if defined(LOOP_CUDA_HPP)
 
 unsigned uints_max(unsigned const* a, unsigned n)
 {
@@ -67,7 +67,7 @@ unsigned long ulongs_max(unsigned long const* a, unsigned n)
   return max;
 }
 
-#elif defined(LOOP_OPENMP_H)
+#elif defined(LOOP_OPENMP_HPP)
 
 unsigned uints_max(unsigned const* a, unsigned n)
 {

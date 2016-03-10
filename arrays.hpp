@@ -1,5 +1,5 @@
-#ifndef ARRAYS_H
-#define ARRAYS_H
+#ifndef ARRAYS_HPP
+#define ARRAYS_HPP
 
 void uchars_memcpy(unsigned char* dst,
     unsigned char const* src, unsigned n);

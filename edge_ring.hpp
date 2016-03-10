@@ -1,5 +1,5 @@
-#ifndef EDGE_RING_H
-#define EDGE_RING_H
+#ifndef EDGE_RING_HPP
+#define EDGE_RING_HPP
 
 #include "loop.hpp"
 

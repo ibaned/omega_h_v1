@@ -1,5 +1,5 @@
-#ifndef GMSH_IO_H
-#define GMSH_IO_H
+#ifndef GMSH_IO_HPP
+#define GMSH_IO_HPP
 
 struct mesh;
 

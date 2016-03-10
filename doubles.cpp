@@ -4,7 +4,7 @@
 
 #include "loop.hpp"
 
-#ifdef LOOP_CUDA_H
+#ifdef LOOP_CUDA_HPP
 #include <thrust/reduce.h>
 #include <thrust/device_ptr.h>
 #include <thrust/functional.h>
@@ -38,7 +38,7 @@ double doubles_sum(double const* a, unsigned n)
   return sum;
 }
 
-#elif defined(LOOP_OPENMP_H)
+#elif defined(LOOP_OPENMP_HPP)
 
 double doubles_max(double const* a, unsigned n)
 {

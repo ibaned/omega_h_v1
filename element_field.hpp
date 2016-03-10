@@ -1,5 +1,5 @@
-#ifndef AVERAGE_H
-#define AVERAGE_H
+#ifndef AVERAGE_HPP
+#define AVERAGE_HPP
 
 #include "loop.hpp"
 

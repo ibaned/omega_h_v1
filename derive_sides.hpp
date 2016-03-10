@@ -1,5 +1,5 @@
-#ifndef DERIVE_FACES_H
-#define DERIVE_FACES_H
+#ifndef DERIVE_FACES_HPP
+#define DERIVE_FACES_HPP
 
 unsigned* derive_sides(
     unsigned elem_dim,

@@ -1,5 +1,5 @@
-#ifndef INHERIT_H
-#define INHERIT_H
+#ifndef INHERIT_HPP
+#define INHERIT_HPP
 
 struct mesh;
 

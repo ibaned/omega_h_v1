@@ -1,5 +1,5 @@
-#ifndef MIGRATE_MESH_H
-#define MIGRATE_MESH_H
+#ifndef MIGRATE_MESH_HPP
+#define MIGRATE_MESH_HPP
 
 struct mesh;
 

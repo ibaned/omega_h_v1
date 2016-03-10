@@ -1,5 +1,5 @@
-#ifndef REFLECT_DOWN_H
-#define REFLECT_DOWN_H
+#ifndef REFLECT_DOWN_HPP
+#define REFLECT_DOWN_HPP
 
 /* given two entity types (high) and (low), (high >= low)
  * as well as the adjacencies from (high) to vertices

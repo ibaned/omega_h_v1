@@ -1,5 +1,5 @@
-#ifndef SIZE_FROM_HESSIAN_H
-#define SIZE_FROM_HESSIAN_H
+#ifndef SIZE_FROM_HESSIAN_HPP
+#define SIZE_FROM_HESSIAN_HPP
 
 double* size_from_hessian(
     unsigned nverts,

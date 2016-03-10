@@ -1,5 +1,5 @@
-#ifndef REFINE_TOPOLOGY_H
-#define REFINE_TOPOLOGY_H
+#ifndef REFINE_TOPOLOGY_HPP
+#define REFINE_TOPOLOGY_HPP
 
 /* this is the central function involved in
  * mesh refinement.

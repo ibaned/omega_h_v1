@@ -1,5 +1,5 @@
-#ifndef ADAPT_H
-#define ADAPT_H
+#ifndef ADAPT_HPP
+#define ADAPT_HPP
 
 struct mesh;
 

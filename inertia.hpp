@@ -1,5 +1,5 @@
-#ifndef INERTIA_H
-#define INERTIA_H
+#ifndef INERTIA_HPP
+#define INERTIA_HPP
 
 void inertia_contribution(
     double m,

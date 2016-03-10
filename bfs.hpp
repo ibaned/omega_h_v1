@@ -1,5 +1,5 @@
-#ifndef BFS_H
-#define BFS_H
+#ifndef BFS_HPP
+#define BFS_HPP
 
 /* all arrays on HOST ! */
 

@@ -1,5 +1,5 @@
-#ifndef SWAP_TOPOLOGY_H
-#define SWAP_TOPOLOGY_H
+#ifndef SWAP_TOPOLOGY_HPP
+#define SWAP_TOPOLOGY_HPP
 
 unsigned* get_swap_topology_offsets(
     unsigned ent_dim,

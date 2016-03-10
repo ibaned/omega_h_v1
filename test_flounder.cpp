@@ -11,7 +11,7 @@
 #include "refine.hpp"
 #include "vtk_io.hpp"
 
-#ifdef LOOP_CUDA_H
+#ifdef LOOP_CUDA_HPP
 static double get_time(void)
 {
   struct timespec ts;
@@ -44,14 +44,14 @@ static void sinusoid(double const* x, double* size)
 int main()
 {
   osh_init();
-#ifdef LOOP_CUDA_H
+#ifdef LOOP_CUDA_HPP
   trigger_cuda_init();
 #endif
   struct mesh* m = new_box_mesh(2);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
   unsigned did_refine = 0;
-#ifdef LOOP_CUDA_H
+#ifdef LOOP_CUDA_HPP
   double t0 = get_time();
 #endif
   do {
@@ -60,7 +60,7 @@ int main()
   //printf("%u triangles\n", mesh_count(m, 2));
     mesh_free_tag(m, 0, "adapt_size");
   } while (did_refine);
-#ifdef LOOP_CUDA_H
+#ifdef LOOP_CUDA_HPP
   double t1 = get_time();
   printf("refinement time %f seconds, %u final triangles\n",
       t1 - t0, mesh_count(m, 2));

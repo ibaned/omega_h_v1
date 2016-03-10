@@ -1,5 +1,5 @@
-#ifndef LOOP_CUDA_H
-#define LOOP_CUDA_H
+#ifndef LOOP_CUDA_HPP
+#define LOOP_CUDA_HPP
 
 #include "loop_host.hpp"
 

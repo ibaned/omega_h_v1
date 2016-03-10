@@ -1,5 +1,5 @@
-#ifndef SPLITS_TO_ELEMENTS_H
-#define SPLITS_TO_ELEMENTS_H
+#ifndef SPLITS_TO_ELEMENTS_HPP
+#define SPLITS_TO_ELEMENTS_HPP
 
 /* this is a preprocessing function for
  * refine_topology.

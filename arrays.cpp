@@ -2,7 +2,7 @@
 
 #include "loop.hpp"
 
-#if defined(LOOP_CUDA_H)
+#if defined(LOOP_CUDA_HPP)
 #define GENERIC_MEMCPY(T, name) \
 void name##_memcpy(T* dst, T const* src, unsigned n) \
 { \
@@ -39,7 +39,7 @@ GENERIC_COPY(unsigned long, ulongs)
 GENERIC_COPY(double, doubles)
 GENERIC_COPY(unsigned*, uintptrs)
 
-#if defined(LOOP_CUDA_H)
+#if defined(LOOP_CUDA_HPP)
 #define GENERIC_TO_DEVICE(T, name) \
 T* name##_to_device(T const* a, unsigned n) \
 { \
@@ -61,7 +61,7 @@ GENERIC_TO_DEVICE(unsigned long, ulongs)
 GENERIC_TO_DEVICE(double, doubles)
 GENERIC_TO_DEVICE(unsigned*, uintptrs)
 
-#if defined(LOOP_CUDA_H)
+#if defined(LOOP_CUDA_HPP)
 #define GENERIC_TO_HOST(T, name) \
 T* name##_to_host(T const* a, unsigned n) \
 { \
@@ -174,7 +174,7 @@ GENERIC_FILL(unsigned, uints)
 GENERIC_FILL(unsigned long, ulongs)
 GENERIC_FILL(double, doubles)
 
-#ifdef LOOP_CUDA_H
+#ifdef LOOP_CUDA_HPP
 #define GENERIC_AT(T, name) \
 T name##_at(T const* a, unsigned i) \
 { \

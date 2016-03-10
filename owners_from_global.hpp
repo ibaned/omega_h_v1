@@ -1,5 +1,5 @@
-#ifndef OWNERS_FROM_GLOBAL_H
-#define OWNERS_FROM_GLOBAL_H
+#ifndef OWNERS_FROM_GLOBAL_HPP
+#define OWNERS_FROM_GLOBAL_HPP
 
 void owners_from_global(
     unsigned n,

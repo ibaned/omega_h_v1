@@ -1,5 +1,5 @@
-#ifndef ELEMENT_GRADIENTS_H
-#define ELEMENT_GRADIENTS_H
+#ifndef ELEMENT_GRADIENTS_HPP
+#define ELEMENT_GRADIENTS_HPP
 
 double* element_gradients(
     unsigned elem_dim,

@@ -1,5 +1,5 @@
-#ifndef COLLAPSE_H
-#define COLLAPSE_H
+#ifndef COLLAPSE_HPP
+#define COLLAPSE_HPP
 
 #include "loop.hpp"
 

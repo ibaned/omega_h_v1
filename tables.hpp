@@ -1,5 +1,5 @@
-#ifndef TABLES_H
-#define TABLES_H
+#ifndef TABLES_HPP
+#define TABLES_HPP
 
 #include "loop.hpp"
 

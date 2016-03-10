@@ -1,5 +1,5 @@
-#ifndef PARALLEL_MESH_H
-#define PARALLEL_MESH_H
+#ifndef PARALLEL_MESH_HPP
+#define PARALLEL_MESH_HPP
 
 struct mesh;
 struct parallel_mesh;

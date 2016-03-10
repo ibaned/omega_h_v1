@@ -1,5 +1,5 @@
-#ifndef REFINE_QUALITIES_H
-#define REFINE_QUALITIES_H
+#ifndef REFINE_QUALITIES_HPP
+#define REFINE_QUALITIES_HPP
 
 struct mesh;
 

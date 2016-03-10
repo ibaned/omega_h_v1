@@ -1,5 +1,5 @@
-#ifndef COMPRESS_H
-#define COMPRESS_H
+#ifndef COMPRESS_HPP
+#define COMPRESS_HPP
 
 extern unsigned const can_compress;
 

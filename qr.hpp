@@ -1,5 +1,5 @@
-#ifndef QR_H
-#define QR_H
+#ifndef QR_HPP
+#define QR_HPP
 
 #define MAX_PTS 16
 

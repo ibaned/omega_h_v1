@@ -1,5 +1,5 @@
-#ifndef GHOST_MESH_H
-#define GHOST_MESH_H
+#ifndef GHOST_MESH_HPP
+#define GHOST_MESH_HPP
 
 struct mesh;
 

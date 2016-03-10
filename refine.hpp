@@ -1,5 +1,5 @@
-#ifndef REFINE_H
-#define REFINE_H
+#ifndef REFINE_HPP
+#define REFINE_HPP
 
 struct mesh;
 

@@ -1,5 +1,5 @@
-#ifndef REFINE_CONSERVE_H
-#define REFINE_CONSERVE_H
+#ifndef REFINE_CONSERVE_HPP
+#define REFINE_CONSERVE_HPP
 
 struct mesh;
 

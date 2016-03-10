@@ -1,5 +1,5 @@
-#ifndef SWAP_CONSERVE_H
-#define SWAP_CONSERVE_H
+#ifndef SWAP_CONSERVE_HPP
+#define SWAP_CONSERVE_HPP
 
 struct mesh;
 

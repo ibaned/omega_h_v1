@@ -1,5 +1,5 @@
-#ifndef REFINE_FIT_H
-#define REFINE_FIT_H
+#ifndef REFINE_FIT_HPP
+#define REFINE_FIT_HPP
 
 struct mesh;
 

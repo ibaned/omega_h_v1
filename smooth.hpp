@@ -1,5 +1,5 @@
-#ifndef SMOOTH_H
-#define SMOOTH_H
+#ifndef SMOOTH_HPP
+#define SMOOTH_HPP
 
 struct mesh;
 

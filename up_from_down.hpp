@@ -1,5 +1,5 @@
-#ifndef UP_FROM_DOWN_H
-#define UP_FROM_DOWN_H
+#ifndef UP_FROM_DOWN_HPP
+#define UP_FROM_DOWN_HPP
 
 /* given a downward adjacency graph,
  * computes its inverse upward adjacency graph,

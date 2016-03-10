@@ -1,5 +1,5 @@
-#ifndef CLOSE_PARTITION_H
-#define CLOSE_PARTITION_H
+#ifndef CLOSE_PARTITION_HPP
+#define CLOSE_PARTITION_HPP
 
 struct exchanger;
 struct mesh;

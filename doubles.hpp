@@ -1,5 +1,5 @@
-#ifndef DOUBLES_H
-#define DOUBLES_H
+#ifndef DOUBLES_HPP
+#define DOUBLES_HPP
 
 double doubles_max(double const* a, unsigned n);
 double doubles_min(double const* a, unsigned n);

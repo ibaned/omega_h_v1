@@ -1,5 +1,5 @@
-#ifndef BASE_64_H
-#define BASE_64_H
+#ifndef BASE_64_HPP
+#define BASE_64_HPP
 
 #include <stdio.h>
 

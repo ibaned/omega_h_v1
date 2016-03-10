@@ -1,5 +1,5 @@
-#ifndef PARALLEL_INERTIAL_BISECT_H
-#define PARALLEL_INERTIAL_BISECT_H
+#ifndef PARALLEL_INERTIAL_BISECT_HPP
+#define PARALLEL_INERTIAL_BISECT_HPP
 
 void parallel_inertial_bisect(
     unsigned* p_n,

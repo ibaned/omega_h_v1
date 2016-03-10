@@ -1,5 +1,5 @@
-#ifndef SWAP_QUALITIES_H
-#define SWAP_QUALITIES_H
+#ifndef SWAP_QUALITIES_HPP
+#define SWAP_QUALITIES_HPP
 
 struct mesh;
 

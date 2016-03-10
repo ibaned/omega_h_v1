@@ -1,5 +1,5 @@
-#ifndef JACOBIAN_H
-#define JACOBIAN_H
+#ifndef JACOBIAN_HPP
+#define JACOBIAN_HPP
 
 #include "algebra.hpp"
 

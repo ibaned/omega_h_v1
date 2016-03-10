@@ -4,7 +4,7 @@
 #include "ints.hpp"
 #include "loop.hpp"
 
-#ifdef LOOP_CUDA_H
+#ifdef LOOP_CUDA_HPP
 
 #include <thrust/sort.h>
 #include <thrust/device_ptr.h>

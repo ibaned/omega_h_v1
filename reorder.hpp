@@ -1,5 +1,5 @@
-#ifndef REORDER_H
-#define REORDER_H
+#ifndef REORDER_HPP
+#define REORDER_HPP
 
 struct mesh;
 

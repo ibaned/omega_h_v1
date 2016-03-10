@@ -1,5 +1,5 @@
-#ifndef LOOP_OPENMP_H
-#define LOOP_OPENMP_H
+#ifndef LOOP_OPENMP_HPP
+#define LOOP_OPENMP_HPP
 
 #include <assert.h>
 

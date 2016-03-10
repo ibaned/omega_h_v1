@@ -109,7 +109,7 @@ static void warped_adapt(struct mesh* m)
   abort();
 }
 
-#ifdef LOOP_CUDA_H
+#ifdef LOOP_CUDA_HPP
 static void trigger_cuda_init(void)
 {
   double t0 = get_time();
@@ -124,7 +124,7 @@ static void trigger_cuda_init(void)
 int main(int argc, char** argv)
 {
   comm_init();
-#ifdef LOOP_CUDA_H
+#ifdef LOOP_CUDA_HPP
   trigger_cuda_init();
 #endif
   char const* path;

@@ -1,5 +1,5 @@
-#ifndef FIND_BY_VERTS_H
-#define FIND_BY_VERTS_H
+#ifndef FIND_BY_VERTS_HPP
+#define FIND_BY_VERTS_HPP
 
 #include "loop.hpp"
 

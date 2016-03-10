@@ -1,5 +1,5 @@
-#ifndef COARSEN_TOPOLOGY_H
-#define COARSEN_TOPOLOGY_H
+#ifndef COARSEN_TOPOLOGY_HPP
+#define COARSEN_TOPOLOGY_HPP
 
 void coarsen_topology(
     unsigned elem_dim,

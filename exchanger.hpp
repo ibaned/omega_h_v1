@@ -1,5 +1,5 @@
-#ifndef EXCHANGER_H
-#define EXCHANGER_H
+#ifndef EXCHANGER_HPP
+#define EXCHANGER_HPP
 
 struct comm;
 

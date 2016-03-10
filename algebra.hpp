@@ -1,5 +1,5 @@
-#ifndef ALGEBRA_H
-#define ALGEBRA_H
+#ifndef ALGEBRA_HPP
+#define ALGEBRA_HPP
 
 #include <math.h>
 

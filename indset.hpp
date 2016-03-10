@@ -1,5 +1,5 @@
-#ifndef INDSET_H
-#define INDSET_H
+#ifndef INDSET_HPP
+#define INDSET_HPP
 
 struct mesh;
 

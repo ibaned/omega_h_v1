@@ -1,5 +1,5 @@
-#ifndef REFINE_NODAL_H
-#define REFINE_NODAL_H
+#ifndef REFINE_NODAL_HPP
+#define REFINE_NODAL_HPP
 
 double* refine_nodal(
     unsigned src_dim,

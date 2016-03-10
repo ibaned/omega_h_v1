@@ -1,5 +1,5 @@
-#ifndef COLLAPSES_TO_ENTS_H
-#define COLLAPSES_TO_ENTS_H
+#ifndef COLLAPSES_TO_ENTS_HPP
+#define COLLAPSES_TO_ENTS_HPP
 
 struct mesh;
 

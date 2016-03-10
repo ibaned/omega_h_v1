@@ -1,5 +1,5 @@
-#ifndef SUBSET_H
-#define SUBSET_H
+#ifndef SUBSET_HPP
+#define SUBSET_HPP
 
 struct mesh;
 

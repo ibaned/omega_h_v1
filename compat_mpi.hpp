@@ -1,5 +1,5 @@
-#ifndef MPI_COMPAT_H
-#define MPI_COMPAT_H
+#ifndef MPI_COMPAT_HPP
+#define MPI_COMPAT_HPP
 
 #ifdef __clang__
 #pragma clang system_header

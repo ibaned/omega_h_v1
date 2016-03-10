@@ -1,5 +1,5 @@
-#ifndef DUAL_H
-#define DUAL_H
+#ifndef DUAL_HPP
+#define DUAL_HPP
 
 /* compute the dual or element-to-element graph.
  * this may not find an element in a given direction,

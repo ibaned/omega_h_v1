@@ -1,5 +1,5 @@
-#ifndef MESH_DIFF_H
-#define MESH_DIFF_H
+#ifndef MESH_DIFF_HPP
+#define MESH_DIFF_HPP
 
 struct mesh;
 

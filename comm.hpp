@@ -1,5 +1,5 @@
-#ifndef COMM_H
-#define COMM_H
+#ifndef COMM_HPP
+#define COMM_HPP
 
 struct comm;
 

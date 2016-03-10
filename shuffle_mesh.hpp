@@ -1,5 +1,5 @@
-#ifndef SHUFFLE_MESH_H
-#define SHUFFLE_MESH_H
+#ifndef SHUFFLE_MESH_HPP
+#define SHUFFLE_MESH_HPP
 
 struct mesh;
 

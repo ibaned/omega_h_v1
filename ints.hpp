@@ -1,5 +1,5 @@
-#ifndef INTS_H
-#define INTS_H
+#ifndef INTS_HPP
+#define INTS_HPP
 
 #include "loop.hpp"
 

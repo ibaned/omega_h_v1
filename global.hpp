@@ -1,5 +1,5 @@
-#ifndef GLOBAL_H
-#define GLOBAL_H
+#ifndef GLOBAL_HPP
+#define GLOBAL_HPP
 
 struct mesh;
 

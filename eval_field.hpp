@@ -1,5 +1,5 @@
-#ifndef EVAL_FIELD_H
-#define EVAL_FIELD_H
+#ifndef EVAL_FIELD_HPP
+#define EVAL_FIELD_HPP
 
 #include "include/omega_h.hpp"
 

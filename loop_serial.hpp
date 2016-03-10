@@ -1,5 +1,5 @@
-#ifndef LOOP_SERIAL_H
-#define LOOP_SERIAL_H
+#ifndef LOOP_SERIAL_HPP
+#define LOOP_SERIAL_HPP
 
 #include <assert.h>
 

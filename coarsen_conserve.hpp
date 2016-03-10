@@ -1,5 +1,5 @@
-#ifndef COARSEN_CONSERVE_H
-#define COARSEN_CONSERVE_H
+#ifndef COARSEN_CONSERVE_HPP
+#define COARSEN_CONSERVE_HPP
 
 struct mesh;
 

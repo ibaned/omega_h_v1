@@ -1,5 +1,5 @@
-#ifndef INVERT_MAP_H
-#define INVERT_MAP_H
+#ifndef INVERT_MAP_HPP
+#define INVERT_MAP_HPP
 
 /* given an array (in) which represents a
    map from the integers A=[0,nin) to the integers B=[0,nout),

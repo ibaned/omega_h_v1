@@ -1,5 +1,5 @@
-#ifndef EDGE_SWAP_H
-#define EDGE_SWAP_H
+#ifndef EDGE_SWAP_HPP
+#define EDGE_SWAP_HPP
 
 #include "loop.hpp"
 

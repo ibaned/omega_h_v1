@@ -1,5 +1,5 @@
-#ifndef BCAST_H
-#define BCAST_H
+#ifndef BCAST_HPP
+#define BCAST_HPP
 
 struct mesh;
 

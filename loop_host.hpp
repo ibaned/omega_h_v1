@@ -1,5 +1,5 @@
-#ifndef LOOP_HOST_H
-#define LOOP_HOST_H
+#ifndef LOOP_HOST_HPP
+#define LOOP_HOST_HPP
 
 void* loop_host_malloc(unsigned long n);
 #define LOOP_HOST_MALLOC(T, n) \
