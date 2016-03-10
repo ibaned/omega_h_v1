@@ -3,7 +3,7 @@
 
 #include <assert.h>
 
-#include "size.h"
+#include "size.hpp"
 
 /* These normalization constants are the values of
  * the original quality measures for regular simplices.

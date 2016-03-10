@@ -1,7 +1,7 @@
 #ifndef JACOBIAN_H
 #define JACOBIAN_H
 
-#include "algebra.h"
+#include "algebra.hpp"
 
 /* we define the element Jacobian such that
       J \xi + x_0 = x

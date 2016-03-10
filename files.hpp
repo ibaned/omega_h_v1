@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "loop.h"
+#include "loop.hpp"
 
 typedef char line_t[1024];
 

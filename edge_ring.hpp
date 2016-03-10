@@ -1,7 +1,7 @@
 #ifndef EDGE_RING_H
 #define EDGE_RING_H
 
-#include "loop.h"
+#include "loop.hpp"
 
 LOOP_IN unsigned find_edge_ring(
     unsigned edge,

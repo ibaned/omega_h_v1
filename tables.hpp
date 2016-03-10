@@ -1,7 +1,7 @@
 #ifndef TABLES_H
 #define TABLES_H
 
-#include "loop.h"
+#include "loop.hpp"
 
 #define MAX_DOWN 6
 #define MAX_UP 128

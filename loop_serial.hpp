@@ -3,7 +3,7 @@
 
 #include <assert.h>
 
-#include "loop_host.h"
+#include "loop_host.hpp"
 
 #define LOOP_MALLOC(T, n) LOOP_HOST_MALLOC(T, n)
 #define loop_free loop_host_free

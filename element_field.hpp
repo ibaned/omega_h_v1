@@ -1,7 +1,7 @@
 #ifndef AVERAGE_H
 #define AVERAGE_H
 
-#include "loop.h"
+#include "loop.hpp"
 
 LOOP_INOUT static inline void
 average_element_field(

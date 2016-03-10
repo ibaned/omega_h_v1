@@ -1,7 +1,7 @@
 #ifndef TAG_H
 #define TAG_H
 
-#include "include/omega_h.h"
+#include "include/omega_h.hpp"
 
 enum tag_type {
   TAG_U8,

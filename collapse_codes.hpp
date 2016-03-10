@@ -1,7 +1,7 @@
 #ifndef COLLAPSE_H
 #define COLLAPSE_H
 
-#include "loop.h"
+#include "loop.hpp"
 
 enum {
   DONT_COLLAPSE  = 0,

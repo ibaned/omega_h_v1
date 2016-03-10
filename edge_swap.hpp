@@ -1,7 +1,7 @@
 #ifndef EDGE_SWAP_H
 #define EDGE_SWAP_H
 
-#include "loop.h"
+#include "loop.hpp"
 
 #define MAX_EDGE_SWAP 7
 

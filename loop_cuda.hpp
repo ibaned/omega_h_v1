@@ -1,7 +1,7 @@
 #ifndef LOOP_CUDA_H
 #define LOOP_CUDA_H
 
-#include "loop_host.h"
+#include "loop_host.hpp"
 
 #include <assert.h>
 

@@ -1,7 +1,7 @@
 #ifndef INTS_H
 #define INTS_H
 
-#include "loop.h"
+#include "loop.hpp"
 
 unsigned uints_max(unsigned const* a, unsigned n);
 unsigned* uints_exscan(unsigned const* a, unsigned n);

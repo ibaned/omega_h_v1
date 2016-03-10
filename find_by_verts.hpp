@@ -1,7 +1,7 @@
 #ifndef FIND_BY_VERTS_H
 #define FIND_BY_VERTS_H
 
-#include "loop.h"
+#include "loop.hpp"
 
 /* strong optimization here due to the
    frequent use of these operations.

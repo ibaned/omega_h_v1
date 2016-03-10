@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-#include "loop.h"
+#include "loop.hpp"
 
 #define PI 3.14159265359
 

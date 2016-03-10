@@ -1,7 +1,7 @@
 #ifndef SIZE_H
 #define SIZE_H
 
-#include "algebra.h"
+#include "algebra.hpp"
 
 LOOP_INOUT static inline double
 edge_length(double coords[2][3])

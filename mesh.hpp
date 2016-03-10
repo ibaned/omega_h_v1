@@ -1,8 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "tag.h"
-#include "graph.h"
+#include "tag.hpp"
+#include "graph.hpp"
 
 enum mesh_rep {
   MESH_REDUCED,

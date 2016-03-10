@@ -1,7 +1,7 @@
 #ifndef EVAL_FIELD_H
 #define EVAL_FIELD_H
 
-#include "include/omega_h.h"
+#include "include/omega_h.hpp"
 
 double* eval_field(
     unsigned nents,
