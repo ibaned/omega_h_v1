@@ -7,6 +7,7 @@
 #include "files.hpp"
 #include "find_by_verts.hpp"
 #include "ints.hpp"
+#include "int_casts.hpp"
 #include "loop.hpp"
 #include "mesh.hpp"
 #include "tables.hpp"
@@ -29,7 +30,7 @@ static unsigned find_nodes_start(FILE* f)
   unsigned long plain_len = strlen(plain_prefix);
   unsigned long param_len = strlen(param_prefix);
   line_t line;
-  while (fgets(line, (int) sizeof(line), f)) {
+  while (fgets(line, I(sizeof(line)), f)) {
     if (!strncmp(line, plain_prefix, plain_len))
       return 0;
     if (!strncmp(line, param_prefix, param_len))

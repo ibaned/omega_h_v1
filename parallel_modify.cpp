@@ -6,6 +6,7 @@
 #include "comm.hpp"
 #include "exchanger.hpp"
 #include "ints.hpp"
+#include "int_casts.hpp"
 #include "mesh.hpp"
 #include "parallel_mesh.hpp"
 #include "tables.hpp"
@@ -93,7 +94,7 @@ void inherit_globals(
   unsigned nnew = nout - nsame;
   unsigned nowned_out = nowned_and_same + nnew;
   unsigned long offset_out = comm_exscan_ulong(nowned_out);
-  unsigned long* new_globals_in = ulongs_filled(nin, ~((unsigned long) 0));
+  unsigned long* new_globals_in = ulongs_filled(nin, ~UL(0));
   LOOP_EXEC(new_globals_in_kern, nin,
       owned_and_same, offset_out, owned_and_same_offsets, new_globals_in);
   loop_free(owned_and_same);

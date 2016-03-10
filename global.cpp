@@ -3,6 +3,7 @@
 #include "arrays.hpp"
 #include "comm.hpp"
 #include "ints.hpp"
+#include "int_casts.hpp"
 #include "loop.hpp"
 
 unsigned long* globalize_offsets(unsigned* local, unsigned n)
@@ -26,12 +27,12 @@ void global_to_linpart(unsigned long const* global, unsigned n,
   for (unsigned i = 0; i < n; ++i) {
     unsigned long g = global[i];
     if (g < ((quot + 1) * rem)) {
-      part[i] = (unsigned) (g / (quot + 1));
-      local[i] = (unsigned) (g % (quot + 1));
+      part[i] = U(g / (quot + 1));
+      local[i] = U(g % (quot + 1));
     } else {
       g -= (quot + 1) * rem;
-      part[i] = (unsigned) (g / quot + rem);
-      local[i] = (unsigned) (g % quot);
+      part[i] = U(g / quot + rem);
+      local[i] = U(g % quot);
     }
   }
   *p_part = part;
@@ -43,6 +44,6 @@ unsigned linpart_size(unsigned long total, unsigned nparts, unsigned part)
   unsigned long quot = total / nparts;
   unsigned long rem = total % nparts;
   if (part < rem)
-    return (unsigned) (quot + 1);
-  return (unsigned) quot;
+    return U(quot + 1);
+  return U(quot);
 }

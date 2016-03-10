@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "comm.hpp"
+#include "int_casts.hpp"
 #include "loop.hpp"
 #include "mesh.hpp"
 #include "tag.hpp"
@@ -13,10 +14,10 @@ static void bcast_tag(struct const_tag* t, struct tags* into)
   enum tag_type type = TAG_U8;
   if (!comm_rank())
     type = t->type;
-  type = (enum tag_type) (comm_bcast_uint((unsigned) type));
+  type = static_cast<enum tag_type>(comm_bcast_uint(U(type)));
   unsigned nl = 0;
   if (!comm_rank())
-    nl = (unsigned) strlen(t->name);
+    nl = U(strlen(t->name));
   nl = comm_bcast_uint(nl);
   char* name = LOOP_HOST_MALLOC(char, nl + 1);
   if (!comm_rank())
@@ -58,7 +59,7 @@ struct mesh* bcast_mesh_metadata(struct mesh* m)
   enum mesh_rep rep = MESH_REDUCED;
   if (!comm_rank())
     rep = mesh_get_rep(m);
-  rep = (enum mesh_rep) (comm_bcast_uint((unsigned) rep));
+  rep = static_cast<enum mesh_rep>(comm_bcast_uint(U(rep)));
   if (comm_rank())
     m = new_mesh(dim, rep, 0);
   for (unsigned i = 0; i <= dim; ++i) {

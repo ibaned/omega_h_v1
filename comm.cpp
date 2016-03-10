@@ -6,10 +6,8 @@
 
 #if USE_MPI
 
-#define I(x) static_cast<int>(x)
-#define U(x) static_cast<unsigned>(x)
-
 #include "compat_mpi.hpp"
+#include "int_casts.hpp"
 
 static struct comm world = { MPI_COMM_WORLD };
 static struct comm self = { MPI_COMM_SELF };
