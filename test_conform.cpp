@@ -44,7 +44,7 @@ int main(int argc, char** argv)
   else
     path = ".";
   struct mesh* m = make_2_tri_parallel();
-  double* data = doubles_filled(3, (double) (comm_rank() + 1));
+  double* data = doubles_filled(3, static_cast<double>(comm_rank() + 1));
   mesh_add_tag(m, 0, TAG_F64, "field", 1, data);
   char file[128];
   sprintf(file, "%s/one.pvtu", path);

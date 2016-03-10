@@ -27,9 +27,9 @@ static double get_time(void)
 {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  double t = (double) tv.tv_usec;
+  double t = static_cast<double>(tv.tv_usec);
   t /= 1e6;
-  t += (double) tv.tv_sec;
+  t += static_cast<double>(tv.tv_sec);
   return t;
 }
 

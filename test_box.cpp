@@ -6,6 +6,7 @@
 #include "algebra.hpp"
 #include "derive_model.hpp"
 #include "eval_field.hpp"
+#include "int_casts.hpp"
 #include "mesh.hpp"
 #include "include/omega_h.hpp"
 #include "refine.hpp"
@@ -25,7 +26,7 @@ int main(int argc, char** argv)
         printf("--dim needs an argument\n");
         return -1;
       }
-      dim = (unsigned) atoi(argv[i]);
+      dim = U(atoi(argv[i]));
       assert(dim <= 3);
     } else if (!strcmp(argv[i], "--refinements")) {
       ++i;
@@ -33,7 +34,7 @@ int main(int argc, char** argv)
         printf("--refinements needs an argument\n");
         return -1;
       }
-      nrefs = (unsigned) atoi(argv[i]);
+      nrefs = U(atoi(argv[i]));
       assert(nrefs < 30);
     } else if (!strcmp(argv[i], "--file")) {
       ++i;

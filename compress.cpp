@@ -17,8 +17,11 @@ void* my_compress(
 {
   uLongf bufsize = compressBound(in_size);
   void* out_data = LOOP_HOST_MALLOC(unsigned char, bufsize);
-  int ret = compress((Bytef*) out_data, &bufsize,
-      (Bytef const*) in_data, in_size);
+  int ret = compress(
+      static_cast<Bytef*>(out_data),
+      &bufsize,
+      static_cast<Bytef const*>(in_data),
+      in_size);
   assert(ret == Z_OK);
   *out_size = bufsize;
   return out_data;
@@ -31,8 +34,11 @@ void* my_decompress(
 {
   uLongf bufsize = out_size;
   void* out_data = LOOP_HOST_MALLOC(unsigned char, out_size);
-  int ret = uncompress((Bytef*) out_data, &bufsize,
-      (Bytef const*) in_data, in_size);
+  int ret = uncompress(
+      static_cast<Bytef*>(out_data),
+      &bufsize,
+      static_cast<Bytef const*>(in_data),
+      in_size);
   assert(ret == Z_OK);
   assert(bufsize == out_size);
   return out_data;
