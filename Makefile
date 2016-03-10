@@ -148,7 +148,7 @@ objs/compress.o : CPPFLAGS += -I$(ZLIB_INCLUDE)
 endif
 libraries := lib/libomega_h.a
 ifeq "$(SHARED)" "1"
-CFLAGS += -fPIC -fvisibility=hidden
+CXXFLAGS += -fPIC -fvisibility=hidden
 libraries += lib/libomega_h.so
 endif
 
@@ -175,7 +175,7 @@ clean:
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
 objs/%.o: %.cpp | objs
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
 
 lib/libomega_h_internal.a: $(lib_objects) | lib
 	ar cru $@ $(lib_objects)
@@ -185,12 +185,12 @@ lib/libomega_h.a: lib/libomega_h_internal.a
 	cp $< $@
 
 lib/libomega_h.so: $(lib_objects) | lib
-	$(CC) $(LDFLAGS) -shared -fPIC -o $@ $(lib_objects) $(LDLIBS)
+	$(CXX) $(LDFLAGS) -shared -fPIC -o $@ $(lib_objects) $(LDLIBS)
 
 #general rule for an executable: link its object
 #file with the library
 bin/%.exe: objs/test_%.o lib/libomega_h_internal.a | bin
-	$(CC) $(LDFLAGS) -L./lib -o $@ objs/test_$*.o -lomega_h_internal $(LDLIBS)
+	$(CXX) $(LDFLAGS) -L./lib -o $@ objs/test_$*.o -lomega_h_internal $(LDLIBS)
 
 #loop.hpp is a copy of one of several existing files,
 #chosen at compile time based on the kind of
