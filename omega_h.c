@@ -591,12 +591,13 @@ unsigned long const* osh_global(osh_t m, unsigned dim)
 
 .seealso: osh_free_field(), osh_get_field()
 @*/
-double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
+double* osh_new_field(osh_t m, unsigned dim, char const* name,
+    unsigned ncomps, enum osh_transfer tt)
 {
   if (mesh_find_tag((struct mesh*)m, dim, name))
     return osh_get_field(m, dim, name);
   double* data = LOOP_MALLOC(double, ncomps * mesh_count((struct mesh*)m, dim));
-  mesh_add_tag((struct mesh*)m, dim, TAG_F64, name, ncomps, data);
+  add_tag2(mesh_tags((struct mesh*)m, dim), TAG_F64, name, ncomps, tt, data);
   return data;
 }
 

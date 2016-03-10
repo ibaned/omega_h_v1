@@ -1,61 +1,58 @@
-#include "swap_conserve.h"
+#include "swap_fit.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "algebra.h"
 #include "arrays.h"
+#include "element_field.h"
 #include "loop.h"
 #include "mesh.h"
+#include "qr.h"
 #include "size.h"
 
-#define MAX_NCOMPS 32
+/* I tried to fit a linear polynomial here,
+   but because these are tetrahedra around
+   an edge, their centroids are nearly coplanar
+   so the gradient along the edge is unstable.
+   I'm switching to a dumb average, because
+   diffusion is better than values outside
+   the sensible range */
 
-LOOP_KERNEL(swap_conserve_cavity,
+LOOP_KERNEL(swap_fit_cavity,
     unsigned ncomps,
-    unsigned nsame_elems,
     unsigned const* gen_offset_of_edges,
     unsigned const* elems_of_edges_offsets,
     unsigned const* elems_of_edges,
-    double const* new_elem_sizes,
     double const* data_in,
-    double* data_out)
+    double* gen_data)
+
   if (gen_offset_of_edges[i] ==
       gen_offset_of_edges[i + 1])
     return;
-  double sum[MAX_NCOMPS] = {0};
-  {
-    unsigned f = elems_of_edges_offsets[i];
-    unsigned e = elems_of_edges_offsets[i + 1];
-    for (unsigned j = f; j < e; ++j) {
-      unsigned elem = elems_of_edges[j];
-      add_vectors(sum, data_in + elem * ncomps, sum, ncomps);
+  unsigned f = elems_of_edges_offsets[i];
+  unsigned e = elems_of_edges_offsets[i + 1];
+  for (unsigned j = 0; j < ncomps; ++j) {
+    double avg = 0;
+    for (unsigned k = f; k < e; ++k) {
+      unsigned old_elem = elems_of_edges[k];
+      avg += data_in[old_elem * ncomps + j];
     }
-  }
-  {
-    unsigned f = gen_offset_of_edges[i];
-    unsigned e = gen_offset_of_edges[i + 1];
-    double new_cavity_size = 0;
-    for (unsigned j = f; j < e; ++j) {
-      unsigned new_elem = nsame_elems + j;
-      new_cavity_size += new_elem_sizes[new_elem];
-    }
-    for (unsigned j = f; j < e; ++j) {
-      unsigned new_elem = nsame_elems + j;
-      scale_vector(sum, new_elem_sizes[new_elem] / new_cavity_size,
-          data_out + j * ncomps, ncomps);
+    avg /= (e - f);
+    unsigned nf = gen_offset_of_edges[i];
+    unsigned ne = gen_offset_of_edges[i + 1];
+    for (unsigned gen_elem = nf; gen_elem < ne; ++gen_elem) {
+      gen_data[gen_elem * ncomps + j] = avg;
     }
   }
 }
 
-static double* swap_conserve_data(
+static double* swap_fit_data(
     struct mesh* m,
     unsigned const* gen_offset_of_edges,
-    unsigned nsame_elems,
-    double const* new_elem_sizes,
     struct const_tag* t)
 {
   unsigned ncomps = t->ncomps;
-  assert(ncomps <= MAX_NCOMPS);
   unsigned elem_dim = mesh_dim(m);
   unsigned nedges = mesh_count(m, 1);
   unsigned ngen_elems = uints_at(gen_offset_of_edges, nedges);
@@ -64,25 +61,22 @@ static double* swap_conserve_data(
   unsigned const* elems_of_edges =
     mesh_ask_up(m, 1, elem_dim)->adj;
   double const* data_in = t->d.f64;
-  double* data_out = LOOP_MALLOC(double, ngen_elems * ncomps);
-  LOOP_EXEC(swap_conserve_cavity, nedges,
+  double* gen_data = LOOP_MALLOC(double, ngen_elems * ncomps);
+  LOOP_EXEC(swap_fit_cavity, nedges,
       ncomps,
-      nsame_elems,
       gen_offset_of_edges,
       elems_of_edges_offsets,
       elems_of_edges,
-      new_elem_sizes,
       data_in,
-      data_out);
-  return data_out;
+      gen_data);
+  return gen_data;
 }
 
-static void swap_conserve_tag(
+static void swap_fit_tag(
     struct mesh* m,
     struct mesh* m_out,
     unsigned const* gen_offset_of_edges,
     unsigned const* offset_of_same_elems,
-    double const* new_elem_sizes,
     struct const_tag* t)
 {
   unsigned elem_dim = mesh_dim(m);
@@ -91,8 +85,7 @@ static void swap_conserve_tag(
   double* same_data = doubles_expand(nelems, t->ncomps,
       t->d.f64, offset_of_same_elems);
   unsigned nsame_elems = uints_at(offset_of_same_elems, nelems);
-  double* gen_data = swap_conserve_data(m, gen_offset_of_edges,
-      nsame_elems, new_elem_sizes, t);
+  double* gen_data = swap_fit_data(m, gen_offset_of_edges, t);
   double* data_out = concat_doubles(t->ncomps,
       same_data, nsame_elems,
       gen_data, uints_at(gen_offset_of_edges, nedges));
@@ -102,9 +95,14 @@ static void swap_conserve_tag(
       t->transfer_type, data_out);
 }
 
-/* TODO: try to consolidate with coarsen_conserve */
+static int should_fit(struct mesh* m, unsigned tag_i)
+{
+  unsigned elem_dim = mesh_dim(m);
+  struct const_tag* t = mesh_get_tag(m, elem_dim, tag_i);
+  return t->type == TAG_F64 && t->transfer_type == OSH_TRANSFER_POINTWISE;
+}
 
-void swap_conserve(
+void swap_fit(
     struct mesh* m,
     struct mesh* m_out,
     unsigned const* gen_offset_of_edges,
@@ -113,16 +111,15 @@ void swap_conserve(
   unsigned elem_dim = mesh_dim(m);
   unsigned i;
   for (i = 0; i < mesh_count_tags(m, elem_dim); ++i)
-    if (mesh_get_tag(m, elem_dim, i)->type == TAG_F64)
+    if (should_fit(m, i))
       break;
   if (i == mesh_count_tags(m, elem_dim))
     return;
-  double* new_elem_sizes = mesh_element_sizes(m_out);
+  assert(elem_dim == 3);
   for (i = 0; i < mesh_count_tags(m, elem_dim); ++i) {
     struct const_tag* t = mesh_get_tag(m, elem_dim, i);
-    if ((t->type == TAG_F64) && (t->transfer_type == OSH_TRANSFER_CONSERVE))
-      swap_conserve_tag(m, m_out, gen_offset_of_edges,
-          offset_of_same_elems, new_elem_sizes, t);
+    if ((t->type == TAG_F64) && (t->transfer_type == OSH_TRANSFER_POINTWISE))
+      swap_fit_tag(m, m_out, gen_offset_of_edges, offset_of_same_elems, t);
   }
-  loop_free(new_elem_sizes);
 }
+

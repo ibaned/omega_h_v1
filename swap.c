@@ -17,6 +17,7 @@
 #include "parallel_modify.h"
 #include "quality.h"
 #include "swap_conserve.h"
+#include "swap_fit.h"
 #include "swap_qualities.h"
 #include "swap_topology.h"
 #include "tables.h"
@@ -57,8 +58,10 @@ static void swap_ents(
   }
   if (mesh_is_parallel(m))
     inherit_globals(m, m_out, ent_dim, same_ent_offsets);
-  if (ent_dim == mesh_dim(m))
+  if (ent_dim == mesh_dim(m)) {
     swap_conserve(m, m_out, gen_offset_of_edges, same_ent_offsets);
+    swap_fit(m, m_out, gen_offset_of_edges, same_ent_offsets);
+  }
   loop_free(gen_offset_of_edges);
   loop_free(same_ent_offsets);
 }

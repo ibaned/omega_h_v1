@@ -1,7 +1,6 @@
 #include "parallel_modify.h"
 
 #include <assert.h>
-#include <stdio.h>
 
 #include "arrays.h"
 #include "comm.h"

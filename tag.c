@@ -7,12 +7,22 @@
 #include "exchanger.h"
 #include "loop.h"
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
+
 struct tag {
   char* name;
   unsigned ncomps;
   enum tag_type type;
+  enum osh_transfer transfer_type;
   void* data;
 };
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 unsigned tag_size(enum tag_type t)
 {
@@ -26,13 +36,14 @@ unsigned tag_size(enum tag_type t)
 }
 
 static struct tag* new_tag(char const* name, enum tag_type type,
-    unsigned ncomps, void* data)
+    unsigned ncomps, enum osh_transfer tt, void* data)
 {
   struct tag* t = LOOP_HOST_MALLOC(struct tag, 1);
   t->name = LOOP_HOST_MALLOC(char, strlen(name) + 1);
   strcpy(t->name, name);
   t->ncomps = ncomps;
   t->type = type;
+  t->transfer_type = tt;
   t->data = data;
   return t;
 }
@@ -54,8 +65,14 @@ void free_tags(struct tags* ts)
 struct const_tag* add_tag(struct tags* ts, enum tag_type type, char const* name,
     unsigned ncomps, void* data)
 {
+  return add_tag2(ts, type, name, ncomps, OSH_TRANSFER_NOT, data);
+}
+
+struct const_tag* add_tag2(struct tags* ts, enum tag_type type, char const* name,
+    unsigned ncomps, enum osh_transfer tt, void* data)
+{
   assert(!find_tag(ts, name));
-  struct tag* t = new_tag(name, type, ncomps, data);
+  struct tag* t = new_tag(name, type, ncomps, tt, data);
   if (ts->n == ts->cap) {
     ts->cap = (3 * ts->cap) / 2;
     if (ts->cap < 10)
@@ -143,7 +160,7 @@ void copy_tags(struct tags* a, struct tags* b, unsigned n)
       case TAG_F64: data = doubles_copy(t->d.f64, n * t->ncomps);
                     break;
     };
-    add_tag(b, t->type, t->name, t->ncomps, data);
+    add_tag2(b, t->type, t->name, t->ncomps, t->transfer_type, data);
   }
 }
 
@@ -166,7 +183,7 @@ void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into)
   if (find_tag(into, t->name))
     modify_tag(into, t->name, data_out);
   else
-    add_tag(into, t->type, t->name, t->ncomps, data_out);
+    add_tag2(into, t->type, t->name, t->ncomps, t->transfer_type, data_out);
 }
 
 void push_tags(struct exchanger* ex, struct tags* from, struct tags* into)

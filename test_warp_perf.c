@@ -12,6 +12,8 @@
 #include "eval_field.h"
 #include "mesh.h"
 #include "refine.h"
+#include "reorder.h"
+#include "shuffle_mesh.h"
 #include "vtk_io.h"
 #include "warp_to_limit.h"
 
@@ -20,6 +22,16 @@ static double const good_qual_floor = 0.3;
 static double const size_floor = 1. / 3.;
 static unsigned const nsliver_layers = 4;
 static unsigned const max_ops = 50;
+
+static double get_time(void)
+{
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  double t = (double) tv.tv_usec;
+  t /= 1e6;
+  t += (double) tv.tv_sec;
+  return t;
+}
 
 static void size_fun(double const* x, double* s)
 {
@@ -76,29 +88,25 @@ static void mass_fun(double const* coords, double* v)
     *v = 0;
 }
 
+static double reorder_time = 0.0;
+
 static void warped_adapt(struct mesh* m)
 {
   static unsigned const n = 6;
   for (unsigned i = 0; i < n; ++i) {
     printf("\n WARP TO LIMIT %u\n", i);
     unsigned done = mesh_warp_to_limit(m, warp_qual_floor);
+    double t0 = get_time();
+  //shuffle_mesh(m, compute_ordering(m));
+    printf("\n REORDER %u\n", i);
+    double t1 = get_time();
+    reorder_time += (t1 - t0);
     mesh_adapt(m, size_floor, good_qual_floor, nsliver_layers, max_ops);
-  //write_vtk_step(m);
     if (done)
       return;
   }
   fprintf(stderr, "warped_adapt still not done after %u iters\n", n);
   abort();
-}
-
-static double get_time(void)
-{
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  double t = (double) tv.tv_usec;
-  t /= 1e6;
-  t += (double) tv.tv_sec;
-  return t;
 }
 
 #ifdef LOOP_CUDA_H
@@ -154,6 +162,7 @@ int main(int argc, char** argv)
   }
   double t1 = get_time();
   printf("time for main code: %.5e seconds\n", t1 - t0);
+  printf("time for reorder: %.5e seconds\n", reorder_time);
   free_mesh(m);
   comm_fini();
 }

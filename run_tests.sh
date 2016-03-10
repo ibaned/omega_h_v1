@@ -38,7 +38,6 @@ if [ "$PATIENT" = "1" ]; then
   $VALGRIND ./bin/warp_3d.exe scratch
   if [ -e gold/warp_0016.vtu ]; then
     $VALGRIND ./bin/vtkdiff.exe -superset scratch/warp_0016.vtu gold/warp_0016.vtu
-    diff scratch/warp_0016.vtu gold/warp_0016.vtu
   fi
   cp scratch/warp_0016.vtu gold/warp_0016.vtu
 fi
