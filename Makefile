@@ -7,113 +7,113 @@
 include config.mk
 
 test_sources := \
-test_qr.c \
-test_reorder.c \
-test_identity.c \
-test_flounder.c \
-test_one_refine.c \
-test_one_coarsen.c \
-test_one_swap.c \
-test_partition.c \
-test_box.c \
-test_node_ele.c \
-test_node_ele_attrib.c \
-test_from_gmsh.c \
-test_vtk_ascii.c \
-test_vtkdiff.c \
-test_coarsen_by_size.c \
-test_refine_by_size.c \
-test_grad.c \
-test_warp.c \
-test_warp_3d.c \
-test_warp_perf.c \
-test_migrate.c \
-test_conform.c \
-test_ghost.c \
-test_memory.c \
-test_subdim.c \
-test_loop.c \
-test_to_la.c
+test_qr.cpp \
+test_reorder.cpp \
+test_identity.cpp \
+test_flounder.cpp \
+test_one_refine.cpp \
+test_one_coarsen.cpp \
+test_one_swap.cpp \
+test_partition.cpp \
+test_box.cpp \
+test_node_ele.cpp \
+test_node_ele_attrib.cpp \
+test_from_gmsh.cpp \
+test_vtk_ascii.cpp \
+test_vtkdiff.cpp \
+test_coarsen_by_size.cpp \
+test_refine_by_size.cpp \
+test_grad.cpp \
+test_warp.cpp \
+test_warp_3d.cpp \
+test_warp_perf.cpp \
+test_migrate.cpp \
+test_conform.cpp \
+test_ghost.cpp \
+test_memory.cpp \
+test_subdim.cpp \
+test_loop.cpp \
+test_to_la.cpp
 
 lib_sources := \
-swap_fit.c \
-coarsen_fit.c \
-refine_fit.c \
-shuffle_mesh.c \
-reorder.c \
-bfs.c \
-star.c \
-tables.c \
-up_from_down.c \
-ints.c \
-vtk_io.c \
-refine_topology.c \
-splits_to_domains.c \
-quality.c \
-size.c \
-bridge_graph.c \
-refine_common.c \
-refine.c \
-indset.c \
-reflect_down.c \
-dual.c \
-refine_nodal.c \
-refine_conserve.c \
-refine_qualities.c \
-doubles.c \
-coarsen.c \
-check_collapse_class.c \
-coarsen_qualities.c \
-coarsen_topology.c \
-coarsen_conserve.c \
-collapses_to_verts.c \
-collapses_to_ents.c \
-mesh.c \
-graph.c \
-warp_to_limit.c \
-eval_field.c \
-element_gradients.c \
-recover_by_volume.c \
-size_from_hessian.c \
-subset.c \
-adapt.c \
-coarsen_common.c \
-mark.c \
-swap.c \
-swap_qualities.c \
-swap_topology.c \
-swap_conserve.c \
-edge_ring.c \
-edge_swap.c \
-edge_swap_edges.c \
-loop_host.c \
-inertia.c \
-derive_sides.c \
-node_ele_io.c \
-tag.c \
-element_field.c \
-mesh_diff.c \
-qr.c \
-omega_h.c \
-comm.c \
-files.c \
-global.c \
-base64.c \
-invert_map.c \
-owners_from_global.c \
-gmsh_io.c \
-exchanger.c \
-parallel_inertial_bisect.c \
-parallel_mesh.c \
-parallel_modify.c \
-arrays.c \
-migrate_mesh.c \
-bcast.c \
-close_partition.c \
-ghost_mesh.c \
-derive_model.c \
-compress.c \
-inherit.c
+swap_fit.cpp \
+coarsen_fit.cpp \
+refine_fit.cpp \
+shuffle_mesh.cpp \
+reorder.cpp \
+bfs.cpp \
+star.cpp \
+tables.cpp \
+up_from_down.cpp \
+ints.cpp \
+vtk_io.cpp \
+refine_topology.cpp \
+splits_to_domains.cpp \
+quality.cpp \
+size.cpp \
+bridge_graph.cpp \
+refine_common.cpp \
+refine.cpp \
+indset.cpp \
+reflect_down.cpp \
+dual.cpp \
+refine_nodal.cpp \
+refine_conserve.cpp \
+refine_qualities.cpp \
+doubles.cpp \
+coarsen.cpp \
+check_collapse_class.cpp \
+coarsen_qualities.cpp \
+coarsen_topology.cpp \
+coarsen_conserve.cpp \
+collapses_to_verts.cpp \
+collapses_to_ents.cpp \
+mesh.cpp \
+graph.cpp \
+warp_to_limit.cpp \
+eval_field.cpp \
+element_gradients.cpp \
+recover_by_volume.cpp \
+size_from_hessian.cpp \
+subset.cpp \
+adapt.cpp \
+coarsen_common.cpp \
+mark.cpp \
+swap.cpp \
+swap_qualities.cpp \
+swap_topology.cpp \
+swap_conserve.cpp \
+edge_ring.cpp \
+edge_swap.cpp \
+edge_swap_edges.cpp \
+loop_host.cpp \
+inertia.cpp \
+derive_sides.cpp \
+node_ele_io.cpp \
+tag.cpp \
+element_field.cpp \
+mesh_diff.cpp \
+qr.cpp \
+omega_h.cpp \
+comm.cpp \
+files.cpp \
+global.cpp \
+base64.cpp \
+invert_map.cpp \
+owners_from_global.cpp \
+gmsh_io.cpp \
+exchanger.cpp \
+parallel_inertial_bisect.cpp \
+parallel_mesh.cpp \
+parallel_modify.cpp \
+arrays.cpp \
+migrate_mesh.cpp \
+bcast.cpp \
+close_partition.cpp \
+ghost_mesh.cpp \
+derive_model.cpp \
+compress.cpp \
+inherit.cpp
 
 #handle optional features:
 PREFIX ?= /usr/local
@@ -127,20 +127,20 @@ MPIRUN ?= mpirun
 VALGRIND ?= ""
 PATIENT ?= 0
 SHARED ?= 0
-#comm.c is compiled with -DUSE_MPI=
+#comm.cpp is compiled with -DUSE_MPI=
 objs/comm.o : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
 deps/comm.dep : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
 ifeq "$(USE_MPI)" "1"
-lib_sources += compat_mpi.c
+lib_sources += compat_mpi.cpp
 objs/compat_mpi.o : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
 deps/compat_mpi.dep : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
 endif
 objs/loop_host.o : CPPFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
-lib_sources += loop_$(LOOP_MODE).c
+lib_sources += loop_$(LOOP_MODE).cpp
 ifeq "$(LOOP_MODE)" "cuda"
 objs/loop_cuda.o : CPPFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
 else
-test_sources += test_print_swap_edges.c
+test_sources += test_print_swap_edges.cpp
 endif
 objs/compress.o : CPPFLAGS += -DUSE_ZLIB=$(USE_ZLIB)
 ifeq "$(USE_ZLIB)" "1"
@@ -154,11 +154,11 @@ endif
 
 #generated file names are derived from source
 #file names by simple patterns:
-exes := $(patsubst test_%.c,bin/%.exe,$(test_sources))
-test_objects := $(patsubst %.c,objs/%.o,$(test_sources))
-lib_objects := $(patsubst %.c,objs/%.o,$(lib_sources))
-depfiles := $(patsubst %.c,deps/%.dep,$(lib_sources)) \
-$(patsubst %.c,deps/%.dep,$(test_sources))
+exes := $(patsubst test_%.cpp,bin/%.exe,$(test_sources))
+test_objects := $(patsubst %.cpp,objs/%.o,$(test_sources))
+lib_objects := $(patsubst %.cpp,objs/%.o,$(lib_sources))
+depfiles := $(patsubst %.cpp,deps/%.dep,$(lib_sources)) \
+$(patsubst %.cpp,deps/%.dep,$(test_sources))
 
 #the default compilation target is to compile
 #the library and all executables
@@ -167,14 +167,14 @@ all: $(libraries) $(exes)
 #cleanup removes dependency files, object files,
 #and executables
 clean:
-	rm -rf deps/ objs/ bin/ lib/ loop.h
+	rm -rf deps/ objs/ bin/ lib/ loop.hpp
 
 #just targets, not files or directories
 .PHONY: all clean check install dep coverage
 
 #our rule for compiling a source file to an
 #object, specifies that the object goes in objs/
-objs/%.o: %.c | objs
+objs/%.o: %.cpp | objs
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
 lib/libomega_h_internal.a: $(lib_objects) | lib
@@ -192,17 +192,17 @@ lib/libomega_h.so: $(lib_objects) | lib
 bin/%.exe: objs/test_%.o lib/libomega_h_internal.a | bin
 	$(CC) $(LDFLAGS) -L./lib -o $@ objs/test_$*.o -lomega_h_internal $(LDLIBS)
 
-#loop.h is a copy of one of several existing files,
+#loop.hpp is a copy of one of several existing files,
 #chosen at compile time based on the kind of
 #shared memory loop parallelism we want
-loop.h : loop_$(LOOP_MODE).h
+loop.hpp : loop_$(LOOP_MODE).hpp
 	cp $< $@
 
 #make output directories if they don't yet exist.
 #rules that generate files in these directories
 #will depend on the directory as an "order-only"
 #target by putting it after a pipe like this:
-#  objs/%.o : %.c | objs
+#  objs/%.o : %.cpp | objs
 #this is needed because updating a file in a
 #directory makes that directory "newer" than the
 #file, which would cause an infinite loop in make.
@@ -221,21 +221,21 @@ deps:
 #such that the output is both an object file and a
 #dependency file.
 #It warrants further explanation:
-#  cc -M foo.c
+#  cc -M foo.cpp
 #will produce a dependency line such as:
-#  foo.o : foo.c foo.h bar.h
+#  foo.o : foo.cpp foo.hpp bar.hpp
 #The SED script changes this to:
-#  objs/foo.o deps/foo.dep : foo.c foo.h bar.h
+#  objs/foo.o deps/foo.dep : foo.cpp foo.hpp bar.hpp
 #$* is the same as the % in the rule pattern,
 #"foo" in the example above.
 #the $@ will insert the "deps/foo.dep"
 #
-#loop.h is thrown in as a dependency because it
+#loop.hpp is thrown in as a dependency because it
 #may not exist when the depfiles are being generated,
 #causing an error when cc -M doesn't find it,
 #and the knowedge that the depfile depends on it
 #in the depfile itself !
-deps/%.dep: %.c loop.h | deps
+deps/%.dep: %.cpp loop.hpp | deps
 	set -e; rm -f $@; \
 	$(CPP) -M $(CPPFLAGS) $< > $@.in; \
 	sed 's,$*\.o,objs/$*.o $@,g' < $@.in > $@; \
@@ -259,7 +259,7 @@ install: all
 	install -d $(PREFIX)/lib
 	install -m 644 $(libraries) $(PREFIX)/lib
 	install -d $(PREFIX)/include
-	install -m 644 include/omega_h.h $(PREFIX)/include
+	install -m 644 include/omega_h.hpp $(PREFIX)/include
 	install -d $(PREFIX)/share/man/man3
 	install -m 644 share/man/man3/*.3 $(PREFIX)/share/man/man3
 
@@ -280,4 +280,4 @@ coverage: objs scratch
 	genhtml scratch/coverage.info --output-directory lcov-output
 
 doc:
-	doctext -mpath share/man/man3 -ext 3 -nolocation omega_h.c
+	doctext -mpath share/man/man3 -ext 3 -nolocation omega_h.cpp
