@@ -32,7 +32,7 @@ FILE* safe_fopen(char const* filename, char const* mode);
 
 static inline LOOP_INOUT void swap_one(void* a, unsigned width)
 {
-  unsigned char* b = (unsigned char*) a;
+  unsigned char* b = static_cast<unsigned char*>(a);
   for (unsigned j = 0; j < width/2; ++j) {
     unsigned char tmp = b[j];
     b[j] = b[width - j - 1];

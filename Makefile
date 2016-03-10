@@ -237,7 +237,7 @@ deps:
 #in the depfile itself !
 deps/%.dep: %.cpp loop.hpp | deps
 	set -e; rm -f $@; \
-	$(CPP) -M $(CPPFLAGS) $< > $@.in; \
+	$(CXX) -M $(CPPFLAGS) $< > $@.in; \
 	sed 's,$*\.o,objs/$*.o $@,g' < $@.in > $@; \
 	rm -f $@.in
 
