@@ -1,12 +1,12 @@
-#include "inertia.h"
+#include "inertia.hpp"
 
 #include <math.h>
 
-#include "algebra.h"
-#include "comm.h"
-#include "doubles.h"
-#include "loop.h"
-#include "qr.h"
+#include "algebra.hpp"
+#include "comm.hpp"
+#include "doubles.hpp"
+#include "loop.hpp"
+#include "qr.hpp"
 
 static inline void zero_3x3(double a[3][3])
 {

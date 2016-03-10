@@ -1,8 +1,8 @@
-#include "doubles.h"
+#include "doubles.hpp"
 
 #include <float.h>
 
-#include "loop.h"
+#include "loop.hpp"
 
 #ifdef LOOP_CUDA_H
 #include <thrust/reduce.h>

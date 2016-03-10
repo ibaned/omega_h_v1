@@ -1,4 +1,4 @@
-#include "files.h"
+#include "files.hpp"
 
 #include <assert.h>
 #include <stdarg.h>
@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "arrays.h"
-#include "loop.h"
+#include "arrays.hpp"
+#include "loop.hpp"
 
 static unsigned count_digits(unsigned x)
 {

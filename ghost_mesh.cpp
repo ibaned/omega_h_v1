@@ -1,18 +1,18 @@
-#include "ghost_mesh.h"
+#include "ghost_mesh.hpp"
 
 #include <assert.h>
 #include <string.h>
 
-#include "arrays.h"
-#include "close_partition.h"
-#include "exchanger.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "migrate_mesh.h"
-#include "parallel_mesh.h"
-#include "subset.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "close_partition.hpp"
+#include "exchanger.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "migrate_mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "subset.hpp"
+#include "tables.hpp"
 
 /* this function is analogous to
    get_vert_use_owners_of_elems

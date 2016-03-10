@@ -1,11 +1,11 @@
-#include "refine_topology.h"
+#include "refine_topology.hpp"
 
 #include <assert.h>
 
-#include "arrays.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
 
 /* two more dimensions are introduced in the implementation:
  *   the "base" dimension is the product dimension minus one,

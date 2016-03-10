@@ -1,5 +1,5 @@
-#include "mesh.h"
-#include "vtk_io.h"
+#include "mesh.hpp"
+#include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {

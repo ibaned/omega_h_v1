@@ -1,12 +1,12 @@
-#include "mark.h"
+#include "mark.hpp"
 
 #include <assert.h>
 
-#include "loop.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "quality.h"
-#include "tables.h"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "quality.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(mark_down_kern,
     unsigned const* highs_of_lows_offsets,

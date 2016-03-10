@@ -1,8 +1,8 @@
-#include "invert_map.h"
+#include "invert_map.hpp"
 
-#include "arrays.h"
-#include "ints.h"
-#include "loop.h"
+#include "arrays.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
 
 #ifdef LOOP_CUDA_H
 

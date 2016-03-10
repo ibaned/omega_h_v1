@@ -1,10 +1,10 @@
-#include "base64.h"
+#include "base64.hpp"
 
 #include <assert.h>
 #include <string.h>
 
-#include "files.h"
-#include "loop.h"
+#include "files.hpp"
+#include "loop.hpp"
 
 static char const* const value_to_char =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

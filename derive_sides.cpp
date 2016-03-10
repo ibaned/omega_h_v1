@@ -1,9 +1,9 @@
-#include "derive_sides.h"
+#include "derive_sides.hpp"
 
 #include <assert.h>
 
-#include "loop.h"
-#include "tables.h"
+#include "loop.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(derive_side,
     unsigned elem_dim,

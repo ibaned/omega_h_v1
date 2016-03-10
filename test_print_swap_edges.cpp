@@ -1,12 +1,12 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "edge_swap.h"
-#include "files.h"
-#include "ints.h"
-#include "mark.h"
-#include "mesh.h"
-#include "loop.h"
+#include "edge_swap.hpp"
+#include "files.hpp"
+#include "ints.hpp"
+#include "mark.hpp"
+#include "mesh.hpp"
+#include "loop.hpp"
 
 int main()
 {

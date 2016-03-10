@@ -3,19 +3,19 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#include "adapt.h"
-#include "algebra.h"
-#include "comm.h"
-#include "derive_model.h"
-#include "doubles.h"
-#include "element_field.h"
-#include "eval_field.h"
-#include "mesh.h"
-#include "refine.h"
-#include "reorder.h"
-#include "shuffle_mesh.h"
-#include "vtk_io.h"
-#include "warp_to_limit.h"
+#include "adapt.hpp"
+#include "algebra.hpp"
+#include "comm.hpp"
+#include "derive_model.hpp"
+#include "doubles.hpp"
+#include "element_field.hpp"
+#include "eval_field.hpp"
+#include "mesh.hpp"
+#include "refine.hpp"
+#include "reorder.hpp"
+#include "shuffle_mesh.hpp"
+#include "vtk_io.hpp"
+#include "warp_to_limit.hpp"
 
 static double const warp_qual_floor = 0.2;
 static double const good_qual_floor = 0.3;

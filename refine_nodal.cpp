@@ -1,9 +1,9 @@
-#include "refine_nodal.h"
+#include "refine_nodal.hpp"
 
-#include "arrays.h"
-#include "element_field.h"
-#include "loop.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "element_field.hpp"
+#include "loop.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(refine_node,
     unsigned const* verts_of_srcs,

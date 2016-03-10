@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "comm.h"
-#include "mesh.h"
-#include "mesh_diff.h"
-#include "vtk_io.h"
+#include "comm.hpp"
+#include "mesh.hpp"
+#include "mesh_diff.hpp"
+#include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {

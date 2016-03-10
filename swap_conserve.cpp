@@ -1,12 +1,12 @@
-#include "swap_conserve.h"
+#include "swap_conserve.hpp"
 
 #include <assert.h>
 
-#include "algebra.h"
-#include "arrays.h"
-#include "loop.h"
-#include "mesh.h"
-#include "size.h"
+#include "algebra.hpp"
+#include "arrays.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "size.hpp"
 
 #define MAX_NCOMPS 32
 

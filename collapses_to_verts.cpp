@@ -1,12 +1,12 @@
-#include "collapses_to_verts.h"
+#include "collapses_to_verts.hpp"
 
 #include <assert.h>
 
-#include "collapse_codes.h"
-#include "loop.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "tables.h"
+#include "collapse_codes.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(collapse_to_vert,
     unsigned const* edges_of_verts_offsets,

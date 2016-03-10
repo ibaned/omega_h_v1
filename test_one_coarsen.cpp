@@ -1,10 +1,10 @@
 #include <assert.h>
 
-#include "arrays.h"
-#include "comm.h"
-#include "mesh.h"
-#include "coarsen.h"
-#include "vtk_io.h"
+#include "arrays.hpp"
+#include "comm.hpp"
+#include "mesh.hpp"
+#include "coarsen.hpp"
+#include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {

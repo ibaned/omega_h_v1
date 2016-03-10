@@ -1,11 +1,11 @@
-#include "dual.h"
+#include "dual.hpp"
 
 #include <assert.h>
 
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
 
 LOOP_INOUT static unsigned copy_except(
     unsigned const* a,

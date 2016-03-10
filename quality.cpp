@@ -1,12 +1,12 @@
-#include "quality.h"
+#include "quality.hpp"
 
-#include "arrays.h"
-#include "doubles.h"
-#include "loop.h"
-#include "mesh.h"
-#include "size.h"
-#include "tables.h"
-#include "tag.h"
+#include "arrays.hpp"
+#include "doubles.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "size.hpp"
+#include "tables.hpp"
+#include "tag.hpp"
 
 LOOP_KERNEL(elem_quality_kern,
     unsigned const* verts_of_elems,

@@ -1,15 +1,15 @@
-#include "exchanger.h"
+#include "exchanger.hpp"
 
 #include <assert.h>
 #include <string.h>
 
-#include "arrays.h"
-#include "comm.h"
-#include "global.h"
-#include "ints.h"
-#include "invert_map.h"
-#include "loop.h"
-#include "tag.h"
+#include "arrays.hpp"
+#include "comm.hpp"
+#include "global.hpp"
+#include "ints.hpp"
+#include "invert_map.hpp"
+#include "loop.hpp"
+#include "tag.hpp"
 
 /* given an array that indicates which rank an
    entry is going to,

@@ -1,13 +1,13 @@
-#include "indset.h"
+#include "indset.hpp"
 
 #include <stdlib.h>
 
-#include "arrays.h"
-#include "comm.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
+#include "arrays.hpp"
+#include "comm.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
 
 /* given an undirected graph (usually obtained from get_star),
  * an initial filtered subset of the vertices,

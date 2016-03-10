@@ -1,9 +1,9 @@
 #include <assert.h>
 
-#include "comm.h"
-#include "mesh.h"
-#include "swap.h"
-#include "vtk_io.h"
+#include "comm.hpp"
+#include "mesh.hpp"
+#include "swap.hpp"
+#include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {

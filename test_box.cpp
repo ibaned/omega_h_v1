@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "algebra.h"
-#include "derive_model.h"
-#include "eval_field.h"
-#include "mesh.h"
-#include "include/omega_h.h"
-#include "refine.h"
-#include "vtk_io.h"
+#include "algebra.hpp"
+#include "derive_model.hpp"
+#include "eval_field.hpp"
+#include "mesh.hpp"
+#include "include/omega_h.hpp"
+#include "refine.hpp"
+#include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {

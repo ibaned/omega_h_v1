@@ -1,13 +1,13 @@
-#include "warp_to_limit.h"
+#include "warp_to_limit.hpp"
 
 #include <stdio.h>
 
-#include "doubles.h"
-#include "comm.h"
-#include "loop.h"
-#include "mesh.h"
-#include "quality.h"
-#include "tag.h"
+#include "doubles.hpp"
+#include "comm.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "quality.hpp"
+#include "tag.hpp"
 
 static unsigned exceeds_limit(
     unsigned elem_dim,

@@ -1,18 +1,18 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "algebra.h"
-#include "arrays.h"
-#include "comm.h"
-#include "derive_model.h"
-#include "doubles.h"
-#include "eval_field.h"
-#include "loop.h"
-#include "mesh.h"
-#include "quality.h"
-#include "refine.h"
-#include "tag.h"
-#include "vtk_io.h"
+#include "algebra.hpp"
+#include "arrays.hpp"
+#include "comm.hpp"
+#include "derive_model.hpp"
+#include "doubles.hpp"
+#include "eval_field.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "quality.hpp"
+#include "refine.hpp"
+#include "tag.hpp"
+#include "vtk_io.hpp"
 
 static void size_fun(double const* x, double* s)
 {

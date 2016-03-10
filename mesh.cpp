@@ -1,20 +1,20 @@
-#include "mesh.h"
+#include "mesh.hpp"
 
 #include <assert.h>
 #include <string.h>
 
-#include "arrays.h"
-#include "bridge_graph.h"
-#include "derive_sides.h"
-#include "dual.h"
-#include "graph.h"
-#include "ints.h"
-#include "loop.h"
-#include "parallel_mesh.h"
-#include "reflect_down.h"
-#include "star.h"
-#include "tables.h"
-#include "up_from_down.h"
+#include "arrays.hpp"
+#include "bridge_graph.hpp"
+#include "derive_sides.hpp"
+#include "dual.hpp"
+#include "graph.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "parallel_mesh.hpp"
+#include "reflect_down.hpp"
+#include "star.hpp"
+#include "tables.hpp"
+#include "up_from_down.hpp"
 
 struct up {
   unsigned* offsets;

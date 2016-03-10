@@ -1,11 +1,11 @@
-#include "tag.h"
+#include "tag.hpp"
 
 #include <assert.h>
 #include <string.h>
 
-#include "arrays.h"
-#include "exchanger.h"
-#include "loop.h"
+#include "arrays.hpp"
+#include "exchanger.hpp"
+#include "loop.hpp"
 
 #ifdef __clang__
 #pragma clang diagnostic push

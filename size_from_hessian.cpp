@@ -1,11 +1,11 @@
-#include "size_from_hessian.h"
+#include "size_from_hessian.hpp"
 
 #include <assert.h>
 
-#include "algebra.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tag.h"
+#include "algebra.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tag.hpp"
 
 LOOP_KERNEL(vert_size_from_hessian,
     unsigned nhess_comps,

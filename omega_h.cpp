@@ -1,16 +1,16 @@
-#include "include/omega_h.h"
+#include "include/omega_h.hpp"
 
-#include "adapt.h"
-#include "comm.h"
-#include "ghost_mesh.h"
-#include "loop.h"
-#include "mark.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "size.h"
-#include "tag.h"
-#include "tables.h"
-#include "vtk_io.h"
+#include "adapt.hpp"
+#include "comm.hpp"
+#include "ghost_mesh.hpp"
+#include "loop.hpp"
+#include "mark.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "size.hpp"
+#include "tag.hpp"
+#include "tables.hpp"
+#include "vtk_io.hpp"
 
 /*@
   osh_init - Initializes omega_h.

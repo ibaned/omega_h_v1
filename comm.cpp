@@ -1,12 +1,12 @@
-#include "comm.h"
+#include "comm.hpp"
 
 #include <assert.h>
 
-#include "loop.h"
+#include "loop.hpp"
 
 #if USE_MPI
 
-#include "compat_mpi.h"
+#include "compat_mpi.hpp"
 
 static struct comm world = { MPI_COMM_WORLD };
 static struct comm self = { MPI_COMM_SELF };

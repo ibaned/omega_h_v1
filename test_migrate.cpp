@@ -1,15 +1,15 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "bcast.h"
-#include "comm.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "migrate_mesh.h"
-#include "parallel_mesh.h"
-#include "subset.h"
-#include "vtk_io.h"
+#include "bcast.hpp"
+#include "comm.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "migrate_mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "subset.hpp"
+#include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {

@@ -1,9 +1,9 @@
-#include "recover_by_volume.h"
+#include "recover_by_volume.hpp"
 
-#include "loop.h"
-#include "mesh.h"
-#include "size.h"
-#include "tag.h"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "size.hpp"
+#include "tag.hpp"
 
 LOOP_KERNEL(recover_vert_by_volume,
     unsigned const* elems_of_verts_offsets,

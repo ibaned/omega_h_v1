@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-#include "arrays.h"
-#include "loop.h"
-#include "mesh.h"
-#include "include/omega_h.h"
+#include "arrays.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "include/omega_h.hpp"
 
 int main()
 {

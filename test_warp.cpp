@@ -2,18 +2,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "adapt.h"
-#include "algebra.h"
-#include "comm.h"
-#include "derive_model.h"
-#include "element_gradients.h"
-#include "eval_field.h"
-#include "mesh.h"
-#include "recover_by_volume.h"
-#include "refine.h"
-#include "size_from_hessian.h"
-#include "vtk_io.h"
-#include "warp_to_limit.h"
+#include "adapt.hpp"
+#include "algebra.hpp"
+#include "comm.hpp"
+#include "derive_model.hpp"
+#include "element_gradients.hpp"
+#include "eval_field.hpp"
+#include "mesh.hpp"
+#include "recover_by_volume.hpp"
+#include "refine.hpp"
+#include "size_from_hessian.hpp"
+#include "vtk_io.hpp"
+#include "warp_to_limit.hpp"
 
 struct mesh;
 

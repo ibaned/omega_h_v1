@@ -1,9 +1,9 @@
-#include "bfs.h"
+#include "bfs.hpp"
 
 #include <assert.h>
 
-#include "loop.h"
-#include "tables.h"
+#include "loop.hpp"
+#include "tables.hpp"
 
 /* none of the functions in this file
    are parallelized via the LOOP mechanism.

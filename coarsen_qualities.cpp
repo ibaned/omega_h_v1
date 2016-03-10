@@ -1,11 +1,11 @@
-#include "coarsen_qualities.h"
+#include "coarsen_qualities.hpp"
 
-#include "algebra.h"
-#include "arrays.h"
-#include "collapse_codes.h"
-#include "loop.h"
-#include "quality.h"
-#include "tables.h"
+#include "algebra.hpp"
+#include "arrays.hpp"
+#include "collapse_codes.hpp"
+#include "loop.hpp"
+#include "quality.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(coarsen_quality,
     unsigned elem_dim,

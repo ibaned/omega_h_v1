@@ -12,7 +12,7 @@
    we don't bother identifying unique edges because no caching
    is necessary for these intermediate entities */
 
-#include "edge_swap.h"
+#include "edge_swap.hpp"
 
 LOOP_CONST static unsigned const edges_4_0[1 * 2] =
 {2,0

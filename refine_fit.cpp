@@ -1,9 +1,9 @@
-#include "refine_fit.h"
+#include "refine_fit.hpp"
 
-#include "arrays.h"
-#include "inherit.h"
-#include "loop.h"
-#include "mesh.h"
+#include "arrays.hpp"
+#include "inherit.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
 
 LOOP_KERNEL(refine_fit_elem,
     unsigned const* prods_of_doms_offsets,

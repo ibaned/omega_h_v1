@@ -1,10 +1,10 @@
 #include <assert.h>
 
-#include "arrays.h"
-#include "comm.h"
-#include "node_ele_io.h"
-#include "mesh.h"
-#include "vtk_io.h"
+#include "arrays.hpp"
+#include "comm.hpp"
+#include "node_ele_io.hpp"
+#include "mesh.hpp"
+#include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {

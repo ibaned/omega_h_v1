@@ -1,6 +1,6 @@
-#include "ints.h"
+#include "ints.hpp"
 
-#include "loop.h"
+#include "loop.hpp"
 
 #if defined(LOOP_CUDA_H)
 #include <thrust/reduce.h>

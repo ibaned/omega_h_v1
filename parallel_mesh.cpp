@@ -1,21 +1,21 @@
-#include "parallel_mesh.h"
+#include "parallel_mesh.hpp"
 
 #include <assert.h>
 #include <string.h>
 
-#include "arrays.h"
-#include "algebra.h"
-#include "bcast.h"
-#include "comm.h"
-#include "doubles.h"
-#include "exchanger.h"
-#include "global.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "owners_from_global.h"
-#include "parallel_inertial_bisect.h"
-#include "vtk_io.h"
+#include "arrays.hpp"
+#include "algebra.hpp"
+#include "bcast.hpp"
+#include "comm.hpp"
+#include "doubles.hpp"
+#include "exchanger.hpp"
+#include "global.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "owners_from_global.hpp"
+#include "parallel_inertial_bisect.hpp"
+#include "vtk_io.hpp"
 
 struct parallel_mesh {
   unsigned long* globals[4];

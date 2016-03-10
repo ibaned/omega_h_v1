@@ -1,9 +1,9 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "comm.h"
-#include "mesh.h"
-#include "vtk_io.h"
+#include "comm.hpp"
+#include "mesh.hpp"
+#include "vtk_io.hpp"
 
 static void write_graph(char const* filename,
     unsigned n,

@@ -1,14 +1,14 @@
-#include "coarsen_fit.h"
+#include "coarsen_fit.hpp"
 
 #include <assert.h>
 
-#include "algebra.h"
-#include "arrays.h"
-#include "element_field.h"
-#include "loop.h"
-#include "mesh.h"
-#include "qr.h"
-#include "size.h"
+#include "algebra.hpp"
+#include "arrays.hpp"
+#include "element_field.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "qr.hpp"
+#include "size.hpp"
 
 #define MAX_NCOMPS 32
 

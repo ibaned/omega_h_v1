@@ -1,14 +1,14 @@
-#include "element_gradients.h"
+#include "element_gradients.hpp"
 
 #include <assert.h>
 #include <string.h>
 
-#include "algebra.h"
-#include "jacobian.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
-#include "tag.h"
+#include "algebra.hpp"
+#include "jacobian.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
+#include "tag.hpp"
 
 LOOP_KERNEL(execute,
     unsigned elem_dim,

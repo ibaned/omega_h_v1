@@ -1,8 +1,8 @@
 #include <assert.h>
 
-#include "comm.h"
-#include "mesh.h"
-#include "vtk_io.h"
+#include "comm.hpp"
+#include "mesh.hpp"
+#include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {

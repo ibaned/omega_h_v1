@@ -1,12 +1,12 @@
-#include "shuffle_mesh.h"
+#include "shuffle_mesh.hpp"
 
-#include "arrays.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "reorder.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "reorder.hpp"
+#include "tables.hpp"
 
 static void shuffle_tags(struct mesh* in, struct mesh* out,
     unsigned dim, unsigned const* old_to_new)

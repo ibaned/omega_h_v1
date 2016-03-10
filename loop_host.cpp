@@ -1,4 +1,4 @@
-#include "loop_host.h"
+#include "loop_host.hpp"
 
 #include <assert.h>
 #include <stdlib.h>

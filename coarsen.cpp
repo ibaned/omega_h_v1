@@ -1,12 +1,12 @@
-#include "coarsen.h"
+#include "coarsen.hpp"
 
-#include "coarsen_common.h"
-#include "collapse_codes.h"
-#include "ghost_mesh.h"
-#include "loop.h"
-#include "mark.h"
-#include "mesh.h"
-#include "size.h"
+#include "coarsen_common.hpp"
+#include "collapse_codes.hpp"
+#include "ghost_mesh.hpp"
+#include "loop.hpp"
+#include "mark.hpp"
+#include "mesh.hpp"
+#include "size.hpp"
 
 LOOP_KERNEL(coarsen_size_code,
     double const* edge_sizes,

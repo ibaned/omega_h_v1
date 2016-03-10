@@ -1,14 +1,14 @@
-#include "owners_from_global.h"
+#include "owners_from_global.hpp"
 
 #include <assert.h>
 
-#include "comm.h"
-#include "exchanger.h"
-#include "global.h"
-#include "ints.h"
-#include "invert_map.h"
-#include "loop.h"
-#include "tables.h"
+#include "comm.hpp"
+#include "exchanger.hpp"
+#include "global.hpp"
+#include "ints.hpp"
+#include "invert_map.hpp"
+#include "loop.hpp"
+#include "tables.hpp"
 
 static void setup_linpart(
     unsigned n,

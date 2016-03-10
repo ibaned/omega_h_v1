@@ -1,9 +1,9 @@
-#include "element_field.h"
+#include "element_field.hpp"
 
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
-#include "tag.h"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
+#include "tag.hpp"
 
 LOOP_KERNEL(interp_to_elem,
     unsigned const* verts_of_elems,

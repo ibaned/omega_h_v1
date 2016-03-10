@@ -1,9 +1,9 @@
-#include "eval_field.h"
+#include "eval_field.hpp"
 
-#include "arrays.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tag.h"
+#include "arrays.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tag.hpp"
 
 /* for now, we carry this out on the host.
    if we want this done on the device, then

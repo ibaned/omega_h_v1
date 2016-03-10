@@ -1,11 +1,11 @@
-#include "check_collapse_class.h"
+#include "check_collapse_class.hpp"
 
 #include <assert.h>
 
-#include "collapse_codes.h"
-#include "ints.h"
-#include "mesh.h"
-#include "tables.h"
+#include "collapse_codes.hpp"
+#include "ints.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
 
 /* for now we'll just do the simple check and skip
    things like rings and exposed curved faces */

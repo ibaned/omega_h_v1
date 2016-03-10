@@ -1,12 +1,12 @@
-#include "splits_to_domains.h"
+#include "splits_to_domains.hpp"
 
 #include <assert.h>
 
-#include "arrays.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(split_to_domain,
     unsigned const* srcs_of_doms,

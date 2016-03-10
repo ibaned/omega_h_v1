@@ -1,4 +1,4 @@
-#include "qr.h"
+#include "qr.hpp"
 
 #include <stdio.h>
 

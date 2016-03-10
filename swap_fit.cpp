@@ -1,15 +1,15 @@
-#include "swap_fit.h"
+#include "swap_fit.hpp"
 
 #include <assert.h>
 #include <stdio.h>
 
-#include "algebra.h"
-#include "arrays.h"
-#include "element_field.h"
-#include "loop.h"
-#include "mesh.h"
-#include "qr.h"
-#include "size.h"
+#include "algebra.hpp"
+#include "arrays.hpp"
+#include "element_field.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "qr.hpp"
+#include "size.hpp"
 
 /* I tried to fit a linear polynomial here,
    but because these are tetrahedra around

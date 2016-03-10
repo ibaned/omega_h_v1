@@ -1,15 +1,15 @@
-#include "mesh_diff.h"
+#include "mesh_diff.hpp"
 
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "doubles.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
-#include "tag.h"
+#include "doubles.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
+#include "tag.hpp"
 
 static unsigned doubles_diff(double const* a, double const* b, unsigned n,
     double tol, double floor)

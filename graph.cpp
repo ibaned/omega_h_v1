@@ -1,6 +1,6 @@
-#include "graph.h"
+#include "graph.hpp"
 
-#include "loop.h"
+#include "loop.hpp"
 
 struct graph* osh_new_graph(unsigned* offsets, unsigned* adj)
 {

@@ -1,13 +1,13 @@
-#include "inherit.h"
+#include "inherit.hpp"
 
 #include <assert.h>
 
-#include "arrays.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "refine_topology.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "refine_topology.hpp"
+#include "tables.hpp"
 
 void make_ngen_from_doms(
     unsigned const ndoms[4],

@@ -1,11 +1,11 @@
-#include "bridge_graph.h"
+#include "bridge_graph.hpp"
 
 #include <assert.h>
 
-#include "arrays.h"
-#include "ints.h"
-#include "loop.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(degree_count,
     unsigned const* adj,

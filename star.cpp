@@ -1,12 +1,12 @@
-#include "star.h"
+#include "star.hpp"
 
 #include <assert.h>
 
-#include "arrays.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
 
 static LOOP_IN unsigned get_ent_star_general(
     unsigned const* highs_of_lows_offsets,

@@ -1,4 +1,4 @@
-#include "loop_cuda.h"
+#include "loop_cuda.hpp"
 
 void* loop_cuda_malloc(unsigned long n)
 {

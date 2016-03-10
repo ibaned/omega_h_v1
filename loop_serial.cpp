@@ -1,4 +1,4 @@
-#include "loop_serial.h"
+#include "loop_serial.hpp"
 
 unsigned loop_size(void)
 {

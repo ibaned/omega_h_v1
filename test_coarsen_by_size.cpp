@@ -1,18 +1,18 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "algebra.h"
-#include "arrays.h"
-#include "coarsen.h"
-#include "derive_model.h"
-#include "doubles.h"
-#include "eval_field.h"
-#include "mesh.h"
-#include "include/omega_h.h"
-#include "quality.h"
-#include "refine.h"
-#include "subset.h"
-#include "vtk_io.h"
+#include "algebra.hpp"
+#include "arrays.hpp"
+#include "coarsen.hpp"
+#include "derive_model.hpp"
+#include "doubles.hpp"
+#include "eval_field.hpp"
+#include "mesh.hpp"
+#include "include/omega_h.hpp"
+#include "quality.hpp"
+#include "refine.hpp"
+#include "subset.hpp"
+#include "vtk_io.hpp"
 
 static void fine_fun(double const* x, double* s)
 {

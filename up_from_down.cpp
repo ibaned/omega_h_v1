@@ -1,8 +1,8 @@
-#include "up_from_down.h"
+#include "up_from_down.hpp"
 
-#include "invert_map.h"
-#include "loop.h"
-#include "tables.h"
+#include "invert_map.hpp"
+#include "loop.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(separate,
     unsigned* directions,

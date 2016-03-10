@@ -1,21 +1,21 @@
-#include "vtk_io.h"
+#include "vtk_io.hpp"
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "arrays.h"
-#include "base64.h"
-#include "comm.h"
-#include "compress.h"
-#include "files.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "tables.h"
-#include "tag.h"
+#include "arrays.hpp"
+#include "base64.hpp"
+#include "comm.hpp"
+#include "compress.hpp"
+#include "files.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "tables.hpp"
+#include "tag.hpp"
 
 enum cell_type {
   VTK_VERTEX         = 1,

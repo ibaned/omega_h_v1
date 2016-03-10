@@ -1,6 +1,6 @@
-#include "compat_mpi.h"
+#include "compat_mpi.hpp"
 
-#include "loop_host.h"
+#include "loop_host.hpp"
 
 /* this file exists to support MPI_VERSION < 3.
    it implements some of the high-level Neighbor

@@ -1,9 +1,9 @@
-#include "global.h"
+#include "global.hpp"
 
-#include "arrays.h"
-#include "comm.h"
-#include "ints.h"
-#include "loop.h"
+#include "arrays.hpp"
+#include "comm.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
 
 unsigned long* globalize_offsets(unsigned* local, unsigned n)
 {

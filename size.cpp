@@ -1,13 +1,13 @@
-#include "size.h"
+#include "size.hpp"
 
-#include "algebra.h"
-#include "comm.h"
-#include "doubles.h"
-#include "loop.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "tables.h"
-#include "tag.h"
+#include "algebra.hpp"
+#include "comm.hpp"
+#include "doubles.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "tables.hpp"
+#include "tag.hpp"
 
 LOOP_KERNEL(elem_size,
     unsigned elem_dim,

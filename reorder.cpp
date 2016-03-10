@@ -1,12 +1,12 @@
-#include "reorder.h"
+#include "reorder.hpp"
 
-#include "arrays.h"
-#include "bfs.h"
-#include "ints.h"
-#include "loop.h"
-#include "mark.h"
-#include "mesh.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "bfs.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mark.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
 
 static void get_host_graph(struct mesh* m,
     unsigned** p_offsets,

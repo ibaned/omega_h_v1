@@ -1,18 +1,18 @@
-#include "adapt.h"
+#include "adapt.hpp"
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "coarsen.h"
-#include "comm.h"
-#include "doubles.h"
-#include "loop.h"
-#include "mesh.h"
-#include "quality.h"
-#include "refine.h"
-#include "size.h"
-#include "swap.h"
+#include "coarsen.hpp"
+#include "comm.hpp"
+#include "doubles.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "quality.hpp"
+#include "refine.hpp"
+#include "size.hpp"
+#include "swap.hpp"
 
 static unsigned global_op_count = 0;
 static unsigned global_max_ops = 0;

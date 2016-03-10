@@ -1,8 +1,8 @@
-#include "coarsen_topology.h"
+#include "coarsen_topology.hpp"
 
-#include "arrays.h"
-#include "loop.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "loop.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(coarsen_elem,
     unsigned elem_dim,

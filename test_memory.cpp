@@ -1,9 +1,9 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "loop.h"
-#include "vtk_io.h"
-#include "mesh.h"
+#include "loop.hpp"
+#include "vtk_io.hpp"
+#include "mesh.hpp"
 
 int main(int argc, char** argv)
 {

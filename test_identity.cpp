@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "include/omega_h.h"
+#include "include/omega_h.hpp"
 
 int main(int argc, char** argv)
 {

@@ -1,10 +1,10 @@
-#include "smooth.h"
+#include "smooth.hpp"
 
-#include "algebra.h"
-#include "loop.h"
-#include "mark.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
+#include "algebra.hpp"
+#include "loop.hpp"
+#include "mark.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
 
 LOOP_KERNEL(smooth_field_vert,
     unsigned ncomps,

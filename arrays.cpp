@@ -1,6 +1,6 @@
-#include "arrays.h"
+#include "arrays.hpp"
 
-#include "loop.h"
+#include "loop.hpp"
 
 #if defined(LOOP_CUDA_H)
 #define GENERIC_MEMCPY(T, name) \

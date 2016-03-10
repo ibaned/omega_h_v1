@@ -1,7 +1,7 @@
-#include "tables.h"
+#include "tables.hpp"
 
-#include "arrays.h"
-#include "loop.h"
+#include "arrays.hpp"
+#include "loop.hpp"
 
 static unsigned const box_1d_conn[1 * 2] = {
   0, 1

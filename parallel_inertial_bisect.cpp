@@ -1,19 +1,19 @@
-#include "parallel_inertial_bisect.h"
+#include "parallel_inertial_bisect.hpp"
 
 #include <assert.h>
 
-#include "arrays.h"
-#include "comm.h"
-#include "doubles.h"
-#include "element_field.h"
-#include "exchanger.h"
-#include "global.h"
-#include "ghost_mesh.h"
-#include "inertia.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "migrate_mesh.h"
+#include "arrays.hpp"
+#include "comm.hpp"
+#include "doubles.hpp"
+#include "element_field.hpp"
+#include "exchanger.hpp"
+#include "global.hpp"
+#include "ghost_mesh.hpp"
+#include "inertia.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "migrate_mesh.hpp"
 
 void parallel_inertial_bisect(
     unsigned* p_n,

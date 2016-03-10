@@ -1,15 +1,15 @@
-#include "gmsh_io.h"
+#include "gmsh_io.hpp"
 
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "files.h"
-#include "find_by_verts.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
+#include "files.hpp"
+#include "find_by_verts.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
 
 static unsigned get_gmsh_type_dim(unsigned type)
 {

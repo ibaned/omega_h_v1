@@ -1,12 +1,12 @@
-#include "bcast.h"
+#include "bcast.hpp"
 
 #include <assert.h>
 #include <string.h>
 
-#include "comm.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tag.h"
+#include "comm.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tag.hpp"
 
 static void bcast_tag(struct const_tag* t, struct tags* into)
 {

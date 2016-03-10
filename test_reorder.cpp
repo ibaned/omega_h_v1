@@ -1,9 +1,9 @@
-#include "comm.h"
-#include "loop.h"
-#include "mesh.h"
-#include "reorder.h"
-#include "shuffle_mesh.h"
-#include "vtk_io.h"
+#include "comm.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "reorder.hpp"
+#include "shuffle_mesh.hpp"
+#include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {

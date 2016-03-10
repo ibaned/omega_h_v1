@@ -1,16 +1,16 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "arrays.h"
-#include "bcast.h"
-#include "comm.h"
-#include "global.h"
-#include "loop.h"
-#include "mesh.h"
-#include "migrate_mesh.h"
-#include "include/omega_h.h"
-#include "parallel_mesh.h"
-#include "vtk_io.h"
+#include "arrays.hpp"
+#include "bcast.hpp"
+#include "comm.hpp"
+#include "global.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "migrate_mesh.hpp"
+#include "include/omega_h.hpp"
+#include "parallel_mesh.hpp"
+#include "vtk_io.hpp"
 
 static struct mesh* make_2_tri_parallel(void)
 {

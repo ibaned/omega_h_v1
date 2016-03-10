@@ -1,9 +1,9 @@
 #include <assert.h>
 
-#include "gmsh_io.h"
-#include "mesh.h"
-#include "include/omega_h.h"
-#include "vtk_io.h"
+#include "gmsh_io.hpp"
+#include "mesh.hpp"
+#include "include/omega_h.hpp"
+#include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {

@@ -1,10 +1,10 @@
-#include "refine.h"
+#include "refine.hpp"
 
-#include "arrays.h"
-#include "loop.h"
-#include "mesh.h"
-#include "refine_common.h"
-#include "size.h"
+#include "arrays.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "refine_common.hpp"
+#include "size.hpp"
 
 LOOP_KERNEL(refine_candidate,
     double const* edge_sizes,

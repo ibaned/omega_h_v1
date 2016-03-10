@@ -1,9 +1,9 @@
-#include "edge_ring.h"
+#include "edge_ring.hpp"
 
 #include <assert.h>
 
-#include "edge_swap.h"
-#include "tables.h"
+#include "edge_swap.hpp"
+#include "tables.hpp"
 
 struct ev { unsigned a; unsigned b; };
 

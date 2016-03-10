@@ -1,15 +1,15 @@
-#include "parallel_modify.h"
+#include "parallel_modify.hpp"
 
 #include <assert.h>
 
-#include "arrays.h"
-#include "comm.h"
-#include "exchanger.h"
-#include "ints.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "tables.h"
-#include "vtk_io.h"
+#include "arrays.hpp"
+#include "comm.hpp"
+#include "exchanger.hpp"
+#include "ints.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "tables.hpp"
+#include "vtk_io.hpp"
 
 /* given a ghosted mesh with an independent set
    of some key entities tagged as "indset",

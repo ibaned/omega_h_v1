@@ -1,14 +1,14 @@
-#include "subset.h"
+#include "subset.hpp"
 
 #include <string.h>
 
-#include "arrays.h"
-#include "ints.h"
-#include "loop.h"
-#include "mark.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mark.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "tables.hpp"
 
 void tags_subset(struct mesh* in, struct mesh* out,
     unsigned dim, unsigned const* offsets)

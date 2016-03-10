@@ -1,14 +1,14 @@
-#include "migrate_mesh.h"
+#include "migrate_mesh.hpp"
 
 #include <assert.h>
 
-#include "close_partition.h"
-#include "exchanger.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "tables.h"
+#include "close_partition.hpp"
+#include "exchanger.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "tables.hpp"
 
 static unsigned* use_lids_from_copy_lids(
     struct exchanger* use_to_own,

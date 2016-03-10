@@ -1,15 +1,15 @@
-#include "refine_qualities.h"
+#include "refine_qualities.hpp"
 
 #include <assert.h>
 
-#include "arrays.h"
-#include "algebra.h"
-#include "element_field.h"
-#include "loop.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "quality.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "algebra.hpp"
+#include "element_field.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "quality.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(refine_quality,
     unsigned elem_dim,

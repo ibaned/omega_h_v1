@@ -1,16 +1,16 @@
-#include "derive_model.h"
+#include "derive_model.hpp"
 
 #include <assert.h>
 #include <math.h>
 
-#include "algebra.h"
-#include "arrays.h"
-#include "bfs.h"
-#include "ints.h"
-#include "loop.h"
-#include "mark.h"
-#include "mesh.h"
-#include "tables.h"
+#include "algebra.hpp"
+#include "arrays.hpp"
+#include "bfs.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mark.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
 
 /* a mesh will have these dimensions:
 

@@ -1,10 +1,10 @@
-#include "edge_swap.h"
+#include "edge_swap.hpp"
 
 #include <assert.h>
 
-#include "algebra.h"
-#include "quality.h"
-#include "tables.h"
+#include "algebra.hpp"
+#include "quality.hpp"
+#include "tables.hpp"
 
 /* tables hardcoding all possible 2D meshes (triangulations) of
    an N-sided polygon, where N ranges from 3 to 7.

@@ -1,10 +1,10 @@
-#include "collapses_to_ents.h"
+#include "collapses_to_ents.hpp"
 
-#include "arrays.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
+#include "arrays.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(collapse_to_ent,
     unsigned ent_dim,

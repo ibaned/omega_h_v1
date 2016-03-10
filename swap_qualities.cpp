@@ -1,12 +1,12 @@
-#include "swap_qualities.h"
+#include "swap_qualities.hpp"
 
-#include "algebra.h"
-#include "edge_ring.h"
-#include "edge_swap.h"
-#include "loop.h"
-#include "mesh.h"
-#include "parallel_mesh.h"
-#include "quality.h"
+#include "algebra.hpp"
+#include "edge_ring.hpp"
+#include "edge_swap.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "quality.hpp"
 
 LOOP_KERNEL(swap_quality,
     unsigned const* tets_of_edges_offsets,

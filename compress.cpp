@@ -1,8 +1,8 @@
-#include "compress.h"
+#include "compress.hpp"
 
 #include <assert.h>
 
-#include "loop_host.h"
+#include "loop_host.hpp"
 
 #if USE_ZLIB
 

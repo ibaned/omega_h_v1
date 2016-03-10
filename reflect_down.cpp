@@ -1,12 +1,12 @@
-#include "reflect_down.h"
+#include "reflect_down.hpp"
 
 #include <assert.h>
 
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
-#include "find_by_verts.h"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
+#include "find_by_verts.hpp"
 
 LOOP_KERNEL(reflect_down_entity,
     unsigned high_dim,

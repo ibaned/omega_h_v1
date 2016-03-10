@@ -1,15 +1,15 @@
-#include "swap_topology.h"
+#include "swap_topology.hpp"
 
 #include <assert.h>
 
-#include "algebra.h"
-#include "arrays.h"
-#include "edge_ring.h"
-#include "edge_swap.h"
-#include "ints.h"
-#include "loop.h"
-#include "mesh.h"
-#include "tables.h"
+#include "algebra.hpp"
+#include "arrays.hpp"
+#include "edge_ring.hpp"
+#include "edge_swap.hpp"
+#include "ints.hpp"
+#include "loop.hpp"
+#include "mesh.hpp"
+#include "tables.hpp"
 
 LOOP_KERNEL(edge_topo_offset,
     unsigned ent_dim,
