@@ -6,6 +6,9 @@
 
 #if USE_MPI
 
+#define I(x) static_cast<int>(x)
+#define U(x) static_cast<unsigned>(x)
+
 #include "compat_mpi.hpp"
 
 static struct comm world = { MPI_COMM_WORLD };
@@ -55,7 +58,7 @@ void comm_use(struct comm* c)
 struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
 {
   struct comm* c2 = LOOP_HOST_MALLOC(struct comm, 1);
-  CALL(MPI_Comm_split(c->c, (int) group, (int) rank, &c2->c));
+  CALL(MPI_Comm_split(c->c, I(group), I(rank), &c2->c));
   return c2;
 }
 
@@ -63,15 +66,15 @@ struct comm* comm_graph(struct comm* c,
     unsigned nout, unsigned const* out, unsigned const* outweights)
 {
   struct comm* c2 = LOOP_HOST_MALLOC(struct comm, 1);
-  int n = (int) nout;
+  int n = I(nout);
   int sources[1];
   MPI_Comm_rank(c->c, sources);
   int degrees[1] = {n};
   int* destinations = LOOP_HOST_MALLOC(int, nout);
   int* weights = LOOP_HOST_MALLOC(int, nout);
   for (unsigned i = 0; i < nout; ++i) {
-    destinations[i] = (int) out[i];
-    weights[i] = (int) outweights[i];
+    destinations[i] = I(out[i]);
+    weights[i] = I(outweights[i]);
   }
   CALL(MPI_Dist_graph_create(c->c, 1, sources, degrees, destinations,
         weights, MPI_INFO_NULL, 0, &c2->c));
@@ -85,19 +88,19 @@ struct comm* comm_graph_exact(struct comm* c,
     unsigned nout, unsigned const* out, unsigned const* outweights)
 {
   struct comm* c2 = LOOP_HOST_MALLOC(struct comm, 1);
-  int indegree = (int) nin;
+  int indegree = I(nin);
   int* sources = LOOP_HOST_MALLOC(int, nin);
   int* sourceweights = LOOP_HOST_MALLOC(int, nin);
   for (unsigned i = 0; i < nin; ++i) {
-    sources[i] = (int) in[i];
-    sourceweights[i] = (int) inweights[i];
+    sources[i] = I(in[i]);
+    sourceweights[i] = I(inweights[i]);
   }
-  int outdegree = (int) nout;
+  int outdegree = I(nout);
   int* destinations = LOOP_HOST_MALLOC(int, nout);
   int* destweights = LOOP_HOST_MALLOC(int, nout);
   for (unsigned i = 0; i < nout; ++i) {
-    destinations[i] = (int) out[i];
-    destweights[i] = (int) outweights[i];
+    destinations[i] = I(out[i]);
+    destweights[i] = I(outweights[i]);
   }
   CALL(MPI_Dist_graph_create_adjacent(c->c,
         indegree, sources, sourceweights,
@@ -117,8 +120,8 @@ void comm_recvs(struct comm* c,
   int indegree, outdegree, weighted;
   CALL(MPI_Dist_graph_neighbors_count(c->c, &indegree, &outdegree, &weighted));
   assert(weighted != 0);
-  *nin = (unsigned) indegree;
-  unsigned nout = (unsigned) outdegree;
+  *nin = U(indegree);
+  unsigned nout = U(outdegree);
   int* sources = LOOP_HOST_MALLOC(int, *nin);
   int* sourceweights = LOOP_HOST_MALLOC(int, *nin);
   int* destinations = LOOP_HOST_MALLOC(int, nout);
@@ -128,8 +131,8 @@ void comm_recvs(struct comm* c,
   *in = LOOP_HOST_MALLOC(unsigned, *nin);
   *inweights = LOOP_HOST_MALLOC(unsigned, *nin);
   for (unsigned i = 0; i < *nin; ++i) {
-    (*in)[i] = (unsigned) sources[i];
-    (*inweights)[i] = (unsigned) sourceweights[i];
+    (*in)[i] = U(sources[i]);
+    (*inweights)[i] = U(sourceweights[i]);
   }
   loop_host_free(sources);
   loop_host_free(sourceweights);
@@ -145,17 +148,17 @@ static void comm_exch_any(struct comm* c,
 {
   int indegree, outdegree, weighted;
   CALL(MPI_Dist_graph_neighbors_count(c->c, &indegree, &outdegree, &weighted));
-  int* sendcounts = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
-  int* sdispls = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
+  int* sendcounts = LOOP_HOST_MALLOC(int, U(outdegree));
+  int* sdispls = LOOP_HOST_MALLOC(int, U(outdegree));
   for (int i = 0; i < outdegree; ++i) {
-    sendcounts[i] = (int) (outcounts[i] * width);
-    sdispls[i] = (int) (outoffsets[i] * width);
+    sendcounts[i] = I(outcounts[i] * width);
+    sdispls[i] = I(outoffsets[i] * width);
   }
-  int* recvcounts = LOOP_HOST_MALLOC(int, (unsigned) indegree);
-  int* rdispls = LOOP_HOST_MALLOC(int, (unsigned) indegree);
+  int* recvcounts = LOOP_HOST_MALLOC(int, U(indegree));
+  int* rdispls = LOOP_HOST_MALLOC(int, U(indegree));
   for (int i = 0; i < indegree; ++i) {
-    recvcounts[i] = (int) (incounts[i] * width);
-    rdispls[i] = (int) (inoffsets[i] * width);
+    recvcounts[i] = I(incounts[i] * width);
+    rdispls[i] = I(inoffsets[i] * width);
   }
   CALL(compat_Neighbor_alltoallv(out, sendcounts, sdispls, type,
         in, recvcounts, rdispls, type, c->c));
@@ -210,7 +213,7 @@ unsigned comm_bcast_uint(unsigned x)
 
 void comm_bcast_chars(char* s, unsigned n)
 {
-  CALL(MPI_Bcast(s, (int) n, MPI_CHAR, 0, comm_using()->c));
+  CALL(MPI_Bcast(s, I(n), MPI_CHAR, 0, comm_using()->c));
 }
 
 void comm_free(struct comm* c)
@@ -225,19 +228,19 @@ unsigned comm_rank(void)
 {
   int rank;
   CALL(MPI_Comm_rank(current->c, &rank));
-  return (unsigned) rank;
+  return U(rank);
 }
 
 unsigned comm_size(void)
 {
   int size;
   CALL(MPI_Comm_size(current->c, &size));
-  return (unsigned) size;
+  return U(size);
 }
 
 void comm_add_doubles(double* p, unsigned n)
 {
-  CALL(MPI_Allreduce(MPI_IN_PLACE, p, (int) n, MPI_DOUBLE, MPI_SUM, current->c));
+  CALL(MPI_Allreduce(MPI_IN_PLACE, p, I(n), MPI_DOUBLE, MPI_SUM, current->c));
 }
 
 double comm_max_double(double x)

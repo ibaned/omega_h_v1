@@ -49,7 +49,7 @@ char* add_enum_suffix(char const* prefix, unsigned nitems,
   memcpy(buf, prefix, prelen);
   buf += prelen;
   if (nitems > 1) {
-    sprintf(buf, "_%0*u", (int) ndig, item);
+    sprintf(buf, "_%0*u", ndig, item);
     buf += 1 + ndig;
   }
   *buf = '\0';
@@ -69,6 +69,11 @@ void enum_pathname(char const* prefix, unsigned npieces,
   *buf = '\0';
 }
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+
 void safe_scanf(FILE* f, int nitems, char const* format, ...)
 {
   va_list ap;
@@ -77,6 +82,10 @@ void safe_scanf(FILE* f, int nitems, char const* format, ...)
   va_end(ap);
   assert(r == nitems);
 }
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 void safe_read(void* p, unsigned long size, unsigned long nitems, FILE* f)
 {
@@ -94,7 +103,7 @@ void seek_prefix(FILE* f,
     char* line, unsigned line_size, char const* prefix)
 {
   unsigned long pl = strlen(prefix);
-  while (fgets(line, (int) line_size, f))
+  while (fgets(line, static_cast<int>(line_size), f))
     if (!strncmp(line, prefix, pl))
       return;
   assert(0);
@@ -103,7 +112,7 @@ void seek_prefix(FILE* f,
 enum endian endianness(void)
 {
   static unsigned short canary = 0x1;
-  unsigned char* p = (unsigned char*) (&canary);
+  unsigned char* p = reinterpret_cast<unsigned char*>(&canary);
   if (*p == 0x1)
     return MY_LITTLE_ENDIAN;
   return MY_BIG_ENDIAN;
@@ -116,7 +125,8 @@ LOOP_KERNEL(swap_kern, unsigned width, unsigned char* b)
 void* generic_swap_if_needed(enum endian e, unsigned n, unsigned width,
     void const* a)
 {
-  unsigned char* b = uchars_to_device((unsigned char const*) a, n * width);
+  unsigned char* b = uchars_to_device(
+      static_cast<unsigned char const*>(a), n * width);
   if (e != endianness() && width > 1) {
     assert(width % 2 == 0);
     LOOP_EXEC(swap_kern, n, width, b);
