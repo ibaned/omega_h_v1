@@ -29,9 +29,9 @@ static void coarse_fun(double const* x, double* s)
   s[0] = 4;
 }
 
-int main()
+int main(int argc, char** argv)
 {
-  osh_init();
+  osh_init(&argc, &argv);
   struct mesh* m = new_box_mesh(2);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);

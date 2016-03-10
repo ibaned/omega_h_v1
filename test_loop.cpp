@@ -5,9 +5,9 @@
 #include "mesh.hpp"
 #include "include/omega_h.hpp"
 
-int main()
+int main(int argc, char** argv)
 {
-  osh_init();
+  osh_init(&argc, &argv);
   /* make a 2-triangle mesh with only
      the triangle to vertex graph */
   struct mesh* m = new_box_mesh(2);

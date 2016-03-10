@@ -1,4 +1,4 @@
-#include "comm.hpp"
+#include "include/omega_h.hpp"
 #include "loop.hpp"
 #include "mesh.hpp"
 #include "reorder.hpp"
@@ -7,7 +7,7 @@
 
 int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init(&argc, &argv);
   (void) argc;
   struct mesh* m = read_mesh_vtk(argv[1]);
   unsigned* vert_num = compute_ordering(m);
@@ -15,5 +15,5 @@ int main(int argc, char** argv)
   loop_free(vert_num);
   write_mesh_vtk(m, argv[2]);
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }

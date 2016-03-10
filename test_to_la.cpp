@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "comm.hpp"
+#include "include/omega_h.hpp"
 #include "mesh.hpp"
 #include "vtk_io.hpp"
 
@@ -27,8 +27,8 @@ static void write_graph(char const* filename,
 
 int main(int argc, char** argv)
 {
+  osh_init(&argc, &argv);
   assert(argc == 3);
-  comm_init();
   struct mesh* m = read_mesh_vtk(argv[1]);
   write_graph(argv[2],
       mesh_count(m, 0),
@@ -36,6 +36,6 @@ int main(int argc, char** argv)
       mesh_ask_star(m, 0, 1)->adj,
       mesh_find_tag(m, 0, "coordinates")->d.f64);
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }
 

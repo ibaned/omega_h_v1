@@ -3,7 +3,7 @@
 
 struct comm;
 
-void comm_init(void);
+void comm_init(int* argc, char*** argv);
 void comm_fini(void);
 
 struct comm* comm_world(void);

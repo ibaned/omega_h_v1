@@ -8,7 +8,7 @@
 int main(int argc, char** argv)
 {
   assert(argc == 3);
-  comm_init();
+  comm_init(&argc, &argv);
   struct mesh* m = read_mesh_vtk(argv[1]);
   uniformly_refine(m);
   write_mesh_vtk(m, argv[2]);

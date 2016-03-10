@@ -99,7 +99,7 @@ static void warped_adapt(struct mesh* m)
 
 int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init(&argc, &argv);
   char const* path;
   if (argc == 2)
     path = argv[1];
@@ -127,5 +127,5 @@ int main(int argc, char** argv)
     the_rotation = -the_rotation;
   }
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }

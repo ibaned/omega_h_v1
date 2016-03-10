@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "comm.hpp"
+#include "include/omega_h.hpp"
 #include "mesh.hpp"
 #include "mesh_diff.hpp"
 #include "vtk_io.hpp"
 
 int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init(&argc, &argv);
   double tol = 1e-6;
   double floor = 0;
   unsigned get_tol = 0;
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
     printf("    -help (Print this summary and exit.)\n");
     printf("    -tolerance <$val> (Overrides the default tolerance of 1.0E-6.)\n");
     printf("    -Floor <$val> (Overrides the default floor tolerance of 0.0.)\n");
-    comm_fini();
+    osh_fini();
     return 0;
   }
   struct mesh* a = read_mesh_vtk(filea);
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
   unsigned differ = mesh_diff(a, b, tol, floor, allow_superset);
   free_mesh(a);
   free_mesh(b);
-  comm_fini();
+  osh_fini();
   if (differ)
     return 2;
   return 0;

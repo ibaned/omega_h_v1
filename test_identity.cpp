@@ -5,7 +5,7 @@
 
 int main(int argc, char** argv)
 {
-  osh_init();
+  osh_init(&argc, &argv);
   assert(argc == 3);
   osh_t m = osh_read_vtk(argv[1]);
   osh_identity_size(m, "adapt_size");

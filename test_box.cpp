@@ -14,7 +14,7 @@
 
 int main(int argc, char** argv)
 {
-  osh_init();
+  osh_init(&argc, &argv);
   unsigned dim = 3;
   unsigned nrefs = 0;
   unsigned full = 1;

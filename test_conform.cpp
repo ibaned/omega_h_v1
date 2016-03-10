@@ -37,7 +37,7 @@ static struct mesh* make_2_tri_parallel(void)
 
 int main(int argc, char** argv)
 {
-  osh_init();
+  osh_init(&argc, &argv);
   char const* path;
   if (argc == 2)
     path = argv[1];

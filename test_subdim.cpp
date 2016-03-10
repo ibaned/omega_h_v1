@@ -1,9 +1,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "comm.hpp"
+#include "include/omega_h.hpp"
 #include "ints.hpp"
-#include "int_casts.hpp"
 #include "loop.hpp"
 #include "mesh.hpp"
 #include "parallel_mesh.hpp"
@@ -12,10 +11,10 @@
 
 int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init(&argc, &argv);
   assert(argc == 4);
   struct mesh* m = read_mesh_vtk(argv[1]);
-  unsigned dim = U(atoi(argv[2]));
+  unsigned dim = static_cast<unsigned>(atoi(argv[2]));
   assert(dim <= 3);
   if (mesh_is_parallel(m))
     for (unsigned d = 0; d <= mesh_dim(m); ++d)
@@ -27,5 +26,5 @@ int main(int argc, char** argv)
   free_mesh(m);
   write_mesh_vtk(sm, argv[3]);
   free_mesh(sm);
-  comm_fini();
+  osh_fini();
 }

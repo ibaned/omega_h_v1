@@ -3,6 +3,7 @@
 
 #include "bcast.hpp"
 #include "comm.hpp"
+#include "include/omega_h.hpp"
 #include "ints.hpp"
 #include "loop.hpp"
 #include "mesh.hpp"
@@ -13,7 +14,7 @@
 
 int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init(&argc, &argv);
   char const* path;
   if (argc == 2)
     path = argv[1];
@@ -43,5 +44,5 @@ int main(int argc, char** argv)
   sprintf(file, "%s/after.pvtu", path);
   write_mesh_vtk(m, file);
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }

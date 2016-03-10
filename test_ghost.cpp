@@ -9,7 +9,7 @@
 
 int main(int argc, char** argv)
 {
-  osh_init();
+  osh_init(&argc, &argv);
   assert(argc == 4);
   struct mesh* m = 0;
   m = read_mesh_vtk(argv[1]);

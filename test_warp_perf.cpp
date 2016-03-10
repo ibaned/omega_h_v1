@@ -5,7 +5,7 @@
 
 #include "adapt.hpp"
 #include "algebra.hpp"
-#include "comm.hpp"
+#include "include/omega_h.hpp"
 #include "derive_model.hpp"
 #include "doubles.hpp"
 #include "element_field.hpp"
@@ -123,7 +123,7 @@ static void trigger_cuda_init(void)
 
 int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init(&argc, &argv);
 #ifdef LOOP_CUDA_HPP
   trigger_cuda_init();
 #endif
@@ -164,5 +164,5 @@ int main(int argc, char** argv)
   printf("time for main code: %.5e seconds\n", t1 - t0);
   printf("time for reorder: %.5e seconds\n", reorder_time);
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }

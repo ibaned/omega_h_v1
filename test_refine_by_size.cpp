@@ -3,7 +3,7 @@
 
 #include "algebra.hpp"
 #include "arrays.hpp"
-#include "comm.hpp"
+#include "include/omega_h.hpp"
 #include "derive_model.hpp"
 #include "doubles.hpp"
 #include "eval_field.hpp"
@@ -23,9 +23,9 @@ static void size_fun(double const* x, double* s)
   s[0] = coarse * d + fine * (1 - d);
 }
 
-int main()
+int main(int argc, char** argv)
 {
-  comm_init();
+  osh_init(&argc, &argv);
   struct mesh* m = new_box_mesh(2);
   mesh_derive_model(m, PI / 4);
   mesh_set_rep(m, MESH_FULL);
@@ -53,5 +53,5 @@ int main()
     mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
   }
   free_mesh(m);
-  comm_fini();
+  osh_fini();
 }

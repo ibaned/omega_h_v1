@@ -36,7 +36,7 @@ static void size_fun(double const* x, double* s)
 
 int main(int argc, char** argv)
 {
-  osh_init();
+  osh_init(&argc, &argv);
   char const* path;
   if (argc == 2)
     path = argv[1];

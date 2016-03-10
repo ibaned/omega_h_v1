@@ -41,9 +41,9 @@ static void sinusoid(double const* x, double* size)
   *size = sqrt(2 * (1e-7 + d * 1e-5)) * fudge;
 }
 
-int main()
+int main(int argc, char** argv)
 {
-  osh_init();
+  osh_init(&argc, &argv);
 #ifdef LOOP_CUDA_HPP
   trigger_cuda_init();
 #endif

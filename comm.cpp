@@ -15,12 +15,12 @@ static struct comm* current = &world;
 
 static int we_called_mpi_init = 0;
 
-void comm_init(void)
+void comm_init(int* argc, char*** argv)
 {
   int was_initialized;
   CALL(MPI_Initialized(&was_initialized));
   if (!was_initialized) {
-    CALL(MPI_Init(0,0));
+    CALL(MPI_Init(argc, argv));
     we_called_mpi_init = 1;
   }
 }
