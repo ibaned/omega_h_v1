@@ -25,7 +25,7 @@ unsigned long loop_host_memory(void);
 unsigned long loop_host_high_water(void);
 
 #define LOOP_KERNEL(fname, ...) \
-KOKKOS_FUNCTION \
+KOKKOS_INLINE_FUNCTION \
 static void fname(unsigned i, __VA_ARGS__) \
 {
 
