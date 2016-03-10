@@ -18,15 +18,6 @@ static inline unsigned loop_openmp_atomic_increment(unsigned* p)
 
 #define loop_atomic_increment loop_openmp_atomic_increment
 
-#define LOOP_KERNEL(fname, ...) \
-static void fname(__VA_ARGS__, unsigned i) \
-{
-
-#define LOOP_EXEC(fname, n, ...) \
-_Pragma("omp parallel for") \
-for (unsigned i = 0; i < n; ++i) \
-  fname(__VA_ARGS__, i);
-
 unsigned loop_size(void);
 
 #define LOOP_IN

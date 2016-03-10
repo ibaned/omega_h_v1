@@ -26,14 +26,6 @@ loop_cuda_atomic_increment(unsigned* p)
 #define LOOP_MALLOC(T, n) LOOP_CUDA_MALLOC(T, n)
 #define loop_free loop_cuda_free
 
-#define LOOP_KERNEL(fname, ...) \
-static __global__ void fname(unsigned n__, __VA_ARGS__) \
-{ \
-  unsigned i = blockIdx.x * blockDim.x + threadIdx.x; \
-  if (i >= n__) return;
-
-#define LOOP_BLOCK_SIZE 256
-
 static inline unsigned loop_ceildiv(unsigned a, unsigned b)
 {
   unsigned c = a / b;
@@ -47,12 +39,6 @@ do { \
   cudaError_t ret = (f); \
   assert(ret == cudaSuccess); \
 } while (0)
-
-#define LOOP_EXEC(fname, n, ...) \
-do { \
-  fname<<<loop_ceildiv((n),LOOP_BLOCK_SIZE),LOOP_BLOCK_SIZE>>>(n,__VA_ARGS__); \
-  CUDACALL(cudaGetLastError()); \
-} while(0)
 
 unsigned loop_size(void);
 
