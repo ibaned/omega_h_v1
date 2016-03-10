@@ -80,7 +80,7 @@ struct const_tag* add_tag2(struct tags* ts, enum tag_type type, char const* name
     ts->at = LOOP_HOST_REALLOC(struct tag*, ts->at, ts->cap);
   }
   ts->at[ts->n++] = t;
-  return (struct const_tag*) t;
+  return reinterpret_cast<struct const_tag*>(t);
 }
 
 static unsigned find_i(struct tags* ts, char const* name)
@@ -122,7 +122,7 @@ unsigned count_tags(struct tags* ts)
 
 struct const_tag* get_tag(struct tags* ts, unsigned i)
 {
-  return (struct const_tag*) ts->at[i];
+  return reinterpret_cast<struct const_tag*>(ts->at[i]);
 }
 
 void rename_tag(struct tags* ts, char const* oldname, char const* newname)

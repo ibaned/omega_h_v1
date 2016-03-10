@@ -13,19 +13,19 @@ enum {
 LOOP_INOUT static inline unsigned
 collapses(unsigned code, unsigned dir)
 {
-  return (code & (((unsigned)1) << dir)) != 0;
+  return (code & ((unsigned(1)) << dir)) != 0;
 }
 
 LOOP_INOUT static inline unsigned
 do_collapse(unsigned code, unsigned dir)
 {
-  return code | (((unsigned)1) << dir);
+  return code | ((unsigned(1)) << dir);
 }
 
 LOOP_INOUT static inline unsigned
 dont_collapse(unsigned code, unsigned dir)
 {
-  return code & ~(((unsigned)1) << dir);
+  return code & ~((unsigned(1)) << dir);
 }
 
 #endif

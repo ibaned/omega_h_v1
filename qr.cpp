@@ -127,14 +127,14 @@ static void fill_identity(double q[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
   for (unsigned j = 0; j < 3; ++j)
-    q[i][j] = ((double)(i==j));
+    q[i][j] = (double(i==j));
 }
 
 static void fill_identity2(double q[MAX_PTS][MAX_PTS], unsigned npts)
 {
   for (unsigned i = 0; i < npts; ++i)
   for (unsigned j = 0; j < npts; ++j)
-    q[i][j] = ((double)(i==j));
+    q[i][j] = (double(i==j));
 }
 
 void qr_decomp(double a[3][3], double q[3][3], double r[3][3])

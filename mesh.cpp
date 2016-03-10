@@ -189,7 +189,7 @@ struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim
 {
   assert(low_dim <= high_dim);
   if (m->up[low_dim][high_dim])
-    return (struct const_up*) m->up[low_dim][high_dim];
+    return reinterpret_cast<struct const_up*>(m->up[low_dim][high_dim]);
   if (low_dim == high_dim) {
     /* waste memory to prevent algorithms from having to deal
        with equal-order cases separately */
@@ -211,7 +211,7 @@ struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim
         &offsets, &highs_of_lows, &directions);
     set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
   }
-  return (struct const_up*) m->up[low_dim][high_dim];
+  return reinterpret_cast<struct const_up*>(m->up[low_dim][high_dim]);
 }
 
 static void set_star(struct mesh* m, unsigned low_dim, unsigned high_dim,
@@ -225,7 +225,7 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
 {
   assert(low_dim <= high_dim);
   if (m->star[low_dim][high_dim])
-    return (struct const_graph*) m->star[low_dim][high_dim];
+    return reinterpret_cast<struct const_graph*>(m->star[low_dim][high_dim]);
   if (low_dim == high_dim) {
     /* waste memory to prevent algorithms from having to deal
        with equal-order cases separately */
@@ -238,7 +238,7 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
     mesh_get_star(m, low_dim, high_dim, &offsets, &adj);
     set_star(m, low_dim, high_dim, osh_new_graph(offsets, adj));
   }
-  return (struct const_graph*) m->star[low_dim][high_dim];
+  return reinterpret_cast<struct const_graph*>(m->star[low_dim][high_dim]);
 }
 
 static void set_dual(struct mesh* m, unsigned* adj)
