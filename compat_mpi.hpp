@@ -1,6 +1,10 @@
 #ifndef MPI_COMPAT_H
 #define MPI_COMPAT_H
 
+#ifdef __clang__
+#pragma clang system_header
+#endif
+
 #include <mpi.h>
 
 #if MPI_VERSION < 2 || (MPI_VERSION == 2 && MPI_SUBVERSION < 2)

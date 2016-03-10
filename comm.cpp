@@ -10,7 +10,7 @@
 
 static struct comm world = { MPI_COMM_WORLD };
 static struct comm self = { MPI_COMM_SELF };
-static struct comm* using = &world;
+static struct comm* current = &world;
 
 static int we_called_mpi_init = 0;
 
@@ -44,12 +44,12 @@ struct comm* comm_self(void)
 
 struct comm* comm_using(void)
 {
-  return using;
+  return current;
 }
 
 void comm_use(struct comm* c)
 {
-  using = c;
+  current = c;
 }
 
 struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
@@ -224,45 +224,45 @@ void comm_free(struct comm* c)
 unsigned comm_rank(void)
 {
   int rank;
-  CALL(MPI_Comm_rank(using->c, &rank));
+  CALL(MPI_Comm_rank(current->c, &rank));
   return (unsigned) rank;
 }
 
 unsigned comm_size(void)
 {
   int size;
-  CALL(MPI_Comm_size(using->c, &size));
+  CALL(MPI_Comm_size(current->c, &size));
   return (unsigned) size;
 }
 
 void comm_add_doubles(double* p, unsigned n)
 {
-  CALL(MPI_Allreduce(MPI_IN_PLACE, p, (int) n, MPI_DOUBLE, MPI_SUM, using->c));
+  CALL(MPI_Allreduce(MPI_IN_PLACE, p, (int) n, MPI_DOUBLE, MPI_SUM, current->c));
 }
 
 double comm_max_double(double x)
 {
-  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_MAX, using->c));
+  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_MAX, current->c));
   return x;
 }
 
 double comm_min_double(double x)
 {
-  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_MIN, using->c));
+  CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_MIN, current->c));
   return x;
 }
 
 unsigned long comm_add_ulong(unsigned long x)
 {
   CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED_LONG, MPI_SUM,
-        using->c));
+        current->c));
   return x;
 }
 
 unsigned long comm_exscan_ulong(unsigned long x)
 {
   CALL(MPI_Exscan(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED_LONG, MPI_SUM,
-        using->c));
+        current->c));
   if (!comm_rank())
     x = 0;
   return x;
@@ -271,14 +271,14 @@ unsigned long comm_exscan_ulong(unsigned long x)
 unsigned long comm_max_ulong(unsigned long x)
 {
   CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED_LONG, MPI_MAX,
-        using->c));
+        current->c));
   return x;
 }
 
 unsigned comm_max_uint(unsigned x)
 {
   CALL(MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_UNSIGNED, MPI_MAX,
-        using->c));
+        current->c));
   return x;
 }
 
