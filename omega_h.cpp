@@ -14,7 +14,9 @@
 
 #define M(p) reinterpret_cast<struct mesh*>(p)
 
+#ifdef LOOP_KOKKOS_HPP
 static int we_called_kokkos_init = 0;
+#endif
 
 /*@
   osh_init - Initializes omega_h.
@@ -34,10 +36,12 @@ static int we_called_kokkos_init = 0;
 void osh_init(int* argc, char*** argv)
 {
   comm_init(argc, argv);
+#ifdef LOOP_KOKKOS_HPP
   if (!Kokkos::DefaultExecutionSpace::is_initialized()) {
     Kokkos::initialize(*argc, *argv);
     we_called_kokkos_init = 1;
   }
+#endif
 }
 
 /*@
@@ -56,8 +60,10 @@ void osh_init(int* argc, char*** argv)
 @*/
 void osh_fini(void)
 {
+#ifdef LOOP_KOKKOS_HPP
   if (we_called_kokkos_init)
     Kokkos::finalize();
+#endif
   comm_fini();
 }
 
