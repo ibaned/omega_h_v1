@@ -17,15 +17,3 @@ void loop_cuda_free(void* p)
 {
   CUDACALL(cudaFree(p));
 }
-
-unsigned loop_size(void)
-{
-  int device;
-  cudaGetDevice(&device);
-  /* this may be an over-estimate ? */
-  int sm_count;
-  cudaDeviceGetAttribute(&sm_count, cudaDevAttrMultiProcessorCount, device);
-  int sm_size;
-  cudaDeviceGetAttribute(&sm_size, cudaDevAttrMaxThreadsPerMultiProcessor, device);
-  return (unsigned) (sm_count * sm_size);
-}

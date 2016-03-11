@@ -136,7 +136,12 @@ objs/compat_mpi.o : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
 deps/compat_mpi.dep : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
 endif
 objs/loop_host.o : CPPFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
-lib_sources += loop_$(LOOP_MODE).cpp
+ifeq "$(LOOP_MODE)" "cuda"
+lib_sources += loop_cuda.cpp
+endif
+ifeq "$(LOOP_MODE)" "kokkos"
+lib_sources += loop_kokkos.cpp
+endif
 ifeq "$(LOOP_MODE)" "cuda"
 objs/loop_cuda.o : CPPFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
 else
