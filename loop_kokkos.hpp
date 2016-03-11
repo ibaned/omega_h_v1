@@ -19,11 +19,9 @@
 #define LOOP_INOUT KOKKOS_FUNCTION
 
 void* loop_kokkos_malloc(unsigned long n);
-#define LOOP_KOKKOS_MALLOC(T, n) \
+#define LOOP_MALLOC(T, n) \
   ((T*)loop_kokkos_malloc(sizeof(T) * (n)))
 void loop_kokkos_free(void* p);
-
-#define LOOP_MALLOC(T, n) LOOP_KOKKOS_MALLOC(T, n)
 #define loop_free loop_kokkos_free
 
 #if defined( KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA )

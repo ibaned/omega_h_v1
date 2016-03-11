@@ -5,7 +5,8 @@
 
 #include "loop_host.hpp"
 
-#define LOOP_MALLOC(T, n) LOOP_HOST_MALLOC(T, n)
+#define LOOP_MALLOC(T, n) \
+  static_cast<T*>(loop_host_malloc(sizeof(T) * (n)))
 #define loop_free loop_host_free
 
 static inline unsigned loop_openmp_atomic_increment(unsigned* p)

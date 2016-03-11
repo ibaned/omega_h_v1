@@ -11,20 +11,17 @@
 #define LOOP_CONST __constant__
 
 void* loop_cuda_malloc(unsigned long n);
-#define LOOP_CUDA_MALLOC(T, n) \
+#define LOOP_MALLOC(T, n) \
   ((T*)loop_cuda_malloc(sizeof(T) * (n)))
 void loop_cuda_free(void* p);
+#define loop_free loop_cuda_free
 
 static inline LOOP_IN unsigned
 loop_cuda_atomic_increment(unsigned* p)
 {
   return atomicAdd(p, 1);
 }
-
 #define loop_atomic_increment loop_cuda_atomic_increment
-
-#define LOOP_MALLOC(T, n) LOOP_CUDA_MALLOC(T, n)
-#define loop_free loop_cuda_free
 
 #define LOOP_KERNEL(fname, ...) \
 static __global__ void fname(unsigned n__, __VA_ARGS__) \
