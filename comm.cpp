@@ -285,7 +285,7 @@ unsigned comm_max_uint(unsigned x)
 
 #else
 
-void comm_init(void)
+void comm_init(int*, char***)
 {
 }
 
