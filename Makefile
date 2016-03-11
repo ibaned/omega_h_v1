@@ -115,6 +115,16 @@ derive_model.cpp \
 compress.cpp \
 inherit.cpp
 
+#bring in Makefile.kokkos
+ifeq "$(LOOP_MODE)" "kokkos"
+  include $(KOKKOS_MAKEFILE)
+	CXXFLAGS += $(KOKKOS_CXXFLAGS)
+	CPPFLAGS += $(KOKKOS_CPPFLAGS) --std=c++11
+  CPPFLAGS := $(sort $(CPPFLAGS))
+	LDFLAGS += $(KOKKOS_LDFLAGS)
+	LDLIBS += $(KOKKOS_LIBS)
+endif
+
 #handle optional features:
 PREFIX ?= /usr/local
 USE_ZLIB ?= 0
@@ -126,6 +136,7 @@ MPIRUN ?= mpirun
 VALGRIND ?= ""
 PATIENT ?= 0
 SHARED ?= 0
+
 #comm.cpp is compiled with -DUSE_MPI=
 objs/comm.o : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
 deps/comm.dep : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
