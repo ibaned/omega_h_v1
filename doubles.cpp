@@ -4,7 +4,9 @@
 
 #include "loop.hpp"
 
-#ifdef LOOP_CUDA_HPP
+#if defined(LOOP_CUDA_HPP) || \
+      (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
+
 #include <thrust/reduce.h>
 #include <thrust/device_ptr.h>
 #include <thrust/functional.h>
@@ -38,7 +40,8 @@ double doubles_sum(double const* a, unsigned n)
   return sum;
 }
 
-#elif defined(LOOP_OPENMP_HPP)
+#elif defined(LOOP_OPENMP_HPP) || \
+      (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_OPENMP))
 
 double doubles_max(double const* a, unsigned n)
 {

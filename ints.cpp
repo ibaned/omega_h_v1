@@ -2,14 +2,16 @@
 
 #include "loop.hpp"
 
-#if defined(LOOP_CUDA_HPP)
+#if defined(LOOP_CUDA_HPP) || \
+      (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
 #include <thrust/reduce.h>
 #include <thrust/device_ptr.h>
 #include <thrust/functional.h>
 #include <thrust/transform.h>
 #include <thrust/reduce.h>
 #include <thrust/sort.h>
-#elif defined(LOOP_OPENMP_HPP)
+#elif defined(LOOP_OPENMP_HPP) || \
+      (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_OPENMP))
 #include <omp.h>
 #else
 #include <cstdlib>
@@ -31,7 +33,8 @@ static unsigned* serial_uints_exscan(unsigned const* a, unsigned n)
 }
 #endif
 
-#if defined(LOOP_CUDA_HPP)
+#if defined(LOOP_CUDA_HPP) || \
+      (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
 
 unsigned uints_max(unsigned const* a, unsigned n)
 {
@@ -69,7 +72,8 @@ unsigned long ulongs_max(unsigned long const* a, unsigned n)
   return max;
 }
 
-#elif defined(LOOP_OPENMP_HPP)
+#elif defined(LOOP_OPENMP_HPP) || \
+      (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_OPENMP))
 
 unsigned uints_max(unsigned const* a, unsigned n)
 {
