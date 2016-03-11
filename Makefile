@@ -120,7 +120,6 @@ PREFIX ?= /usr/local
 USE_ZLIB ?= 0
 USE_MPI ?= 0
 USE_MPI3 ?= $(USE_MPI)
-USE_CUDA_MALLOC_MANAGED ?= 0
 MEASURE_MEMORY ?= 0
 LOOP_MODE ?= serial
 MPIRUN ?= mpirun
@@ -138,7 +137,6 @@ endif
 objs/loop_host.o : CPPFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
 ifeq "$(LOOP_MODE)" "cuda"
   lib_sources += loop_cuda.cpp
-  objs/loop_cuda.o : CPPFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
 else
   test_sources += test_print_swap_edges.cpp
 endif
