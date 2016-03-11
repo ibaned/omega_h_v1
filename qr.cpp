@@ -5,12 +5,12 @@
 
 #include "algebra.hpp"
 
-static double sign(double x)
+LOOP_INOUT static double sign(double x)
 {
   return (x < 0) ? -1 : 1;
 }
 
-static double square(double x)
+LOOP_INOUT static double square(double x)
 {
   return x * x;
 }
@@ -38,7 +38,7 @@ static unsigned get_reflector(double a[3][3], double v[3], unsigned k,
   return 1;
 }
 
-static unsigned get_reflector2(double a[MAX_PTS][4],
+LOOP_INOUT static unsigned get_reflector2(double a[MAX_PTS][4],
     double v[MAX_PTS], unsigned k, unsigned npts)
 {
   double cnorm = 0;
@@ -73,7 +73,7 @@ static void reflect_columns(double v[3], double a[3][3], unsigned k,
   }
 }
 
-static void reflect_columns2(double v[MAX_PTS], double a[MAX_PTS][4],
+LOOP_INOUT static void reflect_columns2(double v[MAX_PTS], double a[MAX_PTS][4],
     unsigned k, unsigned npts)
 {
   for (unsigned j = 0; j < 4; ++j) {
@@ -97,7 +97,7 @@ static void reflect_rows(double v[3], double q[3][3], unsigned k,
   }
 }
 
-static void reflect_rows2(double v[MAX_PTS], double q[MAX_PTS][MAX_PTS],
+LOOP_INOUT static void reflect_rows2(double v[MAX_PTS], double q[MAX_PTS][MAX_PTS],
     unsigned k, unsigned npts)
 {
   for (unsigned i = 0; i < npts; ++i) {
@@ -116,7 +116,7 @@ static void copy(double a[3][3], double b[3][3])
     b[i][j] = a[i][j];
 }
 
-static void copy2(double a[MAX_PTS][4], double b[MAX_PTS][4], unsigned npts)
+LOOP_INOUT static void copy2(double a[MAX_PTS][4], double b[MAX_PTS][4], unsigned npts)
 {
   for (unsigned i = 0; i < npts; ++i)
   for (unsigned j = 0; j < 4; ++j)
@@ -130,7 +130,7 @@ static void fill_identity(double q[3][3])
     q[i][j] = (double(i==j));
 }
 
-static void fill_identity2(double q[MAX_PTS][MAX_PTS], unsigned npts)
+LOOP_INOUT static void fill_identity2(double q[MAX_PTS][MAX_PTS], unsigned npts)
 {
   for (unsigned i = 0; i < npts; ++i)
   for (unsigned j = 0; j < npts; ++j)
@@ -149,7 +149,7 @@ void qr_decomp(double a[3][3], double q[3][3], double r[3][3])
     }
 }
 
-unsigned qr_decomp2(
+LOOP_INOUT unsigned qr_decomp2(
     double a[MAX_PTS][4],
     double q[MAX_PTS][MAX_PTS],
     double r[MAX_PTS][4],
@@ -168,7 +168,7 @@ unsigned qr_decomp2(
   return rank;
 }
 
-static void ls_mult(double q[MAX_PTS][MAX_PTS], double b[MAX_PTS],
+LOOP_INOUT static void ls_mult(double q[MAX_PTS][MAX_PTS], double b[MAX_PTS],
     unsigned npts, double y[4])
 {
   for (unsigned i = 0; i < 4; ++i) {
@@ -178,7 +178,7 @@ static void ls_mult(double q[MAX_PTS][MAX_PTS], double b[MAX_PTS],
   }
 }
 
-static void backsubst(double r[MAX_PTS][4], double y[4],
+LOOP_INOUT static void backsubst(double r[MAX_PTS][4], double y[4],
     double x[4])
 {
   for (unsigned ii = 0; ii < 4; ++ii) {
@@ -190,7 +190,7 @@ static void backsubst(double r[MAX_PTS][4], double y[4],
   }
 }
 
-void qr_solve2(
+LOOP_INOUT void qr_solve2(
     double q[MAX_PTS][MAX_PTS],
     double r[MAX_PTS][4],
     double b[MAX_PTS],

@@ -1,15 +1,17 @@
 #ifndef QR_HPP
 #define QR_HPP
 
+#include "loop.hpp"
+
 #define MAX_PTS 16
 
 void qr_decomp(double a[3][3], double q[3][3], double r[3][3]);
-unsigned qr_decomp2(
+LOOP_INOUT unsigned qr_decomp2(
     double a[MAX_PTS][4],
     double q[MAX_PTS][MAX_PTS],
     double r[MAX_PTS][4],
     unsigned npts);
-void qr_solve2(
+LOOP_INOUT void qr_solve2(
     double q[MAX_PTS][MAX_PTS],
     double r[MAX_PTS][4],
     double b[MAX_PTS],
