@@ -295,17 +295,17 @@ void comm_fini(void)
 
 struct comm* comm_world(void)
 {
-  return (struct comm*)1;
+  return reinterpret_cast<struct comm*>(1);
 }
 
 struct comm* comm_self(void)
 {
-  return (struct comm*)1;
+  return reinterpret_cast<struct comm*>(1);
 }
 
 struct comm* comm_using(void)
 {
-  return (struct comm*)1;
+  return reinterpret_cast<struct comm*>(1);
 }
 
 void comm_use(struct comm* c)
@@ -322,7 +322,8 @@ struct comm* comm_split(struct comm* c, unsigned group, unsigned rank)
   (void)c;
   assert(group == 0);
   assert(rank == 0);
-  return (struct comm*) LOOP_HOST_MALLOC(struct split_comm, 1);
+  return reinterpret_cast<struct comm*>(
+      LOOP_HOST_MALLOC(struct split_comm, 1));
 }
 
 struct graph_comm {
@@ -340,7 +341,7 @@ struct comm* comm_graph(struct comm* c,
     assert(out[0] == 0);
   gc->nout = nout;
   gc->outweight = outweights[0];
-  return (struct comm*) gc;
+  return reinterpret_cast<struct comm*>(gc);
 }
 
 struct comm* comm_graph_exact(struct comm* c,
@@ -358,13 +359,13 @@ struct comm* comm_graph_exact(struct comm* c,
   }
   gc->nout = nout;
   gc->outweight = outweights[0];
-  return (struct comm*) gc;
+  return reinterpret_cast<struct comm*>(gc);
 }
 
 void comm_recvs(struct comm* c,
     unsigned* nin, unsigned** in, unsigned** incounts)
 {
-  struct graph_comm* gc = (struct graph_comm*) c;
+  struct graph_comm* gc = reinterpret_cast<struct graph_comm*>(c);
   if (gc->nout == 0) {
     *nin = 0;
     *in = *incounts = 0;
@@ -383,7 +384,7 @@ void comm_recvs(struct comm* c,
 #define GENERIC_EXCH \
   (void) outoffsets; \
   (void) inoffsets; \
-  struct graph_comm* gc = (struct graph_comm*) c; \
+  struct graph_comm* gc = reinterpret_cast<struct graph_comm*>(c); \
   if (gc->nout == 1) { \
     assert(outcounts[0] == incounts[0]); \
     for (unsigned i = 0; i < outcounts[0] * width; ++i) \
@@ -418,7 +419,7 @@ void comm_exch_ulongs(struct comm* c,
 
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
 {
-  struct graph_comm* gc = (struct graph_comm*) c;
+  struct graph_comm* gc = reinterpret_cast<struct graph_comm*>(c);
   if (gc->nout)
     in[0] = out;
 }
