@@ -1,6 +1,6 @@
 #include "inertia.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "algebra.hpp"
 #include "comm.hpp"

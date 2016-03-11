@@ -1,7 +1,7 @@
 #include "bcast.hpp"
 
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 
 #include "comm.hpp"
 #include "loop.hpp"

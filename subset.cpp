@@ -1,6 +1,6 @@
 #include "subset.hpp"
 
-#include <string.h>
+#include <cstring>
 
 #include "arrays.hpp"
 #include "ints.hpp"

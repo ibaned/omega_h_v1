@@ -1,7 +1,7 @@
 #include "exchanger.hpp"
 
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 
 #include "arrays.hpp"
 #include "comm.hpp"

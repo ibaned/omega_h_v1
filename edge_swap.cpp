@@ -1,6 +1,6 @@
 #include "edge_swap.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "algebra.hpp"
 #include "quality.hpp"

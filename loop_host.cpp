@@ -1,8 +1,8 @@
 #include "loop_host.hpp"
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cassert>
+#include <cstdlib>
+#include <cstring>
 
 #if MEASURE_MEMORY
 static unsigned long memory_usage = 0;

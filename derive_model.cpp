@@ -1,7 +1,7 @@
 #include "derive_model.hpp"
 
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 #include "algebra.hpp"
 #include "arrays.hpp"

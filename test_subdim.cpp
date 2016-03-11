@@ -1,5 +1,5 @@
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 #include "include/omega_h.hpp"
 #include "ints.hpp"

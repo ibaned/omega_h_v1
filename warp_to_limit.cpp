@@ -1,6 +1,6 @@
 #include "warp_to_limit.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "doubles.hpp"
 #include "comm.hpp"

@@ -1,6 +1,6 @@
 #include "migrate_mesh.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "close_partition.hpp"
 #include "exchanger.hpp"

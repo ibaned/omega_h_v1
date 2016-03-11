@@ -3,7 +3,7 @@
 
 #include "loop_host.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #define LOOP_IN __device__
 #define LOOP_INOUT __device__ __host__

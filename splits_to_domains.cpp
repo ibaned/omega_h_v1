@@ -1,6 +1,6 @@
 #include "splits_to_domains.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "arrays.hpp"
 #include "ints.hpp"

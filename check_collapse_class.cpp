@@ -1,6 +1,6 @@
 #include "check_collapse_class.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "collapse_codes.hpp"
 #include "ints.hpp"

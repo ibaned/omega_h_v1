@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 
 #include "algebra.hpp"
 #include "element_gradients.hpp"

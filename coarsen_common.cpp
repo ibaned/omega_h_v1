@@ -1,6 +1,6 @@
 #include "coarsen_common.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "arrays.hpp"
 #include "check_collapse_class.hpp"

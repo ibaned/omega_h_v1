@@ -1,7 +1,7 @@
 #include "element_gradients.hpp"
 
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 
 #include "algebra.hpp"
 #include "jacobian.hpp"

@@ -1,6 +1,6 @@
 #include "swap_topology.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "algebra.hpp"
 #include "arrays.hpp"

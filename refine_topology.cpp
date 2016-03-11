@@ -1,6 +1,6 @@
 #include "refine_topology.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "arrays.hpp"
 #include "loop.hpp"

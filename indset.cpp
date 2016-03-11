@@ -1,6 +1,6 @@
 #include "indset.hpp"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "arrays.hpp"
 #include "comm.hpp"

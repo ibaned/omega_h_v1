@@ -1,6 +1,6 @@
 #include "collapses_to_verts.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "collapse_codes.hpp"
 #include "loop.hpp"

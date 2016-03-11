@@ -1,6 +1,6 @@
 #include "parallel_modify.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "arrays.hpp"
 #include "comm.hpp"

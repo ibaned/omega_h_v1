@@ -1,9 +1,9 @@
 #include "vtk_io.hpp"
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "arrays.hpp"
 #include "base64.hpp"

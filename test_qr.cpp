@@ -1,6 +1,6 @@
 #include "qr.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
 int main()
 {

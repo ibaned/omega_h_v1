@@ -1,7 +1,7 @@
 #include "mesh.hpp"
 
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 
 #include "arrays.hpp"
 #include "bridge_graph.hpp"

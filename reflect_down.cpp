@@ -1,6 +1,6 @@
 #include "reflect_down.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "ints.hpp"
 #include "loop.hpp"

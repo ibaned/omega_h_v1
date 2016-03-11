@@ -1,7 +1,7 @@
 #include "parallel_mesh.hpp"
 
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 
 #include "arrays.hpp"
 #include "algebra.hpp"

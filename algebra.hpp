@@ -1,7 +1,7 @@
 #ifndef ALGEBRA_HPP
 #define ALGEBRA_HPP
 
-#include <math.h>
+#include <cmath>
 
 #include "loop.hpp"
 

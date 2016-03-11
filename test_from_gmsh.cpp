@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 
 #include "gmsh_io.hpp"
 #include "mesh.hpp"

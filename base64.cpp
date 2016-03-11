@@ -1,7 +1,7 @@
 #include "base64.hpp"
 
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 
 #include "files.hpp"
 #include "loop.hpp"

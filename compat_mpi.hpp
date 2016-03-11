@@ -11,7 +11,7 @@
 #error "omega_h does not support MPI versions less than 2.2"
 #endif
 
-#include <assert.h>
+#include <cassert>
 
 #define CALL(f) do { int err = (f); assert(err == MPI_SUCCESS); } while(0)
 

@@ -1,7 +1,7 @@
 #ifndef LOOP_OPENMP_HPP
 #define LOOP_OPENMP_HPP
 
-#include <assert.h>
+#include <cassert>
 
 #include "loop_host.hpp"
 

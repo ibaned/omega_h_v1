@@ -1,7 +1,7 @@
 #ifndef QUALITY_HPP
 #define QUALITY_HPP
 
-#include <assert.h>
+#include <cassert>
 
 #include "size.hpp"
 

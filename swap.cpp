@@ -1,7 +1,7 @@
 #include "swap.hpp"
 
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
 
 #include "arrays.hpp"
 #include "comm.hpp"

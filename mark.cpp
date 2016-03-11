@@ -1,6 +1,6 @@
 #include "mark.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "loop.hpp"
 #include "mesh.hpp"

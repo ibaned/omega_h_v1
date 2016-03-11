@@ -1,7 +1,7 @@
 #ifndef FILES_HPP
 #define FILES_HPP
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "loop.hpp"
 

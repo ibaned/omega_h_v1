@@ -1,7 +1,7 @@
 #ifndef BASE_64_HPP
 #define BASE_64_HPP
 
-#include <stdio.h>
+#include <cstdio>
 
 char* base64_encode(void const* data, unsigned long size);
 void* base64_decode(char const** text, unsigned long size);

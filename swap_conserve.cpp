@@ -1,6 +1,6 @@
 #include "swap_conserve.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "algebra.hpp"
 #include "arrays.hpp"

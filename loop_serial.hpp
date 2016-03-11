@@ -1,7 +1,7 @@
 #ifndef LOOP_SERIAL_HPP
 #define LOOP_SERIAL_HPP
 
-#include <assert.h>
+#include <cassert>
 
 #include "loop_host.hpp"
 

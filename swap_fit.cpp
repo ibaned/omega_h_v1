@@ -1,7 +1,7 @@
 #include "swap_fit.hpp"
 
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
 
 #include "algebra.hpp"
 #include "arrays.hpp"

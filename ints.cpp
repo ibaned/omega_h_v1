@@ -12,7 +12,7 @@
 #elif defined(LOOP_OPENMP_HPP)
 #include <omp.h>
 #else
-#include <stdlib.h>
+#include <cstdlib>
 #endif
 
 #if defined(LOOP_SERIAL_HPP) || \

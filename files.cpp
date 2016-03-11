@@ -1,10 +1,10 @@
 #include "files.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "arrays.hpp"
 #include "loop.hpp"

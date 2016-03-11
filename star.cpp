@@ -1,6 +1,6 @@
 #include "star.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "arrays.hpp"
 #include "ints.hpp"

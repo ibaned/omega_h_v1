@@ -1,6 +1,6 @@
 #include "owners_from_global.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "comm.hpp"
 #include "exchanger.hpp"

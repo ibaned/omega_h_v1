@@ -1,7 +1,7 @@
 #include "qr.hpp"
 
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 #include "algebra.hpp"
 

@@ -1,6 +1,6 @@
 #include "size_from_hessian.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "algebra.hpp"
 #include "loop.hpp"

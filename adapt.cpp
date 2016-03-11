@@ -1,8 +1,8 @@
 #include "adapt.hpp"
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
 
 #include "coarsen.hpp"
 #include "comm.hpp"

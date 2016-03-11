@@ -1,6 +1,6 @@
 #include "edge_ring.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "edge_swap.hpp"
 #include "tables.hpp"

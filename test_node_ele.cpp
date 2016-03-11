@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 
 #include "include/omega_h.hpp"
 #include "node_ele_io.hpp"

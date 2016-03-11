@@ -1,6 +1,6 @@
 #include "dual.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "ints.hpp"
 #include "loop.hpp"

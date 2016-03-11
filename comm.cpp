@@ -1,6 +1,6 @@
 #include "comm.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "loop.hpp"
 

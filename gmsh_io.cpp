@@ -1,8 +1,8 @@
 #include "gmsh_io.hpp"
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 
 #include "files.hpp"
 #include "find_by_verts.hpp"

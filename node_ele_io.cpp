@@ -1,7 +1,7 @@
 #include "node_ele_io.hpp"
 
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
 
 #include "files.hpp"
 #include "loop.hpp"

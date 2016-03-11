@@ -1,6 +1,6 @@
 #include "coarsen_fit.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "algebra.hpp"
 #include "arrays.hpp"

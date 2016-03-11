@@ -1,6 +1,6 @@
 #include "refine_qualities.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "arrays.hpp"
 #include "algebra.hpp"
