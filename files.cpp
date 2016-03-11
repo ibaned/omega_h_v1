@@ -1,7 +1,7 @@
 #include "files.hpp"
 
 #include <cassert>
-#include <stdarg.h>
+#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
