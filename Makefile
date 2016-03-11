@@ -131,30 +131,28 @@ SHARED ?= 0
 objs/comm.o : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
 deps/comm.dep : CPPFLAGS += -DUSE_MPI=$(USE_MPI)
 ifeq "$(USE_MPI)" "1"
-lib_sources += compat_mpi.cpp
-objs/compat_mpi.o : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
-deps/compat_mpi.dep : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
+  lib_sources += compat_mpi.cpp
+  objs/compat_mpi.o : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
+  deps/compat_mpi.dep : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
 endif
 objs/loop_host.o : CPPFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
 ifeq "$(LOOP_MODE)" "cuda"
-lib_sources += loop_cuda.cpp
+  lib_sources += loop_cuda.cpp
+  objs/loop_cuda.o : CPPFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
+else
+  test_sources += test_print_swap_edges.cpp
 endif
 ifeq "$(LOOP_MODE)" "kokkos"
-lib_sources += loop_kokkos.cpp
-endif
-ifeq "$(LOOP_MODE)" "cuda"
-objs/loop_cuda.o : CPPFLAGS += -DUSE_CUDA_MALLOC_MANAGED=$(USE_CUDA_MALLOC_MANAGED)
-else
-test_sources += test_print_swap_edges.cpp
+  lib_sources += loop_kokkos.cpp
 endif
 objs/compress.o : CPPFLAGS += -DUSE_ZLIB=$(USE_ZLIB)
 ifeq "$(USE_ZLIB)" "1"
-objs/compress.o : CPPFLAGS += -I$(ZLIB_INCLUDE)
+  objs/compress.o : CPPFLAGS += -I$(ZLIB_INCLUDE)
 endif
 libraries := lib/libomega_h.a
 ifeq "$(SHARED)" "1"
-CXXFLAGS += -fPIC -fvisibility=hidden
-libraries += lib/libomega_h.so
+  CXXFLAGS += -fPIC -fvisibility=hidden
+  libraries += lib/libomega_h.so
 endif
 
 #generated file names are derived from source
