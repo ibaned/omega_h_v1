@@ -15,7 +15,9 @@
 #include <stdlib.h>
 #endif
 
-#if defined(LOOP_SERIAL_HPP) || defined(LOOP_OPENMP_HPP)
+#if defined(LOOP_SERIAL_HPP) || \
+    defined(LOOP_OPENMP_HPP) || \
+    (defined(LOOP_KOKKOS_HPP) && !defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
 static unsigned* serial_uints_exscan(unsigned const* a, unsigned n)
 {
   unsigned* o = LOOP_HOST_MALLOC(unsigned, (n + 1));
