@@ -2,7 +2,7 @@
 
 #include "gmsh_io.hpp"
 #include "mesh.hpp"
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "vtk_io.hpp"
 
 int main(int argc, char** argv)

@@ -3,7 +3,7 @@
 
 #include "algebra.hpp"
 #include "arrays.hpp"
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "derive_model.hpp"
 #include "doubles.hpp"
 #include "eval_field.hpp"

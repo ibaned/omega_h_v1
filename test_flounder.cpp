@@ -7,7 +7,7 @@
 #include "eval_field.hpp"
 #include "loop.hpp"
 #include "mesh.hpp"
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "refine.hpp"
 #include "vtk_io.hpp"
 

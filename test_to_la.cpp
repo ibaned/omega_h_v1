@@ -1,7 +1,7 @@
 #include <cassert>
 #include <cstdio>
 
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "mesh.hpp"
 #include "vtk_io.hpp"
 

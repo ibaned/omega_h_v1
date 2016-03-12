@@ -1,4 +1,4 @@
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "loop.hpp"
 #include "mesh.hpp"
 #include "reorder.hpp"

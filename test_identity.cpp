@@ -1,7 +1,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 
 int main(int argc, char** argv)
 {

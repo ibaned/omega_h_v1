@@ -271,7 +271,7 @@ install: all
 	install -d $(PREFIX)/lib
 	install -m 644 $(libraries) $(PREFIX)/lib
 	install -d $(PREFIX)/include
-	install -m 644 include/omega_h.hpp $(PREFIX)/include
+	install -m 644 include/omega_h.h $(PREFIX)/include
 	install -d $(PREFIX)/share/man/man3
 	install -m 644 share/man/man3/*.3 $(PREFIX)/share/man/man3
 

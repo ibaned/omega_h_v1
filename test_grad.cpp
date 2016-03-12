@@ -4,7 +4,7 @@
 #include "element_gradients.hpp"
 #include "eval_field.hpp"
 #include "mesh.hpp"
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "recover_by_volume.hpp"
 #include "refine.hpp"
 #include "size_from_hessian.hpp"

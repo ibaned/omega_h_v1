@@ -8,7 +8,7 @@
 #include "doubles.hpp"
 #include "eval_field.hpp"
 #include "mesh.hpp"
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "quality.hpp"
 #include "refine.hpp"
 #include "subset.hpp"

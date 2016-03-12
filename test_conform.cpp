@@ -8,7 +8,7 @@
 #include "loop.hpp"
 #include "mesh.hpp"
 #include "migrate_mesh.hpp"
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "parallel_mesh.hpp"
 #include "vtk_io.hpp"
 

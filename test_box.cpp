@@ -8,7 +8,7 @@
 #include "eval_field.hpp"
 #include "int_casts.hpp"
 #include "mesh.hpp"
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "refine.hpp"
 #include "vtk_io.hpp"
 

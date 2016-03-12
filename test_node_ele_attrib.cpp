@@ -1,7 +1,7 @@
 #include <cassert>
 
 #include "arrays.hpp"
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "node_ele_io.hpp"
 #include "mesh.hpp"
 #include "vtk_io.hpp"

@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "mesh.hpp"
 #include "mesh_diff.hpp"
 #include "vtk_io.hpp"

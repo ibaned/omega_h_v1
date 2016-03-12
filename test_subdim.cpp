@@ -1,7 +1,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "ints.hpp"
 #include "loop.hpp"
 #include "mesh.hpp"

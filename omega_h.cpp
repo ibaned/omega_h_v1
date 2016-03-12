@@ -1,4 +1,4 @@
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 
 #include "adapt.hpp"
 #include "comm.hpp"
@@ -17,6 +17,8 @@
 #ifdef LOOP_KOKKOS_HPP
 static int we_called_kokkos_init = 0;
 #endif
+
+extern "C" {
 
 /*@
   osh_init - Initializes omega_h.
@@ -1016,4 +1018,6 @@ unsigned osh_adapt(osh_t m,
 void osh_identity_size(osh_t m, char const* name)
 {
   mesh_identity_size_field(M(m), name);
+}
+
 }

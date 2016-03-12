@@ -5,7 +5,7 @@
 
 #include "adapt.hpp"
 #include "algebra.hpp"
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 #include "derive_model.hpp"
 #include "doubles.hpp"
 #include "element_field.hpp"

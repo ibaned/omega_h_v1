@@ -3,7 +3,7 @@
 #include "arrays.hpp"
 #include "loop.hpp"
 #include "mesh.hpp"
-#include "include/omega_h.hpp"
+#include "include/omega_h.h"
 
 int main(int argc, char** argv)
 {
