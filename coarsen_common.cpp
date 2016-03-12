@@ -164,13 +164,13 @@ static unsigned check_coarsen_quality(
       elems_of_verts_offsets, elems_of_verts, elems_of_verts_directions,
       coords, quality_floor, elem_quals);
   loop_free(elem_quals);
-  mesh_conform_uints(m, 1, 1, &col_codes);
+  mesh_conform_array(m, 1, 1, &col_codes);
   if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
     loop_free(col_codes);
     loop_free(quals_of_edges);
     return 0;
   }
-  mesh_conform_doubles(m, 1, 2, &quals_of_edges);
+  mesh_conform_array(m, 1, 2, &quals_of_edges);
   mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
   mesh_add_tag(m, 1, TAG_F64, "col_quals", 2, quals_of_edges);
   return 1;

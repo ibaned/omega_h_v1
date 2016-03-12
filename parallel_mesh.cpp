@@ -134,22 +134,25 @@ void mesh_global_renumber(struct mesh* m, unsigned dim)
   pm->globals[dim] = new_globals;
 }
 
-#define GENERIC_MESH_CONFORM(T, name) \
-void mesh_conform_##name(struct mesh* m, unsigned dim, unsigned width, \
-    T** a) \
-{ \
-  if (!mesh_is_parallel(m)) \
-    return; \
-  T* in = *a; \
-  T* out = exchange<T>(mesh_ask_exchanger(m, dim), width, in, \
-      EX_FOR, EX_ROOT); \
-  loop_free(in); \
-  *a = out; \
+template <typename T>
+void mesh_conform_array(struct mesh* m, unsigned dim, unsigned width,
+    T** a)
+{
+  if (!mesh_is_parallel(m))
+    return;
+  T* in = *a;
+  T* out = exchange<T>(mesh_ask_exchanger(m, dim), width, in,
+      EX_FOR, EX_ROOT);
+  loop_free(in);
+  *a = out;
 }
 
-GENERIC_MESH_CONFORM(double, doubles)
-GENERIC_MESH_CONFORM(unsigned, uints)
-GENERIC_MESH_CONFORM(unsigned long, ulongs)
+template void mesh_conform_array(struct mesh* m, unsigned dim, unsigned width,
+    double** a);
+template void mesh_conform_array(struct mesh* m, unsigned dim, unsigned width,
+    unsigned** a);
+template void mesh_conform_array(struct mesh* m, unsigned dim, unsigned width,
+    unsigned long** a);
 
 void mesh_conform_tag(struct mesh* m, unsigned dim, const char* name)
 {

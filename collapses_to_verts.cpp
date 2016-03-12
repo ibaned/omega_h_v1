@@ -61,8 +61,8 @@ void valid_collapses_to_verts(struct mesh* m)
       col_quals_of_edges,
       candidates,
       col_qual_of_verts);
-  mesh_conform_uints(m, 0, 1, &candidates);
-  mesh_conform_doubles(m, 0, 1, &col_qual_of_verts);
+  mesh_conform_array(m, 0, 1, &candidates);
+  mesh_conform_array(m, 0, 1, &col_qual_of_verts);
   mesh_add_tag(m, 0, TAG_U32, "candidates", 1, candidates);
   mesh_add_tag(m, 0, TAG_F64, "col_qual", 1, col_qual_of_verts);
 }

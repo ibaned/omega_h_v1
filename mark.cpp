@@ -85,7 +85,7 @@ unsigned* mesh_mark_down(struct mesh* m, unsigned high_dim, unsigned low_dim,
   unsigned* out = mesh_mark_down_local(m, high_dim, low_dim, marked_highs);
   if (mesh_is_parallel(m))
     assert(mesh_ghost_layers(m) == 1);
-  mesh_conform_uints(m, low_dim, 1, &out);
+  mesh_conform_array(m, low_dim, 1, &out);
   return out;
 }
 
@@ -139,7 +139,7 @@ void mesh_mark_dual_layers(
     unsigned* out = mark_dual(elem_dim, nelems, dual, in);
     loop_free(in);
     if (mesh_is_parallel(m))
-      mesh_conform_uints(m, elem_dim, 1, &out);
+      mesh_conform_array(m, elem_dim, 1, &out);
     *marked = out;
   }
 }

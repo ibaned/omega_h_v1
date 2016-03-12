@@ -107,7 +107,7 @@ static unsigned* find_indset(
     LOOP_EXEC(indset_at_vert, nverts,
         offsets, adj, goodness, global, old_state, state);
     loop_free(old_state);
-    mesh_conform_uints(m, ent_dim, 1, &state);
+    mesh_conform_array(m, ent_dim, 1, &state);
     if (comm_max_uint(uints_max(state, nverts)) < UNKNOWN)
       return state;
   }

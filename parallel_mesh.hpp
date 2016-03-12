@@ -15,12 +15,9 @@ struct exchanger* mesh_ask_exchanger(struct mesh* m, unsigned dim);
 
 void mesh_global_renumber(struct mesh* m, unsigned dim);
 
-void mesh_conform_doubles(struct mesh* m, unsigned dim, unsigned width,
-    double** a);
-void mesh_conform_uints(struct mesh* m, unsigned dim, unsigned width,
-    unsigned** a);
-void mesh_conform_ulongs(struct mesh* m, unsigned dim, unsigned width,
-    unsigned long** a);
+template <typename T>
+void mesh_conform_array(struct mesh* m, unsigned dim, unsigned width,
+    T** a);
 
 void mesh_conform_tag(struct mesh* m, unsigned dim, const char* name);
 void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name);

@@ -110,9 +110,9 @@ static unsigned swap_common(
   double* edge_quals;
   unsigned* ring_sizes;
   mesh_swap_qualities(m, candidates, &edge_quals, &ring_sizes);
-  mesh_conform_uints(m, 1, 1, &candidates);
-  mesh_conform_doubles(m, 1, 1, &edge_quals);
-  mesh_conform_uints(m, 1, 1, &ring_sizes);
+  mesh_conform_array(m, 1, 1, &candidates);
+  mesh_conform_array(m, 1, 1, &edge_quals);
+  mesh_conform_array(m, 1, 1, &ring_sizes);
   if (!comm_max_uint(uints_max(candidates, nedges))) {
     loop_free(candidates);
     loop_free(edge_quals);

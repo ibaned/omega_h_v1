@@ -124,7 +124,7 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
       *p_candidates,
       src_quals);
   loop_free(elem_quals);
-  mesh_conform_doubles(m, src_dim, 1, &src_quals);
-  mesh_conform_uints(m, src_dim, 1, p_candidates);
+  mesh_conform_array(m, src_dim, 1, &src_quals);
+  mesh_conform_array(m, src_dim, 1, p_candidates);
   return src_quals;
 }
