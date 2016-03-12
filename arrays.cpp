@@ -3,33 +3,39 @@
 #include "loop.hpp"
 
 #if defined(LOOP_CUDA_HPP)
-#define GENERIC_MEMCPY(T, name) \
-void name##_memcpy(T* dst, T const* src, unsigned n) \
-{ \
-  CUDACALL(cudaMemcpy(dst, src, n * sizeof(T), cudaMemcpyDeviceToDevice)); \
+template <typename T>
+void generic_memcpy(T* dst, T const* src, unsigned n)
+{
+  CUDACALL(cudaMemcpy(dst, src, n * sizeof(T), cudaMemcpyDeviceToDevice));
 }
 #else
-#define GENERIC_MEMCPY(T, name) \
-LOOP_KERNEL(name##_memcpy_kern, T* dst, T const* src) \
-  dst[i] = src[i]; \
-} \
-void name##_memcpy(T* dst, T const* src, unsigned n) \
-{ \
-  LOOP_EXEC(name##_memcpy_kern, n, dst, src); \
+template <typename T>
+LOOP_KERNEL(memcpy_kern, T* dst, T const* src)
+  dst[i] = src[i];
+}
+template <typename T>
+void generic_memcpy(T* dst, T const* src, unsigned n)
+{
+  LOOP_EXEC(memcpy_kern<T>, n, dst, src);
 }
 #endif
 
-GENERIC_MEMCPY(unsigned char, uchars)
-GENERIC_MEMCPY(unsigned, uints)
-GENERIC_MEMCPY(unsigned long, ulongs)
-GENERIC_MEMCPY(double, doubles)
-GENERIC_MEMCPY(unsigned*, uintptrs)
+template void generic_memcpy(unsigned char* dst,
+    unsigned char const* src, unsigned n);
+template void generic_memcpy(unsigned* dst,
+    unsigned const* src, unsigned n);
+template void generic_memcpy(unsigned long* dst,
+    unsigned long const* src, unsigned n);
+template void generic_memcpy(double* dst,
+    double const* src, unsigned n);
+template void generic_memcpy(unsigned** dst,
+    unsigned* const* src, unsigned n);
 
 #define GENERIC_COPY(T, name) \
 T* name##_copy(T const* a, unsigned n) \
 { \
   T* b = LOOP_MALLOC(T, n); \
-  name##_memcpy(b, a, n); \
+  generic_memcpy<T>(b, a, n); \
   return b; \
 }
 
@@ -150,8 +156,8 @@ T* concat_##name(unsigned width, \
     T const* b, unsigned nb) \
 { \
   T* out = LOOP_MALLOC(T, (na + nb) * width); \
-  name##_memcpy(out, a, na * width); \
-  name##_memcpy(out + (na * width), b, nb * width); \
+  generic_memcpy<T>(out, a, na * width); \
+  generic_memcpy<T>(out + (na * width), b, nb * width); \
   return out; \
 }
 
