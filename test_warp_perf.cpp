@@ -13,7 +13,7 @@
 #include "mesh.hpp"
 #include "refine.hpp"
 #include "reorder.hpp"
-#include "shuffle_mesh.hpp"
+#include "reorder_mesh.hpp"
 #include "vtk_io.hpp"
 #include "warp_to_limit.hpp"
 

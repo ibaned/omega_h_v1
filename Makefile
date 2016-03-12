@@ -39,7 +39,7 @@ lib_sources := \
 swap_fit.cpp \
 coarsen_fit.cpp \
 refine_fit.cpp \
-shuffle_mesh.cpp \
+reorder_mesh.cpp \
 reorder.cpp \
 bfs.cpp \
 star.cpp \
