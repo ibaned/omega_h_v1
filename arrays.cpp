@@ -163,19 +163,23 @@ template unsigned long* expand_array(unsigned n, unsigned width,
 template double* expand_array(unsigned n, unsigned width,
     double const* a, unsigned const* offsets);
 
-#define GENERIC_CONCAT(T, name) \
-T* concat_##name(unsigned width, \
-    T const* a, unsigned na, \
-    T const* b, unsigned nb) \
-{ \
-  T* out = LOOP_MALLOC(T, (na + nb) * width); \
-  array_memcpy<T>(out, a, na * width); \
-  array_memcpy<T>(out + (na * width), b, nb * width); \
-  return out; \
+template <typename T>
+T* concat_arrays(unsigned width,
+    T const* a, unsigned na,
+    T const* b, unsigned nb)
+{
+  T* out = LOOP_MALLOC(T, (na + nb) * width);
+  array_memcpy<T>(out, a, na * width);
+  array_memcpy<T>(out + (na * width), b, nb * width);
+  return out;
 }
 
-GENERIC_CONCAT(unsigned, uints)
-GENERIC_CONCAT(double, doubles)
+template unsigned* concat_arrays(unsigned width,
+    unsigned const* a, unsigned na,
+    unsigned const* b, unsigned nb);
+template double* concat_arrays(unsigned width,
+    double const* a, unsigned na,
+    double const* b, unsigned nb);
 
 #define GENERIC_FILL(T, name) \
 LOOP_KERNEL(name##_fill_kern, T* a, T v) \

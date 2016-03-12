@@ -86,7 +86,7 @@ static void swap_fit_tag(
       t->d.f64, offset_of_same_elems);
   unsigned nsame_elems = uints_at(offset_of_same_elems, nelems);
   double* gen_data = swap_fit_data(m, gen_offset_of_edges, t);
-  double* data_out = concat_doubles(t->ncomps,
+  double* data_out = concat_arrays(t->ncomps,
       same_data, nsame_elems,
       gen_data, uints_at(gen_offset_of_edges, nedges));
   loop_free(same_data);

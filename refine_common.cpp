@@ -39,7 +39,7 @@ static void refine_verts(struct mesh* m, struct mesh* m_out,
       continue;
     double* gen_vals = refine_nodal(src_dim, nsrcs, verts_of_srcs,
         gen_offset_of_srcs, t->ncomps, t->d.f64);
-    double* vals_out = concat_doubles(t->ncomps, t->d.f64, nverts,
+    double* vals_out = concat_arrays(t->ncomps, t->d.f64, nverts,
         gen_vals, nsplit_srcs);
     loop_free(gen_vals);
     mesh_add_tag(m_out, 0, t->type, t->name, t->ncomps, vals_out);

@@ -101,7 +101,7 @@ static void coarsen_conserve_tag(
   unsigned nsame_elems = uints_at(offset_of_same_elems, nelems);
   double* gen_data = coarsen_conserve_data(m, gen_offset_of_verts,
       gen_offset_of_elems, nsame_elems, new_elem_sizes, t);
-  double* data_out = concat_doubles(t->ncomps,
+  double* data_out = concat_arrays(t->ncomps,
       same_data, nsame_elems,
       gen_data, uints_at(gen_offset_of_elems, nelems));
   loop_free(same_data);

@@ -27,12 +27,10 @@ template <typename T>
 T* expand_array(unsigned n, unsigned width,
     T const* a, unsigned const* offsets);
 
-unsigned* concat_uints(unsigned width,
-    unsigned const* a, unsigned na,
-    unsigned const* b, unsigned nb);
-double* concat_doubles(unsigned width,
-    double const* a, unsigned na,
-    double const* b, unsigned nb);
+template <typename T>
+T* concat_arrays(unsigned width,
+    T const* a, unsigned na,
+    T const* b, unsigned nb);
 
 unsigned char* uchars_filled(unsigned n, unsigned char v);
 unsigned* uints_filled(unsigned n, unsigned v);

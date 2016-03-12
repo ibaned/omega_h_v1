@@ -136,7 +136,7 @@ static void coarsen_fit_tag(
   double* gen_data = coarsen_fit_data(m, gen_offset_of_verts,
       gen_offset_of_elems, old_elem_coords, new_elem_coords,
       nsame_elems, t);
-  double* data_out = concat_doubles(t->ncomps,
+  double* data_out = concat_arrays(t->ncomps,
       same_data, nsame_elems,
       gen_data, uints_at(gen_offset_of_elems, nelems));
   loop_free(same_data);

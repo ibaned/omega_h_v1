@@ -239,7 +239,7 @@ void concat_verts_of_ents(
   unsigned nents_out = nsame_ents + ngen_ents;
   unsigned* verts_of_same_ents = expand_array(nents, verts_per_ent,
       verts_of_ents, offset_of_same_ents);
-  unsigned* verts_of_ents_out = concat_uints(verts_per_ent,
+  unsigned* verts_of_ents_out = concat_arrays(verts_per_ent,
       verts_of_same_ents, nsame_ents,
       verts_of_gen_ents, ngen_ents);
   loop_free(verts_of_same_ents);
