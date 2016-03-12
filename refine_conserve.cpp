@@ -50,8 +50,7 @@ static void refine_conserve_tag(
       prods_of_doms_offsets[0]);
   gen_data[elem_dim] = refine_conserve_data(mesh_count(m, elem_dim),
       prods_of_doms_offsets[elem_dim], t);
-  double* data_out = concat_doubles_inherited(
-      t->ncomps, ngen_offsets, gen_data);
+  double* data_out = concat_inherited(t->ncomps, ngen_offsets, gen_data);
   add_tag2(mesh_tags(m_out, elem_dim), TAG_F64, t->name, t->ncomps,
       t->transfer_type, data_out);
 }

@@ -32,25 +32,31 @@ void make_ngen_offsets(
     ngen_offsets[i + 1] = ngen_offsets[i] + ngen[i];
 }
 
-#define GENERIC_CONCAT_INHERITED(T, name) \
-T* concat_##name##_inherited( \
-    unsigned width, \
-    unsigned const ngen_offsets[5], \
-    T* gen_data[4]) \
-{ \
-  T* out_data = LOOP_MALLOC(T, ngen_offsets[4] * width); \
-  for (unsigned i = 0; i < 4; ++i) { \
-    array_memcpy<T>( \
-        out_data + ngen_offsets[i] * width, \
-        gen_data[i], \
-        (ngen_offsets[i + 1] - ngen_offsets[i]) * width); \
-    loop_free(gen_data[i]); \
-  } \
-  return out_data; \
+template <typename T>
+T* concat_inherited(
+    unsigned width,
+    unsigned const ngen_offsets[5],
+    T* gen_data[4])
+{
+  T* out_data = LOOP_MALLOC(T, ngen_offsets[4] * width);
+  for (unsigned i = 0; i < 4; ++i) {
+    array_memcpy<T>(
+        out_data + ngen_offsets[i] * width,
+        gen_data[i],
+        (ngen_offsets[i + 1] - ngen_offsets[i]) * width);
+    loop_free(gen_data[i]);
+  }
+  return out_data;
 }
 
-GENERIC_CONCAT_INHERITED(unsigned, uints)
-GENERIC_CONCAT_INHERITED(double, doubles)
+template unsigned* concat_inherited(
+    unsigned width,
+    unsigned const ngen_offsets[5],
+    unsigned* gen_data[4]);
+template double* concat_inherited(
+    unsigned width,
+    unsigned const ngen_offsets[5],
+    double* gen_data[4]);
 
 static void inherit_uints_direct(
     unsigned width,
@@ -203,7 +209,7 @@ static void inherit_uint_tag(
   unsigned* gen_data[4];
   inherit_uints_direct(t->ncomps, ndoms, dom_data, prods_of_doms_offsets,
       gen_data);
-  unsigned* data_out = concat_uints_inherited(t->ncomps, ngen_offsets, gen_data);
+  unsigned* data_out = concat_inherited(t->ncomps, ngen_offsets, gen_data);
   mesh_add_tag(m_out, prod_dim, TAG_U32, t->name, t->ncomps, data_out);
 }
 

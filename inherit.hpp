@@ -48,15 +48,11 @@ void concat_verts_of_ents(
     unsigned* p_nents_out,
     unsigned** p_verts_of_ents_out);
 
-unsigned* concat_uints_inherited(
+template <typename T>
+T* concat_inherited(
     unsigned width,
     unsigned const ngen_offsets[5],
-    unsigned* gen_data[4]);
-
-double* concat_doubles_inherited(
-    unsigned width,
-    unsigned const ngen_offsets[5],
-    double* gen_data[4]);
+    T* gen_data[4]);
 
 void make_ngen_from_doms(
     unsigned const ndoms[4],
