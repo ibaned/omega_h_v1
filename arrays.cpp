@@ -123,34 +123,45 @@ template unsigned long* unshuffle_array(unsigned n, unsigned long const* a,
 template double* unshuffle_array(unsigned n, double const* a,
     unsigned width, unsigned const* out_of_in);
 
-#define GENERIC_EXPAND(T, name) \
-LOOP_KERNEL(expand_##name##_kern, T const* a, unsigned width, \
-    unsigned const* offsets, T* out) \
-  unsigned first = offsets[i]; \
-  unsigned end = offsets[i + 1]; \
-  for (unsigned j = first; j < end; ++j) \
-    for (unsigned k = 0; k < width; ++k) \
-      out[j * width + k] = a[i * width + k]; \
-} \
-void name##_expand_into(unsigned n, unsigned width, \
-    T const* a, unsigned const* offsets, \
-    T* out) \
-{ \
-  LOOP_EXEC(expand_##name##_kern, n, a, width, offsets, out); \
-} \
-T* name##_expand(unsigned n, unsigned width, \
-    T const* a, unsigned const* offsets) \
-{ \
-  unsigned nout = uints_at(offsets, n); \
-  T* out = LOOP_MALLOC(T, nout * width); \
-  name##_expand_into(n, width, a, offsets, out); \
-  return out; \
+template <typename T>
+LOOP_KERNEL(expand_kern, T const* a, unsigned width,
+    unsigned const* offsets, T* out)
+  unsigned first = offsets[i];
+  unsigned end = offsets[i + 1];
+  for (unsigned j = first; j < end; ++j)
+    for (unsigned k = 0; k < width; ++k)
+      out[j * width + k] = a[i * width + k];
+}
+template <typename T>
+void expand_into(unsigned n, unsigned width,
+    T const* a, unsigned const* offsets,
+    T* out)
+{
+  LOOP_EXEC(expand_kern<T>, n, a, width, offsets, out);
+}
+template <typename T>
+T* expand_array(unsigned n, unsigned width,
+    T const* a, unsigned const* offsets)
+{
+  unsigned nout = uints_at(offsets, n);
+  T* out = LOOP_MALLOC(T, nout * width);
+  expand_into<T>(n, width, a, offsets, out);
+  return out;
 }
 
-GENERIC_EXPAND(unsigned char, uchars)
-GENERIC_EXPAND(unsigned, uints)
-GENERIC_EXPAND(unsigned long, ulongs)
-GENERIC_EXPAND(double, doubles)
+template void expand_into(unsigned n, unsigned width,
+    unsigned const* a, unsigned const* offsets, unsigned* out);
+template void expand_into(unsigned n, unsigned width,
+    unsigned long const* a, unsigned const* offsets, unsigned long* out);
+
+template unsigned char* expand_array(unsigned n, unsigned width,
+    unsigned char const* a, unsigned const* offsets);
+template unsigned* expand_array(unsigned n, unsigned width,
+    unsigned const* a, unsigned const* offsets);
+template unsigned long* expand_array(unsigned n, unsigned width,
+    unsigned long const* a, unsigned const* offsets);
+template double* expand_array(unsigned n, unsigned width,
+    double const* a, unsigned const* offsets);
 
 #define GENERIC_CONCAT(T, name) \
 T* concat_##name(unsigned width, \

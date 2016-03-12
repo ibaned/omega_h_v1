@@ -19,19 +19,19 @@ void tags_subset(struct mesh* in, struct mesh* out,
     void* vals_out = 0;
     switch (t->type) {
       case TAG_U8:
-        vals_out = uchars_expand(nents, t->ncomps, t->d.u8,
+        vals_out = expand_array(nents, t->ncomps, t->d.u8,
             offsets);
         break;
       case TAG_U32:
-        vals_out = uints_expand(nents, t->ncomps, t->d.u32,
+        vals_out = expand_array(nents, t->ncomps, t->d.u32,
             offsets);
         break;
       case TAG_U64:
-        vals_out = ulongs_expand(nents, t->ncomps, t->d.u64,
+        vals_out = expand_array(nents, t->ncomps, t->d.u64,
             offsets);
         break;
       case TAG_F64:
-        vals_out = doubles_expand(nents, t->ncomps, t->d.f64,
+        vals_out = expand_array(nents, t->ncomps, t->d.f64,
             offsets);
         break;
     }
@@ -54,7 +54,7 @@ static void subset_ents(
   unsigned nents_out = uints_at(ent_offsets, nents);
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
-  unsigned* verts_of_ents_out = uints_expand(nents, verts_per_ent,
+  unsigned* verts_of_ents_out = expand_array(nents, verts_per_ent,
       verts_of_ents, ent_offsets);
   for (unsigned i = 0; i < nents_out * verts_per_ent; ++i)
     verts_of_ents_out[i] = vert_offsets[verts_of_ents_out[i]];
@@ -103,7 +103,7 @@ void subset_verts_of_doms(
   unsigned const* verts_of_doms = mesh_ask_down(m, dom_dim, 0);
   unsigned* offset_of_same = uints_negate_offsets(offset_of_doms,
       mesh_count(m, dom_dim));
-  uints_expand_into(mesh_count(m, dom_dim), the_down_degrees[dom_dim][0],
+  expand_into(mesh_count(m, dom_dim), the_down_degrees[dom_dim][0],
       verts_of_doms, offset_of_same, verts_of_prods);
   loop_free(offset_of_same);
 }

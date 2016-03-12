@@ -20,23 +20,12 @@ template <typename T>
 T* unshuffle_array(unsigned n, T const* a,
     unsigned width, unsigned const* out_of_in);
 
-void uchars_expand_into(unsigned n, unsigned width,
-    unsigned char const* a, unsigned const* offsets, unsigned char* out);
-void uints_expand_into(unsigned n, unsigned width,
-    unsigned const* a, unsigned const* offsets, unsigned* out);
-void ulongs_expand_into(unsigned n, unsigned width,
-    unsigned long const* a, unsigned const* offsets, unsigned long* out);
-void doubles_expand_into(unsigned n, unsigned width,
-    double const* a, unsigned const* offsets, double* out);
-
-unsigned char* uchars_expand(unsigned n, unsigned width,
-    unsigned char const* a, unsigned const* offsets);
-unsigned* uints_expand(unsigned n, unsigned width,
-    unsigned const* a, unsigned const* offsets);
-unsigned long* ulongs_expand(unsigned n, unsigned width,
-    unsigned long const* a, unsigned const* offsets);
-double* doubles_expand(unsigned n, unsigned width,
-    double const* a, unsigned const* offsets);
+template <typename T>
+void expand_into(unsigned n, unsigned width,
+    T const* a, unsigned const* offsets, T* out);
+template <typename T>
+T* expand_array(unsigned n, unsigned width,
+    T const* a, unsigned const* offsets);
 
 unsigned* concat_uints(unsigned width,
     unsigned const* a, unsigned na,

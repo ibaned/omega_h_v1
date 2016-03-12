@@ -97,7 +97,7 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
       unsigned nprods_out = ngen_offsets[4];
       unsigned verts_per_prod = the_down_degrees[prod_dim][0];
       unsigned* verts_of_prods_out = LOOP_MALLOC(unsigned, nprods_out * verts_per_prod);
-      uints_expand_into(ndoms[0], verts_per_prod, mesh_ask_down(m, prod_dim, 0),
+      expand_into(ndoms[0], verts_per_prod, mesh_ask_down(m, prod_dim, 0),
           prods_of_doms_offsets[0], verts_of_prods_out);
       for (unsigned dom_dim = 1; dom_dim <= elem_dim; ++dom_dim)
         if (ndoms[dom_dim] && prods_of_doms_offsets[dom_dim])

@@ -178,7 +178,7 @@ T* exchange_##name(struct exchanger* ex, unsigned width, \
   T const* current = data; \
   T* last = 0; \
   if (start == EX_ROOT && ex->items_of_roots_offsets[dir]) { \
-    T* expanded = name##_expand(ex->nroots[dir], width, current, \
+    T* expanded = expand_array<T>(ex->nroots[dir], width, current, \
         ex->items_of_roots_offsets[dir]); \
     current = last = expanded; \
   } \
