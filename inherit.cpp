@@ -40,7 +40,7 @@ T* concat_##name##_inherited( \
 { \
   T* out_data = LOOP_MALLOC(T, ngen_offsets[4] * width); \
   for (unsigned i = 0; i < 4; ++i) { \
-    generic_memcpy<T>( \
+    array_memcpy<T>( \
         out_data + ngen_offsets[i] * width, \
         gen_data[i], \
         (ngen_offsets[i + 1] - ngen_offsets[i]) * width); \

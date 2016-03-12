@@ -2,7 +2,7 @@
 #define ARRAYS_HPP
 
 template <typename T>
-void generic_memcpy(T* dst, T const* src, unsigned n);
+void array_memcpy(T* dst, T const* src, unsigned n);
 
 template <typename T>
 T* copy_array(T const* a, unsigned n);

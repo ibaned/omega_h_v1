@@ -5,7 +5,7 @@
 #if defined(LOOP_CUDA_HPP) || \
     (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
 template <typename T>
-void generic_memcpy(T* dst, T const* src, unsigned n)
+void array_memcpy(T* dst, T const* src, unsigned n)
 {
   CUDACALL(cudaMemcpy(dst, src, n * sizeof(T), cudaMemcpyDeviceToDevice));
 }
@@ -15,26 +15,26 @@ LOOP_KERNEL(memcpy_kern, T* dst, T const* src)
   dst[i] = src[i];
 }
 template <typename T>
-void generic_memcpy(T* dst, T const* src, unsigned n)
+void array_memcpy(T* dst, T const* src, unsigned n)
 {
   LOOP_EXEC(memcpy_kern<T>, n, dst, src);
 }
 #endif
 
-template void generic_memcpy(unsigned char* dst,
+template void array_memcpy(unsigned char* dst,
     unsigned char const* src, unsigned n);
-template void generic_memcpy(unsigned* dst,
+template void array_memcpy(unsigned* dst,
     unsigned const* src, unsigned n);
-template void generic_memcpy(unsigned long* dst,
+template void array_memcpy(unsigned long* dst,
     unsigned long const* src, unsigned n);
-template void generic_memcpy(double* dst,
+template void array_memcpy(double* dst,
     double const* src, unsigned n);
 
 template <typename T>
 T* copy_array(T const* a, unsigned n)
 {
   T* b = LOOP_MALLOC(T, n);
-  generic_memcpy<T>(b, a, n);
+  array_memcpy<T>(b, a, n);
   return b;
 }
 
@@ -152,8 +152,8 @@ T* concat_##name(unsigned width, \
     T const* b, unsigned nb) \
 { \
   T* out = LOOP_MALLOC(T, (na + nb) * width); \
-  generic_memcpy<T>(out, a, na * width); \
-  generic_memcpy<T>(out + (na * width), b, nb * width); \
+  array_memcpy<T>(out, a, na * width); \
+  array_memcpy<T>(out + (na * width), b, nb * width); \
   return out; \
 }
 
