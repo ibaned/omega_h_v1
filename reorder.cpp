@@ -129,7 +129,7 @@ unsigned* compute_ordering(struct mesh* m)
   loop_host_free(layer);
   unsigned* order = invert_order(queue, nverts);
   loop_host_free(queue);
-  unsigned* out = uints_to_device(order, nverts);
+  unsigned* out = array_to_device(order, nverts);
   loop_host_free(order);
   return out;
 }

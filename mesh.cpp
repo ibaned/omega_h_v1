@@ -71,10 +71,10 @@ struct mesh* new_box_mesh(unsigned elem_dim)
   unsigned nverts = the_box_nverts[elem_dim];
   mesh_set_ents(m, 0, nverts, 0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
-  unsigned* verts_of_elems = uints_to_device(
+  unsigned* verts_of_elems = array_to_device(
       the_box_conns[elem_dim], verts_per_elem * nelems);
   mesh_set_ents(m, elem_dim, nelems, verts_of_elems);
-  double* coords = doubles_to_device(
+  double* coords = array_to_device(
       the_box_coords[elem_dim], 3 * nverts);
   mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, coords);
   return m;

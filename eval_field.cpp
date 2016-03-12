@@ -24,7 +24,7 @@ double* eval_field(
     fun(ent_coords, ent_out);
   }
   loop_host_free(host_coords);
-  double* out = doubles_to_device(host_out, ncomps * nents);
+  double* out = array_to_device(host_out, ncomps * nents);
   loop_host_free(host_out);
   return out;
 }

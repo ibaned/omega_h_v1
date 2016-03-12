@@ -369,7 +369,7 @@ static void set_equal_order_class_id(struct mesh* m, unsigned dim)
   connected_components(neqs, offsets, adj, host_comp);
   loop_host_free(offsets);
   loop_host_free(adj);
-  unsigned* comp = uints_to_device(host_comp, neqs);
+  unsigned* comp = array_to_device(host_comp, neqs);
   loop_host_free(host_comp);
   unsigned* class_id = LOOP_MALLOC(unsigned, nents);
   LOOP_EXEC(extract_eq_class_id, nents, eq_offsets, comp, class_id);
@@ -427,7 +427,7 @@ void mesh_derive_class_id(struct mesh* m)
         vert_class_id[i] = nmodel_verts++;
     loop_host_free(vert_class_dim);
     mesh_add_tag(m, 0, TAG_U32, "class_id", 1,
-        uints_to_device(vert_class_id, nverts));
+        array_to_device(vert_class_id, nverts));
     loop_host_free(vert_class_id);
   }
   unsigned dim = mesh_dim(m);

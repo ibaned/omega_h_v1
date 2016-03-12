@@ -43,26 +43,23 @@ template unsigned* copy_array(unsigned const* a, unsigned n);
 template unsigned long* copy_array(unsigned long const* a, unsigned n);
 template double* copy_array(double const* a, unsigned n);
 
-#if defined(LOOP_CUDA_HPP)
-#define GENERIC_TO_DEVICE(T, name) \
-T* name##_to_device(T const* a, unsigned n) \
-{ \
-  T* b = LOOP_MALLOC(T, n); \
-  CUDACALL(cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyHostToDevice)); \
-  return b; \
-}
+template <typename T>
+T* array_to_device(T const* a, unsigned n)
+{
+#if defined(LOOP_CUDA_HPP) || \
+    (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
+  T* b = LOOP_MALLOC(T, n);
+  CUDACALL(cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyHostToDevice));
+  return b;
 #else
-#define GENERIC_TO_DEVICE(T, name) \
-T* name##_to_device(T const* a, unsigned n) \
-{ \
-  return copy_array<T>(a, n); \
-}
+  return copy_array<T>(a, n);
 #endif
+}
 
-GENERIC_TO_DEVICE(unsigned char, uchars)
-GENERIC_TO_DEVICE(unsigned, uints)
-GENERIC_TO_DEVICE(unsigned long, ulongs)
-GENERIC_TO_DEVICE(double, doubles)
+template unsigned char* array_to_device(unsigned char const* a, unsigned n);
+template unsigned* array_to_device(unsigned const* a, unsigned n);
+template unsigned long* array_to_device(unsigned long const* a, unsigned n);
+template double* array_to_device(double const* a, unsigned n);
 
 #if defined(LOOP_CUDA_HPP)
 #define GENERIC_TO_HOST(T, name) \

@@ -7,10 +7,8 @@ void array_memcpy(T* dst, T const* src, unsigned n);
 template <typename T>
 T* copy_array(T const* a, unsigned n);
 
-unsigned char* uchars_to_device(unsigned char const* a, unsigned n);
-unsigned* uints_to_device(unsigned const* a, unsigned n);
-unsigned long* ulongs_to_device(unsigned long const* a, unsigned n);
-double* doubles_to_device(double const* a, unsigned n);
+template <typename T>
+T* array_to_device(T const* a, unsigned n);
 
 unsigned char* uchars_to_host(unsigned char const* a, unsigned n);
 unsigned* uints_to_host(unsigned const* a, unsigned n);

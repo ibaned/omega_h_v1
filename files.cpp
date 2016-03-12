@@ -125,7 +125,7 @@ LOOP_KERNEL(swap_kern, unsigned width, unsigned char* b)
 void* generic_swap_if_needed(enum endian e, unsigned n, unsigned width,
     void const* a)
 {
-  unsigned char* b = uchars_to_device(
+  unsigned char* b = array_to_device(
       static_cast<unsigned char const*>(a), n * width);
   if (e != endianness() && width > 1) {
     assert(width % 2 == 0);
