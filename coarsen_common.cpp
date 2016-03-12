@@ -200,7 +200,7 @@ static void coarsen_interior(struct mesh* m)
   mesh_free_tag(m, 0, "indset");
   unsigned* offset_of_same_verts = uints_negate_offsets(
       gen_offset_of_verts, nverts);
-  unsigned nverts_out = uints_at(offset_of_same_verts, nverts);
+  unsigned nverts_out = array_at(offset_of_same_verts, nverts);
   struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), mesh_is_parallel(m));
   mesh_set_ents(m_out, 0, nverts_out, 0);
   tags_subset(m, m_out, 0, offset_of_same_verts);

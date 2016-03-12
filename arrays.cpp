@@ -123,6 +123,26 @@ template unsigned long* unshuffle_array(unsigned n, unsigned long const* a,
 template double* unshuffle_array(unsigned n, double const* a,
     unsigned width, unsigned const* out_of_in);
 
+#if defined(LOOP_CUDA_HPP) || \
+    (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
+template <typename T>
+T array_at(T const* a, unsigned i)
+{
+  T x;
+  CUDACALL(cudaMemcpy(&x, a + i, sizeof(T), cudaMemcpyDeviceToHost));
+  return x;
+}
+#else
+template <typename T>
+T array_at(T const* a, unsigned i)
+{
+  return a[i];
+}
+#endif
+
+template unsigned char array_at(unsigned char const* a, unsigned i);
+template unsigned array_at(unsigned const* a, unsigned i);
+
 template <typename T>
 LOOP_KERNEL(expand_kern, T const* a, unsigned width,
     unsigned const* offsets, T* out)
@@ -143,7 +163,7 @@ template <typename T>
 T* expand_array(unsigned n, unsigned width,
     T const* a, unsigned const* offsets)
 {
-  unsigned nout = uints_at(offsets, n);
+  unsigned nout = array_at(offsets, n);
   T* out = LOOP_MALLOC(T, nout * width);
   expand_into<T>(n, width, a, offsets, out);
   return out;
@@ -181,40 +201,22 @@ template double* concat_arrays(unsigned width,
     double const* a, unsigned na,
     double const* b, unsigned nb);
 
-#define GENERIC_FILL(T, name) \
-LOOP_KERNEL(name##_fill_kern, T* a, T v) \
-  a[i] = v; \
-} \
-T* name##_filled(unsigned n, T v) \
-{ \
-  T* a = LOOP_MALLOC(T, n); \
-  LOOP_EXEC(name##_fill_kern, n, a, v); \
-  return a; \
+template <typename T>
+LOOP_KERNEL(fill_kern, T* a, T v)
+  a[i] = v;
+}
+template <typename T>
+T* filled_array(unsigned n, T v)
+{
+  T* a = LOOP_MALLOC(T, n);
+  LOOP_EXEC(fill_kern<T>, n, a, v);
+  return a;
 }
 
-GENERIC_FILL(unsigned char, uchars)
-GENERIC_FILL(unsigned, uints)
-GENERIC_FILL(unsigned long, ulongs)
-GENERIC_FILL(double, doubles)
-
-#ifdef LOOP_CUDA_HPP
-#define GENERIC_AT(T, name) \
-T name##_at(T const* a, unsigned i) \
-{ \
-  T x; \
-  CUDACALL(cudaMemcpy(&x, a + i, sizeof(T), cudaMemcpyDeviceToHost)); \
-  return x; \
-}
-#else
-#define GENERIC_AT(T, name) \
-T name##_at(T const* a, unsigned i) \
-{ \
-  return a[i]; \
-}
-#endif
-
-GENERIC_AT(unsigned char, uchars)
-GENERIC_AT(unsigned, uints)
+template unsigned char* filled_array(unsigned n, unsigned char v);
+template unsigned* filled_array(unsigned n, unsigned v);
+template unsigned long* filled_array(unsigned n, unsigned long v);
+template double* filled_array(unsigned n, double v);
 
 #define MAX(a, b) ((b) > (a) ? (b) : (a))
 

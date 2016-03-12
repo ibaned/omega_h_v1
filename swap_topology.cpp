@@ -80,7 +80,7 @@ static unsigned* swap_topology(
     unsigned const* verts_of_tets,
     double const* coords)
 {
-  unsigned ngen_ents = uints_at(gen_offset_of_edges, nedges);
+  unsigned ngen_ents = array_at(gen_offset_of_edges, nedges);
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned* out = LOOP_MALLOC(unsigned, ngen_ents * verts_per_ent);
   LOOP_EXEC(swap_cavity, nedges,

@@ -32,7 +32,7 @@ static void swap_ents(
   unsigned nedges = mesh_count(m, 1);
   unsigned* gen_offset_of_edges = get_swap_topology_offsets(
       ent_dim, nedges, indset, ring_sizes);
-  unsigned ngen_ents = uints_at(gen_offset_of_edges, nedges);
+  unsigned ngen_ents = array_at(gen_offset_of_edges, nedges);
   unsigned* verts_of_gen_ents = mesh_swap_topology(m, ent_dim,
       indset, gen_offset_of_edges);
   unsigned* old_ents = mesh_mark_up(m, 1, ent_dim, indset);

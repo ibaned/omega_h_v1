@@ -45,7 +45,7 @@ static void sends_from_dest_ranks(
   for (send = 0; send < nsent; ++send) {
     unsigned current_rank = 0;
     unsigned* queue_offsets = uints_exscan(queued, nsent);
-    unsigned nqueued = uints_at(queue_offsets, nsent);
+    unsigned nqueued = array_at(queue_offsets, nsent);
     if (nqueued == 0) {
       loop_free(queue_offsets);
       break; /* stop when all entries are part of a message */
@@ -68,7 +68,7 @@ static void sends_from_dest_ranks(
       }
     }
     unsigned* send_idxs = uints_exscan(to_rank, nsent);
-    send_offsets[send + 1] = send_offsets[send] + uints_at(send_idxs, nsent);
+    send_offsets[send + 1] = send_offsets[send] + array_at(send_idxs, nsent);
     for (unsigned i = 0; i < nsent; ++i)
       if (to_rank[i])
         send_shuffle[i] = send_idxs[i] + send_offsets[send];

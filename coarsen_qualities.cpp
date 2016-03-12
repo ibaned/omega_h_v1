@@ -90,7 +90,7 @@ double* coarsen_qualities(
     double const* elem_quals)
 {
   if (elem_dim < 2)
-    return doubles_filled(nedges * 2, 1.0);
+    return filled_array(nedges * 2, 1.0);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = elem_dim - 1;
   double* out = LOOP_MALLOC(double, nedges * 2);

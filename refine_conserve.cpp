@@ -26,7 +26,7 @@ static double* refine_conserve_data(
 {
   unsigned width = t->ncomps;
   double const* data_in = t->d.f64;
-  unsigned ngen_elems = uints_at(prods_of_doms_offsets, nelems);
+  unsigned ngen_elems = array_at(prods_of_doms_offsets, nelems);
   double* data_out = LOOP_MALLOC(double, width * ngen_elems);
   LOOP_EXEC(refine_conserve_elem, nelems,
       prods_of_doms_offsets, width, data_in, data_out);

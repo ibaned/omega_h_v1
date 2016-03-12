@@ -34,7 +34,7 @@ int main(int argc, char** argv)
   { //set mass field to test conservative transfer
     unsigned nelems = mesh_count(m, mesh_dim(m));
     mesh_add_tag(m, mesh_dim(m), TAG_F64, "mass", 1,
-        doubles_filled(nelems, 1.0 / nelems));
+        filled_array(nelems, 1.0 / nelems));
   }
   write_mesh_vtk(m, "out_0.vtu");
   for (unsigned it = 1; 1; ++it) {

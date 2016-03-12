@@ -408,7 +408,7 @@ static void write_cell_arrays(FILE* file, struct mesh* m, enum vtk_format fmt)
   write_array(file, TAG_U32, "offsets", nelems, 1, off + 1, fmt);
   loop_free(off);
   unsigned char type = static_cast<unsigned char>(simplex_types[elem_dim]);
-  unsigned char* types = uchars_filled(nelems, type);
+  unsigned char* types = filled_array(nelems, type);
   write_array(file, TAG_U8, "types", nelems, 1, types, fmt);
   loop_free(types);
 }
@@ -592,7 +592,7 @@ static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
   assert(ncomps == 1);
   unsigned char* types = static_cast<unsigned char*>(data);
   unsigned dim;
-  unsigned char first_type = uchars_at(types, 0);
+  unsigned char first_type = array_at(types, 0);
   for (dim = 0; dim < 4; ++dim)
     if (first_type == simplex_types[dim])
       break;

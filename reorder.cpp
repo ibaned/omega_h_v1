@@ -218,7 +218,7 @@ unsigned* number_ents(struct mesh* m,
       ents_of_verts_offsets, ents_of_verts,
       verts_of_ents, verts_per_ent, nfan_ents);
   unsigned* fan_ent_offsets = uints_exscan(nfan_ents, nverts);
-  assert(uints_at(fan_ent_offsets, nverts) == nents);
+  assert(array_at(fan_ent_offsets, nverts) == nents);
   unsigned* fan_ents = LOOP_MALLOC(unsigned, nents);
   LOOP_EXEC(fill_fan_ents, nverts, vert_num,
       ents_of_verts_offsets, ents_of_verts,
@@ -227,7 +227,7 @@ unsigned* number_ents(struct mesh* m,
   loop_free(nfan_ents);
   unsigned* new_vert_offsets = uints_exscan(new_vert_nfans, nverts);
   loop_free(new_vert_nfans);
-  assert(uints_at(new_vert_offsets, nverts) == nents);
+  assert(array_at(new_vert_offsets, nverts) == nents);
   unsigned* ent_num = LOOP_MALLOC(unsigned, nents);
   LOOP_EXEC(number_fan_ents, nverts, vert_num, fan_ent_offsets, fan_ents,
       new_vert_offsets, ent_num);

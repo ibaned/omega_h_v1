@@ -41,7 +41,7 @@ void project_splits_to_domains(
 {
   assert(dom_dim >= src_dim);
   unsigned srcs_per_dom = the_down_degrees[dom_dim][src_dim];
-  unsigned* dom_will_split = uints_filled(ndoms, 0);
+  unsigned* dom_will_split = filled_array<unsigned>(ndoms, 0);
   unsigned* direction_of_doms = LOOP_MALLOC(unsigned, ndoms);
   unsigned* vert_of_doms = LOOP_MALLOC(unsigned, ndoms);
   LOOP_EXEC(split_to_domain, ndoms,

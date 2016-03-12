@@ -41,7 +41,7 @@ static void get_elem_use_owners_of_verts(
   unsigned const* elem_own_ranks = mesh_ask_own_ranks(m, dim);
   unsigned const* elem_own_ids = mesh_ask_own_ids(m, dim);
   unsigned nverts = mesh_count(m, 0);
-  unsigned nuses_in = uints_at(elems_of_verts_offsets, nverts);
+  unsigned nuses_in = array_at(elems_of_verts_offsets, nverts);
   unsigned* use_ranks_in = LOOP_MALLOC(unsigned, nuses_in);
   unsigned* use_ids_in = LOOP_MALLOC(unsigned, nuses_in);
   for (unsigned i = 0; i < nverts; ++i) {

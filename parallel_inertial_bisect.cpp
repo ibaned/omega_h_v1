@@ -41,7 +41,7 @@ void parallel_inertial_bisect(
   unsigned* orig_ranks_out = 0;
   unsigned* orig_ids_out = 0;
   for (unsigned dir = 0; dir < 2; ++dir) {
-    unsigned nsub = uints_at(offsets, n);
+    unsigned nsub = array_at(offsets, n);
     unsigned* local = uints_linear(nsub + 1, 1);
     unsigned long* global = globalize_offsets(local, nsub);
     loop_free(local);
@@ -146,7 +146,7 @@ void balance_mesh_inertial(struct mesh* m)
       mesh_find_tag(m, dim, "coordinates")->d.f64, n * 3);
   if (!had_elem_coords)
     mesh_free_tag(m, dim, "coordinates");
-  unsigned* orig_ranks = uints_filled(n, comm_rank());
+  unsigned* orig_ranks = filled_array(n, comm_rank());
   unsigned* orig_ids = uints_linear(n, 1);
   recursive_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
   loop_free(coords);

@@ -85,7 +85,7 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   unsigned elem_dim = mesh_dim(m);
   unsigned nsrcs = mesh_count(m, src_dim);
   if (elem_dim < 2)
-    return doubles_filled(nsrcs, 1.0);
+    return filled_array(nsrcs, 1.0);
   unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);
   unsigned const* elems_of_srcs_offsets =

@@ -217,7 +217,7 @@ void mesh_derive_class_dim(struct mesh* m, double crease_angle)
 {
   unsigned dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, dim);
-  unsigned* elem_class_dim = uints_filled(nelems, dim);
+  unsigned* elem_class_dim = filled_array(nelems, dim);
   mesh_add_tag(m, dim, TAG_U32, "class_dim", 1, elem_class_dim);
   if (dim == 0)
     return;
@@ -322,7 +322,7 @@ static void form_boundary_graph(struct mesh* m, unsigned dim,
   unsigned nents = mesh_count(m, dim);
   unsigned* eq_ents = mesh_mark_class(m, dim, dim, INVALID);
   unsigned* eq_offsets = uints_exscan(eq_ents, nents);
-  unsigned neqs = uints_at(eq_offsets, nents);
+  unsigned neqs = array_at(eq_offsets, nents);
   loop_free(eq_ents);
   unsigned* bridges = mesh_mark_class(m, dim - 1, dim, INVALID);
   unsigned bridges_per_ent = the_down_degrees[dim][dim - 1];
@@ -332,7 +332,7 @@ static void form_boundary_graph(struct mesh* m, unsigned dim,
       bridges_per_ent, bridges, degrees);
   unsigned* offsets = uints_exscan(degrees, neqs);
   loop_free(degrees);
-  unsigned nadj = uints_at(offsets, neqs);
+  unsigned nadj = array_at(offsets, neqs);
   unsigned* adj = LOOP_MALLOC(unsigned, nadj);
   unsigned const* ents_of_bridges_offsets =
     mesh_ask_up(m, dim - 1, dim)->offsets;
@@ -364,7 +364,7 @@ static void set_equal_order_class_id(struct mesh* m, unsigned dim)
   unsigned* adj;
   form_boundary_graph(m, dim, &eq_offsets, &offsets, &adj);
   unsigned nents = mesh_count(m, dim);
-  unsigned neqs = uints_at(eq_offsets, nents);
+  unsigned neqs = array_at(eq_offsets, nents);
   unsigned* host_comp = LOOP_HOST_MALLOC(unsigned, neqs);
   connected_components(neqs, offsets, adj, host_comp);
   loop_host_free(offsets);

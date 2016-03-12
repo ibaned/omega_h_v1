@@ -88,13 +88,13 @@ void inherit_globals(
   loop_free(owned);
   loop_free(same);
   unsigned* owned_and_same_offsets = uints_exscan(owned_and_same, nin);
-  unsigned nowned_and_same = uints_at(owned_and_same_offsets, nin);
-  unsigned nsame = uints_at(offset_of_same_ents, nin);
+  unsigned nowned_and_same = array_at(owned_and_same_offsets, nin);
+  unsigned nsame = array_at(offset_of_same_ents, nin);
   unsigned nout = mesh_count(m_out, ent_dim);
   unsigned nnew = nout - nsame;
   unsigned nowned_out = nowned_and_same + nnew;
   unsigned long offset_out = comm_exscan_ulong(nowned_out);
-  unsigned long* new_globals_in = ulongs_filled(nin, ~UL(0));
+  unsigned long* new_globals_in = filled_array(nin, ~UL(0));
   LOOP_EXEC(new_globals_in_kern, nin,
       owned_and_same, offset_out, owned_and_same_offsets, new_globals_in);
   loop_free(owned_and_same);

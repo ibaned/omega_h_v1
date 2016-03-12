@@ -51,7 +51,7 @@ static void subset_ents(
     unsigned const* vert_offsets)
 {
   unsigned nents = mesh_count(m, ent_dim);
-  unsigned nents_out = uints_at(ent_offsets, nents);
+  unsigned nents_out = array_at(ent_offsets, nents);
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
   unsigned* verts_of_ents_out = expand_array(nents, verts_per_ent,
@@ -82,7 +82,7 @@ struct mesh* subset_mesh(
   }
   loop_free(marked_elems);
   unsigned nverts = mesh_count(m, 0);
-  unsigned nverts_out = uints_at(ent_offsets[0], nverts);
+  unsigned nverts_out = array_at(ent_offsets[0], nverts);
   struct mesh* m_out = new_mesh(elem_dim, mesh_get_rep(m), mesh_is_parallel(m));
   mesh_set_ents(m_out, 0, nverts_out, 0);
   tags_subset(m, m_out, 0, ent_offsets[0]);

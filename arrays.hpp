@@ -21,6 +21,9 @@ T* unshuffle_array(unsigned n, T const* a,
     unsigned width, unsigned const* out_of_in);
 
 template <typename T>
+T array_at(T const* a, unsigned i);
+
+template <typename T>
 void expand_into(unsigned n, unsigned width,
     T const* a, unsigned const* offsets, T* out);
 template <typename T>
@@ -32,13 +35,8 @@ T* concat_arrays(unsigned width,
     T const* a, unsigned na,
     T const* b, unsigned nb);
 
-unsigned char* uchars_filled(unsigned n, unsigned char v);
-unsigned* uints_filled(unsigned n, unsigned v);
-unsigned long* ulongs_filled(unsigned n, unsigned long v);
-double* doubles_filled(unsigned n, double v);
-
-unsigned char uchars_at(unsigned char const* a, unsigned i);
-unsigned uints_at(unsigned const* a, unsigned i);
+template <typename T>
+T* filled_array(unsigned n, T v);
 
 void doubles_max_into(unsigned n, unsigned width,
     double const* a, unsigned const* offsets, double* out);

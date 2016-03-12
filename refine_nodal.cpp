@@ -30,7 +30,7 @@ double* refine_nodal(
     unsigned comps_per_vert,
     double const* field)
 {
-  unsigned nsplits = uints_at(gen_offset_of_srcs, nsrcs);
+  unsigned nsplits = array_at(gen_offset_of_srcs, nsrcs);
   double* out = LOOP_MALLOC(double, comps_per_vert * nsplits);
   unsigned verts_per_src = the_down_degrees[src_dim][0];
   LOOP_EXEC(refine_node, nsrcs,

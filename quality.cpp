@@ -30,7 +30,7 @@ double* element_qualities(
     double const* coords)
 {
   if (elem_dim < 2)
-    return doubles_filled(nelems, 1.0);
+    return filled_array(nelems, 1.0);
   double* out = LOOP_MALLOC(double, nelems);
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   LOOP_EXEC(elem_quality_kern, nelems,

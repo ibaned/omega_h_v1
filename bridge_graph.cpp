@@ -58,7 +58,7 @@ static void bridge_graph_general(
     degree_of_verts);
   unsigned* bridge_offsets = uints_exscan(degree_of_verts, nverts);
   loop_free(degree_of_verts);
-  unsigned nedges = uints_at(bridge_offsets, nverts);
+  unsigned nedges = array_at(bridge_offsets, nverts);
   unsigned* verts_of_edges = LOOP_MALLOC(unsigned, nedges * 2);
   unsigned* directions = 0;
   if (directions_out)
@@ -97,7 +97,7 @@ void bridge_dual_graph(
     unsigned** elem_side_of_sides_out)
 {
   unsigned sides_per_elem = the_down_degrees[elem_dim][elem_dim - 1];
-  unsigned* degrees = uints_filled(nelems, sides_per_elem);
+  unsigned* degrees = filled_array(nelems, sides_per_elem);
   unsigned* offsets = uints_exscan(degrees, nelems);
   loop_free(degrees);
   bridge_graph_general(nelems, offsets, elems_of_elems,

@@ -173,7 +173,7 @@ void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
   unsigned nowners = mesh_count(m, dim);
   unsigned const* copies_of_owners_offsets =
     ex->items_of_roots_offsets[EX_FOR];
-  double* out = doubles_filled(nowners * t->ncomps, 0.0);
+  double* out = filled_array(nowners * t->ncomps, 0.0);
   for (unsigned i = 0; i < nowners; ++i) {
     unsigned f = copies_of_owners_offsets[i];
     unsigned e = copies_of_owners_offsets[i + 1];

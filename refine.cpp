@@ -27,6 +27,7 @@ unsigned refine_by_size(struct mesh* m, double qual_floor)
 void uniformly_refine(struct mesh* m)
 {
   unsigned nedges = mesh_count(m, 1);
-  mesh_add_tag(m, 1, TAG_U32, "candidate", 1, uints_filled(nedges, 1));
+  mesh_add_tag(m, 1, TAG_U32, "candidate", 1,
+      filled_array<unsigned>(nedges, 1));
   refine_common(m, 1, 0.0, 0);
 }

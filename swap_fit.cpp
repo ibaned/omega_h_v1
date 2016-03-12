@@ -55,7 +55,7 @@ static double* swap_fit_data(
   unsigned ncomps = t->ncomps;
   unsigned elem_dim = mesh_dim(m);
   unsigned nedges = mesh_count(m, 1);
-  unsigned ngen_elems = uints_at(gen_offset_of_edges, nedges);
+  unsigned ngen_elems = array_at(gen_offset_of_edges, nedges);
   unsigned const* elems_of_edges_offsets =
     mesh_ask_up(m, 1, elem_dim)->offsets;
   unsigned const* elems_of_edges =
@@ -84,11 +84,11 @@ static void swap_fit_tag(
   unsigned nedges = mesh_count(m, 1);
   double* same_data = expand_array(nelems, t->ncomps,
       t->d.f64, offset_of_same_elems);
-  unsigned nsame_elems = uints_at(offset_of_same_elems, nelems);
+  unsigned nsame_elems = array_at(offset_of_same_elems, nelems);
   double* gen_data = swap_fit_data(m, gen_offset_of_edges, t);
   double* data_out = concat_arrays(t->ncomps,
       same_data, nsame_elems,
-      gen_data, uints_at(gen_offset_of_edges, nedges));
+      gen_data, array_at(gen_offset_of_edges, nedges));
   loop_free(same_data);
   loop_free(gen_data);
   add_tag2(mesh_tags(m_out, elem_dim), TAG_F64, t->name, t->ncomps,

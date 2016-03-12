@@ -80,11 +80,11 @@ void collapses_to_ents(
   if (p_fused_sides) {
     sides_of_ents = mesh_ask_down(m, ent_dim, ent_dim - 1);
     unsigned nsides = mesh_count(m, ent_dim - 1);
-    fused_sides = uints_filled(nsides, 0);
+    fused_sides = filled_array<unsigned>(nsides, 0);
   }
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned sides_per_ent = the_down_degrees[ent_dim][ent_dim - 1];
-  unsigned* ent_will_gen = uints_filled(nents, 0);
+  unsigned* ent_will_gen = filled_array<unsigned>(nents, 0);
   unsigned* gen_vert_of_ents = LOOP_MALLOC(unsigned, nents);
   unsigned* gen_direction_of_ents = LOOP_MALLOC(unsigned, nents);
   unsigned* ent_is_same = LOOP_MALLOC(unsigned, nents);

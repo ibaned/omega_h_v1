@@ -82,7 +82,7 @@ void refine_topology(
     return;
   unsigned opps_per_src = the_down_degrees[src_dim][opp_dim];
   assert(opps_per_src);
-  unsigned nsplit_doms = uints_at(offset_of_doms, ndoms);
+  unsigned nsplit_doms = array_at(offset_of_doms, ndoms);
   if (!nsplit_doms)
     return;
   unsigned verts_per_prod = the_down_degrees[prod_dim][0];

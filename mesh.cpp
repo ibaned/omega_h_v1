@@ -194,11 +194,11 @@ struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim
     /* waste memory to prevent algorithms from having to deal
        with equal-order cases separately */
     unsigned n = m->counts[high_dim];
-    unsigned* ones = uints_filled(n, 1);
+    unsigned* ones = filled_array<unsigned>(n, 1);
     unsigned* offsets = uints_exscan(ones, n);
     loop_free(ones);
     unsigned* highs_of_lows = copy_array(offsets, n);
-    unsigned* directions = uints_filled(n, 0);
+    unsigned* directions = filled_array<unsigned>(n, 0);
     set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
   } else {
     unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
@@ -230,7 +230,7 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
     /* waste memory to prevent algorithms from having to deal
        with equal-order cases separately */
     unsigned n = m->counts[low_dim];
-    unsigned* offsets = uints_filled(n + 1, 0);
+    unsigned* offsets = filled_array<unsigned>(n + 1, 0);
     set_star(m, low_dim, high_dim, osh_new_graph(offsets, 0));
   } else {
     unsigned* offsets;

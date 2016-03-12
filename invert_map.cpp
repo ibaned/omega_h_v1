@@ -116,12 +116,12 @@ void invert_map(
     unsigned** p_out,
     unsigned** p_offsets)
 {
-  unsigned* counts = uints_filled(nout, 0);
+  unsigned* counts = filled_array<unsigned>(nout, 0);
   LOOP_EXEC(count, nin, nout, in, counts);
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   loop_free(counts);
-  counts = uints_filled(nout, 0);
+  counts = filled_array<unsigned>(nout, 0);
   LOOP_EXEC(fill, nin, in, offsets, counts, out);
   loop_free(counts);
   LOOP_EXEC(sort, nout, offsets, out);

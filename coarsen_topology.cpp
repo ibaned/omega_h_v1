@@ -43,7 +43,7 @@ void coarsen_topology(
 {
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = get_opposite_dim(elem_dim, 0);
-  unsigned ngen_elems = uints_at(gen_offset_of_elems, nelems);
+  unsigned ngen_elems = array_at(gen_offset_of_elems, nelems);
   unsigned* verts_of_gen_elems = LOOP_MALLOC(unsigned,
       ngen_elems * verts_per_elem);
   LOOP_EXEC(coarsen_elem, nelems,

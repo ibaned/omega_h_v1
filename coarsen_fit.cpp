@@ -102,7 +102,7 @@ static double* coarsen_fit_data(
   unsigned const* elems_of_verts =
     mesh_ask_up(m, 0, elem_dim)->adj;
   double const* data_in = t->d.f64;
-  unsigned ngen_elems = uints_at(gen_offset_of_elems, nelems);
+  unsigned ngen_elems = array_at(gen_offset_of_elems, nelems);
   double* gen_data = LOOP_MALLOC(double, ngen_elems * ncomps);
   LOOP_EXEC(coarsen_fit_cavity, nverts,
       ncomps,
@@ -132,13 +132,13 @@ static void coarsen_fit_tag(
   unsigned nelems = mesh_count(m, elem_dim);
   double* same_data = expand_array(nelems, t->ncomps,
       t->d.f64, offset_of_same_elems);
-  unsigned nsame_elems = uints_at(offset_of_same_elems, nelems);
+  unsigned nsame_elems = array_at(offset_of_same_elems, nelems);
   double* gen_data = coarsen_fit_data(m, gen_offset_of_verts,
       gen_offset_of_elems, old_elem_coords, new_elem_coords,
       nsame_elems, t);
   double* data_out = concat_arrays(t->ncomps,
       same_data, nsame_elems,
-      gen_data, uints_at(gen_offset_of_elems, nelems));
+      gen_data, array_at(gen_offset_of_elems, nelems));
   loop_free(same_data);
   loop_free(gen_data);
   add_tag2(mesh_tags(m_out, elem_dim), TAG_F64, t->name, t->ncomps,

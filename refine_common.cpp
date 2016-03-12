@@ -29,7 +29,7 @@ static void refine_verts(struct mesh* m, struct mesh* m_out,
 {
   unsigned nverts = mesh_count(m, 0);
   unsigned nsrcs = mesh_count(m, src_dim);
-  unsigned nsplit_srcs = uints_at(gen_offset_of_srcs, nsrcs);
+  unsigned nsplit_srcs = array_at(gen_offset_of_srcs, nsrcs);
   unsigned nverts_out = nverts + nsplit_srcs;
   mesh_set_ents(m_out, 0, nverts_out, 0);
   unsigned const* verts_of_srcs = mesh_ask_down(m, src_dim, 0);
@@ -71,7 +71,7 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
   unsigned* offset_of_doms[4] = {0};
   unsigned* direction_of_doms[4] = {0};
   unsigned* vert_of_doms[4] = {0};
-  offset_of_doms[0] = uints_filled(nverts + 1, 0);
+  offset_of_doms[0] = filled_array<unsigned>(nverts + 1, 0);
   for (unsigned dom_dim = 1; dom_dim <= elem_dim; ++dom_dim) {
     if (!mesh_has_dim(m, dom_dim))
       continue;
@@ -81,7 +81,8 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
           &offset_of_doms[dom_dim], &direction_of_doms[dom_dim],
           &vert_of_doms[dom_dim]);
     else
-      offset_of_doms[dom_dim] = uints_filled(mesh_count(m, dom_dim) + 1, 0);
+      offset_of_doms[dom_dim] = filled_array<unsigned>(
+          mesh_count(m, dom_dim) + 1, 0);
   }
   loop_free(gen_vert_of_srcs);
   for (unsigned prod_dim = 0; prod_dim <= elem_dim; ++prod_dim) {
