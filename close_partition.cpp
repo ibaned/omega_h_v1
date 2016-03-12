@@ -123,7 +123,7 @@ void close_partition(
     bcopy_own_ranks[i] = bown_to_copy->ranks[EX_REV][
       bown_to_copy->msg_of_items[EX_REV][i]];
   unsigned* lids = uints_linear(nbowners, 1);
-  unsigned* bcopy_own_ids = exchange_uints(bown_to_copy, 1, lids,
+  unsigned* bcopy_own_ids = exchange(bown_to_copy, 1, lids,
       EX_FOR, EX_ROOT);
   loop_free(lids);
   free_exchanger(bown_to_copy);
@@ -197,7 +197,7 @@ void push_use_owners(
   unsigned* prod_offsets = uints_exscan(prod_counts, nents_in);
   loop_free(prod_counts);
   unsigned* lids_out = uints_linear(nents_out, 1);
-  unsigned* lids_in = exchange_uints(push, 1, lids_out, EX_REV, EX_ITEM);
+  unsigned* lids_in = exchange(push, 1, lids_out, EX_REV, EX_ITEM);
   loop_free(lids_out);
   unsigned nprod = array_at(prod_offsets, nents_in);
   unsigned* prod_dest_ranks = LOOP_MALLOC(unsigned, nprod);
@@ -226,10 +226,10 @@ void push_use_owners(
   loop_free(prod_dest_ranks);
   set_exchanger_dests(prod_push, nents_out, prod_dest_ids);
   loop_free(prod_dest_ids);
-  *p_use_own_ranks_out = exchange_uints(prod_push, 1, prod_use_ranks,
+  *p_use_own_ranks_out = exchange(prod_push, 1, prod_use_ranks,
       EX_FOR, EX_ITEM);
   loop_free(prod_use_ranks);
-  *p_use_own_ids_out = exchange_uints(prod_push, 1, prod_use_ids,
+  *p_use_own_ids_out = exchange(prod_push, 1, prod_use_ids,
       EX_FOR, EX_ITEM);
   loop_free(prod_use_ids);
   *p_offsets_out = copy_array(prod_push->items_of_roots_offsets[EX_REV],

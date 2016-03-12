@@ -21,18 +21,11 @@ struct comm* comm_graph_exact(struct comm* c,
     unsigned nout, unsigned const* out, unsigned const* outweights);
 void comm_recvs(struct comm* c,
     unsigned* nin, unsigned** in, unsigned** inweights);
-void comm_exch_uints(struct comm* c,
+template <typename T>
+void comm_exchange(struct comm* c,
     unsigned width,
-    unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    unsigned* in, unsigned const* incounts, unsigned const* inoffsets);
-void comm_exch_doubles(struct comm* c,
-    unsigned width,
-    double const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    double* in, unsigned const* incounts, unsigned const* inoffsets);
-void comm_exch_ulongs(struct comm* c,
-    unsigned width,
-    unsigned long const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    unsigned long* in, unsigned const* incounts, unsigned const* inoffsets);
+    T const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    T* in, unsigned const* incounts, unsigned const* inoffsets);
 
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in);
 unsigned comm_bcast_uint(unsigned x);

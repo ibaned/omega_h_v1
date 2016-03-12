@@ -63,10 +63,10 @@ static void get_elem_use_owners_of_verts(
   loop_free(dest_ranks);
   set_exchanger_dests(ex, nverts, dest_ids);
   loop_free(dest_ids);
-  *p_use_own_ranks = exchange_uints(ex, 1, use_ranks_in,
+  *p_use_own_ranks = exchange(ex, 1, use_ranks_in,
       EX_FOR, EX_ITEM);
   loop_free(use_ranks_in);
-  *p_use_own_ids = exchange_uints(ex, 1, use_ids_in,
+  *p_use_own_ids = exchange(ex, 1, use_ids_in,
       EX_FOR, EX_ITEM);
   loop_free(use_ids_in);
   *p_uses_of_verts_offsets = copy_array(

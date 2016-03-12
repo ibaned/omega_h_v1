@@ -13,6 +13,24 @@ static struct comm world = { MPI_COMM_WORLD };
 static struct comm self = { MPI_COMM_SELF };
 static struct comm* current = &world;
 
+template <typename T>
+struct TraitsMPI;
+
+template <>
+struct TraitsMPI<unsigned> {
+  static MPI_Datatype const type = MPI_UNSIGNED;
+};
+
+template <>
+struct TraitsMPI<unsigned long> {
+  static MPI_Datatype const type = MPI_UNSIGNED_LONG;
+};
+
+template <>
+struct TraitsMPI<double> {
+  static MPI_Datatype const type = MPI_DOUBLE;
+};
+
 static int we_called_mpi_init = 0;
 
 void comm_init(int* argc, char*** argv)
@@ -166,31 +184,14 @@ static void comm_exch_any(struct comm* c,
   loop_host_free(rdispls);
 }
 
-void comm_exch_uints(struct comm* c,
+template <typename T>
+void comm_exchange(struct comm* c,
     unsigned width,
-    unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    unsigned* in, unsigned const* incounts, unsigned const* inoffsets)
+    T const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    T* in, unsigned const* incounts, unsigned const* inoffsets)
 {
   comm_exch_any(c, width, out, outcounts, outoffsets, in, incounts, inoffsets,
-      MPI_UNSIGNED);
-}
-
-void comm_exch_doubles(struct comm* c,
-    unsigned width,
-    double const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    double* in, unsigned const* incounts, unsigned const* inoffsets)
-{
-  comm_exch_any(c, width, out, outcounts, outoffsets, in, incounts, inoffsets,
-      MPI_DOUBLE);
-}
-
-void comm_exch_ulongs(struct comm* c,
-    unsigned width,
-    unsigned long const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    unsigned long* in, unsigned const* incounts, unsigned const* inoffsets)
-{
-  comm_exch_any(c, width, out, outcounts, outoffsets, in, incounts, inoffsets,
-      MPI_UNSIGNED_LONG);
+      TraitsMPI<T>::type);
 }
 
 static void comm_sync_any(struct comm* c, void const* out, void* in, MPI_Datatype type)
@@ -381,40 +382,22 @@ void comm_recvs(struct comm* c,
   }
 }
 
-#define GENERIC_EXCH \
-  (void) outoffsets; \
-  (void) inoffsets; \
-  struct graph_comm* gc = reinterpret_cast<struct graph_comm*>(c); \
-  if (gc->nout == 1) { \
-    assert(outcounts[0] == incounts[0]); \
-    for (unsigned i = 0; i < outcounts[0] * width; ++i) \
-      in[i] = out[i]; \
-  } \
-  else \
+template <typename T>
+void comm_exchange(struct comm* c,
+    unsigned width,
+    T const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    T* in, unsigned const* incounts, unsigned const* inoffsets)
+{
+  (void) outoffsets;
+  (void) inoffsets;
+  struct graph_comm* gc = reinterpret_cast<struct graph_comm*>(c);
+  if (gc->nout == 1) {
+    assert(outcounts[0] == incounts[0]);
+    for (unsigned i = 0; i < outcounts[0] * width; ++i)
+      in[i] = out[i];
+  }
+  else
     assert(gc->nout == 0);
-
-void comm_exch_uints(struct comm* c,
-    unsigned width,
-    unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    unsigned* in, unsigned const* incounts, unsigned const* inoffsets)
-{
-  GENERIC_EXCH
-}
-
-void comm_exch_doubles(struct comm* c,
-    unsigned width,
-    double const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    double* in, unsigned const* incounts, unsigned const* inoffsets)
-{
-  GENERIC_EXCH
-}
-
-void comm_exch_ulongs(struct comm* c,
-    unsigned width,
-    unsigned long const* out, unsigned const* outcounts, unsigned const* outoffsets,
-    unsigned long* in, unsigned const* incounts, unsigned const* inoffsets)
-{
-  GENERIC_EXCH
 }
 
 void comm_sync_uint(struct comm* c, unsigned out, unsigned* in)
@@ -495,3 +478,13 @@ double comm_add_double(double x)
   comm_add_doubles(a, 1);
   return a[0];
 }
+
+template void comm_exchange(struct comm* c, unsigned width,
+    unsigned const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    unsigned* in, unsigned const* incounts, unsigned const* inoffsets);
+template void comm_exchange(struct comm* c, unsigned width,
+    unsigned long const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    unsigned long* in, unsigned const* incounts, unsigned const* inoffsets);
+template void comm_exchange(struct comm* c, unsigned width,
+    double const* out, unsigned const* outcounts, unsigned const* outoffsets,
+    double* in, unsigned const* incounts, unsigned const* inoffsets);

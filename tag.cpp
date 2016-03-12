@@ -171,13 +171,13 @@ void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into)
     case TAG_U8:
       break;
     case TAG_U32:
-      data_out = exchange_uints(ex, t->ncomps, t->d.u32, EX_FOR, EX_ROOT);
+      data_out = exchange(ex, t->ncomps, t->d.u32, EX_FOR, EX_ROOT);
       break;
     case TAG_U64:
-      data_out = exchange_ulongs(ex, t->ncomps, t->d.u64, EX_FOR, EX_ROOT);
+      data_out = exchange(ex, t->ncomps, t->d.u64, EX_FOR, EX_ROOT);
       break;
     case TAG_F64:
-      data_out = exchange_doubles(ex, t->ncomps, t->d.f64, EX_FOR, EX_ROOT);
+      data_out = exchange(ex, t->ncomps, t->d.f64, EX_FOR, EX_ROOT);
       break;
   }
   if (find_tag(into, t->name))

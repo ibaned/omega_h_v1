@@ -27,7 +27,7 @@ static void setup_linpart(
   set_exchanger_dests(ex, linsize, lin_idxs);
   loop_free(lin_idxs);
   unsigned* orig_idxs = uints_linear(n, 1);
-  unsigned* orig_idxs_recvd = exchange_uints(ex, 1, orig_idxs, EX_FOR, EX_ITEM);
+  unsigned* orig_idxs_recvd = exchange(ex, 1, orig_idxs, EX_FOR, EX_ITEM);
   loop_free(orig_idxs);
   *p_ex = ex;
   *p_orig_idxs_recvd = orig_idxs_recvd;
@@ -75,8 +75,8 @@ void owners_from_global(
   }
   loop_free(orig_idxs_recvd);
   loop_free(recv_nents);
-  *p_own_ranks = exchange_uints(ex, 1, own_rank_of_recvd, EX_REV, EX_ITEM);
-  *p_own_idxs = exchange_uints(ex, 1, own_idx_of_recvd, EX_REV, EX_ITEM);
+  *p_own_ranks = exchange(ex, 1, own_rank_of_recvd, EX_REV, EX_ITEM);
+  *p_own_idxs = exchange(ex, 1, own_idx_of_recvd, EX_REV, EX_ITEM);
   loop_free(own_rank_of_recvd);
   loop_free(own_idx_of_recvd);
   free_exchanger(ex);
@@ -95,7 +95,7 @@ void own_idxs_from_global(
   unsigned const* recvd_of_lin_offsets =
     ex->items_of_roots_offsets[EX_REV];
   unsigned const* recv_of_recvd = ex->msg_of_items[EX_REV];
-  unsigned* own_rank_of_recvd = exchange_uints(ex, 1, own_ranks_in,
+  unsigned* own_rank_of_recvd = exchange(ex, 1, own_ranks_in,
       EX_FOR, EX_ITEM);
   unsigned nrecvd = ex->nitems[EX_REV];
   unsigned* own_idx_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
@@ -119,7 +119,7 @@ void own_idxs_from_global(
   }
   loop_free(own_rank_of_recvd);
   loop_free(orig_idxs_recvd);
-  *p_own_idxs = exchange_uints(ex, 1, own_idx_of_recvd, EX_REV, EX_ITEM);
+  *p_own_idxs = exchange(ex, 1, own_idx_of_recvd, EX_REV, EX_ITEM);
   loop_free(own_idx_of_recvd);
   free_exchanger(ex);
 }

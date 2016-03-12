@@ -81,12 +81,9 @@ void set_exchanger_srcs(
     /* map from sources to input items */
     unsigned const* sent_of_srcs_offsets);
 
-unsigned* exchange_uints(struct exchanger* ex, unsigned width,
-    unsigned const* data, enum exch_dir dir, enum exch_start start);
-double* exchange_doubles(struct exchanger* ex, unsigned width,
-    double const* data, enum exch_dir dir, enum exch_start start);
-unsigned long* exchange_ulongs(struct exchanger* ex, unsigned width,
-    unsigned long const* data, enum exch_dir dir, enum exch_start start);
+template <typename T>
+T* exchange(struct exchanger* ex, unsigned width,
+    T const* data, enum exch_dir dir, enum exch_start start);
 
 void free_exchanger(struct exchanger* ex);
 

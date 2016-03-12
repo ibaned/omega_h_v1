@@ -63,7 +63,7 @@ static unsigned* push_connectivity(
 {
   unsigned* lid_of_uses = use_lids_from_copy_lids(
       use_to_own, ent_push, lid_of_copies);
-  unsigned* verts_of_ents = exchange_uints(use_to_own, 1, lid_of_uses,
+  unsigned* verts_of_ents = exchange(use_to_own, 1, lid_of_uses,
       EX_REV, EX_ITEM);
   loop_free(lid_of_uses);
   return verts_of_ents;
@@ -128,7 +128,7 @@ void migrate_mesh(
   struct mesh* m_out = new_mesh(dim, mesh_get_rep(m), 1);
   move_ents(m, m_out, 0, nverts_recvd, 0, vert_push);
   unsigned* lids = uints_linear(nverts_recvd, 1);
-  unsigned* lid_of_copies = exchange_uints(vert_push, 1, lids,
+  unsigned* lid_of_copies = exchange(vert_push, 1, lids,
       EX_REV, EX_ITEM);
   loop_free(lids);
   unsigned* verts_of_elems = push_connectivity(

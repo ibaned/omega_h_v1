@@ -117,7 +117,7 @@ static unsigned long* global_from_owners(
   loop_free(owned);
   unsigned long* local_globals = globalize_offsets(offsets, nowners);
   loop_free(offsets);
-  unsigned long* globals = exchange_ulongs(ex, 1, local_globals,
+  unsigned long* globals = exchange(ex, 1, local_globals,
       EX_FOR, EX_ROOT);
   loop_free(local_globals);
   return globals;
@@ -141,7 +141,7 @@ void mesh_conform_##name(struct mesh* m, unsigned dim, unsigned width, \
   if (!mesh_is_parallel(m)) \
     return; \
   T* in = *a; \
-  T* out = exchange_##name(mesh_ask_exchanger(m, dim), width, in, \
+  T* out = exchange<T>(mesh_ask_exchanger(m, dim), width, in, \
       EX_FOR, EX_ROOT); \
   loop_free(in); \
   *a = out; \
@@ -169,7 +169,7 @@ void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
   struct const_tag* t = mesh_find_tag(m, dim, name);
   assert(t->type == TAG_F64);
   struct exchanger* ex = mesh_ask_exchanger(m, dim);
-  double* in = exchange_doubles(ex, t->ncomps, t->d.f64, EX_REV, EX_ITEM);
+  double* in = exchange(ex, t->ncomps, t->d.f64, EX_REV, EX_ITEM);
   unsigned nowners = mesh_count(m, dim);
   unsigned const* copies_of_owners_offsets =
     ex->items_of_roots_offsets[EX_FOR];

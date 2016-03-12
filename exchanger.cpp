@@ -142,7 +142,7 @@ void set_exchanger_dests(
     unsigned ndests,
     unsigned const* dest_idx_of_sent)
 {
-  unsigned* dest_idx_of_recvd = exchange_uints(ex, 1, dest_idx_of_sent,
+  unsigned* dest_idx_of_recvd = exchange(ex, 1, dest_idx_of_sent,
       EX_FOR, EX_ITEM);
   ex->nroots[R] = ndests;
   invert_map(ex->nitems[R], dest_idx_of_recvd, ndests,
@@ -170,42 +170,45 @@ static enum exch_dir opp_dir(enum exch_dir d)
   return EX_FOR;
 }
 
-#define GENERIC_EXCHANGE(T, name) \
-T* exchange_##name(struct exchanger* ex, unsigned width, \
-    T const* data, enum exch_dir dir, enum exch_start start) \
-{ \
-  enum exch_dir odir = opp_dir(dir); \
-  T const* current = data; \
-  T* last = 0; \
-  if (start == EX_ROOT && ex->items_of_roots_offsets[dir]) { \
-    T* expanded = expand_array<T>(ex->nroots[dir], width, current, \
-        ex->items_of_roots_offsets[dir]); \
-    current = last = expanded; \
-  } \
-  if (ex->shuffles[dir]) { \
-    T* shuffled = shuffle_array<T>(ex->nitems[dir], current, width, \
-        ex->shuffles[dir]); \
-    loop_free(last); \
-    current = last = shuffled; \
-  } \
-  T* recvd = LOOP_MALLOC(T, ex->nitems[odir] * width); \
-  comm_exch_##name(ex->comms[dir], width, \
-      current, ex->msg_counts[dir], ex->msg_offsets[dir], \
-      recvd,  ex->msg_counts[odir], ex->msg_offsets[odir]); \
-  loop_free(last); \
-  current = last = recvd; \
-  if (ex->shuffles[odir]) { \
-    T* unshuffled = unshuffle_array<T>(ex->nitems[odir], current, width, \
-        ex->shuffles[odir]); \
-    loop_free(last); \
-    current = last = unshuffled; \
-  } \
-  return last; \
+template <typename T>
+T* exchange(struct exchanger* ex, unsigned width,
+    T const* data, enum exch_dir dir, enum exch_start start)
+{
+  enum exch_dir odir = opp_dir(dir);
+  T const* current = data;
+  T* last = 0;
+  if (start == EX_ROOT && ex->items_of_roots_offsets[dir]) {
+    T* expanded = expand_array<T>(ex->nroots[dir], width, current,
+        ex->items_of_roots_offsets[dir]);
+    current = last = expanded;
+  }
+  if (ex->shuffles[dir]) {
+    T* shuffled = shuffle_array<T>(ex->nitems[dir], current, width,
+        ex->shuffles[dir]);
+    loop_free(last);
+    current = last = shuffled;
+  }
+  T* recvd = LOOP_MALLOC(T, ex->nitems[odir] * width);
+  comm_exchange<T>(ex->comms[dir], width,
+      current, ex->msg_counts[dir], ex->msg_offsets[dir],
+      recvd,  ex->msg_counts[odir], ex->msg_offsets[odir]);
+  loop_free(last);
+  current = last = recvd;
+  if (ex->shuffles[odir]) {
+    T* unshuffled = unshuffle_array<T>(ex->nitems[odir], current, width,
+        ex->shuffles[odir]);
+    loop_free(last);
+    current = last = unshuffled;
+  }
+  return last;
 }
 
-GENERIC_EXCHANGE(unsigned, uints)
-GENERIC_EXCHANGE(unsigned long, ulongs)
-GENERIC_EXCHANGE(double, doubles)
+template unsigned* exchange(struct exchanger* ex, unsigned width,
+    unsigned const* data, enum exch_dir dir, enum exch_start start);
+template unsigned long* exchange(struct exchanger* ex, unsigned width,
+    unsigned long const* data, enum exch_dir dir, enum exch_start start);
+template double* exchange(struct exchanger* ex, unsigned width,
+    double const* data, enum exch_dir dir, enum exch_start start);
 
 void free_exchanger(struct exchanger* ex)
 {
@@ -254,7 +257,7 @@ struct exchanger* make_reverse_exchanger(unsigned nsent, unsigned nrecvd,
 double* exchange_doubles_max(struct exchanger* ex, unsigned width,
     double const* data, enum exch_dir dir, enum exch_start start)
 {
-  double* to_reduce = exchange_doubles(ex, width, data, dir, start);
+  double* to_reduce = exchange(ex, width, data, dir, start);
   enum exch_dir od = opp_dir(dir);
   double* out = LOOP_MALLOC(double, width * ex->nroots[od]);
   doubles_max_into(ex->nroots[od], width, to_reduce,
