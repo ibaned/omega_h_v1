@@ -25,7 +25,7 @@ static void sends_from_dest_ranks(
     unsigned nsent,
     unsigned const* dest_rank_of_sent,
     unsigned** p_send_of_sent,
-    unsigned** p_send_shuffle,
+    unsigned** p_send_order,
     unsigned* p_nsends,
     unsigned** p_send_ranks,
     unsigned** p_send_offsets)
@@ -35,7 +35,7 @@ static void sends_from_dest_ranks(
   for (unsigned i = 0; i < nsent; ++i)
     queued[i] = 1;
   unsigned* send_of_sent = LOOP_MALLOC(unsigned, nsent);
-  unsigned* send_shuffle = LOOP_MALLOC(unsigned, nsent);
+  unsigned* send_order = LOOP_MALLOC(unsigned, nsent);
   unsigned* send_offsets = LOOP_MALLOC(unsigned, nsent + 1);
   unsigned* send_ranks = LOOP_MALLOC(unsigned, nsent);
   /* loop over messages, we don't know how many but
@@ -71,14 +71,14 @@ static void sends_from_dest_ranks(
     send_offsets[send + 1] = send_offsets[send] + array_at(send_idxs, nsent);
     for (unsigned i = 0; i < nsent; ++i)
       if (to_rank[i])
-        send_shuffle[i] = send_idxs[i] + send_offsets[send];
+        send_order[i] = send_idxs[i] + send_offsets[send];
     loop_free(to_rank);
     loop_free(send_idxs);
   }
   unsigned nsends = send;
   loop_free(queued);
   *p_send_of_sent = send_of_sent;
-  *p_send_shuffle = send_shuffle;
+  *p_send_order = send_order;
   *p_nsends = nsends;
   /* shrink these arrays to fit, they were
      allocated to the maximum possible size of (nsent) */
@@ -121,7 +121,7 @@ struct exchanger* new_exchanger(
   memset(ex, 0, sizeof(struct exchanger));
   ex->nitems[F] = nsent;
   sends_from_dest_ranks(nsent, dest_rank_of_sent,
-      &ex->msg_of_items[F], &ex->shuffles[F], &ex->nmsgs[F], &ex->ranks[F],
+      &ex->msg_of_items[F], &ex->orders[F], &ex->nmsgs[F], &ex->ranks[F],
       &ex->msg_offsets[F]);
   ex->msg_counts[F] = uints_unscan(ex->msg_offsets[F], ex->nmsgs[F]);
   ex->comms[F] = comm_graph(comm_using(), ex->nmsgs[F], ex->ranks[F],
@@ -146,10 +146,10 @@ void set_exchanger_dests(
       EX_FOR, EX_ITEM);
   ex->nroots[R] = ndests;
   invert_map(ex->nitems[R], dest_idx_of_recvd, ndests,
-      &ex->shuffles[R], &ex->items_of_roots_offsets[R]);
+      &ex->orders[R], &ex->items_of_roots_offsets[R]);
   loop_free(dest_idx_of_recvd);
-  unsigned* msg_of_items = unshuffle_array(ex->nitems[R],
-      ex->msg_of_items[R], 1, ex->shuffles[R]);
+  unsigned* msg_of_items = reorder_array_inv(ex->nitems[R],
+      ex->msg_of_items[R], 1, ex->orders[R]);
   loop_free(ex->msg_of_items[R]);
   ex->msg_of_items[R] = msg_of_items;
 }
@@ -182,11 +182,11 @@ T* exchange(struct exchanger* ex, unsigned width,
         ex->items_of_roots_offsets[dir]);
     current = last = expanded;
   }
-  if (ex->shuffles[dir]) {
-    T* shuffled = shuffle_array<T>(ex->nitems[dir], current, width,
-        ex->shuffles[dir]);
+  if (ex->orders[dir]) {
+    T* orderd = reorder_array<T>(ex->nitems[dir], current, width,
+        ex->orders[dir]);
     loop_free(last);
-    current = last = shuffled;
+    current = last = orderd;
   }
   T* recvd = LOOP_MALLOC(T, ex->nitems[odir] * width);
   comm_exchange<T>(ex->comms[dir], width,
@@ -194,11 +194,11 @@ T* exchange(struct exchanger* ex, unsigned width,
       recvd,  ex->msg_counts[odir], ex->msg_offsets[odir]);
   loop_free(last);
   current = last = recvd;
-  if (ex->shuffles[odir]) {
-    T* unshuffled = unshuffle_array<T>(ex->nitems[odir], current, width,
-        ex->shuffles[odir]);
+  if (ex->orders[odir]) {
+    T* unorderd = reorder_array_inv<T>(ex->nitems[odir], current, width,
+        ex->orders[odir]);
     loop_free(last);
-    current = last = unshuffled;
+    current = last = unorderd;
   }
   return last;
 }
@@ -217,7 +217,7 @@ void free_exchanger(struct exchanger* ex)
     loop_free(ex->ranks[i]);
     loop_free(ex->msg_counts[i]);
     loop_free(ex->msg_offsets[i]);
-    loop_free(ex->shuffles[i]);
+    loop_free(ex->orders[i]);
     loop_free(ex->msg_of_items[i]);
     loop_free(ex->items_of_roots_offsets[i]);
   }
@@ -240,7 +240,7 @@ void reverse_exchanger(struct exchanger* ex)
   SWAP(unsigned*, ex->ranks);
   SWAP(unsigned*, ex->msg_counts);
   SWAP(unsigned*, ex->msg_offsets);
-  SWAP(unsigned*, ex->shuffles);
+  SWAP(unsigned*, ex->orders);
   SWAP(unsigned*, ex->msg_of_items);
   SWAP(unsigned*, ex->items_of_roots_offsets);
 }

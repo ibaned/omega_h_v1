@@ -82,48 +82,48 @@ template unsigned long* array_to_host(unsigned long const* a, unsigned n);
 template double* array_to_host(double const* a, unsigned n);
 
 template <typename T>
-LOOP_KERNEL(shuffle_kern, T const* a, unsigned width,
-    unsigned const* out_of_in, T* o)
-  unsigned j = out_of_in[i];
+LOOP_KERNEL(reorder_kern, T const* a, unsigned width,
+    unsigned const* old_to_new, T* o)
+  unsigned j = old_to_new[i];
   for (unsigned k = 0; k < width; ++k)
     o[j * width + k] = a[i * width + k];
 }
 template <typename T>
-LOOP_KERNEL(unshuffle_kern, T const* a, unsigned width,
-    unsigned const* out_of_in, T* o)
-  unsigned j = out_of_in[i];
+LOOP_KERNEL(reorder_inv_kern, T const* a, unsigned width,
+    unsigned const* new_to_old, T* o)
+  unsigned j = new_to_old[i];
   for (unsigned k = 0; k < width; ++k)
     o[i * width + k] = a[j * width + k];
 }
 template <typename T>
-T* shuffle_array(unsigned n, T const* a,
-    unsigned width, unsigned const* out_of_in)
+T* reorder_array(unsigned n, T const* a,
+    unsigned width, unsigned const* old_to_new)
 {
   T* o = LOOP_MALLOC(T, n * width);
-  LOOP_EXEC(shuffle_kern<T>, n, a, width, out_of_in, o);
+  LOOP_EXEC(reorder_kern<T>, n, a, width, old_to_new, o);
   return o;
 }
 template <typename T>
-T* unshuffle_array(unsigned n, T const* a,
-    unsigned width, unsigned const* out_of_in)
+T* reorder_array_inv(unsigned n, T const* a,
+    unsigned width, unsigned const* new_to_old)
 {
   T* o = LOOP_MALLOC(T, n * width);
-  LOOP_EXEC(unshuffle_kern<T>, n, a, width, out_of_in, o);
+  LOOP_EXEC(reorder_inv_kern<T>, n, a, width, new_to_old, o);
   return o;
 }
 
-template unsigned* shuffle_array(unsigned n, unsigned const* a,
-    unsigned width, unsigned const* out_of_in);
-template unsigned long* shuffle_array(unsigned n, unsigned long const* a,
-    unsigned width, unsigned const* out_of_in);
-template double* shuffle_array(unsigned n, double const* a,
-    unsigned width, unsigned const* out_of_in);
-template unsigned* unshuffle_array(unsigned n, unsigned const* a,
-    unsigned width, unsigned const* out_of_in);
-template unsigned long* unshuffle_array(unsigned n, unsigned long const* a,
-    unsigned width, unsigned const* out_of_in);
-template double* unshuffle_array(unsigned n, double const* a,
-    unsigned width, unsigned const* out_of_in);
+template unsigned* reorder_array(unsigned n, unsigned const* a,
+    unsigned width, unsigned const* old_to_new);
+template unsigned long* reorder_array(unsigned n, unsigned long const* a,
+    unsigned width, unsigned const* old_to_new);
+template double* reorder_array(unsigned n, double const* a,
+    unsigned width, unsigned const* old_to_new);
+template unsigned* reorder_array_inv(unsigned n, unsigned const* a,
+    unsigned width, unsigned const* new_to_old);
+template unsigned long* reorder_array_inv(unsigned n, unsigned long const* a,
+    unsigned width, unsigned const* new_to_old);
+template double* reorder_array_inv(unsigned n, double const* a,
+    unsigned width, unsigned const* new_to_old);
 
 #if defined(LOOP_CUDA_HPP) || \
     (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))

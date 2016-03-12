@@ -21,15 +21,15 @@ static void shuffle_tags(struct mesh* in, struct mesh* out,
       case TAG_U8:
         break;
       case TAG_U32:
-        vals_out = shuffle_array(nents, t->d.u32, t->ncomps,
+        vals_out = reorder_array(nents, t->d.u32, t->ncomps,
             old_to_new);
         break;
       case TAG_U64:
-        vals_out = shuffle_array(nents, t->d.u64, t->ncomps,
+        vals_out = reorder_array(nents, t->d.u64, t->ncomps,
             old_to_new);
         break;
       case TAG_F64:
-        vals_out = shuffle_array(nents, t->d.f64, t->ncomps,
+        vals_out = reorder_array(nents, t->d.f64, t->ncomps,
             old_to_new);
         break;
     }
@@ -58,7 +58,7 @@ static void shuffle_ents(
   unsigned nents = mesh_count(m, ent_dim);
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
-  unsigned* verts_of_ents_out = shuffle_array(nents, verts_of_ents,
+  unsigned* verts_of_ents_out = reorder_array(nents, verts_of_ents,
       verts_per_ent, old_to_new_ents);
   LOOP_EXEC(remap_conn, nents * verts_per_ent, old_to_new_verts,
       verts_of_ents_out);

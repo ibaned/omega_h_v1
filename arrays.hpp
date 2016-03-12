@@ -10,11 +10,11 @@ T* array_to_device(T const* a, unsigned n);
 template <typename T>
 T* array_to_host(T const* a, unsigned n);
 template <typename T>
-T* shuffle_array(unsigned n, T const* a,
-    unsigned width, unsigned const* out_of_in);
+T* reorder_array(unsigned n, T const* a,
+    unsigned width, unsigned const* old_to_new);
 template <typename T>
-T* unshuffle_array(unsigned n, T const* a,
-    unsigned width, unsigned const* out_of_in);
+T* reorder_array_inv(unsigned n, T const* a,
+    unsigned width, unsigned const* new_to_old);
 template <typename T>
 T array_at(T const* a, unsigned i);
 template <typename T>

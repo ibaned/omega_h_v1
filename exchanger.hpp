@@ -23,14 +23,14 @@ enum exch_start {
       the offsets should specify a one-to-many
       mapping from source items to input items.
 
-   2) shuffle the input array such that items are
+   2) reorder the input array such that items are
       sorted by destination rank
       (the result is the sent array)
 
    3) use comm_exch_* to exchange the sent array data,
       resulting in a source-rank-sorted received array
 
-   4) shuffle the received array, resulting in the
+   4) reorder the received array, resulting in the
       "output" array which is sorted by destination
       item
 
@@ -57,7 +57,7 @@ struct exchanger {
 /* offsets into message-sorted data arrays of each message */
   unsigned* msg_offsets[EX_DIRS];
 /* 1-to-1 maps from root-sorted to message-sorted data */
-  unsigned* shuffles[EX_DIRS];
+  unsigned* orders[EX_DIRS];
 /* message index for each input and output item */
   unsigned* msg_of_items[EX_DIRS];
 /* one-to-many mapping from roots to items */

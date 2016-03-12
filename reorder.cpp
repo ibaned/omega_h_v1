@@ -223,7 +223,7 @@ unsigned* number_ents(struct mesh* m,
   LOOP_EXEC(fill_fan_ents, nverts, vert_num,
       ents_of_verts_offsets, ents_of_verts,
       verts_of_ents, verts_per_ent, fan_ent_offsets, fan_ents);
-  unsigned* new_vert_nfans = shuffle_array(nverts, nfan_ents, 1, vert_num);
+  unsigned* new_vert_nfans = reorder_array(nverts, nfan_ents, 1, vert_num);
   loop_free(nfan_ents);
   unsigned* new_vert_offsets = uints_exscan(new_vert_nfans, nverts);
   loop_free(new_vert_nfans);
