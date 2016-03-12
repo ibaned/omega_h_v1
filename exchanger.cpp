@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <utility> //for std::swap
 
 #include "arrays.hpp"
 #include "comm.hpp"
@@ -224,25 +225,24 @@ void free_exchanger(struct exchanger* ex)
   loop_host_free(ex);
 }
 
-#define SWAP(T,a) \
-do { \
-  T tmp = (a)[0]; \
-  (a)[0] = (a)[1]; \
-  (a)[1] = tmp; \
-} while (0);
+template <typename T>
+static void ex_swap(T a[2])
+{
+  std::swap((a)[F], (a)[R]);
+}
 
 void reverse_exchanger(struct exchanger* ex)
 {
-  SWAP(struct comm*, ex->comms);
-  SWAP(unsigned, ex->nitems);
-  SWAP(unsigned, ex->nroots);
-  SWAP(unsigned, ex->nmsgs);
-  SWAP(unsigned*, ex->ranks);
-  SWAP(unsigned*, ex->msg_counts);
-  SWAP(unsigned*, ex->msg_offsets);
-  SWAP(unsigned*, ex->orders);
-  SWAP(unsigned*, ex->msg_of_items);
-  SWAP(unsigned*, ex->items_of_roots_offsets);
+  ex_swap(ex->comms);
+  ex_swap(ex->nitems);
+  ex_swap(ex->nroots);
+  ex_swap(ex->nmsgs);
+  ex_swap(ex->ranks);
+  ex_swap(ex->msg_counts);
+  ex_swap(ex->msg_offsets);
+  ex_swap(ex->orders);
+  ex_swap(ex->msg_of_items);
+  ex_swap(ex->items_of_roots_offsets);
 }
 
 struct exchanger* make_reverse_exchanger(unsigned nsent, unsigned nrecvd,
