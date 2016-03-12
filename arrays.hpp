@@ -3,41 +3,32 @@
 
 template <typename T>
 void array_memcpy(T* dst, T const* src, unsigned n);
-
 template <typename T>
 T* copy_array(T const* a, unsigned n);
-
 template <typename T>
 T* array_to_device(T const* a, unsigned n);
-
 template <typename T>
 T* array_to_host(T const* a, unsigned n);
-
 template <typename T>
 T* shuffle_array(unsigned n, T const* a,
     unsigned width, unsigned const* out_of_in);
 template <typename T>
 T* unshuffle_array(unsigned n, T const* a,
     unsigned width, unsigned const* out_of_in);
-
 template <typename T>
 T array_at(T const* a, unsigned i);
-
 template <typename T>
 void expand_into(unsigned n, unsigned width,
     T const* a, unsigned const* offsets, T* out);
 template <typename T>
 T* expand_array(unsigned n, unsigned width,
     T const* a, unsigned const* offsets);
-
 template <typename T>
 T* concat_arrays(unsigned width,
     T const* a, unsigned na,
     T const* b, unsigned nb);
-
 template <typename T>
 T* filled_array(unsigned n, T v);
-
 void doubles_max_into(unsigned n, unsigned width,
     double const* a, unsigned const* offsets, double* out);
 
