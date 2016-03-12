@@ -79,37 +79,49 @@ template unsigned* array_to_host(unsigned const* a, unsigned n);
 template unsigned long* array_to_host(unsigned long const* a, unsigned n);
 template double* array_to_host(double const* a, unsigned n);
 
-#define GENERIC_SHUFFLE(T, name) \
-LOOP_KERNEL(shuffle_##name##_kern, T const* a, unsigned width, \
-    unsigned const* out_of_in, T* o) \
-  unsigned j = out_of_in[i]; \
-  for (unsigned k = 0; k < width; ++k) \
-    o[j * width + k] = a[i * width + k]; \
-} \
-T* name##_shuffle(unsigned n, T const* a, \
-    unsigned width, unsigned const* out_of_in) \
-{ \
-  T* o = LOOP_MALLOC(T, n * width); \
-  LOOP_EXEC(shuffle_##name##_kern, n, a, width, out_of_in, o); \
-  return o; \
-} \
-LOOP_KERNEL(unshuffle_##name##_kern, T const* a, unsigned width, \
-    unsigned const* out_of_in, T* o) \
-  unsigned j = out_of_in[i]; \
-  for (unsigned k = 0; k < width; ++k) \
-    o[i * width + k] = a[j * width + k]; \
-} \
-T* name##_unshuffle(unsigned n, T const* a, \
-    unsigned width, unsigned const* out_of_in) \
-{ \
-  T* o = LOOP_MALLOC(T, n * width); \
-  LOOP_EXEC(unshuffle_##name##_kern, n, a, width, out_of_in, o); \
-  return o; \
+template <typename T>
+LOOP_KERNEL(shuffle_kern, T const* a, unsigned width,
+    unsigned const* out_of_in, T* o)
+  unsigned j = out_of_in[i];
+  for (unsigned k = 0; k < width; ++k)
+    o[j * width + k] = a[i * width + k];
+}
+template <typename T>
+LOOP_KERNEL(unshuffle_kern, T const* a, unsigned width,
+    unsigned const* out_of_in, T* o)
+  unsigned j = out_of_in[i];
+  for (unsigned k = 0; k < width; ++k)
+    o[i * width + k] = a[j * width + k];
+}
+template <typename T>
+T* shuffle_array(unsigned n, T const* a,
+    unsigned width, unsigned const* out_of_in)
+{
+  T* o = LOOP_MALLOC(T, n * width);
+  LOOP_EXEC(shuffle_kern<T>, n, a, width, out_of_in, o);
+  return o;
+}
+template <typename T>
+T* unshuffle_array(unsigned n, T const* a,
+    unsigned width, unsigned const* out_of_in)
+{
+  T* o = LOOP_MALLOC(T, n * width);
+  LOOP_EXEC(unshuffle_kern<T>, n, a, width, out_of_in, o);
+  return o;
 }
 
-GENERIC_SHUFFLE(unsigned, uints)
-GENERIC_SHUFFLE(unsigned long, ulongs)
-GENERIC_SHUFFLE(double, doubles)
+template unsigned* shuffle_array(unsigned n, unsigned const* a,
+    unsigned width, unsigned const* out_of_in);
+template unsigned long* shuffle_array(unsigned n, unsigned long const* a,
+    unsigned width, unsigned const* out_of_in);
+template double* shuffle_array(unsigned n, double const* a,
+    unsigned width, unsigned const* out_of_in);
+template unsigned* unshuffle_array(unsigned n, unsigned const* a,
+    unsigned width, unsigned const* out_of_in);
+template unsigned long* unshuffle_array(unsigned n, unsigned long const* a,
+    unsigned width, unsigned const* out_of_in);
+template double* unshuffle_array(unsigned n, double const* a,
+    unsigned width, unsigned const* out_of_in);
 
 #define GENERIC_EXPAND(T, name) \
 LOOP_KERNEL(expand_##name##_kern, T const* a, unsigned width, \

@@ -148,7 +148,7 @@ void set_exchanger_dests(
   invert_map(ex->nitems[R], dest_idx_of_recvd, ndests,
       &ex->shuffles[R], &ex->items_of_roots_offsets[R]);
   loop_free(dest_idx_of_recvd);
-  unsigned* msg_of_items = uints_unshuffle(ex->nitems[R],
+  unsigned* msg_of_items = unshuffle_array(ex->nitems[R],
       ex->msg_of_items[R], 1, ex->shuffles[R]);
   loop_free(ex->msg_of_items[R]);
   ex->msg_of_items[R] = msg_of_items;
@@ -183,7 +183,7 @@ T* exchange_##name(struct exchanger* ex, unsigned width, \
     current = last = expanded; \
   } \
   if (ex->shuffles[dir]) { \
-    T* shuffled = name##_shuffle(ex->nitems[dir], current, width, \
+    T* shuffled = shuffle_array<T>(ex->nitems[dir], current, width, \
         ex->shuffles[dir]); \
     loop_free(last); \
     current = last = shuffled; \
@@ -195,7 +195,7 @@ T* exchange_##name(struct exchanger* ex, unsigned width, \
   loop_free(last); \
   current = last = recvd; \
   if (ex->shuffles[odir]) { \
-    T* unshuffled = name##_unshuffle(ex->nitems[odir], current, width, \
+    T* unshuffled = unshuffle_array<T>(ex->nitems[odir], current, width, \
         ex->shuffles[odir]); \
     loop_free(last); \
     current = last = unshuffled; \

@@ -13,17 +13,11 @@ T* array_to_device(T const* a, unsigned n);
 template <typename T>
 T* array_to_host(T const* a, unsigned n);
 
-unsigned* uints_shuffle(unsigned n, unsigned const* a,
+template <typename T>
+T* shuffle_array(unsigned n, T const* a,
     unsigned width, unsigned const* out_of_in);
-unsigned* uints_unshuffle(unsigned n, unsigned const* a,
-    unsigned width, unsigned const* out_of_in);
-unsigned long* ulongs_shuffle(unsigned n, unsigned long const* a,
-    unsigned width, unsigned const* out_of_in);
-unsigned long* ulongs_unshuffle(unsigned n, unsigned long const* a,
-    unsigned width, unsigned const* out_of_in);
-double* doubles_shuffle(unsigned n, double const* a,
-    unsigned width, unsigned const* out_of_in);
-double* doubles_unshuffle(unsigned n, double const* a,
+template <typename T>
+T* unshuffle_array(unsigned n, T const* a,
     unsigned width, unsigned const* out_of_in);
 
 void uchars_expand_into(unsigned n, unsigned width,
