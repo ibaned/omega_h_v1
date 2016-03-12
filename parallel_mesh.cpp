@@ -331,17 +331,14 @@ unsigned* mesh_get_owned(struct mesh* m, unsigned dim)
   return out;
 }
 
-#define GENERIC_MESH_MAX(T, name) \
-void mesh_reduce_##name##_max(struct mesh* m, unsigned dim, unsigned width, \
-    T** a) \
-{ \
-  if (!mesh_is_parallel(m)) \
-    return; \
-  T* in = *a; \
-  T* out = exchange_##name##_max(mesh_ask_exchanger(m, dim), width, in, \
-      EX_REV, EX_ITEM); \
-  loop_free(in); \
-  *a = out; \
+void mesh_doubles_max(struct mesh* m, unsigned dim, unsigned width,
+    double** a)
+{
+  if (!mesh_is_parallel(m))
+    return;
+  double* in = *a;
+  double* out = exchange_doubles_max(mesh_ask_exchanger(m, dim), width, in,
+      EX_REV, EX_ITEM);
+  loop_free(in);
+  *a = out;
 }
-
-GENERIC_MESH_MAX(double, doubles)

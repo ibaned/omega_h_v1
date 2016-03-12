@@ -1,5 +1,7 @@
 #include "arrays.hpp"
 
+#include <algorithm> //for std::max
+
 #include "loop.hpp"
 
 #if defined(LOOP_CUDA_HPP) || \
@@ -218,28 +220,20 @@ template unsigned* filled_array(unsigned n, unsigned v);
 template unsigned long* filled_array(unsigned n, unsigned long v);
 template double* filled_array(unsigned n, double v);
 
-#define MAX(a, b) ((b) > (a) ? (b) : (a))
-
-#define GENERIC_MAX_INTO(T, name) \
-LOOP_KERNEL(max_##name##_into_kern, T const* a, unsigned width, \
-    unsigned const* offsets, T* out) \
-  unsigned first = offsets[i]; \
-  unsigned end = offsets[i + 1]; \
-  if (end == first) \
-    return; \
-  for (unsigned k = 0; k < width; ++k) { \
-    out[i * width + k] = a[first * width + k]; \
-  } \
-  for (unsigned j = first + 1; j < end; ++j) \
-    for (unsigned k = 0; k < width; ++k) { \
-      out[i * width + k] = MAX(out[i * width + k], a[j * width + k]); \
-    } \
-} \
-void name##_max_into(unsigned n, unsigned width, \
-    T const* a, unsigned const* offsets, \
-    T* out) \
-{ \
-  LOOP_EXEC(max_##name##_into_kern, n, a, width, offsets, out); \
+LOOP_KERNEL(max_doubles_into_kern, double const* a, unsigned width,
+    unsigned const* offsets, double* out)
+  unsigned first = offsets[i];
+  unsigned end = offsets[i + 1];
+  if (end == first)
+    return;
+  for (unsigned k = 0; k < width; ++k)
+    out[i * width + k] = a[first * width + k];
+  for (unsigned j = first + 1; j < end; ++j)
+    for (unsigned k = 0; k < width; ++k)
+      out[i * width + k] = std::max(out[i * width + k], a[j * width + k]);
 }
-
-GENERIC_MAX_INTO(double, doubles)
+void doubles_max_into(unsigned n, unsigned width,
+    double const* a, unsigned const* offsets, double* out)
+{
+  LOOP_EXEC(max_doubles_into_kern, n, a, width, offsets, out);
+}

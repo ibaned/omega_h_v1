@@ -127,7 +127,7 @@ void mesh_identity_size_field(struct mesh* m, char const* output_name)
                      mesh_ask_star(m, 0, 1)->offsets,
                      mesh_ask_star(m, 0, 1)->adj,
                      mesh_find_tag(m, 0, "coordinates")->d.f64);
-  mesh_reduce_doubles_max(m, 0, 1, &data);
+  mesh_doubles_max(m, 0, 1, &data);
   mesh_conform_array(m, 0, 1, &data);
   mesh_add_tag(m, 0, TAG_F64, output_name, 1, data);
 }
