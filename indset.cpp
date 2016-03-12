@@ -103,7 +103,7 @@ static unsigned* find_indset(
   unsigned* state = LOOP_MALLOC(unsigned, nverts);
   LOOP_EXEC(init_state, nverts, filter, state);
   for (unsigned it = 0; it < MAX_ITERATIONS; ++it) {
-    unsigned* old_state = uints_copy(state, nverts);
+    unsigned* old_state = generic_copy(state, nverts);
     LOOP_EXEC(indset_at_vert, nverts,
         offsets, adj, goodness, global, old_state, state);
     loop_free(old_state);

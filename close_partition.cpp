@@ -232,7 +232,7 @@ void push_use_owners(
   *p_use_own_ids_out = exchange_uints(prod_push, 1, prod_use_ids,
       EX_FOR, EX_ITEM);
   loop_free(prod_use_ids);
-  *p_offsets_out = uints_copy(prod_push->items_of_roots_offsets[EX_REV],
+  *p_offsets_out = generic_copy(prod_push->items_of_roots_offsets[EX_REV],
       nents_out + 1);
   free_exchanger(prod_push);
 }

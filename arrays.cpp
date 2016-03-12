@@ -2,7 +2,8 @@
 
 #include "loop.hpp"
 
-#if defined(LOOP_CUDA_HPP)
+#if defined(LOOP_CUDA_HPP) || \
+    (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
 template <typename T>
 void generic_memcpy(T* dst, T const* src, unsigned n)
 {
@@ -28,22 +29,19 @@ template void generic_memcpy(unsigned long* dst,
     unsigned long const* src, unsigned n);
 template void generic_memcpy(double* dst,
     double const* src, unsigned n);
-template void generic_memcpy(unsigned** dst,
-    unsigned* const* src, unsigned n);
 
-#define GENERIC_COPY(T, name) \
-T* name##_copy(T const* a, unsigned n) \
-{ \
-  T* b = LOOP_MALLOC(T, n); \
-  generic_memcpy<T>(b, a, n); \
-  return b; \
+template <typename T>
+T* generic_copy(T const* a, unsigned n)
+{
+  T* b = LOOP_MALLOC(T, n);
+  generic_memcpy<T>(b, a, n);
+  return b;
 }
 
-GENERIC_COPY(unsigned char, uchars)
-GENERIC_COPY(unsigned, uints)
-GENERIC_COPY(unsigned long, ulongs)
-GENERIC_COPY(double, doubles)
-GENERIC_COPY(unsigned*, uintptrs)
+template unsigned char* generic_copy(unsigned char const* a, unsigned n);
+template unsigned* generic_copy(unsigned const* a, unsigned n);
+template unsigned long* generic_copy(unsigned long const* a, unsigned n);
+template double* generic_copy(double const* a, unsigned n);
 
 #if defined(LOOP_CUDA_HPP)
 #define GENERIC_TO_DEVICE(T, name) \
@@ -57,7 +55,7 @@ T* name##_to_device(T const* a, unsigned n) \
 #define GENERIC_TO_DEVICE(T, name) \
 T* name##_to_device(T const* a, unsigned n) \
 { \
-  return name##_copy(a, n); \
+  return generic_copy<T>(a, n); \
 }
 #endif
 
@@ -65,7 +63,6 @@ GENERIC_TO_DEVICE(unsigned char, uchars)
 GENERIC_TO_DEVICE(unsigned, uints)
 GENERIC_TO_DEVICE(unsigned long, ulongs)
 GENERIC_TO_DEVICE(double, doubles)
-GENERIC_TO_DEVICE(unsigned*, uintptrs)
 
 #if defined(LOOP_CUDA_HPP)
 #define GENERIC_TO_HOST(T, name) \
@@ -79,7 +76,7 @@ T* name##_to_host(T const* a, unsigned n) \
 #define GENERIC_TO_HOST(T, name) \
 T* name##_to_host(T const* a, unsigned n) \
 { \
-  return name##_copy(a, n); \
+  return generic_copy<T>(a, n); \
 }
 #endif
 
@@ -87,7 +84,6 @@ GENERIC_TO_HOST(unsigned char, uchars)
 GENERIC_TO_HOST(unsigned, uints)
 GENERIC_TO_HOST(unsigned long, ulongs)
 GENERIC_TO_HOST(double, doubles)
-GENERIC_TO_HOST(unsigned*, uintptrs)
 
 #define GENERIC_SHUFFLE(T, name) \
 LOOP_KERNEL(shuffle_##name##_kern, T const* a, unsigned width, \

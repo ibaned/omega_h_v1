@@ -142,7 +142,7 @@ void balance_mesh_inertial(struct mesh* m)
   if (!had_elem_coords)
     mesh_interp_to_elems(m, "coordinates");
   unsigned n = mesh_count(m, dim);
-  double* coords = doubles_copy(
+  double* coords = generic_copy(
       mesh_find_tag(m, dim, "coordinates")->d.f64, n * 3);
   if (!had_elem_coords)
     mesh_free_tag(m, dim, "coordinates");

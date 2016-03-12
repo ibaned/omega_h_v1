@@ -197,7 +197,7 @@ struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim
     unsigned* ones = uints_filled(n, 1);
     unsigned* offsets = uints_exscan(ones, n);
     loop_free(ones);
-    unsigned* highs_of_lows = uints_copy(offsets, n);
+    unsigned* highs_of_lows = generic_copy(offsets, n);
     unsigned* directions = uints_filled(n, 0);
     set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
   } else {

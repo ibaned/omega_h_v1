@@ -82,9 +82,9 @@ static void sends_from_dest_ranks(
   *p_nsends = nsends;
   /* shrink these arrays to fit, they were
      allocated to the maximum possible size of (nsent) */
-  *p_send_ranks = uints_copy(send_ranks, nsends);
+  *p_send_ranks = generic_copy(send_ranks, nsends);
   loop_free(send_ranks);
-  *p_send_offsets = uints_copy(send_offsets, nsends + 1);
+  *p_send_offsets = generic_copy(send_offsets, nsends + 1);
   loop_free(send_offsets);
 }
 
@@ -160,7 +160,7 @@ void set_exchanger_srcs(
     unsigned const* sent_of_srcs_offsets)
 {
   ex->nroots[F] = nsrcs;
-  ex->items_of_roots_offsets[F] = uints_copy(sent_of_srcs_offsets, nsrcs + 1);
+  ex->items_of_roots_offsets[F] = generic_copy(sent_of_srcs_offsets, nsrcs + 1);
 }
 
 static enum exch_dir opp_dir(enum exch_dir d)

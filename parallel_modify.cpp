@@ -41,7 +41,7 @@ void set_own_ranks_by_indset(
   unsigned const* key_owners = mesh_ask_own_ranks(m, key_dim);
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
-  unsigned* elem_owners = uints_copy(
+  unsigned* elem_owners = generic_copy(
       mesh_ask_own_ranks(m, elem_dim), nelems);
   unsigned const* keys_of_elems = mesh_ask_down(m, elem_dim, key_dim);
   unsigned keys_per_elem = the_down_degrees[elem_dim][key_dim];

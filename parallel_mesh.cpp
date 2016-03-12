@@ -215,19 +215,19 @@ void mesh_set_own_ranks(struct mesh* m, unsigned dim, unsigned* new_owners)
 void mesh_tag_globals(struct mesh* m, unsigned dim)
 {
   mesh_add_tag(m, dim, TAG_U64, "global_number", 1,
-      ulongs_copy(mesh_ask_globals(m, dim), mesh_count(m, dim)));
+      generic_copy(mesh_ask_globals(m, dim), mesh_count(m, dim)));
 }
 
 void mesh_tag_own_rank(struct mesh* m, unsigned dim)
 {
   mesh_add_tag(m, dim, TAG_U32, "own_rank", 1,
-      uints_copy(mesh_ask_own_ranks(m, dim), mesh_count(m, dim)));
+      generic_copy(mesh_ask_own_ranks(m, dim), mesh_count(m, dim)));
 }
 
 void mesh_tag_own_id(struct mesh* m, unsigned dim)
 {
   mesh_add_tag(m, dim, TAG_U32, "own_id", 1,
-      uints_copy(mesh_ask_own_ids(m, dim), mesh_count(m, dim)));
+      generic_copy(mesh_ask_own_ids(m, dim), mesh_count(m, dim)));
 }
 
 void mesh_parallel_to_tags(struct mesh* m, unsigned dim)
@@ -255,13 +255,13 @@ void mesh_parallel_from_tags(struct mesh* m, unsigned dim)
 {
   if (!mesh_find_tag(m, dim, "global_number"))
     return;
-  mesh_set_globals(m, dim, ulongs_copy(
+  mesh_set_globals(m, dim, generic_copy(
         mesh_find_tag(m, dim, "global_number")->d.u64,
         mesh_count(m, dim)));
   mesh_free_tag(m, dim, "global_number");
   if (!mesh_find_tag(m, dim, "own_rank"))
     return;
-  mesh_set_own_ranks(m, dim, uints_copy(
+  mesh_set_own_ranks(m, dim, generic_copy(
         mesh_find_tag(m, dim, "own_rank")->d.u32,
         mesh_count(m, dim)));
   mesh_free_tag(m, dim, "own_rank");
@@ -269,7 +269,7 @@ void mesh_parallel_from_tags(struct mesh* m, unsigned dim)
     return;
   struct parallel_mesh* pm = mesh_parallel(m);
   invalidate_ids(pm, dim);
-  pm->own_ids[dim] = uints_copy(
+  pm->own_ids[dim] = generic_copy(
        mesh_find_tag(m, dim, "own_id")->d.u32,
        mesh_count(m, dim));
   mesh_free_tag(m, dim, "own_id");

@@ -138,7 +138,7 @@ static unsigned choose_refinement_indset(
     mesh_free_tag(m, src_dim, "candidate");
     return 0;
   }
-  unsigned* good_candidates = uints_copy(candidates, nsrcs);
+  unsigned* good_candidates = generic_copy(candidates, nsrcs);
   mesh_free_tag(m, src_dim, "candidate");
   double* src_quals = mesh_refine_qualities(m, src_dim, &good_candidates,
       qual_floor, require_better);
