@@ -17,7 +17,7 @@ int main(int argc, char** argv)
   /* use reflect_down to derive the
      triangle to edge graph */
   mesh_ask_down(m, 2, 1);
-  unsigned* host_graph = uints_to_host(
+  unsigned* host_graph = array_to_host(
       mesh_ask_down(m, 2, 1),
       mesh_count(m, 2) * 3);
   for (unsigned i = 0; i < mesh_count(m, 2); ++i) {

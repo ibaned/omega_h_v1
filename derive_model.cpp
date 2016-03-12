@@ -343,9 +343,9 @@ static void form_boundary_graph(struct mesh* m, unsigned dim,
       offsets, adj);
   loop_free(bridges);
   *p_eq_offsets = eq_offsets;
-  *p_offsets = uints_to_host(offsets, neqs + 1);
+  *p_offsets = array_to_host(offsets, neqs + 1);
   loop_free(offsets);
-  *p_adj = uints_to_host(adj, nadj);
+  *p_adj = array_to_host(adj, nadj);
   loop_free(adj);
 }
 
@@ -418,7 +418,7 @@ void mesh_derive_class_id(struct mesh* m)
   /* we'll do this part on the host as well, for laziness */
   {
     unsigned nverts = mesh_count(m, 0);
-    unsigned* vert_class_dim = uints_to_host(
+    unsigned* vert_class_dim = array_to_host(
         mesh_find_tag(m, 0, "class_dim")->d.u32, nverts);
     unsigned* vert_class_id = LOOP_HOST_MALLOC(unsigned, nverts);
     unsigned nmodel_verts = 0;

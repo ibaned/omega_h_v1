@@ -13,10 +13,10 @@ static void get_host_graph(struct mesh* m,
     unsigned** p_adj)
 {
   unsigned nverts = mesh_count(m, 0);
-  unsigned* offsets = uints_to_host(
+  unsigned* offsets = array_to_host(
       mesh_ask_star(m, 0, 1)->offsets, nverts + 1);
   unsigned nadj = offsets[nverts];
-  unsigned* adj = uints_to_host(
+  unsigned* adj = array_to_host(
       mesh_ask_star(m, 0, 1)->adj, nadj);
   *p_offsets = offsets;
   *p_adj = adj;
@@ -30,7 +30,7 @@ static unsigned* compute_boundary_depth(struct mesh* m,
   unsigned* bdry_sides = mesh_mark_part_boundary(m);
   unsigned* bdry_verts = mesh_mark_down(m, dim - 1, 0, bdry_sides);
   loop_free(bdry_sides);
-  unsigned* host_bdry_verts = uints_to_host(bdry_verts, nverts);
+  unsigned* host_bdry_verts = array_to_host(bdry_verts, nverts);
   loop_free(bdry_verts);
   unsigned* queue = LOOP_HOST_MALLOC(unsigned, nverts);
   unsigned* depth = LOOP_HOST_MALLOC(unsigned, nverts);

@@ -148,7 +148,7 @@ static void write_binary_array(FILE* file, enum tag_type t, unsigned nents,
   unsigned tsize = tag_size(t);
   unsigned size = tsize * ncomps * nents;
   unsigned long comp_size;
-  void* host_data = uchars_to_host(
+  void* host_data = array_to_host(
       static_cast<unsigned char const*>(data), size);
   void* comp = my_compress(host_data, size, &comp_size);
   loop_host_free(host_data);
@@ -217,7 +217,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
 {
   switch (t) {
     case TAG_U8: {
-      unsigned char* p = uchars_to_host(
+      unsigned char* p = array_to_host(
           static_cast<unsigned char const*>(data), nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
@@ -228,7 +228,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
       break;
     }
     case TAG_U32: {
-      unsigned* p = uints_to_host(
+      unsigned* p = array_to_host(
           static_cast<unsigned int const*>(data), nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
@@ -239,7 +239,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
       break;
     }
     case TAG_U64: {
-      unsigned long* p = ulongs_to_host(
+      unsigned long* p = array_to_host(
           static_cast<unsigned long const*>(data), nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
@@ -250,7 +250,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
       break;
     }
     case TAG_F64: {
-      double* p = doubles_to_host(
+      double* p = array_to_host(
           static_cast<double const*>(data), nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
