@@ -123,7 +123,7 @@ static unsigned check_coarsen_class(struct mesh* m)
      add ghosting and synchronization to this function */
   unsigned const* col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
   unsigned nedges = mesh_count(m, 1);
-  unsigned* col_codes = generic_copy(col_codes_in, nedges);
+  unsigned* col_codes = copy_array(col_codes_in, nedges);
   mesh_free_tag(m, 1, "col_codes");
   check_collapse_class(m, col_codes);
   if (comm_max_uint(uints_max(col_codes, nedges)) == DONT_COLLAPSE) {
@@ -145,7 +145,7 @@ static unsigned check_coarsen_quality(
   unsigned nelems = mesh_count(m, elem_dim);
   unsigned nedges = mesh_count(m, 1);
   unsigned const* col_codes_in = mesh_find_tag(m, 1, "col_codes")->d.u32;
-  unsigned* col_codes = generic_copy(col_codes_in, nedges);
+  unsigned* col_codes = copy_array(col_codes_in, nedges);
   mesh_free_tag(m, 1, "col_codes");
   double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   unsigned const* verts_of_elems = mesh_ask_down(m, elem_dim, 0);

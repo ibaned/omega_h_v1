@@ -31,17 +31,17 @@ template void generic_memcpy(double* dst,
     double const* src, unsigned n);
 
 template <typename T>
-T* generic_copy(T const* a, unsigned n)
+T* copy_array(T const* a, unsigned n)
 {
   T* b = LOOP_MALLOC(T, n);
   generic_memcpy<T>(b, a, n);
   return b;
 }
 
-template unsigned char* generic_copy(unsigned char const* a, unsigned n);
-template unsigned* generic_copy(unsigned const* a, unsigned n);
-template unsigned long* generic_copy(unsigned long const* a, unsigned n);
-template double* generic_copy(double const* a, unsigned n);
+template unsigned char* copy_array(unsigned char const* a, unsigned n);
+template unsigned* copy_array(unsigned const* a, unsigned n);
+template unsigned long* copy_array(unsigned long const* a, unsigned n);
+template double* copy_array(double const* a, unsigned n);
 
 #if defined(LOOP_CUDA_HPP)
 #define GENERIC_TO_DEVICE(T, name) \
@@ -55,7 +55,7 @@ T* name##_to_device(T const* a, unsigned n) \
 #define GENERIC_TO_DEVICE(T, name) \
 T* name##_to_device(T const* a, unsigned n) \
 { \
-  return generic_copy<T>(a, n); \
+  return copy_array<T>(a, n); \
 }
 #endif
 
@@ -76,7 +76,7 @@ T* name##_to_host(T const* a, unsigned n) \
 #define GENERIC_TO_HOST(T, name) \
 T* name##_to_host(T const* a, unsigned n) \
 { \
-  return generic_copy<T>(a, n); \
+  return copy_array<T>(a, n); \
 }
 #endif
 

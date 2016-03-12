@@ -144,7 +144,7 @@ static void get_vertex_edge_star(
     mesh_ask_up(m, 0, 1)->adj;
   unsigned const* edges_of_verts_directions =
     mesh_ask_up(m, 0, 1)->directions;
-  *p_star_offsets = generic_copy(
+  *p_star_offsets = copy_array(
       edges_of_verts_offsets, nverts + 1);
   unsigned nadj = uints_at(edges_of_verts_offsets, nverts);
   unsigned* star = LOOP_MALLOC(unsigned, nadj);

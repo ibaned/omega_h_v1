@@ -69,7 +69,7 @@ static void get_elem_use_owners_of_verts(
   *p_use_own_ids = exchange_uints(ex, 1, use_ids_in,
       EX_FOR, EX_ITEM);
   loop_free(use_ids_in);
-  *p_uses_of_verts_offsets = generic_copy(
+  *p_uses_of_verts_offsets = copy_array(
       ex->items_of_roots_offsets[EX_REV], nverts + 1);
   free_exchanger(ex);
 }
@@ -131,8 +131,8 @@ static void init_ghost_resident(struct ghost_state* s,
   unsigned d = ghost_dim(m, t);
   unsigned n = mesh_count(m, d);
   s->resident[t].n = n;
-  s->resident[t].ranks = generic_copy(mesh_ask_own_ranks(m, d), n);
-  s->resident[t].ids = generic_copy(mesh_ask_own_ids(m, d), n);
+  s->resident[t].ranks = copy_array(mesh_ask_own_ranks(m, d), n);
+  s->resident[t].ids = copy_array(mesh_ask_own_ids(m, d), n);
 }
 
 static void init_ghost_uses(struct ghost_state* s,

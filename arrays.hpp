@@ -5,7 +5,7 @@ template <typename T>
 void generic_memcpy(T* dst, T const* src, unsigned n);
 
 template <typename T>
-T* generic_copy(T const* a, unsigned n);
+T* copy_array(T const* a, unsigned n);
 
 unsigned char* uchars_to_device(unsigned char const* a, unsigned n);
 unsigned* uints_to_device(unsigned const* a, unsigned n);
