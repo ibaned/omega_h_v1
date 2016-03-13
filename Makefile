@@ -7,9 +7,6 @@
 include config.mk
 
 test_sources := \
-test_qr.cpp \
-test_reorder.cpp \
-test_identity.cpp \
 test_flounder.cpp \
 test_one_refine.cpp \
 test_one_coarsen.cpp \
@@ -30,9 +27,7 @@ test_warp_perf.cpp \
 test_migrate.cpp \
 test_conform.cpp \
 test_ghost.cpp \
-test_memory.cpp \
 test_subdim.cpp \
-test_loop.cpp \
 test_to_la.cpp
 
 lib_sources := \
