@@ -162,12 +162,12 @@ void expand_into(T* out, T const* a,
   LOOP_EXEC(expand_kern<T>, n, a, width, offsets, out);
 }
 template <typename T>
-T* expand_array(unsigned n, unsigned width,
-    T const* a, unsigned const* offsets)
+T* expand_array(T const* a,
+    unsigned const* offsets, unsigned n, unsigned width)
 {
   unsigned nout = array_at(offsets, n);
   T* out = LOOP_MALLOC(T, nout * width);
-  expand_into<T>(out, a, offsets, n, width);
+  expand_into(out, a, offsets, n, width);
   return out;
 }
 
@@ -176,14 +176,14 @@ template void expand_into(unsigned* out, unsigned const* a,
 template void expand_into(unsigned long* out, unsigned long const* a,
     unsigned const* offsets, unsigned n, unsigned width);
 
-template unsigned char* expand_array(unsigned n, unsigned width,
-    unsigned char const* a, unsigned const* offsets);
-template unsigned* expand_array(unsigned n, unsigned width,
-    unsigned const* a, unsigned const* offsets);
-template unsigned long* expand_array(unsigned n, unsigned width,
-    unsigned long const* a, unsigned const* offsets);
-template double* expand_array(unsigned n, unsigned width,
-    double const* a, unsigned const* offsets);
+template unsigned char* expand_array(unsigned char const* a,
+    unsigned const* offsets, unsigned n, unsigned width);
+template unsigned* expand_array(unsigned const* a,
+    unsigned const* offsets, unsigned n, unsigned width);
+template unsigned long* expand_array(unsigned long const* a,
+    unsigned const* offsets, unsigned n, unsigned width);
+template double* expand_array(double const* a,
+    unsigned const* offsets, unsigned n, unsigned width);
 
 template <typename T>
 T* concat_arrays(unsigned width,

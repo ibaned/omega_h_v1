@@ -179,8 +179,8 @@ T* exchange(struct exchanger* ex, unsigned width,
   T const* current = data;
   T* last = 0;
   if (start == EX_ROOT && ex->items_of_roots_offsets[dir]) {
-    T* expanded = expand_array<T>(ex->nroots[dir], width, current,
-        ex->items_of_roots_offsets[dir]);
+    T* expanded = expand_array(current,
+        ex->items_of_roots_offsets[dir], ex->nroots[dir], width);
     current = last = expanded;
   }
   if (ex->orders[dir]) {

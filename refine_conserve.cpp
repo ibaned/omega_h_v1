@@ -46,8 +46,8 @@ static void refine_conserve_tag(
   unsigned ngen_offsets[5];
   make_ngen_offsets(ngen, ngen_offsets);
   double* gen_data[4] = {0};
-  gen_data[0] = expand_array(ndoms[0], t->ncomps, t->d.f64,
-      prods_of_doms_offsets[0]);
+  gen_data[0] = expand_array(t->d.f64, prods_of_doms_offsets[0],
+      ndoms[0], t->ncomps);
   gen_data[elem_dim] = refine_conserve_data(mesh_count(m, elem_dim),
       prods_of_doms_offsets[elem_dim], t);
   double* data_out = concat_inherited(t->ncomps, ngen_offsets, gen_data);

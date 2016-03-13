@@ -67,12 +67,11 @@ static void inherit_uints_direct(
     unsigned* gen_data[4])
 {
   for (unsigned i = 0; i < 4; ++i) {
-    if (ndoms[i] && dom_data[i] && prods_of_doms_offsets[i]) {
-      gen_data[i] = expand_array(ndoms[i], width,
-          dom_data[i], prods_of_doms_offsets[i]);
-    } else {
+    if (ndoms[i] && dom_data[i] && prods_of_doms_offsets[i])
+      gen_data[i] = expand_array(dom_data[i],
+          prods_of_doms_offsets[i], ndoms[i], width);
+    else
       gen_data[i] = 0;
-    }
   }
 }
 
@@ -243,8 +242,8 @@ void concat_verts_of_ents(
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned nsame_ents = array_at(offset_of_same_ents, nents);
   unsigned nents_out = nsame_ents + ngen_ents;
-  unsigned* verts_of_same_ents = expand_array(nents, verts_per_ent,
-      verts_of_ents, offset_of_same_ents);
+  unsigned* verts_of_same_ents = expand_array(verts_of_ents,
+      offset_of_same_ents, nents, verts_per_ent);
   unsigned* verts_of_ents_out = concat_arrays(verts_per_ent,
       verts_of_same_ents, nsame_ents,
       verts_of_gen_ents, ngen_ents);

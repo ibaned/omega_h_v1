@@ -60,20 +60,20 @@ void parallel_inertial_bisect(
     loop_free(lin_ranks);
     if (in_subgroup)
       n_out = ex->nitems[EX_REV];
-    double* sub_coords = expand_array(n, 3, coords, offsets);
+    double* sub_coords = expand_array(coords, offsets, n, 3);
     double* coords_recvd = exchange(ex, 3, sub_coords, EX_FOR, EX_ITEM);
     loop_free(sub_coords);
     double* masses_recvd = 0;
     if (masses) {
-      double* sub_masses = expand_array(n, 1, masses, offsets);
+      double* sub_masses = expand_array(masses, offsets, n, 1);
       masses_recvd = exchange(ex, 1, sub_masses, EX_FOR, EX_ITEM);
       loop_free(sub_masses);
     }
-    unsigned* sub_orig_ranks = expand_array(n, 1, orig_ranks, offsets);
+    unsigned* sub_orig_ranks = expand_array(orig_ranks, offsets, n, 1);
     unsigned* orig_ranks_recvd = exchange(ex, 1, sub_orig_ranks,
         EX_FOR, EX_ITEM);
     loop_free(sub_orig_ranks);
-    unsigned* sub_orig_ids = expand_array(n, 1, orig_ids, offsets);
+    unsigned* sub_orig_ids = expand_array(orig_ids, offsets, n, 1);
     unsigned* orig_ids_recvd = exchange(ex, 1, sub_orig_ids,
         EX_FOR, EX_ITEM);
     loop_free(sub_orig_ids);

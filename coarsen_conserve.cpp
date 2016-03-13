@@ -96,8 +96,8 @@ static void coarsen_conserve_tag(
 {
   unsigned elem_dim = mesh_dim(m);
   unsigned nelems = mesh_count(m, elem_dim);
-  double* same_data = expand_array(nelems, t->ncomps,
-      t->d.f64, offset_of_same_elems);
+  double* same_data = expand_array(t->d.f64, offset_of_same_elems,
+      nelems, t->ncomps);
   unsigned nsame_elems = array_at(offset_of_same_elems, nelems);
   double* gen_data = coarsen_conserve_data(m, gen_offset_of_verts,
       gen_offset_of_elems, nsame_elems, new_elem_sizes, t);

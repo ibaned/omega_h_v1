@@ -21,8 +21,8 @@ template <typename T>
 void expand_into(T* out, T const* a,
     unsigned const* offsets, unsigned n, unsigned width);
 template <typename T>
-T* expand_array(unsigned n, unsigned width,
-    T const* a, unsigned const* offsets);
+T* expand_array(T const* a,
+    unsigned const* offsets, unsigned n, unsigned width);
 template <typename T>
 T* concat_arrays(unsigned width,
     T const* a, unsigned na,
