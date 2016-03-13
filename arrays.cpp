@@ -1,7 +1,5 @@
 #include "arrays.hpp"
 
-#include <algorithm> //for std::max
-
 #include "loop.hpp"
 
 namespace omega_h {
@@ -70,7 +68,7 @@ T* array_to_host(T const* a, unsigned n)
 {
 #if defined(LOOP_CUDA_HPP) || \
     (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
-  T* b = LOOP_MALLOC(T, n);
+  T* b = LOOP_HOST_MALLOC(T, n);
   CUDACALL(cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyDeviceToHost));
   return b;
 #else
