@@ -1,6 +1,8 @@
 #ifndef REFINE_TOPOLOGY_HPP
 #define REFINE_TOPOLOGY_HPP
 
+namespace omega_h {
+
 /* this is the central function involved in
  * mesh refinement.
  * there are three variable dimensions:
@@ -42,5 +44,7 @@ void mesh_refine_topology(struct mesh* m,
     unsigned const* vert_of_doms,
     unsigned const* direction_of_doms,
     unsigned* verts_of_prods);
+
+}
 
 #endif

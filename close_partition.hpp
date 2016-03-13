@@ -1,6 +1,8 @@
 #ifndef CLOSE_PARTITION_HPP
 #define CLOSE_PARTITION_HPP
 
+namespace omega_h {
+
 struct exchanger;
 struct mesh;
 
@@ -33,5 +35,7 @@ void push_use_owners(
     unsigned** p_use_own_ranks_out,
     unsigned** p_use_own_ids_out,
     unsigned** p_offsets_out);
+
+}
 
 #endif

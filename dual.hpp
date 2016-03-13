@@ -6,6 +6,8 @@
  * so those entries will be marked INVALID.
  */
 
+namespace omega_h {
+
 unsigned* dual_from_verts(
     unsigned elem_dim,
     unsigned nelems,
@@ -25,5 +27,7 @@ struct mesh;
 unsigned* mesh_get_dual_from_verts(struct mesh* m);
 
 unsigned* mesh_get_dual_from_sides(struct mesh* m);
+
+}
 
 #endif

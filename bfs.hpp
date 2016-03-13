@@ -1,6 +1,8 @@
 #ifndef BFS_HPP
 #define BFS_HPP
 
+namespace omega_h {
+
 /* all arrays on HOST ! */
 
 void bfs_continue(
@@ -36,5 +38,7 @@ void connected_components(
     unsigned const* offsets,
     unsigned const* adj,
     unsigned* comp);
+
+}
 
 #endif

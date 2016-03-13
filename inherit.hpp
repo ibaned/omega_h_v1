@@ -1,6 +1,8 @@
 #ifndef INHERIT_HPP
 #define INHERIT_HPP
 
+namespace omega_h {
+
 struct mesh;
 
 void setup_refine(
@@ -63,5 +65,7 @@ void make_ngen_offsets(
     unsigned const ngen[4],
     /* out: */
     unsigned ngen_offsets[5]);
+
+}
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef VTK_IO_HPP
 #define VTK_IO_HPP
 
+namespace omega_h {
+
 struct mesh;
 
 enum vtk_format {
@@ -17,5 +19,7 @@ void write_mesh_vtk_opts(struct mesh* m, char const* outpath,
 
 void start_vtk_steps(char const* prefix);
 void write_vtk_step(struct mesh* m);
+
+}
 
 #endif

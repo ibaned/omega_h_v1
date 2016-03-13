@@ -3,6 +3,8 @@
 
 #include "include/omega_h.h"
 
+namespace omega_h {
+
 enum tag_type {
   TAG_U8,
   TAG_U32,
@@ -61,5 +63,7 @@ struct exchanger;
 
 void push_tag(struct exchanger* ex, struct const_tag* t, struct tags* into);
 void push_tags(struct exchanger* push, struct tags* from, struct tags* into);
+
+}
 
 #endif

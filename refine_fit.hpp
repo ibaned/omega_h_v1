@@ -1,6 +1,8 @@
 #ifndef REFINE_FIT_HPP
 #define REFINE_FIT_HPP
 
+namespace omega_h {
+
 struct mesh;
 
 void refine_fit(
@@ -8,6 +10,8 @@ void refine_fit(
     struct mesh* m_out,
     unsigned ndoms[4],
     unsigned* prods_of_doms_offsets[4]);
+
+}
 
 #endif
 

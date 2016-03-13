@@ -3,6 +3,8 @@
 
 #include "loop.hpp"
 
+namespace omega_h {
+
 /* strong optimization here due to the
    frequent use of these operations.
    we assume we are searching for edges
@@ -71,6 +73,8 @@ LOOP_INOUT static inline unsigned find_by_verts(
           ents_of_verts_offsets, ents_of_verts, ents_of_verts_directions);
   };
   LOOP_NORETURN(0);
+}
+
 }
 
 #endif

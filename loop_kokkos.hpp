@@ -8,6 +8,8 @@
 #endif
 #include <Kokkos_Core.hpp>
 
+namespace omega_h {
+
 #ifdef KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA
 #define LOOP_IN __device__
 #define LOOP_CONST __const__
@@ -67,5 +69,7 @@ do { \
   assert(ret == cudaSuccess); \
 } while (0)
 #endif
+
+}
 
 #endif

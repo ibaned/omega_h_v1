@@ -5,6 +5,8 @@
 
 #include "loop_host.hpp"
 
+namespace omega_h {
+
 #define LOOP_MALLOC(T, n) \
   static_cast<T*>(loop_host_malloc(sizeof(T) * (n)))
 #define loop_free loop_host_free
@@ -19,13 +21,13 @@ static void fname(__VA_ARGS__, unsigned i) \
 for (unsigned i = 0; i < n; ++i) \
   fname(__VA_ARGS__, i);
 
-unsigned loop_size(void);
-
 #define LOOP_IN
 #define LOOP_INOUT
 
 #define LOOP_CONST
 
 #define LOOP_NORETURN(x) assert(0)
+
+}
 
 #endif

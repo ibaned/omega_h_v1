@@ -5,6 +5,8 @@
 
 #define MAX_EDGE_SWAP 7
 
+namespace omega_h {
+
 LOOP_CONST extern unsigned const swap_mesh_sizes[MAX_EDGE_SWAP+1];
 LOOP_CONST extern unsigned const swap_mesh_counts[MAX_EDGE_SWAP+1];
 
@@ -37,5 +39,7 @@ LOOP_IN void get_swap_ents(
 LOOP_IN unsigned count_swap_ents(
     unsigned ring_size,
     unsigned ent_dim);
+
+}
 
 #endif

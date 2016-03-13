@@ -5,6 +5,8 @@
 
 #include "size.hpp"
 
+namespace omega_h {
+
 /* These normalization constants are the values of
  * the original quality measures for regular simplices.
  * The formulae for area and volume of regular simplices
@@ -122,5 +124,7 @@ struct mesh;
 
 double* mesh_qualities(struct mesh* m);
 double mesh_min_quality(struct mesh* m);
+
+}
 
 #endif

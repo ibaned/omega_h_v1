@@ -4,6 +4,8 @@
 #include "tag.hpp"
 #include "graph.hpp"
 
+namespace omega_h {
+
 enum mesh_rep {
   MESH_REDUCED,
   MESH_FULL
@@ -55,5 +57,7 @@ struct parallel_mesh* mesh_parallel(struct mesh* m);
 void mesh_make_parallel(struct mesh* m);
 
 void overwrite_mesh(struct mesh* old, struct mesh* with);
+
+}
 
 #endif

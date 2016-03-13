@@ -3,6 +3,8 @@
 
 #include "algebra.hpp"
 
+namespace omega_h {
+
 LOOP_INOUT static inline double
 edge_length(double coords[2][3])
 {
@@ -67,5 +69,7 @@ double* mesh_element_sizes(struct mesh* m);
 double* mesh_measure_edges_for_adapt(struct mesh* m);
 
 void mesh_identity_size_field(struct mesh* m, char const* output_name);
+
+}
 
 #endif

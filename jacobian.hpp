@@ -3,6 +3,8 @@
 
 #include "algebra.hpp"
 
+namespace omega_h {
+
 /* we define the element Jacobian such that
       J \xi + x_0 = x
    where J is the Jacobian, \xi is the column
@@ -73,6 +75,8 @@ invert_jacobian(unsigned dim, double in[3][3], double out[3][3])
     case 1: invert_jacobian_1(in, out); return;
   }
   LOOP_NORETURN();
+}
+
 }
 
 #endif

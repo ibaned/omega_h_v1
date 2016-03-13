@@ -1,6 +1,8 @@
 #ifndef MARK_HPP
 #define MARK_HPP
 
+namespace omega_h {
+
 unsigned* mark_down(
     unsigned nlows,
     unsigned const* highs_of_lows_offsets,
@@ -53,5 +55,7 @@ void mesh_unmark_boundary(
     unsigned* marked);
 
 unsigned* mesh_mark_part_boundary(struct mesh* m);
+
+}
 
 #endif

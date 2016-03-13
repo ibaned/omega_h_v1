@@ -1,6 +1,8 @@
 #ifndef COARSEN_CONSERVE_HPP
 #define COARSEN_CONSERVE_HPP
 
+namespace omega_h {
+
 struct mesh;
 
 void coarsen_conserve(
@@ -9,5 +11,7 @@ void coarsen_conserve(
     unsigned const* gen_offset_of_verts,
     unsigned const* gen_offset_of_elems,
     unsigned const* offset_of_same_elems);
+
+}
 
 #endif

@@ -15,6 +15,8 @@
 
 #define CALL(f) do { int err = (f); assert(err == MPI_SUCCESS); } while(0)
 
+namespace omega_h {
+
 struct comm {
   MPI_Comm c;
 };
@@ -38,5 +40,7 @@ int compat_Neighbor_allgather(
     int recvcount,
     MPI_Datatype recvtype,
     MPI_Comm comm);
+
+}
 
 #endif

@@ -5,6 +5,8 @@
 
 #include "loop.hpp"
 
+namespace omega_h {
+
 typedef char line_t[1024];
 
 enum endian {
@@ -38,6 +40,8 @@ static inline LOOP_INOUT void swap_one(void* a, unsigned width)
     b[j] = b[width - j - 1];
     b[width - j - 1] = tmp;
   }
+}
+
 }
 
 #endif

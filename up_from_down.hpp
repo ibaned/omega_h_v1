@@ -1,6 +1,8 @@
 #ifndef UP_FROM_DOWN_HPP
 #define UP_FROM_DOWN_HPP
 
+namespace omega_h {
+
 /* given a downward adjacency graph,
  * computes its inverse upward adjacency graph,
  * including information about the relative
@@ -16,5 +18,7 @@ void up_from_down(
     unsigned** offsets_out,
     unsigned** highs_of_lows_out,
     unsigned** directions_out);
+
+}
 
 #endif

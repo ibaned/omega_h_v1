@@ -1,6 +1,8 @@
 #ifndef SPLITS_TO_ELEMENTS_HPP
 #define SPLITS_TO_ELEMENTS_HPP
 
+namespace omega_h {
+
 /* this is a preprocessing function for
  * refine_topology.
  * the entities whose interior domains are being
@@ -39,5 +41,7 @@ void mesh_splits_to_domains(
   unsigned** p_offset_of_doms,
   unsigned** p_direction_of_doms,
   unsigned** p_vert_of_doms);
+
+}
 
 #endif

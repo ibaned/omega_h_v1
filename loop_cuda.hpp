@@ -5,6 +5,8 @@
 
 #include <cassert>
 
+namespace omega_h {
+
 #define LOOP_IN __device__
 #define LOOP_INOUT __device__ __host__
 
@@ -54,5 +56,7 @@ do { \
 unsigned loop_size(void);
 
 #define LOOP_NORETURN(x) return x
+
+}
 
 #endif

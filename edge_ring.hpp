@@ -3,6 +3,8 @@
 
 #include "loop.hpp"
 
+namespace omega_h {
+
 LOOP_IN unsigned find_edge_ring(
     unsigned edge,
     unsigned const* tets_of_edges_offsets,
@@ -12,5 +14,7 @@ LOOP_IN unsigned find_edge_ring(
     unsigned const* verts_of_tets,
     unsigned* edge_v,
     unsigned* ring_v);
+
+}
 
 #endif
