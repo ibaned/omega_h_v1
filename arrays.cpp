@@ -96,34 +96,35 @@ LOOP_KERNEL(reorder_inv_kern, T const* a, unsigned width,
     o[i * width + k] = a[j * width + k];
 }
 template <typename T>
-T* reorder_array(unsigned n, T const* a,
-    unsigned width, unsigned const* old_to_new)
+T* reorder_array(T const* a, unsigned const* old_to_new,
+    unsigned n, unsigned width)
 {
   T* o = LOOP_MALLOC(T, n * width);
   LOOP_EXEC(reorder_kern<T>, n, a, width, old_to_new, o);
   return o;
 }
 template <typename T>
-T* reorder_array_inv(unsigned n, T const* a,
-    unsigned width, unsigned const* new_to_old)
+T* reorder_array_inv(T const* a, unsigned const* new_to_old,
+    unsigned n, unsigned width)
 {
   T* o = LOOP_MALLOC(T, n * width);
   LOOP_EXEC(reorder_inv_kern<T>, n, a, width, new_to_old, o);
   return o;
 }
 
-template unsigned* reorder_array(unsigned n, unsigned const* a,
-    unsigned width, unsigned const* old_to_new);
-template unsigned long* reorder_array(unsigned n, unsigned long const* a,
-    unsigned width, unsigned const* old_to_new);
-template double* reorder_array(unsigned n, double const* a,
-    unsigned width, unsigned const* old_to_new);
-template unsigned* reorder_array_inv(unsigned n, unsigned const* a,
-    unsigned width, unsigned const* new_to_old);
-template unsigned long* reorder_array_inv(unsigned n, unsigned long const* a,
-    unsigned width, unsigned const* new_to_old);
-template double* reorder_array_inv(unsigned n, double const* a,
-    unsigned width, unsigned const* new_to_old);
+template unsigned* reorder_array(unsigned const* a,
+    unsigned const* old_to_new, unsigned n, unsigned width);
+template unsigned long* reorder_array(unsigned long const* a,
+    unsigned const* old_to_new, unsigned n, unsigned width);
+template double* reorder_array(double const* a,
+    unsigned const* old_to_new, unsigned n, unsigned width);
+
+template unsigned* reorder_array_inv(unsigned const* a,
+    unsigned const* new_to_old, unsigned n, unsigned width);
+template unsigned long* reorder_array_inv(unsigned long const* a,
+    unsigned const* new_to_old, unsigned n, unsigned width);
+template double* reorder_array_inv(double const* a,
+    unsigned const* new_to_old, unsigned n, unsigned width);
 
 #if defined(LOOP_CUDA_HPP) || \
     (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))

@@ -149,8 +149,8 @@ void set_exchanger_dests(
   invert_map(ex->nitems[R], dest_idx_of_recvd, ndests,
       &ex->orders[R], &ex->items_of_roots_offsets[R]);
   loop_free(dest_idx_of_recvd);
-  unsigned* msg_of_items = reorder_array_inv(ex->nitems[R],
-      ex->msg_of_items[R], 1, ex->orders[R]);
+  unsigned* msg_of_items = reorder_array_inv(ex->msg_of_items[R],
+      ex->orders[R], ex->nitems[R], 1);
   loop_free(ex->msg_of_items[R]);
   ex->msg_of_items[R] = msg_of_items;
 }
@@ -184,8 +184,8 @@ T* exchange(struct exchanger* ex, unsigned width,
     current = last = expanded;
   }
   if (ex->orders[dir]) {
-    T* orderd = reorder_array<T>(ex->nitems[dir], current, width,
-        ex->orders[dir]);
+    T* orderd = reorder_array(current, ex->orders[dir],
+        ex->nitems[dir], width);
     loop_free(last);
     current = last = orderd;
   }
@@ -196,8 +196,8 @@ T* exchange(struct exchanger* ex, unsigned width,
   loop_free(last);
   current = last = recvd;
   if (ex->orders[odir]) {
-    T* unorderd = reorder_array_inv<T>(ex->nitems[odir], current, width,
-        ex->orders[odir]);
+    T* unorderd = reorder_array_inv(current, ex->orders[odir],
+        ex->nitems[odir], width);
     loop_free(last);
     current = last = unorderd;
   }

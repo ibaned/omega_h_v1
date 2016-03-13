@@ -21,16 +21,13 @@ static void reorder_tags(struct mesh* in, struct mesh* out,
       case TAG_U8:
         break;
       case TAG_U32:
-        vals_out = reorder_array(nents, t->d.u32, t->ncomps,
-            old_to_new);
+        vals_out = reorder_array(t->d.u32, old_to_new, nents, t->ncomps);
         break;
       case TAG_U64:
-        vals_out = reorder_array(nents, t->d.u64, t->ncomps,
-            old_to_new);
+        vals_out = reorder_array(t->d.u64, old_to_new, nents, t->ncomps);
         break;
       case TAG_F64:
-        vals_out = reorder_array(nents, t->d.f64, t->ncomps,
-            old_to_new);
+        vals_out = reorder_array(t->d.f64, old_to_new, nents, t->ncomps);
         break;
     }
     mesh_add_tag(out, dim, t->type, t->name, t->ncomps, vals_out);
@@ -58,8 +55,8 @@ static void reorder_ents(
   unsigned nents = mesh_count(m, ent_dim);
   unsigned verts_per_ent = the_down_degrees[ent_dim][0];
   unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
-  unsigned* verts_of_ents_out = reorder_array(nents, verts_of_ents,
-      verts_per_ent, old_to_new_ents);
+  unsigned* verts_of_ents_out = reorder_array(verts_of_ents,
+      old_to_new_ents, nents, verts_per_ent);
   LOOP_EXEC(remap_conn, nents * verts_per_ent, old_to_new_verts,
       verts_of_ents_out);
   mesh_set_ents(m_out, ent_dim, nents, verts_of_ents_out);
