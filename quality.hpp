@@ -31,7 +31,7 @@ namespace omega_h {
  * elements.
  */
 
-LOOP_INOUT static inline double
+LOOP_IN static inline double
 triangle_quality(double coords[3][3])
 {
   double sum_lsq = 0;
@@ -50,7 +50,7 @@ triangle_quality(double coords[3][3])
    the X-Y plane. this measure is negative if the
    normal points in the negative Z direction, which
    is used to prevent "negative" triangles in 2D space. */
-LOOP_INOUT static inline double
+LOOP_IN static inline double
 triangle_xy_quality(double coords[3][3])
 {
   double sum_lsq = 0;
@@ -65,7 +65,7 @@ triangle_xy_quality(double coords[3][3])
   return quality / PERFECT_TRIANGLE_QUALITY;
 }
 
-LOOP_INOUT static inline double
+LOOP_IN static inline double
 tet_quality(double coords[4][3])
 {
   unsigned const rfv[4][3] = {
@@ -88,7 +88,7 @@ tet_quality(double coords[4][3])
   return quality / PERFECT_TET_QUALITY;
 }
 
-LOOP_INOUT static inline double
+LOOP_IN static inline double
 entity_quality(unsigned dim, double (*coords)[3])
 {
   switch (dim) {
@@ -98,7 +98,7 @@ entity_quality(unsigned dim, double (*coords)[3])
   LOOP_NORETURN(0);
 }
 
-LOOP_INOUT static inline double
+LOOP_IN static inline double
 element_quality(unsigned dim, double (*coords)[3])
 {
   switch (dim) {

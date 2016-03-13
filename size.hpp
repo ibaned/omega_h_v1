@@ -5,13 +5,13 @@
 
 namespace omega_h {
 
-LOOP_INOUT static inline double
+LOOP_IN static inline double
 edge_length(double coords[2][3])
 {
   return vector_distance(coords[1], coords[0], 3);
 }
 
-LOOP_INOUT static inline double
+LOOP_IN static inline double
 triangle_area(double coords[3][3])
 {
   double v[2][3];
@@ -22,7 +22,7 @@ triangle_area(double coords[3][3])
   return vector_norm(x, 3) / 2.0;
 }
 
-LOOP_INOUT static inline double
+LOOP_IN static inline double
 triangle_z_area(double coords[3][3])
 {
   double v[2][3];
@@ -33,7 +33,7 @@ triangle_z_area(double coords[3][3])
   return x[2] / 2.0;
 }
 
-LOOP_INOUT static inline double
+LOOP_IN static inline double
 tet_volume(double coords[4][3])
 {
   double v[3][3];
@@ -45,7 +45,7 @@ tet_volume(double coords[4][3])
   return dot_product(x, v[2], 3) / 6.0;
 }
 
-LOOP_INOUT static inline double
+LOOP_IN static inline double
 measure_entity(unsigned dim, double (*coords)[3])
 {
   switch (dim) {

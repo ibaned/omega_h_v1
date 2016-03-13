@@ -31,6 +31,7 @@ test_subdim.cpp \
 test_to_la.cpp
 
 lib_sources := \
+jacobian.cpp \
 swap_fit.cpp \
 coarsen_fit.cpp \
 refine_fit.cpp \
