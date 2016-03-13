@@ -16,7 +16,7 @@ element_jacobian(unsigned nv, double (*x)[3],
     jac[j][i] = x[i + 1][j] - x[0][j];
 }
 
-LOOP_IN void
+LOOP_IN static void
 invert_jacobian_1(double in[3][3], double out[3][3])
 {
   double msq = dot_product(in[0], in[0], 3);
@@ -27,7 +27,7 @@ invert_jacobian_1(double in[3][3], double out[3][3])
     out[i][j] = 0;
 }
 
-LOOP_IN void
+LOOP_IN static void
 invert_jacobian_2(double in[3][3], double out[3][3])
 {
   double normal[2][2];
@@ -48,7 +48,7 @@ invert_jacobian_2(double in[3][3], double out[3][3])
     out[i][j] += in[k][i] * inv_normal[k][j];
 }
 
-LOOP_IN void
+LOOP_IN static void
 invert_jacobian_3(double in[3][3], double out[3][3])
 {
   invert_3x3(in, out);
