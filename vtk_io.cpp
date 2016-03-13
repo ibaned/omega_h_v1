@@ -17,6 +17,8 @@
 #include "tables.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 enum cell_type {
   VTK_VERTEX         = 1,
   VTK_POLY_VERTEX    = 2,
@@ -821,4 +823,6 @@ void write_mesh_vtk_opts(struct mesh* m, char const* outpath,
 void write_mesh_vtk(struct mesh* m, char const* outpath)
 {
   write_mesh_vtk_opts(m, outpath, VTK_BINARY);
+}
+
 }

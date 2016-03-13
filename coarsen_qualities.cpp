@@ -7,6 +7,8 @@
 #include "quality.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(coarsen_quality,
     unsigned elem_dim,
     unsigned base_dim,
@@ -109,4 +111,6 @@ double* coarsen_qualities(
       col_codes,
       out);
   return out;
+}
+
 }

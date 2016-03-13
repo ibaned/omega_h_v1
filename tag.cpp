@@ -7,6 +7,8 @@
 #include "exchanger.hpp"
 #include "loop.hpp"
 
+namespace omega_h {
+
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpadded"
@@ -190,4 +192,6 @@ void push_tags(struct exchanger* ex, struct tags* from, struct tags* into)
 {
   for (unsigned i = 0; i < count_tags(from); ++i)
     push_tag(ex, get_tag(from, i), into);
+}
+
 }

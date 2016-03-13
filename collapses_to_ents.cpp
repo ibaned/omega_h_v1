@@ -6,6 +6,8 @@
 #include "mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(collapse_to_ent,
     unsigned ent_dim,
     unsigned const* verts_of_ents,
@@ -110,4 +112,6 @@ void collapses_to_ents(
   loop_free(ent_is_same);
   if (p_fused_sides)
     *p_fused_sides = fused_sides;
+}
+
 }

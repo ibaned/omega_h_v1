@@ -14,6 +14,8 @@
 #include "subset.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 /* this function is analogous to
    get_vert_use_owners_of_elems
    in close_partition.c.
@@ -272,4 +274,6 @@ void mesh_ensure_ghosting(struct mesh* m, unsigned nlayers)
     unghost_mesh(m);
   if (nlayers)
     ghost_mesh(m, nlayers);
+}
+
 }

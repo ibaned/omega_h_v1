@@ -8,6 +8,8 @@
 #include "mesh.hpp"
 #include "size.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(coarsen_size_code,
     double const* edge_sizes,
     double size_ratio_floor,
@@ -65,4 +67,6 @@ unsigned coarsen_slivers(
   loop_free(marked_verts);
   mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
   return coarsen_common(m, 0.0, 1);
+}
+
 }

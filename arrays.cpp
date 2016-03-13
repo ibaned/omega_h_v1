@@ -4,6 +4,8 @@
 
 #include "loop.hpp"
 
+namespace omega_h {
+
 #if defined(LOOP_CUDA_HPP) || \
     (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
 template <typename T>
@@ -233,4 +235,6 @@ void doubles_max_into(unsigned n, unsigned width,
     double const* a, unsigned const* offsets, double* out)
 {
   LOOP_EXEC(max_doubles_into_kern, n, a, width, offsets, out);
+}
+
 }

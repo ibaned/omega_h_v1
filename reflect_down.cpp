@@ -8,6 +8,8 @@
 #include "tables.hpp"
 #include "find_by_verts.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(reflect_down_entity,
     unsigned high_dim,
     unsigned low_dim,
@@ -76,4 +78,6 @@ unsigned* mesh_reflect_down(
   unsigned const* verts_of_lows = mesh_ask_down(m, low_dim, 0);
   return reflect_down(high_dim, low_dim, nhighs, verts_of_highs, verts_of_lows,
       lows_of_verts->offsets, lows_of_verts->adj, lows_of_verts->directions);
+}
+
 }

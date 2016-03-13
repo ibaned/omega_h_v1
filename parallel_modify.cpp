@@ -12,6 +12,8 @@
 #include "tables.hpp"
 #include "vtk_io.hpp"
 
+namespace omega_h {
+
 /* given a ghosted mesh with an independent set
    of some key entities tagged as "indset",
    this function gives ownership of the elements
@@ -106,4 +108,6 @@ void inherit_globals(
   LOOP_EXEC(new_globals_out_kern, nnew,
       nsame, offset_out, nowned_and_same, new_globals_out);
   mesh_set_globals(m_out, ent_dim, new_globals_out);
+}
+
 }

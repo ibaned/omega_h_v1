@@ -7,6 +7,8 @@
 #include "loop.hpp"
 #include "int_casts.hpp"
 
+namespace omega_h {
+
 static char const* const value_to_char =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 "abcdefghijklmnopqrstuvwxyz"
@@ -161,4 +163,6 @@ void print_base64_reverse(void)
       printf("\n");
   }
   loop_host_free(a);
+}
+
 }

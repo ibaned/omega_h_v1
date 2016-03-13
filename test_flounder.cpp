@@ -11,6 +11,8 @@
 #include "refine.hpp"
 #include "vtk_io.hpp"
 
+using namespace omega_h;
+
 #ifdef LOOP_CUDA_HPP
 static double get_time(void)
 {

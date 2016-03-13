@@ -16,6 +16,8 @@
 #include "tables.hpp"
 #include "up_from_down.hpp"
 
+namespace omega_h {
+
 struct up {
   unsigned* offsets;
   unsigned* adj;
@@ -103,7 +105,7 @@ static void free_mesh_contents(struct mesh* m)
     for (unsigned low_dim = 0; low_dim <= high_dim; ++low_dim) {
       loop_free(m->down[high_dim][low_dim]);
       free_up(m->up[low_dim][high_dim]);
-      osh_free_graph(m->star[low_dim][high_dim]);
+      free_graph(m->star[low_dim][high_dim]);
     }
   loop_free(m->dual);
   for (unsigned d = 0; d < 4; ++d)
@@ -231,12 +233,12 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
        with equal-order cases separately */
     unsigned n = m->counts[low_dim];
     unsigned* offsets = filled_array<unsigned>(n + 1, 0);
-    set_star(m, low_dim, high_dim, osh_new_graph(offsets, 0));
+    set_star(m, low_dim, high_dim, new_graph(offsets, 0));
   } else {
     unsigned* offsets;
     unsigned* adj;
     mesh_get_star(m, low_dim, high_dim, &offsets, &adj);
-    set_star(m, low_dim, high_dim, osh_new_graph(offsets, adj));
+    set_star(m, low_dim, high_dim, new_graph(offsets, adj));
   }
   return reinterpret_cast<struct const_graph*>(m->star[low_dim][high_dim]);
 }
@@ -329,4 +331,6 @@ void overwrite_mesh(struct mesh* old, struct mesh* with)
   free_mesh_contents(old);
   *old = *with;
   loop_host_free(with);
+}
+
 }

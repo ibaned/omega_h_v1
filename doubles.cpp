@@ -1,18 +1,22 @@
 #include "doubles.hpp"
 
 #include <float.h>
-
-#include "loop.hpp"
-
 #if defined(LOOP_CUDA_HPP) || \
       (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
-
 #include <thrust/reduce.h>
 #include <thrust/device_ptr.h>
 #include <thrust/functional.h>
 #include <thrust/transform.h>
 #include <thrust/reduce.h>
 #include <thrust/sort.h>
+#endif
+
+#include "loop.hpp"
+
+namespace omega_h {
+
+#if defined(LOOP_CUDA_HPP) || \
+      (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
 
 double doubles_max(double const* a, unsigned n)
 {
@@ -137,4 +141,6 @@ void doubles_axpy(double a, double const* x, double const* y,
     double* out, unsigned n)
 {
   LOOP_EXEC(axpy_kern, n, a, x, y, out);
+}
+
 }

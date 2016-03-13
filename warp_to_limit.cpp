@@ -9,6 +9,8 @@
 #include "quality.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 static unsigned exceeds_limit(
     unsigned elem_dim,
     unsigned nelems,
@@ -75,4 +77,6 @@ unsigned mesh_warp_to_limit(struct mesh* m, double qual_floor)
   mesh_add_tag(m, 0, TAG_F64, "coordinates", 3, coords);
   mesh_add_tag(m, 0, TAG_F64, "warp", 3, warps);
   return ok;
+}
+
 }

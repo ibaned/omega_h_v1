@@ -3,6 +3,8 @@
 #include "arrays.hpp"
 #include "loop.hpp"
 
+namespace omega_h {
+
 static unsigned const box_1d_conn[1 * 2] = {
   0, 1
 };
@@ -209,4 +211,6 @@ char const* get_ent_name(unsigned dim, unsigned long n)
   if (n == 1)
     return the_ent_names[dim];
   return the_plural_ent_names[dim];
+}
+
 }

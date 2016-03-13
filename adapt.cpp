@@ -14,6 +14,8 @@
 #include "size.hpp"
 #include "swap.hpp"
 
+namespace omega_h {
+
 static unsigned global_op_count = 0;
 static unsigned global_max_ops = 0;
 
@@ -89,4 +91,6 @@ unsigned mesh_adapt(struct mesh* m,
   satisfy_size(m, size_ratio_floor, good_qual);
   satisfy_shape(m, good_qual, nsliver_layers);
   return global_op_count > 0;
+}
+
 }

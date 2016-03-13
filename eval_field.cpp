@@ -5,6 +5,8 @@
 #include "mesh.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 /* for now, we carry this out on the host.
    if we want this done on the device, then
    we'll have to use a __device__ function
@@ -44,4 +46,6 @@ void mesh_eval_field2(struct mesh* m, unsigned ent_dim, char const* name,
   double* data = eval_field(mesh_count(m, ent_dim),
       mesh_find_tag(m, ent_dim, "coordinates")->d.f64, ncomps, fun);
   add_tag2(mesh_tags(m, ent_dim), TAG_F64, name, ncomps, tt, data);
+}
+
 }

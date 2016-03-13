@@ -8,6 +8,8 @@
 #include "loop.hpp"
 #include "qr.hpp"
 
+namespace omega_h {
+
 static inline void zero_3x3(double a[3][3])
 {
   for (unsigned i = 0; i < 3; ++i)
@@ -277,4 +279,6 @@ unsigned* mark_inertial_bisection(
   find_median_radius_perturbed(n, coords, c, a,
       masses, total_mass, is_global, &in);
   return in;
+}
+
 }

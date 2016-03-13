@@ -8,6 +8,8 @@
 #include "parallel_mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(collapse_to_vert,
     unsigned const* edges_of_verts_offsets,
     unsigned const* edges_of_verts,
@@ -130,4 +132,6 @@ unsigned* collapsing_vertex_destinations(struct mesh* m)
       col_quals_of_edges,
       gen_vert_of_verts);
   return gen_vert_of_verts;
+}
+
 }

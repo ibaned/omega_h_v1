@@ -12,6 +12,8 @@
 #include "refine.hpp"
 #include "vtk_io.hpp"
 
+using namespace omega_h;
+
 int main(int argc, char** argv)
 {
   osh_init(&argc, &argv);

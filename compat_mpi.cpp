@@ -6,6 +6,8 @@
    it implements some of the high-level Neighbor
    functions used by omega_h */
 
+namespace omega_h {
+
 #if MPI_VERSION >= 3 && USE_MPI3
 
 int compat_Neighbor_alltoallv(
@@ -131,3 +133,5 @@ int compat_Neighbor_allgather(
 }
 
 #endif
+
+}

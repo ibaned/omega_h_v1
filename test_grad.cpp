@@ -10,6 +10,8 @@
 #include "size_from_hessian.hpp"
 #include "vtk_io.hpp"
 
+using namespace omega_h;
+
 static void dye_fun(double const* coords, double* v)
 {
   double x[3];

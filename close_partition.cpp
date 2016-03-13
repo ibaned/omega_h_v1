@@ -8,6 +8,8 @@
 #include "parallel_mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 static unsigned get_unique_ranks_of_owner(
     unsigned const* uses_of_owners_offsets,
     unsigned const* msg_of_uses,
@@ -235,4 +237,6 @@ void push_use_owners(
   *p_offsets_out = copy_array(prod_push->items_of_roots_offsets[EX_REV],
       nents_out + 1);
   free_exchanger(prod_push);
+}
+
 }

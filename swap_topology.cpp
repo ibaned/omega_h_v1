@@ -11,6 +11,8 @@
 #include "mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(edge_topo_offset,
     unsigned ent_dim,
     unsigned const* indset,
@@ -118,4 +120,6 @@ unsigned* mesh_swap_topology(
       candidates, gen_offset_of_edges,
       tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
       verts_of_edges, verts_of_tets, coords);
+}
+
 }

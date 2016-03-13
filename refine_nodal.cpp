@@ -5,6 +5,8 @@
 #include "loop.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(refine_node,
     unsigned const* verts_of_srcs,
     unsigned const* gen_offset_of_srcs,
@@ -41,4 +43,6 @@ double* refine_nodal(
       verts_per_src,
       out);
   return out;
+}
+
 }

@@ -6,6 +6,8 @@
 #include "refine_common.hpp"
 #include "size.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(refine_candidate,
     double const* edge_sizes,
     unsigned* candidates)
@@ -30,4 +32,6 @@ void uniformly_refine(struct mesh* m)
   mesh_add_tag(m, 1, TAG_U32, "candidate", 1,
       filled_array<unsigned>(nedges, 1));
   refine_common(m, 1, 0.0, 0);
+}
+
 }

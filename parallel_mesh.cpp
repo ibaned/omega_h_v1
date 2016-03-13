@@ -17,6 +17,8 @@
 #include "parallel_inertial_bisect.hpp"
 #include "vtk_io.hpp"
 
+namespace omega_h {
+
 struct parallel_mesh {
   unsigned long* globals[4];
   unsigned* own_ranks[4];
@@ -341,4 +343,6 @@ void mesh_doubles_max(struct mesh* m, unsigned dim, unsigned width,
       EX_REV, EX_ITEM);
   loop_free(in);
   *a = out;
+}
+
 }

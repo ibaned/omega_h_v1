@@ -24,6 +24,8 @@
 #include "subset.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 static void refine_verts(struct mesh* m, struct mesh* m_out,
     unsigned src_dim, unsigned const* gen_offset_of_srcs)
 {
@@ -183,4 +185,6 @@ unsigned refine_common(
     printf("split %10lu %s\n", total, get_ent_name(src_dim, total));
   overwrite_mesh(m, m_out);
   return 1;
+}
+
 }

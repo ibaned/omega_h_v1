@@ -8,6 +8,8 @@
 #include "mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 static LOOP_IN unsigned get_ent_star_general(
     unsigned const* highs_of_lows_offsets,
     unsigned const* highs_of_lows,
@@ -310,4 +312,6 @@ void mesh_get_star(
     get_edge_tet_star(m, p_star_offsets, p_star);
   else
     mesh_get_star_general(m, low_dim, high_dim, p_star_offsets, p_star);
+}
+
 }

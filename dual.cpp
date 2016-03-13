@@ -7,6 +7,8 @@
 #include "mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_INOUT static unsigned copy_except(
     unsigned const* a,
     unsigned* b,
@@ -163,4 +165,6 @@ unsigned* mesh_get_dual_from_sides(struct mesh* m)
   struct const_up* elems_of_sides = mesh_ask_up(m, elem_dim - 1, elem_dim);
   return dual_from_sides(elem_dim, nelems, sides_of_elems,
       elems_of_sides->offsets, elems_of_sides->adj);
+}
+
 }

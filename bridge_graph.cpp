@@ -7,6 +7,8 @@
 #include "loop.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(degree_count,
     unsigned const* adj,
     unsigned const* adj_offsets,
@@ -103,4 +105,6 @@ void bridge_dual_graph(
   bridge_graph_general(nelems, offsets, elems_of_elems,
       nsides_out, elems_of_sides_out, elem_side_of_sides_out);
   loop_free(offsets);
+}
+
 }

@@ -9,6 +9,8 @@
 #include "tables.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(elem_size,
     unsigned elem_dim,
     unsigned verts_per_elem,
@@ -130,4 +132,6 @@ void mesh_identity_size_field(struct mesh* m, char const* output_name)
   mesh_doubles_max(m, 0, 1, &data);
   mesh_conform_array(m, 0, 1, &data);
   mesh_add_tag(m, 0, TAG_F64, output_name, 1, data);
+}
+
 }

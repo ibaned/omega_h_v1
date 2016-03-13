@@ -10,6 +10,8 @@
 
 #define MAX_NCOMPS 32
 
+namespace omega_h {
+
 LOOP_KERNEL(swap_conserve_cavity,
     unsigned ncomps,
     unsigned nsame_elems,
@@ -124,4 +126,6 @@ void swap_conserve(
           offset_of_same_elems, new_elem_sizes, t);
   }
   loop_free(new_elem_sizes);
+}
+
 }

@@ -4,6 +4,8 @@
 #include "loop.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(coarsen_elem,
     unsigned elem_dim,
     unsigned base_dim,
@@ -57,4 +59,6 @@ void coarsen_topology(
       verts_of_gen_elems);
   *ngen_elems_out = ngen_elems;
   *verts_of_gen_elems_out = verts_of_gen_elems;
+}
+
 }

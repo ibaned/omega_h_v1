@@ -6,6 +6,8 @@
 #include "int_casts.hpp"
 #include "loop.hpp"
 
+namespace omega_h {
+
 unsigned long* globalize_offsets(unsigned* local, unsigned n)
 {
   unsigned long* global = LOOP_MALLOC(unsigned long, n);
@@ -46,4 +48,6 @@ unsigned linpart_size(unsigned long total, unsigned nparts, unsigned part)
   if (part < rem)
     return U(quot + 1);
   return U(quot);
+}
+
 }

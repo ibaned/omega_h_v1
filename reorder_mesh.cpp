@@ -8,6 +8,8 @@
 #include "reorder.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 static void reorder_tags(struct mesh* in, struct mesh* out,
     unsigned dim, unsigned const* old_to_new)
 {
@@ -77,4 +79,6 @@ void reorder_mesh(struct mesh* m, unsigned const* old_to_new_verts)
     loop_free(old_to_new_ents);
   }
   overwrite_mesh(m, m_out);
+}
+
 }

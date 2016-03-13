@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <cstring>
 
+namespace omega_h {
+
 #if MEASURE_MEMORY
 static unsigned long memory_usage = 0;
 static unsigned long high_water = 0;
@@ -112,4 +114,6 @@ void* loop_host_copy(void const* p, unsigned long n)
   void* out = loop_host_malloc(n);
   memcpy(out, p, n);
   return out;
+}
+
 }

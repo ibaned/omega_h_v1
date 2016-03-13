@@ -12,6 +12,8 @@
 #include "mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 /* a mesh will have these dimensions:
 
    element
@@ -443,4 +445,6 @@ void mesh_derive_model(struct mesh* m, double crease_angle)
 {
   mesh_derive_class_dim(m, crease_angle);
   mesh_derive_class_id(m);
+}
+
 }
