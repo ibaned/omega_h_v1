@@ -14,6 +14,8 @@
 
 #include "edge_swap.hpp"
 
+namespace omega_h {
+
 LOOP_CONST static unsigned const edges_4_0[1 * 2] =
 {2,0
 };
@@ -453,3 +455,5 @@ LOOP_CONST unsigned const swap_nint_edges[MAX_EDGE_SWAP + 1] =
 ,3
 ,4
 };
+
+}

@@ -1,6 +1,8 @@
 #ifndef COLLAPSES_TO_ENTS_HPP
 #define COLLAPSES_TO_ENTS_HPP
 
+namespace omega_h {
+
 struct mesh;
 
 /* converts a vertex-wise description of
@@ -47,5 +49,7 @@ void collapses_to_ents(
    this is later fed back to this function as the "fused_ents" argument,
    requiring that the function be called in decreasing order of (ent_dim) */
     unsigned** p_fused_sides);
+
+}
 
 #endif

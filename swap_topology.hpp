@@ -1,6 +1,8 @@
 #ifndef SWAP_TOPOLOGY_HPP
 #define SWAP_TOPOLOGY_HPP
 
+namespace omega_h {
+
 unsigned* get_swap_topology_offsets(
     unsigned ent_dim,
     unsigned nedges,
@@ -14,5 +16,7 @@ unsigned* mesh_swap_topology(
     unsigned ent_dim,
     unsigned const* candidates,
     unsigned const* gen_offset_of_edges);
+
+}
 
 #endif

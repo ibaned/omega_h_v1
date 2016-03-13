@@ -8,6 +8,8 @@
 #include "quality.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(mark_down_kern,
     unsigned const* highs_of_lows_offsets,
     unsigned const* highs_of_lows,
@@ -261,4 +263,6 @@ unsigned* mesh_mark_part_boundary(struct mesh* m)
   unsigned dim = mesh_dim(m);
   return mark_part_boundary(mesh_count(m, dim - 1),
       mesh_ask_up(m, dim - 1, dim)->offsets);
+}
+
 }

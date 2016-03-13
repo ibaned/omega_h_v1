@@ -12,6 +12,8 @@
 #include "loop.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 /* given an array that indicates which rank an
    entry is going to,
    this function organizes them into one message
@@ -264,4 +266,6 @@ double* exchange_doubles_max(struct exchanger* ex, unsigned width,
       ex->items_of_roots_offsets[od], out);
   loop_free(to_reduce);
   return out;
+}
+
 }

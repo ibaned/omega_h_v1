@@ -11,6 +11,8 @@
 #include "quality.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(refine_quality,
     unsigned elem_dim,
     unsigned src_dim,
@@ -127,4 +129,6 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   mesh_conform_array(m, src_dim, 1, &src_quals);
   mesh_conform_array(m, src_dim, 1, p_candidates);
   return src_quals;
+}
+
 }

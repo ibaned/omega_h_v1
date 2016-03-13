@@ -5,6 +5,8 @@
 #include "loop.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 /* none of the functions in this file
    are parallelized via the LOOP mechanism.
    this means during accelerator runs they
@@ -98,3 +100,4 @@ void connected_components(
   loop_host_free(sorted);
 }
 
+}

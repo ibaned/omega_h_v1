@@ -5,6 +5,8 @@
 #include "loop.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(derive_side,
     unsigned elem_dim,
     unsigned nverts_per_elem,
@@ -47,4 +49,6 @@ unsigned* derive_sides(
       elems_of_sides,
       elem_side_of_sides);
   return verts_of_sides;
+}
+
 }

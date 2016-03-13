@@ -8,6 +8,8 @@
 #include "tables.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(elem_quality_kern,
     unsigned const* verts_of_elems,
     unsigned elem_dim,
@@ -68,4 +70,6 @@ double mesh_min_quality(struct mesh* m)
       mesh_count(m, mesh_dim(m)),
       mesh_ask_down(m, mesh_dim(m), 0),
       mesh_find_tag(m, 0, "coordinates")->d.f64);
+}
+
 }

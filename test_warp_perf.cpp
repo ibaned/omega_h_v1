@@ -17,6 +17,8 @@
 #include "vtk_io.hpp"
 #include "warp_to_limit.hpp"
 
+using namespace omega_h;
+
 static double const warp_qual_floor = 0.2;
 static double const good_qual_floor = 0.3;
 static double const size_floor = 1. / 3.;

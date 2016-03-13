@@ -14,6 +14,8 @@
 #include "subset.hpp"
 #include "vtk_io.hpp"
 
+using namespace omega_h;
+
 static void fine_fun(double const* x, double* s)
 {
   double coarse = 0.5;

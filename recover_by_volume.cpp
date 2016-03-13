@@ -5,6 +5,8 @@
 #include "size.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(recover_vert_by_volume,
     unsigned const* elems_of_verts_offsets,
     unsigned const* elems_of_verts,
@@ -63,4 +65,6 @@ struct const_tag* mesh_recover_by_volume(
   loop_free(elem_sizes);
   struct const_tag* out = mesh_add_tag(m, 0, TAG_F64, name, t->ncomps, data);
   return out;
+}
+
 }

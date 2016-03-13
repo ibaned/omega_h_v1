@@ -1,6 +1,8 @@
 #ifndef BRIDGE_GRAPH_HPP
 #define BRIDGE_GRAPH_HPP
 
+namespace omega_h {
+
 void bridge_graph(
     unsigned nverts,
     unsigned const* adj_offsets,
@@ -15,5 +17,7 @@ void bridge_dual_graph(
     unsigned* nsides_out,
     unsigned** elems_of_sides_out,
     unsigned** elem_side_of_sides_out);
+
+}
 
 #endif

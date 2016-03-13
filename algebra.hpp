@@ -7,6 +7,8 @@
 
 #define PI 3.14159265359
 
+namespace omega_h {
+
 LOOP_INOUT static inline void
 zero_vector(
     double* v,
@@ -191,6 +193,8 @@ invert_3x3(double in[3][3], double out[3][3])
   cross_product(in[0], in[1], tmp[2]);
   scale_3x3(tmp, 1.0 / d, tmp);
   transp_3x3(tmp, out);
+}
+
 }
 
 #endif

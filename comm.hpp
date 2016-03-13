@@ -1,6 +1,8 @@
 #ifndef COMM_HPP
 #define COMM_HPP
 
+namespace omega_h {
+
 struct comm;
 
 void comm_init(int* argc, char*** argv);
@@ -44,5 +46,7 @@ unsigned long comm_add_ulong(unsigned long x);
 unsigned long comm_exscan_ulong(unsigned long x);
 unsigned long comm_max_ulong(unsigned long x);
 unsigned comm_max_uint(unsigned x);
+
+}
 
 #endif

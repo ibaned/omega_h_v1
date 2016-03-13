@@ -15,6 +15,8 @@
 #include "mesh.hpp"
 #include "migrate_mesh.hpp"
 
+namespace omega_h {
+
 void parallel_inertial_bisect(
     unsigned* p_n,
     double** p_coords,
@@ -153,4 +155,6 @@ void balance_mesh_inertial(struct mesh* m)
   migrate_mesh(m, n, orig_ranks, orig_ids);
   loop_free(orig_ranks);
   loop_free(orig_ids);
+}
+
 }

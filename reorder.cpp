@@ -8,6 +8,8 @@
 #include "mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 static void get_host_graph(struct mesh* m,
     unsigned** p_offsets,
     unsigned** p_adj)
@@ -235,4 +237,6 @@ unsigned* number_ents(struct mesh* m,
   loop_free(fan_ent_offsets);
   loop_free(new_vert_offsets);
   return ent_num;
+}
+
 }

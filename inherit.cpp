@@ -9,6 +9,8 @@
 #include "refine_topology.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 void make_ngen_from_doms(
     unsigned const ndoms[4],
     unsigned* prods_of_doms_offsets[4],
@@ -250,4 +252,6 @@ void concat_verts_of_ents(
   loop_free(verts_of_same_ents);
   *p_nents_out = nents_out;
   *p_verts_of_ents_out = verts_of_ents_out;
+}
+
 }

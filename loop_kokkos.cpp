@@ -1,5 +1,7 @@
 #include "loop_kokkos.hpp"
 
+namespace omega_h {
+
 #ifdef KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA
 
 void* loop_kokkos_malloc(unsigned long n)
@@ -29,3 +31,5 @@ void loop_kokkos_free(void* p)
 }
 
 #endif
+
+}

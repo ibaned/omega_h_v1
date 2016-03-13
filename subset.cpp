@@ -10,6 +10,8 @@
 #include "parallel_mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 void tags_subset(struct mesh* in, struct mesh* out,
     unsigned dim, unsigned const* offsets)
 {
@@ -102,4 +104,6 @@ void subset_verts_of_doms(
   expand_into(verts_of_prods, verts_of_doms, offset_of_same,
       mesh_count(m, dom_dim), the_down_degrees[dom_dim][0]);
   loop_free(offset_of_same);
+}
+
 }

@@ -5,9 +5,13 @@
 #include "loop.hpp"
 
 #ifdef LOOP_CUDA_HPP
-
 #include <thrust/sort.h>
 #include <thrust/device_ptr.h>
+#endif
+
+namespace omega_h {
+
+#ifdef LOOP_CUDA_HPP
 
 struct Counter
 {
@@ -130,3 +134,5 @@ void invert_map(
 }
 
 #endif
+
+}

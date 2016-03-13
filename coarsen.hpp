@@ -1,6 +1,8 @@
 #ifndef COARSEN_HPP
 #define COARSEN_HPP
 
+namespace omega_h {
+
 struct mesh;
 
 unsigned coarsen_by_size(
@@ -12,5 +14,7 @@ unsigned coarsen_slivers(
     struct mesh* m,
     double quality_floor,
     unsigned nlayers);
+
+}
 
 #endif

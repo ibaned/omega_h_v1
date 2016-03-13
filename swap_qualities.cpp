@@ -8,6 +8,8 @@
 #include "parallel_mesh.hpp"
 #include "quality.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(swap_quality,
     unsigned const* tets_of_edges_offsets,
     unsigned const* tets_of_edges,
@@ -117,4 +119,6 @@ void mesh_swap_qualities(
       p_qualities, p_ring_sizes);
   loop_free(elem_quals);
   loop_free(owned_edges);
+}
+
 }

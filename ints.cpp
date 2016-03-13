@@ -17,6 +17,8 @@
 #include <cstdlib>
 #endif
 
+namespace omega_h {
+
 #if defined(LOOP_SERIAL_HPP) || \
     defined(LOOP_OPENMP_HPP) || \
     (defined(LOOP_KOKKOS_HPP) && !defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
@@ -241,4 +243,6 @@ unsigned* uints_scale(unsigned const* a, unsigned n, unsigned s)
   unsigned* o = LOOP_MALLOC(unsigned, n);
   LOOP_EXEC(scale_kern, n, a, s, o);
   return o;
+}
+
 }

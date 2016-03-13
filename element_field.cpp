@@ -5,6 +5,8 @@
 #include "tables.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(interp_to_elem,
     unsigned const* verts_of_elems,
     unsigned verts_per_elem,
@@ -39,4 +41,6 @@ void mesh_interp_to_elems(struct mesh* m, char const* name)
   double* data = interp_to_elems(elem_dim, nelems, verts_of_elems,
       t->ncomps, t->d.f64);
   mesh_add_tag(m, elem_dim, TAG_F64, t->name, t->ncomps, data);
+}
+
 }

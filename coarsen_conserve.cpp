@@ -10,6 +10,8 @@
 
 #define MAX_NCOMPS 32
 
+namespace omega_h {
+
 LOOP_KERNEL(coarsen_conserve_cavity,
     unsigned ncomps,
     unsigned nsame_elems,
@@ -132,4 +134,6 @@ void coarsen_conserve(
           new_elem_sizes, t);
   }
   loop_free(new_elem_sizes);
+}
+
 }

@@ -11,6 +11,8 @@
 #include "tables.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 static unsigned doubles_diff(double const* a, double const* b, unsigned n,
     double tol, double floor)
 {
@@ -176,4 +178,6 @@ unsigned mesh_diff(struct mesh* a, struct mesh* b,
     }
   }
   return 0;
+}
+
 }

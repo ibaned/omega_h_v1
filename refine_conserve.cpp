@@ -5,6 +5,8 @@
 #include "loop.hpp"
 #include "mesh.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(refine_conserve_elem,
     unsigned const* prods_of_doms_offsets,
     unsigned width,
@@ -17,7 +19,6 @@ LOOP_KERNEL(refine_conserve_elem,
     for (unsigned k = 0; k < width; ++k)
       data_out[j * width + k] = data_in[i * width + k] / denom;
 }
-
 
 static double* refine_conserve_data(
     unsigned nelems,
@@ -67,4 +68,6 @@ void refine_conserve(
     if ((t->type == TAG_F64) && (t->transfer_type == OSH_TRANSFER_CONSERVE))
       refine_conserve_tag(m, m_out, ndoms, prods_of_doms_offsets, t);
   }
+}
+
 }

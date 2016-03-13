@@ -5,6 +5,8 @@
 #include "mesh.hpp"
 #include "vtk_io.hpp"
 
+using namespace omega_h;
+
 static void write_graph(char const* filename,
     unsigned n,
     unsigned const* off,

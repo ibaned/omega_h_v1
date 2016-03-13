@@ -1,12 +1,15 @@
 #include "compress.hpp"
 
 #include <cassert>
+#if USE_ZLIB
+#include <zlib.h>
+#endif
 
 #include "loop_host.hpp"
 
-#if USE_ZLIB
+namespace omega_h {
 
-#include <zlib.h>
+#if USE_ZLIB
 
 unsigned const can_compress = 1;
 
@@ -67,3 +70,5 @@ void* my_decompress(
 }
 
 #endif
+
+}

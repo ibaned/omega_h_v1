@@ -11,6 +11,8 @@
 #include "qr.hpp"
 #include "size.hpp"
 
+namespace omega_h {
+
 /* I tried to fit a linear polynomial here,
    but because these are tetrahedra around
    an edge, their centroids are nearly coplanar
@@ -122,3 +124,4 @@ void swap_fit(
   }
 }
 
+}

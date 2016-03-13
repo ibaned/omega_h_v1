@@ -5,6 +5,8 @@
 #include "edge_swap.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 struct ev { unsigned a; unsigned b; };
 
 LOOP_IN unsigned find_edge_ring(
@@ -69,4 +71,6 @@ LOOP_IN unsigned find_edge_ring(
   for (unsigned i = 0; i < ring_size; ++i)
     ring_v[i] = tmp_ring[i].a;
   return ring_size;
+}
+
 }

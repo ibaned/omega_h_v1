@@ -9,6 +9,8 @@
 #include "tag.hpp"
 #include "int_casts.hpp"
 
+namespace omega_h {
+
 static void bcast_tag(struct const_tag* t, struct tags* into)
 {
   enum tag_type type = TAG_U8;
@@ -75,4 +77,6 @@ struct mesh* bcast_mesh_metadata(struct mesh* m)
     bcast_tags(ts, ts);
   }
   return m;
+}
+
 }

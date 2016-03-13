@@ -4,6 +4,8 @@
 #include "loop.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(separate,
     unsigned* directions,
     unsigned* highs_of_lows,
@@ -42,4 +44,6 @@ void up_from_down(
   *highs_of_lows_out = highs_of_lows;
   if (directions_out)
     *directions_out = directions;
+}
+
 }

@@ -10,6 +10,8 @@
 #include "parallel_mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 static unsigned* use_lids_from_copy_lids(
     struct exchanger* use_to_own,
     struct exchanger* own_to_copy,
@@ -155,4 +157,6 @@ void migrate_mesh(
   free_exchanger(vert_push);
   free_exchanger(elem_push);
   overwrite_mesh(m, m_out);
+}
+
 }

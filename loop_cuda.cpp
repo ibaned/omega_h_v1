@@ -1,5 +1,7 @@
 #include "loop_cuda.hpp"
 
+namespace omega_h {
+
 void* loop_cuda_malloc(unsigned long n)
 {
   void* p;
@@ -12,4 +14,6 @@ void* loop_cuda_malloc(unsigned long n)
 void loop_cuda_free(void* p)
 {
   CUDACALL(cudaFree(p));
+}
+
 }

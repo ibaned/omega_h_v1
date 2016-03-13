@@ -6,13 +6,15 @@
 #include "quality.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 /* tables hardcoding all possible 2D meshes (triangulations) of
    an N-sided polygon, where N ranges from 3 to 7.
 
    for a given polygon, many possible triangulations may share
    the same triangle, so the list of unique triangles is stored
    separately.
-   this is useful because it allows cachine of quality metrics
+   this is useful because it allows caching of quality metrics
    computed based on the unique triangle which can then be
    reused when evaluating the quality of triangulations. */
 
@@ -382,4 +384,6 @@ LOOP_IN unsigned count_swap_ents(
     case 3: return 2 * swap_mesh_sizes[ring_size];
   }
   LOOP_NORETURN(42);
+}
+
 }

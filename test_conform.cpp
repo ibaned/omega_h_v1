@@ -12,6 +12,8 @@
 #include "parallel_mesh.hpp"
 #include "vtk_io.hpp"
 
+using namespace omega_h;
+
 static struct mesh* make_2_tri_parallel(void)
 {
   struct mesh* m = 0;

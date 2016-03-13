@@ -14,6 +14,8 @@
 #include "tag.hpp"
 #include "vtk_io.hpp"
 
+using namespace omega_h;
+
 static void size_fun(double const* x, double* s)
 {
   double coarse = 0.5;

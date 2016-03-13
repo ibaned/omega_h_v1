@@ -7,6 +7,8 @@
 #include "mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 /* for now we'll just do the simple check and skip
    things like rings and exposed curved faces */
 /* TODO: at least check the exposed face issue:
@@ -62,4 +64,6 @@ static void check_full_collapse_class(struct mesh* m, unsigned* col_codes)
 void check_collapse_class(struct mesh* m, unsigned* col_codes)
 {
   check_full_collapse_class(m, col_codes);
+}
+
 }

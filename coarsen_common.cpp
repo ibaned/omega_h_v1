@@ -24,6 +24,8 @@
 #include "subset.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(remap_conn,
     unsigned const* offset_of_same_verts,
     unsigned* verts_of_ents_out)
@@ -234,4 +236,6 @@ unsigned coarsen_common(
   }
   coarsen_interior(m);
   return 1;
+}
+
 }

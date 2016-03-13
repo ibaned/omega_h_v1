@@ -10,6 +10,8 @@
 #include "loop.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 static void setup_linpart(
     unsigned n,
     unsigned long const* global_in,
@@ -122,4 +124,6 @@ void own_idxs_from_global(
   *p_own_idxs = exchange(ex, 1, own_idx_of_recvd, EX_REV, EX_ITEM);
   loop_free(own_idx_of_recvd);
   free_exchanger(ex);
+}
+
 }

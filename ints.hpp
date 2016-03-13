@@ -3,6 +3,8 @@
 
 #include "loop.hpp"
 
+namespace omega_h {
+
 unsigned uints_max(unsigned const* a, unsigned n);
 unsigned* uints_exscan(unsigned const* a, unsigned n);
 unsigned* uints_unscan(unsigned const* a, unsigned n);
@@ -30,6 +32,8 @@ add_unique(unsigned* a, unsigned n, unsigned e)
     return n;
   a[n] = e;
   return n + 1;
+}
+
 }
 
 #endif

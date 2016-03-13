@@ -1,6 +1,8 @@
 #ifndef INVERT_MAP_HPP
 #define INVERT_MAP_HPP
 
+namespace omega_h {
+
 /* given an array (in) which represents a
    map from the integers A=[0,nin) to the integers B=[0,nout),
    as defined by b = in[a], this function creates the inverse
@@ -15,5 +17,7 @@ void invert_map(
     unsigned nout,
     unsigned** p_out,
     unsigned** p_offsets);
+
+}
 
 #endif

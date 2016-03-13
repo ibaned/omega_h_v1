@@ -12,6 +12,8 @@
 
 #define MAX_NCOMPS 32
 
+namespace omega_h {
+
 LOOP_KERNEL(coarsen_fit_cavity,
     unsigned ncomps,
     unsigned nsame_elems,
@@ -182,3 +184,4 @@ void coarsen_fit(
   }
 }
 
+}

@@ -1,6 +1,8 @@
 #ifndef SWAP_QUALITIES_HPP
 #define SWAP_QUALITIES_HPP
 
+namespace omega_h {
+
 struct mesh;
 
 void mesh_swap_qualities(
@@ -8,5 +10,7 @@ void mesh_swap_qualities(
     unsigned* candidates,
     double** p_qualities,
     unsigned** p_ring_sizes);
+
+}
 
 #endif

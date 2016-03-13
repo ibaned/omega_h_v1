@@ -3,6 +3,8 @@
 
 #include "loop.hpp"
 
+namespace omega_h {
+
 LOOP_INOUT static inline void
 average_element_field(
     unsigned verts_per_elem,
@@ -32,5 +34,7 @@ double* interp_to_elems(
 struct mesh;
 
 void mesh_interp_to_elems(struct mesh* m, char const* name);
+
+}
 
 #endif

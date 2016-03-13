@@ -1,6 +1,8 @@
 #ifndef STAR_HPP
 #define STAR_HPP
 
+namespace omega_h {
+
 /* given a dual pair of upward and downward
  * adjacencies between two dimensions,
  * this function returns the "second order adjacency"
@@ -21,5 +23,7 @@ void mesh_get_star(
     unsigned high_dim,
     unsigned** p_star_offsets,
     unsigned** p_star);
+
+}
 
 #endif

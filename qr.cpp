@@ -5,6 +5,8 @@
 
 #include "algebra.hpp"
 
+namespace omega_h {
+
 LOOP_INOUT static double sign(double x)
 {
   return (x < 0) ? -1 : 1;
@@ -267,4 +269,6 @@ void qr_eigen(double a[3][3], double q[3][3], double l[3][3])
     copy(q2, q);
   }
   assert(0);
+}
+
 }

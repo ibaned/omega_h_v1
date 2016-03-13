@@ -6,6 +6,8 @@
 #include "mesh.hpp"
 #include "parallel_mesh.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(smooth_field_vert,
     unsigned ncomps,
     unsigned const* interior,
@@ -67,4 +69,6 @@ unsigned mesh_smooth_field(struct mesh* m, char const* name,
   }
   mesh_add_tag(m, 0, TAG_F64, name, ncomps, data);
   return i;
+}
+
 }

@@ -9,6 +9,8 @@
 #include "arrays.hpp"
 #include "loop.hpp"
 
+namespace omega_h {
+
 static unsigned count_digits(unsigned x)
 {
   unsigned l = 0;
@@ -143,4 +145,6 @@ FILE* safe_fopen(char const* filename, char const* mode)
     abort();
   }
   return f;
+}
+
 }

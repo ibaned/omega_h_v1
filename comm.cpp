@@ -3,11 +3,14 @@
 #include <cassert>
 
 #include "loop.hpp"
-
 #if USE_MPI
-
 #include "compat_mpi.hpp"
 #include "int_casts.hpp"
+#endif
+
+namespace omega_h {
+
+#if USE_MPI
 
 static struct comm world = { MPI_COMM_WORLD };
 static struct comm self = { MPI_COMM_SELF };
@@ -488,3 +491,5 @@ template void comm_exchange(struct comm* c, unsigned width,
 template void comm_exchange(struct comm* c, unsigned width,
     double const* out, unsigned const* outcounts, unsigned const* outoffsets,
     double* in, unsigned const* incounts, unsigned const* inoffsets);
+
+}

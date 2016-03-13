@@ -15,7 +15,7 @@
 #include "vtk_io.hpp"
 #include "warp_to_limit.hpp"
 
-struct mesh;
+using namespace omega_h;
 
 static double const warp_qual_floor = 0.1;
 static double const good_qual_floor = 0.4;

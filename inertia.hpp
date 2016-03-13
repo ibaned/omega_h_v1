@@ -1,6 +1,8 @@
 #ifndef INERTIA_HPP
 #define INERTIA_HPP
 
+namespace omega_h {
+
 void inertia_contribution(
     double m,
     double const* x,
@@ -14,5 +16,7 @@ unsigned* mark_inertial_bisection(
     double const* coords,
     double const* masses,
     unsigned is_global);
+
+}
 
 #endif

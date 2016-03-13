@@ -12,6 +12,8 @@
 #include "mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 static unsigned get_gmsh_type_dim(unsigned type)
 {
   switch (type) {
@@ -201,4 +203,6 @@ struct mesh* read_msh(char const* filename)
   }
   mesh_set_rep(m, MESH_FULL);
   return m;
+}
+
 }

@@ -22,6 +22,8 @@
 #include "swap_topology.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 static void swap_ents(
     struct mesh* m,
     struct mesh* m_out,
@@ -148,4 +150,6 @@ unsigned swap_slivers(
   loop_free(slivers);
   unsigned ret = swap_common(m, candidates);
   return ret;
+}
+
 }

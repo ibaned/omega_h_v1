@@ -8,6 +8,8 @@
 #include "mesh.hpp"
 #include "tables.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(split_to_domain,
     unsigned const* srcs_of_doms,
     unsigned srcs_per_dom,
@@ -68,4 +70,6 @@ void mesh_splits_to_domains(
   project_splits_to_domains(dom_dim, src_dim, ndoms,
       srcs_of_doms, offset_of_srcs, vert_of_srcs,
       p_offset_of_doms, p_direction_of_doms, p_vert_of_doms);
+}
+
 }

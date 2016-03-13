@@ -7,6 +7,8 @@
 #include "mesh.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(vert_size_from_hessian,
     unsigned nhess_comps,
     double const* hessians,
@@ -67,4 +69,6 @@ struct const_tag* mesh_size_from_hessian(struct mesh* m, char const* hess_name,
   double* data = size_from_hessian(mesh_count(m, 0),
       hf->ncomps, hf->d.f64, sol_comp_weights, min_h, max_h);
   return mesh_add_tag(m, 0, TAG_F64, "adapt_size", 1, data);
+}
+
 }

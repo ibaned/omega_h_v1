@@ -1,6 +1,8 @@
 #ifndef PARALLEL_MESH_HPP
 #define PARALLEL_MESH_HPP
 
+namespace omega_h {
+
 struct mesh;
 struct parallel_mesh;
 struct exchanger;
@@ -46,5 +48,7 @@ unsigned* mesh_get_owned(struct mesh* m, unsigned dim);
 
 void mesh_doubles_max(struct mesh* m, unsigned dim, unsigned width,
     double** a);
+
+}
 
 #endif

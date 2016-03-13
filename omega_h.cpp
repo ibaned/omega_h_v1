@@ -12,6 +12,8 @@
 #include "tables.hpp"
 #include "vtk_io.hpp"
 
+using namespace omega_h;
+
 #define M(p) reinterpret_cast<struct mesh*>(p)
 
 #ifdef LOOP_KOKKOS_HPP

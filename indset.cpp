@@ -9,6 +9,8 @@
 #include "mesh.hpp"
 #include "parallel_mesh.hpp"
 
+namespace omega_h {
+
 /* given an undirected graph (usually obtained from get_star),
  * an initial filtered subset of the vertices,
  * and a scalar value (goodness) at the vertices,
@@ -144,4 +146,6 @@ unsigned* mesh_indset_offsets(struct mesh* m, unsigned ent_dim,
   unsigned* offsets = uints_exscan(indset, nents);
   loop_free(indset);
   return offsets;
+}
+
 }

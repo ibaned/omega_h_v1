@@ -10,6 +10,8 @@
 #include "tables.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 LOOP_KERNEL(execute,
     unsigned elem_dim,
     unsigned const* verts_of_elems,
@@ -86,4 +88,6 @@ struct const_tag* mesh_element_gradients(
       m, mesh_dim(m), TAG_F64, grad_name, t->ncomps * 3, data);
   loop_host_free(grad_name);
   return out;
+}
+
 }

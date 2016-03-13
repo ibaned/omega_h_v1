@@ -1,6 +1,8 @@
 #ifndef LOOP_HOST_HPP
 #define LOOP_HOST_HPP
 
+namespace omega_h {
+
 void* loop_host_malloc(unsigned long n);
 #define LOOP_HOST_MALLOC(T, n) \
   static_cast<T*>(loop_host_malloc(sizeof(T) * (n)))
@@ -17,5 +19,7 @@ void* loop_host_copy(void const* p, unsigned long n);
 
 unsigned long loop_host_memory(void);
 unsigned long loop_host_high_water(void);
+
+}
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
+namespace omega_h {
+
 struct graph {
   unsigned* offsets;
   unsigned* adj;
@@ -11,7 +13,9 @@ struct const_graph {
   unsigned const* const adj;
 };
 
-struct graph* osh_new_graph(unsigned* offsets, unsigned* adj);
-void osh_free_graph(struct graph* g);
+struct graph* new_graph(unsigned* offsets, unsigned* adj);
+void free_graph(struct graph* g);
+
+}
 
 #endif

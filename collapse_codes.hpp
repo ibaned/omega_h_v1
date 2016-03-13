@@ -3,6 +3,8 @@
 
 #include "loop.hpp"
 
+namespace omega_h {
+
 enum {
   DONT_COLLAPSE  = 0,
   COLLAPSE_LEFT  = 1,
@@ -26,6 +28,8 @@ LOOP_INOUT static inline unsigned
 dont_collapse(unsigned code, unsigned dir)
 {
   return code & ~((unsigned(1)) << dir);
+}
+
 }
 
 #endif

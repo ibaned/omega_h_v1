@@ -7,6 +7,8 @@
 #define MAX_UP 128
 #define INVALID (~(unsigned(0)))
 
+namespace omega_h {
+
 extern unsigned const* const the_box_conns[4];
 extern double const* const the_box_coords[4];
 extern unsigned const the_box_nelems[4];
@@ -23,5 +25,7 @@ static inline unsigned get_opposite_dim(
 }
 
 char const* get_ent_name(unsigned dim, unsigned long n);
+
+}
 
 #endif

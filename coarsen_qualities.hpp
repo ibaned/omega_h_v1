@@ -1,6 +1,8 @@
 #ifndef COARSEN_QUALITIES
 #define COARSEN_QUALITIES
 
+namespace omega_h {
+
 double* coarsen_qualities(
     unsigned elem_dim,
     unsigned nedges,
@@ -13,5 +15,7 @@ double* coarsen_qualities(
     double const* coords,
     double quality_floor,
     double const* elem_quals);
+
+}
 
 #endif

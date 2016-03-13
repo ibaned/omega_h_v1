@@ -8,6 +8,8 @@
 #include "mesh.hpp"
 #include "tag.hpp"
 
+namespace omega_h {
+
 struct mesh* read_dot_node(char const* filename)
 {
   FILE* f = safe_fopen(filename, "r");
@@ -141,4 +143,6 @@ void write_dot_ele(struct mesh* m, char const* filename)
     fprintf(f, "\n");
   }
   fclose(f);
+}
+
 }
