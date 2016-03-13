@@ -51,13 +51,13 @@ void invert_map(
     unsigned** p_offsets)
 {
   struct Counter* counters = LOOP_MALLOC(Counter, nin);
-  LOOP_EXEC(assign, nin , in, counters );
+  LOOP_EXEC(assign, nin, in, counters);
   thrust::sort(
       thrust::device_ptr<Counter>(counters),
       thrust::device_ptr<Counter>(counters + nin));
-  unsigned* aoffsets =uints_filled(nout + 1, 0);
+  unsigned* aoffsets = filled_array<unsigned>(nout + 1, 0);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
-  LOOP_EXEC(fill, nin,aoffsets, out, counters);
+  LOOP_EXEC(fill,nin, aoffsets, out, counters);
   CUDACALL(cudaMemcpy(aoffsets + nout, &(nin),
         sizeof(unsigned), cudaMemcpyHostToDevice));
   loop_free(counters);

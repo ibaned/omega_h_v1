@@ -1,6 +1,9 @@
 #include "doubles.hpp"
 
 #include <float.h>
+
+#include "loop.hpp"
+
 #if defined(LOOP_CUDA_HPP) || \
       (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
 #include <thrust/reduce.h>
@@ -10,8 +13,6 @@
 #include <thrust/reduce.h>
 #include <thrust/sort.h>
 #endif
-
-#include "loop.hpp"
 
 namespace omega_h {
 

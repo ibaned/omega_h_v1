@@ -219,6 +219,11 @@ template unsigned* filled_array(unsigned n, unsigned v);
 template unsigned long* filled_array(unsigned n, unsigned long v);
 template double* filled_array(unsigned n, double v);
 
+LOOP_IN static double max(double a, double b)
+{
+  return (b > a) ? b : a;
+}
+
 LOOP_KERNEL(max_doubles_into_kern, double const* a, unsigned width,
     unsigned const* offsets, double* out)
   unsigned first = offsets[i];
@@ -229,7 +234,7 @@ LOOP_KERNEL(max_doubles_into_kern, double const* a, unsigned width,
     out[i * width + k] = a[first * width + k];
   for (unsigned j = first + 1; j < end; ++j)
     for (unsigned k = 0; k < width; ++k)
-      out[i * width + k] = std::max(out[i * width + k], a[j * width + k]);
+      out[i * width + k] = max(out[i * width + k], a[j * width + k]);
 }
 void doubles_max_into(unsigned n, unsigned width,
     double const* a, unsigned const* offsets, double* out)
