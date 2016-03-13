@@ -81,7 +81,6 @@ static void get_elem_use_owners_of_verts(
 
 struct resident {
   unsigned n;
-  unsigned padding__;
   unsigned* ranks;
   unsigned* ids;
 };

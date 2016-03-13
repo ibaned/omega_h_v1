@@ -25,7 +25,6 @@ struct parallel_mesh {
   unsigned* own_ids[4];
   struct exchanger* ex[4];
   unsigned nghost_layers;
-  int padding__;
 };
 
 struct parallel_mesh* new_parallel_mesh(void)

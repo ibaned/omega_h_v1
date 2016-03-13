@@ -19,7 +19,6 @@ LOOP_CONST extern unsigned const swap_nint_edges[MAX_EDGE_SWAP + 1];
 
 struct swap_choice {
   unsigned code;
-  int padding__;
   double quality;
 };
 
