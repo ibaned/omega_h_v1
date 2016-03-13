@@ -186,9 +186,8 @@ template double* expand_array(double const* a,
     unsigned const* offsets, unsigned n, unsigned width);
 
 template <typename T>
-T* concat_arrays(unsigned width,
-    T const* a, unsigned na,
-    T const* b, unsigned nb)
+T* concat_arrays(T const* a, T const* b,
+    unsigned na, unsigned nb, unsigned width)
 {
   T* out = LOOP_MALLOC(T, (na + nb) * width);
   array_memcpy<T>(out, a, na * width);
@@ -196,12 +195,10 @@ T* concat_arrays(unsigned width,
   return out;
 }
 
-template unsigned* concat_arrays(unsigned width,
-    unsigned const* a, unsigned na,
-    unsigned const* b, unsigned nb);
-template double* concat_arrays(unsigned width,
-    double const* a, unsigned na,
-    double const* b, unsigned nb);
+template unsigned* concat_arrays(unsigned const* a, unsigned const* b,
+    unsigned na, unsigned nb, unsigned width);
+template double* concat_arrays(double const* a, double const* b,
+    unsigned na, unsigned nb, unsigned width);
 
 template <typename T>
 LOOP_KERNEL(fill_kern, T* a, T v)

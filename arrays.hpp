@@ -24,9 +24,8 @@ template <typename T>
 T* expand_array(T const* a,
     unsigned const* offsets, unsigned n, unsigned width);
 template <typename T>
-T* concat_arrays(unsigned width,
-    T const* a, unsigned na,
-    T const* b, unsigned nb);
+T* concat_arrays(T const* a, T const* b,
+    unsigned na, unsigned nb, unsigned width);
 template <typename T>
 T* filled_array(unsigned n, T v);
 void doubles_max_into(unsigned n, unsigned width,
