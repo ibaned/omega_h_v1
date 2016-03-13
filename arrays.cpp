@@ -1,7 +1,5 @@
 #include "arrays.hpp"
 
-#include <algorithm> //for std::max
-
 #include "loop.hpp"
 
 namespace omega_h {
@@ -70,7 +68,7 @@ T* array_to_host(T const* a, unsigned n)
 {
 #if defined(LOOP_CUDA_HPP) || \
     (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
-  T* b = LOOP_MALLOC(T, n);
+  T* b = LOOP_HOST_MALLOC(T, n);
   CUDACALL(cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyDeviceToHost));
   return b;
 #else
@@ -219,6 +217,11 @@ template unsigned* filled_array(unsigned n, unsigned v);
 template unsigned long* filled_array(unsigned n, unsigned long v);
 template double* filled_array(unsigned n, double v);
 
+LOOP_IN static double max(double a, double b)
+{
+  return (b > a) ? b : a;
+}
+
 LOOP_KERNEL(max_doubles_into_kern, double const* a, unsigned width,
     unsigned const* offsets, double* out)
   unsigned first = offsets[i];
@@ -229,7 +232,7 @@ LOOP_KERNEL(max_doubles_into_kern, double const* a, unsigned width,
     out[i * width + k] = a[first * width + k];
   for (unsigned j = first + 1; j < end; ++j)
     for (unsigned k = 0; k < width; ++k)
-      out[i * width + k] = std::max(out[i * width + k], a[j * width + k]);
+      out[i * width + k] = max(out[i * width + k], a[j * width + k]);
 }
 void doubles_max_into(unsigned n, unsigned width,
     double const* a, unsigned const* offsets, double* out)
