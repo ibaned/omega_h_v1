@@ -156,9 +156,8 @@ LOOP_KERNEL(expand_kern, T const* a, unsigned width,
       out[j * width + k] = a[i * width + k];
 }
 template <typename T>
-void expand_into(unsigned n, unsigned width,
-    T const* a, unsigned const* offsets,
-    T* out)
+void expand_into(T* out, T const* a,
+    unsigned const* offsets, unsigned n, unsigned width)
 {
   LOOP_EXEC(expand_kern<T>, n, a, width, offsets, out);
 }
@@ -168,14 +167,14 @@ T* expand_array(unsigned n, unsigned width,
 {
   unsigned nout = array_at(offsets, n);
   T* out = LOOP_MALLOC(T, nout * width);
-  expand_into<T>(n, width, a, offsets, out);
+  expand_into<T>(out, a, offsets, n, width);
   return out;
 }
 
-template void expand_into(unsigned n, unsigned width,
-    unsigned const* a, unsigned const* offsets, unsigned* out);
-template void expand_into(unsigned n, unsigned width,
-    unsigned long const* a, unsigned const* offsets, unsigned long* out);
+template void expand_into(unsigned* out, unsigned const* a,
+    unsigned const* offsets, unsigned n, unsigned width);
+template void expand_into(unsigned long* out, unsigned long const* a,
+    unsigned const* offsets, unsigned n, unsigned width);
 
 template unsigned char* expand_array(unsigned n, unsigned width,
     unsigned char const* a, unsigned const* offsets);

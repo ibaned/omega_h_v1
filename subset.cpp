@@ -103,7 +103,7 @@ void subset_verts_of_doms(
   unsigned const* verts_of_doms = mesh_ask_down(m, dom_dim, 0);
   unsigned* offset_of_same = uints_negate_offsets(offset_of_doms,
       mesh_count(m, dom_dim));
-  expand_into(mesh_count(m, dom_dim), the_down_degrees[dom_dim][0],
-      verts_of_doms, offset_of_same, verts_of_prods);
+  expand_into(verts_of_prods, verts_of_doms, offset_of_same,
+      mesh_count(m, dom_dim), the_down_degrees[dom_dim][0]);
   loop_free(offset_of_same);
 }

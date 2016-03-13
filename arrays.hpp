@@ -18,8 +18,8 @@ T* reorder_array_inv(T const* a, unsigned const* new_to_old,
 template <typename T>
 T array_at(T const* a, unsigned i);
 template <typename T>
-void expand_into(unsigned n, unsigned width,
-    T const* a, unsigned const* offsets, T* out);
+void expand_into(T* out, T const* a,
+    unsigned const* offsets, unsigned n, unsigned width);
 template <typename T>
 T* expand_array(unsigned n, unsigned width,
     T const* a, unsigned const* offsets);

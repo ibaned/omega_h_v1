@@ -101,8 +101,7 @@ void inherit_globals(
   loop_free(owned_and_same_offsets);
   mesh_conform_array(m_in, ent_dim, 1, &new_globals_in);
   unsigned long* new_globals_out = LOOP_MALLOC(unsigned long, nout);
-  expand_into(nin, 1, new_globals_in, offset_of_same_ents,
-      new_globals_out);
+  expand_into(new_globals_out, new_globals_in, offset_of_same_ents, nin, 1);
   loop_free(new_globals_in);
   LOOP_EXEC(new_globals_out_kern, nnew,
       nsame, offset_out, nowned_and_same, new_globals_out);
