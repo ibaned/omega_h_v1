@@ -1,6 +1,7 @@
 #include "compat_mpi.hpp"
 
 #include "loop_host.hpp"
+#include "int_casts.hpp"
 
 /* this file exists to support MPI_VERSION < 3.
    it implements some of the high-level Neighbor
@@ -55,10 +56,10 @@ int compat_Neighbor_alltoallv(
 {
   int indegree, outdegree, weighted;
   CALL(MPI_Dist_graph_neighbors_count(comm, &indegree, &outdegree, &weighted));
-  int* sources = LOOP_HOST_MALLOC(int, (unsigned) indegree);
-  int* sourceweights = LOOP_HOST_MALLOC(int, (unsigned) indegree);
-  int* destinations = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
-  int* destweights = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
+  int* sources = LOOP_HOST_MALLOC(int, U(indegree));
+  int* sourceweights = LOOP_HOST_MALLOC(int, U(indegree));
+  int* destinations = LOOP_HOST_MALLOC(int, U(outdegree));
+  int* destweights = LOOP_HOST_MALLOC(int, U(outdegree));
   CALL(MPI_Dist_graph_neighbors(comm, indegree, sources, sourceweights,
         outdegree, destinations, destweights));
   loop_host_free(sourceweights);
@@ -67,10 +68,11 @@ int compat_Neighbor_alltoallv(
   CALL(MPI_Type_size(sendtype, &sendwidth));
   int recvwidth;
   CALL(MPI_Type_size(sendtype, &recvwidth));
-  MPI_Request* recvreqs = LOOP_HOST_MALLOC(MPI_Request, (unsigned) indegree);
-  MPI_Request* sendreqs = LOOP_HOST_MALLOC(MPI_Request, (unsigned) outdegree);
+  MPI_Request* recvreqs = LOOP_HOST_MALLOC(MPI_Request, U(indegree));
+  MPI_Request* sendreqs = LOOP_HOST_MALLOC(MPI_Request, U(outdegree));
   for (int i = 0; i < indegree; ++i)
-    CALL(MPI_Irecv(((char*)recvbuf) + rdispls[i] * recvwidth,
+    CALL(MPI_Irecv(
+          static_cast<char*>(recvbuf) + rdispls[i] * recvwidth,
           recvcounts[i], recvtype, sources[i], MY_TAG, comm,
           recvreqs + i));
   loop_host_free(sources);
@@ -80,7 +82,8 @@ int compat_Neighbor_alltoallv(
      add/remove this line as you wish. */
   CALL(MPI_Barrier(comm));
   for (int i = 0; i < outdegree; ++i)
-    CALL(MPI_Isend(((char const*)sendbuf) + sdispls[i] * sendwidth,
+    CALL(MPI_Isend(
+          static_cast<char const*>(sendbuf) + sdispls[i] * sendwidth,
           sendcounts[i], sendtype, destinations[i], MY_TAG, comm,
           sendreqs + i));
   loop_host_free(destinations);
@@ -102,20 +105,21 @@ int compat_Neighbor_allgather(
 {
   int indegree, outdegree, weighted;
   CALL(MPI_Dist_graph_neighbors_count(comm, &indegree, &outdegree, &weighted));
-  int* sources = LOOP_HOST_MALLOC(int, (unsigned) indegree);
-  int* sourceweights = LOOP_HOST_MALLOC(int, (unsigned) indegree);
-  int* destinations = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
-  int* destweights = LOOP_HOST_MALLOC(int, (unsigned) outdegree);
+  int* sources = LOOP_HOST_MALLOC(int, U(indegree));
+  int* sourceweights = LOOP_HOST_MALLOC(int, U(indegree));
+  int* destinations = LOOP_HOST_MALLOC(int, U(outdegree));
+  int* destweights = LOOP_HOST_MALLOC(int, U(outdegree));
   CALL(MPI_Dist_graph_neighbors(comm, indegree, sources, sourceweights,
         outdegree, destinations, destweights));
   loop_host_free(sourceweights);
   loop_host_free(destweights);
   int recvwidth;
   CALL(MPI_Type_size(sendtype, &recvwidth));
-  MPI_Request* recvreqs = LOOP_HOST_MALLOC(MPI_Request, (unsigned) indegree);
-  MPI_Request* sendreqs = LOOP_HOST_MALLOC(MPI_Request, (unsigned) outdegree);
+  MPI_Request* recvreqs = LOOP_HOST_MALLOC(MPI_Request, U(indegree));
+  MPI_Request* sendreqs = LOOP_HOST_MALLOC(MPI_Request, U(outdegree));
   for (int i = 0; i < indegree; ++i)
-    CALL(MPI_Irecv(((char*)recvbuf) + i * recvcount * recvwidth,
+    CALL(MPI_Irecv(
+          static_cast<char*>(recvbuf) + i * recvcount * recvwidth,
           recvcount, recvtype, sources[i], MY_TAG, comm,
           recvreqs + i));
   loop_host_free(sources);
