@@ -1,2 +1,2 @@
-CFLAGS = -g -O2 -std=c99 -Werror -Wall
+CXXFLAGS = -g -O2 -std=c++11 -Werror -Wall
 LDLIBS = -lm

@@ -1,0 +1,41 @@
+#ifndef CLOSE_PARTITION_HPP
+#define CLOSE_PARTITION_HPP
+
+namespace omega_h {
+
+struct exchanger;
+struct mesh;
+
+struct exchanger* close_partition_exchanger(
+    struct exchanger* buse_to_own);
+
+void close_partition(
+    unsigned nacopies,
+    unsigned nbowners,
+    unsigned const* buses_by_acopies_offsets,
+    unsigned const* buse_own_ranks,
+    unsigned const* buse_own_ids,
+    unsigned* p_nbcopies,
+    unsigned** p_bcopy_own_ranks,
+    unsigned** p_bcopy_own_ids);
+
+void get_down_use_owners(
+    struct mesh* m,
+    unsigned high_dim,
+    unsigned low_dim,
+    unsigned** p_use_own_ranks,
+    unsigned** p_use_own_ids,
+    unsigned** p_uses_of_highs_offsets);
+
+void push_use_owners(
+    struct exchanger* push,
+    unsigned const* use_own_ranks_in,
+    unsigned const* use_own_ids_in,
+    unsigned const* offsets_in,
+    unsigned** p_use_own_ranks_out,
+    unsigned** p_use_own_ids_out,
+    unsigned** p_offsets_out);
+
+}
+
+#endif

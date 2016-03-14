@@ -9,7 +9,7 @@ extern "C" {
 
 typedef struct osh_mesh* osh_t;
 
-void osh_init(void) OSH_PUBLIC;
+void osh_init(int* argc, char*** argv) OSH_PUBLIC;
 void osh_fini(void) OSH_PUBLIC;
 
 void osh_free(osh_t m) OSH_PUBLIC;

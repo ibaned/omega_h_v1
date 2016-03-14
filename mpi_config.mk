@@ -1,4 +1,3 @@
-CC = mpicc
-CPP = mpicc
-CFLAGS = -g -O2 -std=c99 -Wall
+CXX = mpicxx
+CXXFLAGS = -g -O2 -std=c++11 -Wall
 USE_MPI = 1
