@@ -5,6 +5,22 @@
 #pragma clang system_header
 #endif
 
+#ifdef __bgq__
+/*
+The BlueGene/Q MPI headers have MPICH2_CONST
+everywhere that const should be, and apparently
+define it to nothing by default, which causes
+compile errors for code that actually is const-correct.
+so, "#define MPICH2_CONST const" would be enough. but no.
+They also have this line of code in mpicxx.h:
+    virtual Datatype Create_indexed( int v1, const MPICH2_CONST int * v2,
+                                      const MPICH2_CONST int * v3 ) const
+Which triggers a compile error about duplicate const.
+*/
+#define MPICH2_CONST const
+#define MPICH_SKIP_MPICXX
+#endif
+
 #include <mpi.h>
 
 #if MPI_VERSION < 2 || (MPI_VERSION == 2 && MPI_SUBVERSION < 2)
