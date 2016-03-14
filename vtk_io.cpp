@@ -223,7 +223,7 @@ static void write_ascii_array(FILE* file, enum tag_type t, unsigned nents,
           static_cast<unsigned char const*>(data), nents * ncomps);
       for (unsigned i = 0; i < nents; ++i) {
         for (unsigned j = 0; j < ncomps; ++j)
-          fprintf(file, " %hhu", p[i * ncomps + j]);
+          fprintf(file, " %u", static_cast<unsigned>(p[i * ncomps + j]));
         fprintf(file, "\n");
       }
       loop_host_free(p);
