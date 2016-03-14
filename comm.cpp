@@ -21,17 +21,17 @@ struct TraitsMPI;
 
 template <>
 struct TraitsMPI<unsigned> {
-  static MPI_Datatype const type = MPI_UNSIGNED;
+  static MPI_Datatype constexpr type = MPI_UNSIGNED;
 };
 
 template <>
 struct TraitsMPI<unsigned long> {
-  static MPI_Datatype const type = MPI_UNSIGNED_LONG;
+  static MPI_Datatype constexpr type = MPI_UNSIGNED_LONG;
 };
 
 template <>
 struct TraitsMPI<double> {
-  static MPI_Datatype const type = MPI_DOUBLE;
+  static MPI_Datatype constexpr type = MPI_DOUBLE;
 };
 
 static int we_called_mpi_init = 0;
