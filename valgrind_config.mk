@@ -1,5 +1,5 @@
-CC = mpicc
-CFLAGS = -g -O2 -std=c99
+CXX = mpicxx
+CXXFLAGS = -g -O2 -std=c++11
 USE_ZLIB = 1
 USE_MPI = 1
 USE_MPI3 = 1
