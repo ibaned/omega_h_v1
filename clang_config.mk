@@ -1,4 +1,2 @@
-CC = clang
-CPP = clang
-CFLAGS = -g -O2 -std=c99 -Weverything -Wno-float-equal -pedantic -Werror -Wno-format-nonliteral -Wno-covered-switch-default
-USE_MPI = 0
+CXX = clang++
+CXXFLAGS = -g -O2 -std=c++11 -Werror -Weverything -Wno-c++98-compat-pedantic -Wno-float-equal -Wno-padded
