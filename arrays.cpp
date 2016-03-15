@@ -1,5 +1,7 @@
 #include "arrays.hpp"
 
+#include <cassert>
+
 #include "loop.hpp"
 
 namespace omega_h {

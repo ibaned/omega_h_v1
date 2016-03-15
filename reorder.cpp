@@ -1,5 +1,7 @@
 #include "reorder.hpp"
 
+#include <cassert>
+
 #include "arrays.hpp"
 #include "bfs.hpp"
 #include "ints.hpp"

@@ -1,5 +1,7 @@
 #include "invert_map.hpp"
 
+#include <cassert>
+
 #include "arrays.hpp"
 #include "ints.hpp"
 #include "loop.hpp"

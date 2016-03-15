@@ -1,5 +1,7 @@
 #include "loop_kokkos.hpp"
 
+#include <cassert>
+
 namespace omega_h {
 
 #ifdef KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA
