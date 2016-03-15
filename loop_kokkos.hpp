@@ -12,7 +12,7 @@ namespace omega_h {
 
 #ifdef KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA
 #define LOOP_IN __device__
-#define LOOP_CONST __const__
+#define LOOP_CONST __constant__
 #else
 #define LOOP_IN
 #define LOOP_CONST
@@ -47,8 +47,7 @@ static inline unsigned loop_openmp_atomic_increment(unsigned* p)
 #endif
 
 #define LOOP_KERNEL(fname, ...) \
-KOKKOS_INLINE_FUNCTION \
-static void fname(unsigned i, __VA_ARGS__) \
+LOOP_IN static inline void fname(unsigned i, __VA_ARGS__) \
 {
 
 #define LOOP_EXEC(fname, n, ...) \
