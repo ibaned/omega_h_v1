@@ -1,3 +1,7 @@
-CXXFLAGS = -g -O2 -Werror -Wall
-KOKKOS_MAKEFILE = /Users/dibanez/code/kokkos-install/Makefile.kokkos
+include /home/daibane/kokkos-install/Makefile.kokkos
+CXX = clang++
+CXXFLAGS = -g -O2 -Weverythig -Werror -Wno-padded
+CPPFLAGS = $(KOKKOS_CPPFLAGS) --std=c++11
+LDFLAGS = $(KOKKOS_LDFLAGS)
+LDLIBS = $(KOKKOS_LIBS)
 LOOP_MODE = kokkos
