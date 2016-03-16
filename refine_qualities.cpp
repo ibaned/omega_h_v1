@@ -108,6 +108,7 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   unsigned verts_per_src = the_down_degrees[src_dim][0];
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   double* src_quals = LOOP_MALLOC(double, nsrcs);
+  unsigned* candidates = *p_candidates;
   LOOP_EXEC(refine_quality, nsrcs,
       elem_dim,
       src_dim,
@@ -123,7 +124,7 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
       verts_of_elems,
       verts_per_elem,
       qual_floor,
-      *p_candidates,
+      candidates,
       src_quals);
   loop_free(elem_quals);
   mesh_conform_array(m, src_dim, 1, &src_quals);
