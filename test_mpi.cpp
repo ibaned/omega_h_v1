@@ -30,6 +30,7 @@ int main(int argc, char** argv)
       }
       char fname[256];
       sprintf(fname, "out_%u.pvtu", subcomm_size);
+      mesh_ask_own_ranks(m, mesh_dim(m));
       write_mesh_vtk(m, fname);
     }
     comm_use(comm_world());
