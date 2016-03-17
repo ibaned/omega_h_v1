@@ -7,6 +7,7 @@
 include config.mk
 
 test_sources := \
+test_mpi.cpp \
 test_flounder.cpp \
 test_one_refine.cpp \
 test_one_coarsen.cpp \
