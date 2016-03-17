@@ -25,7 +25,7 @@ int main(int argc, char** argv)
         m = read_mesh_vtk(argv[1]);
         mesh_make_parallel(m);
       } else {
-        mesh_partition_out(&m, comm_size());
+        mesh_partition_out(&m, m != 0);
         balance_mesh_inertial(m);
       }
       char fname[256];
