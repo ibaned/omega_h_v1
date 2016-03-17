@@ -279,30 +279,14 @@ void mesh_parallel_from_tags(struct mesh* m, unsigned dim)
   mesh_free_tag(m, dim, "own_id");
 }
 
-void mesh_partition_out(struct mesh** p_m, unsigned factor)
+void mesh_partition_out(struct mesh** p_m, unsigned is_source)
 {
-  struct comm* oc = comm_using();
-  struct comm* bc = comm_split(oc, comm_rank() / factor, comm_rank() % factor);
-  comm_use(bc);
-  *p_m = bcast_mesh_metadata(*p_m);
-  comm_use(oc);
-  comm_free(bc);
-  if (comm_rank() % factor) {
+  *p_m = bcast_mesh_metadata(*p_m, is_source);
+  if (is_source) {
+    for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
+      invalidate_ranks(mesh_parallel(*p_m), d);
+  } else {
     mesh_make_parallel(*p_m);
-  } else {
-    for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
-      invalidate_ranks(mesh_parallel(*p_m), d);
-  }
-}
-
-void mesh_partition_in(struct mesh** p_m, unsigned factor)
-{
-  if (comm_rank() % factor) {
-    free_mesh(*p_m);
-    *p_m = 0;
-  } else {
-    for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
-      invalidate_ranks(mesh_parallel(*p_m), d);
   }
 }
 
@@ -316,7 +300,7 @@ struct mesh* read_and_partition_serial_mesh(char const* filename)
     mesh_make_parallel(m);
     comm_use(comm_world());
   }
-  mesh_partition_out(&m, comm_size());
+  mesh_partition_out(&m, comm_rank() == 0);
   balance_mesh_inertial(m);
   return m;
 }
