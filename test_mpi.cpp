@@ -4,6 +4,7 @@
 #include "parallel_mesh.hpp"
 #include "parallel_inertial_bisect.hpp"
 #include "mesh.hpp"
+#include "refine.hpp"
 
 #include <cstdio>
 #include <cassert>
@@ -28,6 +29,7 @@ int main(int argc, char** argv)
         mesh_partition_out(&m, m != 0);
         balance_mesh_inertial(m);
       }
+      uniformly_refine(m);
       char fname[256];
       sprintf(fname, "out_%u.pvtu", subcomm_size);
       mesh_ask_own_ranks(m, mesh_dim(m));
