@@ -1,6 +1,5 @@
 #include "include/omega_h.h"
 #include "comm.hpp"
-#include "vtk_io.hpp"
 #include "parallel_mesh.hpp"
 #include "parallel_inertial_bisect.hpp"
 #include "mesh.hpp"
@@ -10,6 +9,7 @@
 
 #include <cstdio>
 #include <cassert>
+#include <cstdlib>
 #include <sys/time.h>
 
 using namespace omega_h;
@@ -34,11 +34,12 @@ static void print_stats(struct mesh* m)
         total, max);
 }
 
-static unsigned const initial_refines = 10;
 
 int main(int argc, char** argv)
 {
   osh_init(&argc, &argv);
+  assert(argc == 2);
+  unsigned const initial_refines = static_cast<unsigned>(atoi(argv[1]));
   unsigned world_size = comm_size();
   unsigned subcomm_size = 0;
   struct mesh* m = 0;
@@ -63,6 +64,7 @@ int main(int argc, char** argv)
         mesh_make_parallel(m);
         double r = get_time();
         printf("setup time %.4e seconds\n", r - q);
+        print_stats(m);
       } else {
         mesh_partition_out(&m, m != 0);
         double c = get_time();
@@ -82,10 +84,6 @@ int main(int argc, char** argv)
       if (!comm_rank())
         printf("refine time %.4e seconds\n", refine_time);
       print_stats(m);
-      char fname[256];
-      sprintf(fname, "out_%u.pvtu", subcomm_size);
-      mesh_ask_own_ranks(m, mesh_dim(m));
-      write_mesh_vtk(m, fname);
     }
     comm_use(comm_world());
     comm_free(subcomm);
