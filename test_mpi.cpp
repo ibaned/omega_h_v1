@@ -22,6 +22,16 @@ static double get_time(void)
   return t;
 }
 
+static void print_stats(struct mesh* m)
+{
+  unsigned nelems = mesh_count(m, mesh_dim(m));
+  unsigned long total = comm_add_ulong(nelems);
+  unsigned max = comm_max_uint(nelems);
+  if (!comm_rank())
+    printf("#elements: total %lu, max %u\n",
+        total, max);
+}
+
 int main(int argc, char** argv)
 {
   osh_init(&argc, &argv);
@@ -51,6 +61,7 @@ int main(int argc, char** argv)
         total_balance_time += balance_time;
         if (!comm_rank())
           printf("balance time %.4e seconds\n", balance_time);
+        print_stats(m);
       }
       double e = get_time();
       uniformly_refine(m);
@@ -59,6 +70,7 @@ int main(int argc, char** argv)
       total_refine_time += refine_time;
       if (!comm_rank())
         printf("refine time %.4e seconds\n", refine_time);
+      print_stats(m);
       char fname[256];
       sprintf(fname, "out_%u.pvtu", subcomm_size);
       mesh_ask_own_ranks(m, mesh_dim(m));
