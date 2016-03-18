@@ -5,6 +5,8 @@
 #include "parallel_inertial_bisect.hpp"
 #include "mesh.hpp"
 #include "refine.hpp"
+#include "derive_model.hpp"
+#include "algebra.hpp"
 
 #include <cstdio>
 #include <cassert>
@@ -32,6 +34,8 @@ static void print_stats(struct mesh* m)
         total, max);
 }
 
+static unsigned const initial_refines = 10;
+
 int main(int argc, char** argv)
 {
   osh_init(&argc, &argv);
@@ -50,8 +54,15 @@ int main(int argc, char** argv)
     comm_use(subcomm);
     if (!group) {
       if (comm_size() == 1) {
-        m = read_mesh_vtk(argv[1]);
+        double q = get_time();
+        m = new_box_mesh(3);
+        mesh_derive_model(m, PI / 4);
+        mesh_set_rep(m, MESH_FULL);
+        for (unsigned i = 0; i < initial_refines; ++i)
+          uniformly_refine(m);
         mesh_make_parallel(m);
+        double r = get_time();
+        printf("setup time %.4e seconds\n", r - q);
       } else {
         mesh_partition_out(&m, m != 0);
         double c = get_time();
