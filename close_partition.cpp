@@ -10,7 +10,7 @@
 
 namespace omega_h {
 
-static unsigned get_unique_ranks_of_owner(
+LOOP_IN static unsigned get_unique_ranks_of_owner(
     unsigned const* uses_of_owners_offsets,
     unsigned const* msg_of_uses,
     unsigned const* rank_of_msgs,
@@ -26,6 +26,17 @@ static unsigned get_unique_ranks_of_owner(
     nuranks = add_unique(uranks_of_owner, nuranks, rank);
   }
   return nuranks;
+}
+
+LOOP_KERNEL(unique_ranks_1,
+    unsigned const* uses_of_owners_offsets,
+    unsigned const* msg_of_uses,
+    unsigned const* rank_of_msgs,
+    unsigned* ncopies_of_owners,
+    unsigned* scratch)
+  ncopies_of_owners[i] = get_unique_ranks_of_owner(
+      uses_of_owners_offsets, msg_of_uses, rank_of_msgs,
+      i, scratch + uses_of_owners_offsets[i]);
 }
 
 /* for each entity, the owner copy in the old mesh
@@ -47,11 +58,8 @@ static void get_unique_ranks_of_owners(
   unsigned* ncopies_of_owners = LOOP_MALLOC(unsigned, nowners);
   unsigned nuses = array_at(uses_of_owners_offsets, nowners);
   unsigned* scratch = LOOP_MALLOC(unsigned, nuses);
-  for (unsigned i = 0; i < nowners; ++i) {
-    ncopies_of_owners[i] = get_unique_ranks_of_owner(
-        uses_of_owners_offsets, msg_of_uses, rank_of_msgs,
-        i, scratch + uses_of_owners_offsets[i]);
-  }
+  LOOP_EXEC(unique_ranks_1, nowners, uses_of_owners_offsets,
+      msg_of_uses, rank_of_msgs, ncopies_of_owners, scratch);
   unsigned* copies_of_owners_offsets = uints_exscan(
       ncopies_of_owners, nowners);
   loop_free(ncopies_of_owners);
