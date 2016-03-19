@@ -17,8 +17,8 @@ LOOP_KERNEL(degree_count,
   unsigned first_adj = adj_offsets[i];
   unsigned end_adj = adj_offsets[i+1];
   unsigned degree_of_vert = 0;
-  for(unsigned j = first_adj; j < end_adj; ++j)
-    if(i < adj[j])
+  for (unsigned j = first_adj; j < end_adj; ++j)
+    if (i < adj[j])
       ++degree_of_vert;
   degree_of_verts[i] = degree_of_vert;
 }
