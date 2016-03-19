@@ -32,6 +32,8 @@ template <typename T>
 T* filled_array(unsigned n, T v);
 void doubles_max_into(unsigned n, unsigned width,
     double const* a, unsigned const* offsets, double* out);
+void doubles_add_into(unsigned n, unsigned width,
+    double const* a, unsigned const* offsets, double* out);
 
 }
 

@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include "algebra.hpp"
 #include "loop.hpp"
 
 namespace omega_h {
@@ -219,6 +220,7 @@ template unsigned* filled_array(unsigned n, unsigned v);
 template unsigned long* filled_array(unsigned n, unsigned long v);
 template double* filled_array(unsigned n, double v);
 
+/* std::max can't be called from device */
 LOOP_IN static double max(double a, double b)
 {
   return (b > a) ? b : a;
@@ -230,8 +232,7 @@ LOOP_KERNEL(max_doubles_into_kern, double const* a, unsigned width,
   unsigned end = offsets[i + 1];
   if (end == first)
     return;
-  for (unsigned k = 0; k < width; ++k)
-    out[i * width + k] = a[first * width + k];
+  copy_vector(a + first* width, out + i * width, width);
   for (unsigned j = first + 1; j < end; ++j)
     for (unsigned k = 0; k < width; ++k)
       out[i * width + k] = max(out[i * width + k], a[j * width + k]);
@@ -240,6 +241,26 @@ void doubles_max_into(unsigned n, unsigned width,
     double const* a, unsigned const* offsets, double* out)
 {
   LOOP_EXEC(max_doubles_into_kern, n, a, width, offsets, out);
+}
+
+LOOP_KERNEL(add_doubles_into_kern, double const* a, unsigned width,
+    unsigned const* offsets, double* out)
+  unsigned first = offsets[i];
+  unsigned end = offsets[i + 1];
+  if (end == first)
+    return;
+  copy_vector(a + first* width, out + i * width, width);
+  for (unsigned j = first + 1; j < end; ++j)
+    add_vectors(
+        a + j * width,
+        out + i * width,
+        out + i * width,
+        width);
+}
+void doubles_add_into(unsigned n, unsigned width,
+    double const* a, unsigned const* offsets, double* out)
+{
+  LOOP_EXEC(add_doubles_into_kern, n, a, width, offsets, out);
 }
 
 }

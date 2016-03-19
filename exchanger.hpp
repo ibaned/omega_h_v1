@@ -96,6 +96,8 @@ struct exchanger* make_reverse_exchanger(unsigned nsent, unsigned nrecvd,
 
 double* exchange_doubles_max(struct exchanger* ex, unsigned width,
     double const* data, enum exch_dir dir, enum exch_start start);
+double* exchange_doubles_add(struct exchanger* ex, unsigned width,
+    double const* data, enum exch_dir dir, enum exch_start start);
 
 }
 

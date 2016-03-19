@@ -302,4 +302,22 @@ double* exchange_doubles_max(struct exchanger* ex, unsigned width,
   return out;
 }
 
+double* exchange_doubles_add(struct exchanger* ex, unsigned width,
+    double const* data, enum exch_dir dir, enum exch_start start)
+{
+  double* to_reduce = exchange(ex, width, data, dir, start);
+  enum exch_dir od = opp_dir(dir);
+  /* accumulation leaves non-owned items with uninitialized
+     values, but most subsequent algorithms ignore those values.
+     however, if we write these values to file, then Valgrind
+     will flag the uninitialized value usage.
+     for easier debugging only, initialize values to zero here.
+     this is not necessary for correct operation. */
+  double* out = filled_array<double>(width * ex->nroots[od], 0.0);
+  doubles_add_into(ex->nroots[od], width, to_reduce,
+      ex->items_of_roots_offsets[od], out);
+  loop_free(to_reduce);
+  return out;
+}
+
 }
