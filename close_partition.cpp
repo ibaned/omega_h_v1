@@ -119,6 +119,13 @@ struct exchanger* close_partition_exchanger(
   return bown_to_copy;
 }
 
+LOOP_KERNEL(msg_to_rank,
+    unsigned const* msg_ranks,
+    unsigned const* msg_of_items,
+    unsigned* item_ranks)
+  item_ranks[i] = msg_ranks[msg_of_items[i]];
+}
+
 void close_partition(
     unsigned nacopies,
     unsigned nbowners,
@@ -136,9 +143,10 @@ void close_partition(
   free_exchanger(buse_to_own);
   unsigned nbcopies = bown_to_copy->nitems[EX_REV];
   unsigned* bcopy_own_ranks = LOOP_MALLOC(unsigned, nbcopies);
-  for (unsigned i = 0; i < nbcopies; ++i)
-    bcopy_own_ranks[i] = bown_to_copy->ranks[EX_REV][
-      bown_to_copy->msg_of_items[EX_REV][i]];
+  LOOP_EXEC(msg_to_rank, nbcopies,
+      bown_to_copy->ranks[EX_REV],
+      bown_to_copy->msg_of_items[EX_REV],
+      bcopy_own_ranks);
   unsigned* lids = uints_linear(nbowners, 1);
   unsigned* bcopy_own_ids = exchange(bown_to_copy, 1, lids,
       EX_FOR, EX_ROOT);
