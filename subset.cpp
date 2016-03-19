@@ -41,6 +41,12 @@ void tags_subset(struct mesh* in, struct mesh* out,
   }
 }
 
+LOOP_KERNEL(remap_conn,
+    unsigned const* offset_of_same_verts,
+    unsigned* verts_of_ents_out)
+  verts_of_ents_out[i] = offset_of_same_verts[verts_of_ents_out[i]];
+}
+
 static void subset_ents(
     struct mesh* m,
     struct mesh* m_out,
@@ -54,8 +60,8 @@ static void subset_ents(
   unsigned const* verts_of_ents = mesh_ask_down(m, ent_dim, 0);
   unsigned* verts_of_ents_out = expand_array(verts_of_ents,
       ent_offsets, nents, verts_per_ent);
-  for (unsigned i = 0; i < nents_out * verts_per_ent; ++i)
-    verts_of_ents_out[i] = vert_offsets[verts_of_ents_out[i]];
+  LOOP_EXEC(remap_conn, nents_out * verts_per_ent, vert_offsets,
+      verts_of_ents_out);
   mesh_set_ents(m_out, ent_dim, nents_out, verts_of_ents_out);
   tags_subset(m, m_out, ent_dim, ent_offsets);
 }
