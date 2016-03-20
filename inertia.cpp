@@ -79,16 +79,6 @@ static void positivize_axis(double a[3])
       a[i] = -a[i];
 }
 
-LOOP_KERNEL(get_weighted_coord,
-    double const* masses,
-    double const* coords,
-    double* c)
-  for (unsigned j = 0; j < 3; ++j) {
-    double m = masses ? masses[i] : 1;
-    c[j] += coords[i * 3 + j] * m;
-  }
-}
-
 static void get_weighted_coords(
     unsigned n,
     double const* coords,
@@ -98,7 +88,13 @@ static void get_weighted_coords(
 {
   for (unsigned i = 0; i < 3; ++i)
     c[i] = 0;
-  LOOP_EXEC(get_weighted_coord, n, masses, coords, c);
+  /* FIXME: in order to be parallelized,
+   * this requires a doubles_sum with a width argument */
+  for (unsigned i = 0; i < n; ++i)
+    for (unsigned j = 0; j < 3; ++j) {
+      double m = masses ? masses[i] : 1;
+      c[j] += coords[i * 3 + j] * m;
+    }
   if (is_global)
     comm_add_doubles(c, 3);
 }
@@ -206,7 +202,6 @@ static double get_weighted_in_count(
     double const* masses,
     unsigned is_global)
 {
-  double s = 0;
   double* tmp = LOOP_MALLOC(double, n);
   LOOP_EXEC(weigh_one_in, n, in, masses, tmp);
   double sum = doubles_sum(tmp, n);
