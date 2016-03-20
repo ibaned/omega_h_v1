@@ -17,6 +17,12 @@
 
 namespace omega_h {
 
+LOOP_KERNEL(offset_ranks,
+    unsigned first_rank,
+    unsigned* lin_ranks)
+  lin_ranks[i] += first_rank;
+}
+
 void parallel_inertial_bisect(
     unsigned* p_n,
     double** p_coords,
@@ -54,8 +60,7 @@ void parallel_inertial_bisect(
         &lin_ranks, &lin_ids);
     loop_free(lin_ids);
     loop_free(global);
-    for (unsigned i = 0; i < nsub; ++i)
-      lin_ranks[i] += first_rank;
+    LOOP_EXEC(offset_ranks, nsub, first_rank, lin_ranks);
     unsigned in_subgroup = ((first_rank <= comm_rank()) &&
         (comm_rank() < (first_rank + nsubranks)));
     struct exchanger* ex = new_exchanger(nsub, lin_ranks);
