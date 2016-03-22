@@ -29,6 +29,23 @@ namespace omega_h {
    that adjacent elements have to be
    collected from all the partitions. */
 
+/* FIXME: is this just two expand_array calls ??? */
+LOOP_KERNEL(fill_use_owners,
+    unsigned const* elems_of_verts_offsets,
+    unsigned const* elems_of_verts,
+    unsigned const* elem_own_ranks,
+    unsigned const* elem_own_ids,
+    unsigned* use_ranks_in,
+    unsigned* use_ids_in)
+  unsigned f = elems_of_verts_offsets[i];
+  unsigned e = elems_of_verts_offsets[i + 1];
+  for (unsigned j = f; j < e; ++j) {
+    unsigned elem = elems_of_verts[j];
+    use_ranks_in[j] = elem_own_ranks[elem];
+    use_ids_in[j] = elem_own_ids[elem];
+  }
+}
+
 static void get_elem_use_owners_of_verts(
     struct mesh* m,
     unsigned** p_use_own_ranks,
@@ -46,15 +63,13 @@ static void get_elem_use_owners_of_verts(
   unsigned nuses_in = array_at(elems_of_verts_offsets, nverts);
   unsigned* use_ranks_in = LOOP_MALLOC(unsigned, nuses_in);
   unsigned* use_ids_in = LOOP_MALLOC(unsigned, nuses_in);
-  for (unsigned i = 0; i < nverts; ++i) {
-    unsigned f = elems_of_verts_offsets[i];
-    unsigned e = elems_of_verts_offsets[i + 1];
-    for (unsigned j = f; j < e; ++j) {
-      unsigned elem = elems_of_verts[j];
-      use_ranks_in[j] = elem_own_ranks[elem];
-      use_ids_in[j] = elem_own_ids[elem];
-    }
-  }
+  LOOP_EXEC(fill_use_owners, nverts,
+      elems_of_verts_offsets,
+      elems_of_verts,
+      elem_own_ranks,
+      elem_own_ids,
+      use_ranks_in,
+      use_ids_in);
   unsigned const* vert_own_ranks = mesh_ask_own_ranks(m, 0);
   unsigned const* vert_own_ids = mesh_ask_own_ids(m, 0);
   unsigned* dest_ranks = expand_array(vert_own_ranks,

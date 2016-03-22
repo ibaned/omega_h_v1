@@ -7,6 +7,7 @@
 include config.mk
 
 test_sources := \
+test_mpi.cpp \
 test_flounder.cpp \
 test_one_refine.cpp \
 test_one_coarsen.cpp \
@@ -111,16 +112,6 @@ derive_model.cpp \
 compress.cpp \
 inherit.cpp
 
-#bring in Makefile.kokkos
-ifeq "$(LOOP_MODE)" "kokkos"
-  include $(KOKKOS_MAKEFILE)
-	CXXFLAGS += $(KOKKOS_CXXFLAGS)
-	CPPFLAGS += $(KOKKOS_CPPFLAGS) --std=c++11
-  CPPFLAGS := $(sort $(CPPFLAGS))
-	LDFLAGS += $(KOKKOS_LDFLAGS)
-	LDLIBS += $(KOKKOS_LIBS)
-endif
-
 #handle optional features:
 PREFIX ?= /usr/local
 USE_ZLIB ?= 0
@@ -142,10 +133,11 @@ ifeq "$(USE_MPI)" "1"
   deps/compat_mpi.dep : CPPFLAGS += -DUSE_MPI3=$(USE_MPI3)
 endif
 objs/loop_host.o : CPPFLAGS += -DMEASURE_MEMORY=$(MEASURE_MEMORY)
+ifeq "$(LOOP_MODE)" "serial"
+  test_sources += test_print_swap_edges.cpp
+endif
 ifeq "$(LOOP_MODE)" "cuda"
   lib_sources += loop_cuda.cpp
-else
-  test_sources += test_print_swap_edges.cpp
 endif
 ifeq "$(LOOP_MODE)" "kokkos"
   lib_sources += loop_kokkos.cpp

@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     m = new_box_mesh(2);
     mesh_count(m, 1); //trigger edge creation
   }
-  m = bcast_mesh_metadata(m);
+  m = bcast_mesh_metadata(m, comm_rank() == 0);
   mesh_make_parallel(m);
   char file[128];
   sprintf(file, "%s/before.pvtu", path);

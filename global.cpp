@@ -8,14 +8,37 @@
 
 namespace omega_h {
 
+LOOP_KERNEL(globalize_offset,
+    unsigned const* local,
+    unsigned long offset,
+    unsigned long* global)
+  global[i] = local[i] + offset;
+}
+
 unsigned long* globalize_offsets(unsigned* local, unsigned n)
 {
   unsigned long* global = LOOP_MALLOC(unsigned long, n);
   unsigned long lsum = array_at(local, n);
-  unsigned long goff = comm_exscan_ulong(lsum);
-  for (unsigned i = 0; i < n; ++i)
-    global[i] = local[i] + goff;
+  unsigned long offset = comm_exscan_ulong(lsum);
+  LOOP_EXEC(globalize_offset, n, local, offset, global);
   return global;
+}
+
+LOOP_KERNEL(global_to_lin,
+    unsigned long const* global,
+    unsigned long quot,
+    unsigned long rem,
+    unsigned* local,
+    unsigned* part)
+  unsigned long g = global[i];
+  if (g < ((quot + 1) * rem)) {
+    part[i] = U(g / (quot + 1));
+    local[i] = U(g % (quot + 1));
+  } else {
+    g -= (quot + 1) * rem;
+    part[i] = U(g / quot + rem);
+    local[i] = U(g % quot);
+  }
 }
 
 void global_to_linpart(unsigned long const* global, unsigned n,
@@ -26,17 +49,8 @@ void global_to_linpart(unsigned long const* global, unsigned n,
   unsigned long rem = total % nparts;
   unsigned* part = LOOP_MALLOC(unsigned, n);
   unsigned* local = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i) {
-    unsigned long g = global[i];
-    if (g < ((quot + 1) * rem)) {
-      part[i] = U(g / (quot + 1));
-      local[i] = U(g % (quot + 1));
-    } else {
-      g -= (quot + 1) * rem;
-      part[i] = U(g / quot + rem);
-      local[i] = U(g % quot);
-    }
-  }
+  LOOP_EXEC(global_to_lin, n, global, quot, rem,
+      local, part);
   *p_part = part;
   *p_local = local;
 }

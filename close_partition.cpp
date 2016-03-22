@@ -10,7 +10,7 @@
 
 namespace omega_h {
 
-static unsigned get_unique_ranks_of_owner(
+LOOP_IN static unsigned get_unique_ranks_of_owner(
     unsigned const* uses_of_owners_offsets,
     unsigned const* msg_of_uses,
     unsigned const* rank_of_msgs,
@@ -26,6 +26,30 @@ static unsigned get_unique_ranks_of_owner(
     nuranks = add_unique(uranks_of_owner, nuranks, rank);
   }
   return nuranks;
+}
+
+LOOP_KERNEL(unique_ranks_1,
+    unsigned const* uses_of_owners_offsets,
+    unsigned const* msg_of_uses,
+    unsigned const* rank_of_msgs,
+    unsigned* ncopies_of_owners,
+    unsigned* scratch)
+  ncopies_of_owners[i] = get_unique_ranks_of_owner(
+      uses_of_owners_offsets, msg_of_uses, rank_of_msgs,
+      i, scratch + uses_of_owners_offsets[i]);
+}
+
+LOOP_KERNEL(unique_ranks_2,
+    unsigned const* uses_of_owners_offsets,
+    unsigned const* copies_of_owners_offsets,
+    unsigned const* scratch,
+    unsigned* rank_of_copies)
+  unsigned fu = uses_of_owners_offsets[i];
+  unsigned fc = copies_of_owners_offsets[i];
+  unsigned ec = copies_of_owners_offsets[i + 1];
+  unsigned nc = ec - fc;
+  for (unsigned j = 0; j < nc; ++j)
+    rank_of_copies[fc + j] = scratch[fu + j];
 }
 
 /* for each entity, the owner copy in the old mesh
@@ -47,24 +71,15 @@ static void get_unique_ranks_of_owners(
   unsigned* ncopies_of_owners = LOOP_MALLOC(unsigned, nowners);
   unsigned nuses = array_at(uses_of_owners_offsets, nowners);
   unsigned* scratch = LOOP_MALLOC(unsigned, nuses);
-  for (unsigned i = 0; i < nowners; ++i) {
-    ncopies_of_owners[i] = get_unique_ranks_of_owner(
-        uses_of_owners_offsets, msg_of_uses, rank_of_msgs,
-        i, scratch + uses_of_owners_offsets[i]);
-  }
+  LOOP_EXEC(unique_ranks_1, nowners, uses_of_owners_offsets,
+      msg_of_uses, rank_of_msgs, ncopies_of_owners, scratch);
   unsigned* copies_of_owners_offsets = uints_exscan(
       ncopies_of_owners, nowners);
   loop_free(ncopies_of_owners);
   unsigned ncopies = array_at(copies_of_owners_offsets, nowners);
   unsigned* rank_of_copies = LOOP_MALLOC(unsigned, ncopies);
-  for (unsigned i = 0; i < nowners; ++i) {
-    unsigned fu = uses_of_owners_offsets[i];
-    unsigned fc = copies_of_owners_offsets[i];
-    unsigned ec = copies_of_owners_offsets[i + 1];
-    unsigned nc = ec - fc;
-    for (unsigned j = 0; j < nc; ++j)
-      rank_of_copies[fc + j] = scratch[fu + j];
-  }
+  LOOP_EXEC(unique_ranks_2, nowners, uses_of_owners_offsets,
+      copies_of_owners_offsets, scratch, rank_of_copies);
   loop_free(scratch);
   *p_copies_of_owners_offsets = copies_of_owners_offsets;
   *p_rank_of_copies = rank_of_copies;
@@ -104,6 +119,13 @@ struct exchanger* close_partition_exchanger(
   return bown_to_copy;
 }
 
+LOOP_KERNEL(msg_to_rank,
+    unsigned const* msg_ranks,
+    unsigned const* msg_of_items,
+    unsigned* item_ranks)
+  item_ranks[i] = msg_ranks[msg_of_items[i]];
+}
+
 void close_partition(
     unsigned nacopies,
     unsigned nbowners,
@@ -121,9 +143,10 @@ void close_partition(
   free_exchanger(buse_to_own);
   unsigned nbcopies = bown_to_copy->nitems[EX_REV];
   unsigned* bcopy_own_ranks = LOOP_MALLOC(unsigned, nbcopies);
-  for (unsigned i = 0; i < nbcopies; ++i)
-    bcopy_own_ranks[i] = bown_to_copy->ranks[EX_REV][
-      bown_to_copy->msg_of_items[EX_REV][i]];
+  LOOP_EXEC(msg_to_rank, nbcopies,
+      bown_to_copy->ranks[EX_REV],
+      bown_to_copy->msg_of_items[EX_REV],
+      bcopy_own_ranks);
   unsigned* lids = uints_linear(nbowners, 1);
   unsigned* bcopy_own_ids = exchange(bown_to_copy, 1, lids,
       EX_FOR, EX_ROOT);
@@ -137,6 +160,20 @@ void close_partition(
 /* for each high enitty in the mesh, for each low entity it uses,
    return the owner of that used entity.
    the result is of size (nhighs * nlows_per_high) */
+
+LOOP_KERNEL(down_owners,
+    unsigned const* lows_of_highs,
+    unsigned nlows_per_high,
+    unsigned const* low_own_ranks,
+    unsigned const* low_own_ids,
+    unsigned* use_own_ranks,
+    unsigned* use_own_ids)
+  for (unsigned j = 0; j < nlows_per_high; ++j) {
+    unsigned low = lows_of_highs[i * nlows_per_high + j];
+    use_own_ranks[i * nlows_per_high + j] = low_own_ranks[low];
+    use_own_ids[i * nlows_per_high + j] = low_own_ids[low];
+  }
+}
 
 void get_down_use_owners(
     struct mesh* m,
@@ -153,16 +190,47 @@ void get_down_use_owners(
   unsigned const* low_own_ids = mesh_ask_own_ids(m, low_dim);
   unsigned* use_own_ranks = LOOP_MALLOC(unsigned, nhighs * nlows_per_high);
   unsigned* use_own_ids = LOOP_MALLOC(unsigned, nhighs * nlows_per_high);
-  for (unsigned i = 0; i < nhighs; ++i) {
-    for (unsigned j = 0; j < nlows_per_high; ++j) {
-      unsigned low = lows_of_highs[i * nlows_per_high + j];
-      use_own_ranks[i * nlows_per_high + j] = low_own_ranks[low];
-      use_own_ids[i * nlows_per_high + j] = low_own_ids[low];
-    }
-  }
+  LOOP_EXEC(down_owners, nhighs, lows_of_highs, nlows_per_high,
+      low_own_ranks, low_own_ids,
+      use_own_ranks, use_own_ids);
   *p_use_own_ranks = use_own_ranks;
   *p_use_own_ids = use_own_ids;
   *p_uses_of_highs_offsets = uints_linear(nhighs + 1, nlows_per_high);
+}
+
+LOOP_KERNEL(count_prods,
+    unsigned const* nout_of_in,
+    unsigned const* nuses_of_in,
+    unsigned* prod_counts)
+  prod_counts[i] = nout_of_in[i] * nuses_of_in[i];
+}
+
+LOOP_KERNEL(fill_prods,
+    unsigned const* offsets_in,
+    unsigned const* out_of_in_offsets,
+    unsigned const* prod_offsets,
+    unsigned const* ranks,
+    unsigned const* msg_of_items,
+    unsigned const* lids_in,
+    unsigned const* use_own_ranks_in,
+    unsigned const* use_own_ids_in,
+    unsigned* prod_dest_ranks,
+    unsigned* prod_dest_ids,
+    unsigned* prod_use_ranks,
+    unsigned* prod_use_ids)
+  unsigned fu = offsets_in[i];
+  unsigned eu = offsets_in[i + 1];
+  unsigned fo = out_of_in_offsets[i];
+  unsigned eo = out_of_in_offsets[i + 1];
+  unsigned l = prod_offsets[i];
+  for (unsigned j = fu; j < eu; ++j)
+    for (unsigned k = fo; k < eo; ++k) {
+      prod_dest_ranks[l] = ranks[msg_of_items[k]];
+      prod_dest_ids[l] = lids_in[k];
+      prod_use_ranks[l] = use_own_ranks_in[j];
+      prod_use_ids[l] = use_own_ids_in[j];
+      ++l;
+    }
 }
 
 /* this is supposed to be a simple operation.
@@ -192,8 +260,7 @@ void push_use_owners(
   unsigned* nout_of_in = uints_unscan(out_of_in_offsets, nents_in);
   unsigned* nuses_of_in = uints_unscan(offsets_in, nents_in);
   unsigned* prod_counts = LOOP_MALLOC(unsigned, nents_in);
-  for (unsigned i = 0; i < nents_in; ++i)
-    prod_counts[i] = nout_of_in[i] * nuses_of_in[i];
+  LOOP_EXEC(count_prods, nents_in, nout_of_in, nuses_of_in, prod_counts);
   loop_free(nout_of_in);
   loop_free(nuses_of_in);
   unsigned* prod_offsets = uints_exscan(prod_counts, nents_in);
@@ -206,22 +273,20 @@ void push_use_owners(
   unsigned* prod_dest_ids = LOOP_MALLOC(unsigned, nprod);
   unsigned* prod_use_ranks = LOOP_MALLOC(unsigned, nprod);
   unsigned* prod_use_ids = LOOP_MALLOC(unsigned, nprod);
-  for (unsigned i = 0; i < nents_in; ++i) {
-    unsigned fu = offsets_in[i];
-    unsigned eu = offsets_in[i + 1];
-    unsigned fo = out_of_in_offsets[i];
-    unsigned eo = out_of_in_offsets[i + 1];
-    unsigned l = prod_offsets[i];
-    for (unsigned j = fu; j < eu; ++j)
-      for (unsigned k = fo; k < eo; ++k) {
-        prod_dest_ranks[l] = push->ranks[EX_FOR][
-          push->msg_of_items[EX_FOR][k]];
-        prod_dest_ids[l] = lids_in[k];
-        prod_use_ranks[l] = use_own_ranks_in[j];
-        prod_use_ids[l] = use_own_ids_in[j];
-        ++l;
-      }
-  }
+  LOOP_EXEC(fill_prods, nents_in,
+      offsets_in,
+      out_of_in_offsets,
+      prod_offsets,
+      /* FIXME: are these two arrays on device ?? */
+      push->ranks[EX_FOR],
+      push->msg_of_items[EX_FOR],
+      lids_in,
+      use_own_ranks_in,
+      use_own_ids_in,
+      prod_dest_ranks,
+      prod_dest_ids,
+      prod_use_ranks,
+      prod_use_ids);
   loop_free(lids_in);
   loop_free(prod_offsets);
   struct exchanger* prod_push = new_exchanger(nprod, prod_dest_ranks);

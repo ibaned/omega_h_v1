@@ -88,11 +88,13 @@ static void get_weighted_coords(
 {
   for (unsigned i = 0; i < 3; ++i)
     c[i] = 0;
+  /* FIXME: in order to be parallelized,
+   * this requires a doubles_sum with a width argument */
   for (unsigned i = 0; i < n; ++i)
-  for (unsigned j = 0; j < 3; ++j) {
-    double m = masses ? masses[i] : 1;
-    c[j] += coords[i * 3 + j] * m;
-  }
+    for (unsigned j = 0; j < 3; ++j) {
+      double m = masses ? masses[i] : 1;
+      c[j] += coords[i * 3 + j] * m;
+    }
   if (is_global)
     comm_add_doubles(c, 3);
 }
@@ -119,6 +121,8 @@ static void get_total_inertia(
     unsigned is_global)
 {
   zero_3x3(ic);
+  /* FIXME: in order to be parallel, this requires
+     a doubles_sum with a width argument at least */
   for (unsigned i = 0; i < n; ++i) {
     double pic[3][3];
     double m = masses ? masses[i] : 1;
@@ -143,6 +147,17 @@ static void get_axis(
   positivize_axis(a);
 }
 
+LOOP_KERNEL(get_radius,
+    double const* coords,
+    double const* c,
+    double const* a,
+    double* out)
+  double x[3];
+  subtract_vectors(coords + i * 3, c, x, 3);
+  double pr = dot_product(x, a, 3);
+  out[i] = pr;
+}
+
 static double* get_radii(
     unsigned n,
     double const* coords,
@@ -150,13 +165,15 @@ static double* get_radii(
     double const* a)
 {
   double* out = LOOP_MALLOC(double, n);
-  for (unsigned i = 0; i < n; ++i) {
-    double x[3];
-    subtract_vectors(coords + i * 3, c, x, 3);
-    double pr = dot_product(x, a, 3);
-    out[i] = pr;
-  }
+  LOOP_EXEC(get_radius, n, coords, c, a, out);
   return out;
+}
+
+LOOP_KERNEL(mark_one_in,
+    double const* radii,
+    double r,
+    unsigned* in)
+  in[i] = (radii[i] >= r);
 }
 
 static unsigned* mark_in(
@@ -165,9 +182,18 @@ static unsigned* mark_in(
     double r)
 {
   unsigned* in = LOOP_MALLOC(unsigned, n);
-  for (unsigned i = 0; i < n; ++i)
-    in[i] = (radii[i] >= r);
+  LOOP_EXEC(mark_one_in, n, radii, r, in);
   return in;
+}
+
+LOOP_KERNEL(weigh_one_in,
+    unsigned const* in,
+    double const* masses,
+    double* tmp)
+  if (in[i])
+    tmp[i] = masses ? masses[i] : 1;
+  else
+    tmp[i] = 0;
 }
 
 static double get_weighted_in_count(
@@ -176,15 +202,13 @@ static double get_weighted_in_count(
     double const* masses,
     unsigned is_global)
 {
-  double s = 0;
-  for (unsigned i = 0; i < n; ++i)
-    if (in[i]) {
-      double m = masses ? masses[i] : 1;
-      s += m;
-    }
+  double* tmp = LOOP_MALLOC(double, n);
+  LOOP_EXEC(weigh_one_in, n, in, masses, tmp);
+  double sum = doubles_sum(tmp, n);
+  loop_free(tmp);
   if (is_global)
-    return comm_add_double(s);
-  return s;
+    return comm_add_double(sum);
+  return sum;
 }
 
 static void find_median_radius(

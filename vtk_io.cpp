@@ -599,7 +599,8 @@ static unsigned read_dimension(FILE* f, unsigned nelems, enum endian end,
     if (first_type == simplex_types[dim])
       break;
   assert(dim < 4);
-  LOOP_EXEC(assert_one_type, nelems, types, simplex_types[dim]);
+  enum cell_type st = simplex_types[dim];
+  LOOP_EXEC(assert_one_type, nelems, types, st);
   loop_free(types);
   return dim;
 }

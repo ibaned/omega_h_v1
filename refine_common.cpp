@@ -99,7 +99,8 @@ static void refine_ents(struct mesh* m, struct mesh* m_out,
     if (prod_dim) {
       unsigned nprods_out = ngen_offsets[4];
       unsigned verts_per_prod = the_down_degrees[prod_dim][0];
-      unsigned* verts_of_prods_out = LOOP_MALLOC(unsigned, nprods_out * verts_per_prod);
+      unsigned* verts_of_prods_out = LOOP_MALLOC(
+          unsigned, nprods_out * verts_per_prod);
       expand_into(verts_of_prods_out, mesh_ask_down(m, prod_dim, 0),
           prods_of_doms_offsets[0], ndoms[0], verts_per_prod);
       for (unsigned dom_dim = 1; dom_dim <= elem_dim; ++dom_dim)
@@ -177,7 +178,8 @@ unsigned refine_common(
   unsigned long total = comm_add_ulong(uints_sum(indset, nsrcs));
   unsigned* gen_offset_of_srcs = uints_exscan(indset, nsrcs);
   mesh_free_tag(m, src_dim, "indset");
-  struct mesh* m_out = new_mesh(mesh_dim(m), mesh_get_rep(m), mesh_is_parallel(m));
+  struct mesh* m_out = new_mesh(mesh_dim(m),
+      mesh_get_rep(m), mesh_is_parallel(m));
   refine_verts(m, m_out, src_dim, gen_offset_of_srcs);
   refine_ents(m, m_out, src_dim, gen_offset_of_srcs);
   loop_free(gen_offset_of_srcs);

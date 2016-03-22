@@ -35,6 +35,34 @@ static void setup_linpart(
   *p_orig_idxs_recvd = orig_idxs_recvd;
 }
 
+LOOP_KERNEL(find_owner_1,
+    unsigned const* recvd_of_lin_offsets,
+    unsigned const* recv_of_recvd,
+    unsigned const* orig_idxs_recvd,
+    unsigned const* recv_nents,
+    unsigned const* recv_ranks,
+    unsigned* own_rank_of_recvd,
+    unsigned* own_idx_of_recvd)
+  unsigned first = recvd_of_lin_offsets[i];
+  unsigned end = recvd_of_lin_offsets[i + 1];
+  unsigned own_recv = recv_of_recvd[first];
+  unsigned own_idx = orig_idxs_recvd[first];
+  for (unsigned j = first + 1; j < end; ++j) {
+    unsigned recv2 = recv_of_recvd[j];
+    unsigned idx2 = orig_idxs_recvd[j];
+    if ((recv_nents[recv2] < recv_nents[own_recv]) ||
+        ((recv_nents[recv2] == recv_nents[own_recv]) &&
+         (recv_ranks[recv2] < recv_ranks[own_recv]))) {
+      own_recv = recv2;
+      own_idx = idx2;
+    }
+  }
+  for (unsigned j = first; j < end; ++j) {
+    own_rank_of_recvd[j] = recv_ranks[own_recv];
+    own_idx_of_recvd[j] = own_idx;
+  }
+}
+
 void owners_from_global(
     unsigned n,
     unsigned long const* global_in,
@@ -55,26 +83,14 @@ void owners_from_global(
   unsigned* recv_nents = LOOP_MALLOC(unsigned, nrecvs);
   comm_sync_uint(ex->comms[EX_FOR], n, recv_nents);
   unsigned const* recv_ranks = ex->ranks[EX_REV];
-  for (unsigned i = 0; i < linsize; ++i) {
-    unsigned first = recvd_of_lin_offsets[i];
-    unsigned end = recvd_of_lin_offsets[i + 1];
-    unsigned own_recv = recv_of_recvd[first];
-    unsigned own_idx = orig_idxs_recvd[first];
-    for (unsigned j = first + 1; j < end; ++j) {
-      unsigned recv2 = recv_of_recvd[j];
-      unsigned idx2 = orig_idxs_recvd[j];
-      if ((recv_nents[recv2] < recv_nents[own_recv]) ||
-          ((recv_nents[recv2] == recv_nents[own_recv]) &&
-           (recv_ranks[recv2] < recv_ranks[own_recv]))) {
-        own_recv = recv2;
-        own_idx = idx2;
-      }
-    }
-    for (unsigned j = first; j < end; ++j) {
-      own_rank_of_recvd[j] = recv_ranks[own_recv];
-      own_idx_of_recvd[j] = own_idx;
-    }
-  }
+  LOOP_EXEC(find_owner_1, linsize,
+      recvd_of_lin_offsets,
+      recv_of_recvd,
+      orig_idxs_recvd,
+      recv_nents,
+      recv_ranks,
+      own_rank_of_recvd,
+      own_idx_of_recvd);
   loop_free(orig_idxs_recvd);
   loop_free(recv_nents);
   *p_own_ranks = exchange(ex, 1, own_rank_of_recvd, EX_REV, EX_ITEM);
@@ -82,6 +98,30 @@ void owners_from_global(
   loop_free(own_rank_of_recvd);
   loop_free(own_idx_of_recvd);
   free_exchanger(ex);
+}
+
+LOOP_KERNEL(find_owner_2,
+    unsigned const* recvd_of_lin_offsets,
+    unsigned const* recv_of_recvd,
+    unsigned const* orig_idxs_recvd,
+    unsigned const* recv_ranks,
+    unsigned const* own_rank_of_recvd,
+    unsigned* own_idx_of_recvd)
+  unsigned first = recvd_of_lin_offsets[i];
+  unsigned end = recvd_of_lin_offsets[i + 1];
+  unsigned own_rank = own_rank_of_recvd[first];
+  unsigned own_idx = INVALID;
+  for (unsigned j = first; j < end; ++j) {
+    assert(own_rank_of_recvd[j] == own_rank);
+    if (recv_ranks[recv_of_recvd[j]] == own_rank) {
+      own_idx = orig_idxs_recvd[j];
+      break;
+    }
+  }
+  assert(own_idx != INVALID);
+  for (unsigned j = first; j < end; ++j) {
+    own_idx_of_recvd[j] = own_idx;
+  }
 }
 
 void own_idxs_from_global(
@@ -102,23 +142,13 @@ void own_idxs_from_global(
   unsigned nrecvd = ex->nitems[EX_REV];
   unsigned* own_idx_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
   unsigned const* recv_ranks = ex->ranks[EX_REV];
-  for (unsigned i = 0; i < linsize; ++i) {
-    unsigned first = recvd_of_lin_offsets[i];
-    unsigned end = recvd_of_lin_offsets[i + 1];
-    unsigned own_rank = own_rank_of_recvd[first];
-    unsigned own_idx = INVALID;
-    for (unsigned j = first; j < end; ++j) {
-      assert(own_rank_of_recvd[j] == own_rank);
-      if (recv_ranks[recv_of_recvd[j]] == own_rank) {
-        own_idx = orig_idxs_recvd[j];
-        break;
-      }
-    }
-    assert(own_idx != INVALID);
-    for (unsigned j = first; j < end; ++j) {
-      own_idx_of_recvd[j] = own_idx;
-    }
-  }
+  LOOP_EXEC(find_owner_2, linsize,
+      recvd_of_lin_offsets,
+      recv_of_recvd,
+      orig_idxs_recvd,
+      recv_ranks,
+      own_rank_of_recvd,
+      own_idx_of_recvd);
   loop_free(own_rank_of_recvd);
   loop_free(orig_idxs_recvd);
   *p_own_idxs = exchange(ex, 1, own_idx_of_recvd, EX_REV, EX_ITEM);

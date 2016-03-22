@@ -12,6 +12,33 @@
 
 namespace omega_h {
 
+LOOP_KERNEL(use_lids_kern,
+    unsigned const* use_offsets,
+    unsigned const* copy_offsets,
+    unsigned const* use_msgs,
+    unsigned const* use_msg_ranks,
+    unsigned const* copy_msgs,
+    unsigned const* copy_msg_ranks,
+    unsigned const* copy_lids,
+    unsigned* use_lids)
+  unsigned fu = use_offsets[i];
+  unsigned eu = use_offsets[i + 1];
+  unsigned fc = copy_offsets[i];
+  unsigned ec = copy_offsets[i + 1];
+  for (unsigned j = fu; j < eu; ++j) {
+    unsigned msg = use_msgs[j];
+    unsigned rank = use_msg_ranks[msg];
+    unsigned lid = INVALID;
+    for (unsigned k = fc; k < ec; ++k)
+      if (rank == copy_msg_ranks[copy_msgs[k]]) {
+        lid = copy_lids[k];
+        break;
+      }
+    assert(lid != INVALID);
+    use_lids[j] = lid;
+  }
+}
+
 static unsigned* use_lids_from_copy_lids(
     struct exchanger* use_to_own,
     struct exchanger* own_to_copy,
@@ -32,24 +59,15 @@ static unsigned* use_lids_from_copy_lids(
   unsigned const* copy_msg_ranks =
     own_to_copy->ranks[EX_FOR];
   unsigned* use_lids = LOOP_MALLOC(unsigned, nuses);
-  for (unsigned i = 0; i < nowners; ++i) {
-    unsigned fu = use_offsets[i];
-    unsigned eu = use_offsets[i + 1];
-    unsigned fc = copy_offsets[i];
-    unsigned ec = copy_offsets[i + 1];
-    for (unsigned j = fu; j < eu; ++j) {
-      unsigned msg = use_msgs[j];
-      unsigned rank = use_msg_ranks[msg];
-      unsigned lid = INVALID;
-      for (unsigned k = fc; k < ec; ++k)
-        if (rank == copy_msg_ranks[copy_msgs[k]]) {
-          lid = copy_lids[k];
-          break;
-        }
-      assert(lid != INVALID);
-      use_lids[j] = lid;
-    }
-  }
+  LOOP_EXEC(use_lids_kern, nowners,
+      use_offsets,
+      copy_offsets,
+      use_msgs,
+      use_msg_ranks,
+      copy_msgs,
+      copy_msg_ranks,
+      copy_lids,
+      use_lids);
   return use_lids;
 }
 

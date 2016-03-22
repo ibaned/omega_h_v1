@@ -24,6 +24,45 @@ namespace omega_h {
    the log(nsent) comes from the runtime of uints_exscan.
 */
 
+/* FIXME: this will absolutely not work on the device
+   (we would need a new array primitive to find the
+    index of an entry which matches some criteria
+    (for example get the index of the max value)) */
+
+LOOP_KERNEL(get_first,
+    unsigned const* queue_offsets,
+    unsigned const* dest_rank_of_sent,
+    unsigned* current_rank) /* <-- host pointer ! */
+  if ((queue_offsets[i + 1] - queue_offsets[i] == 1) &&
+      queue_offsets[i] == 0)
+    *current_rank = dest_rank_of_sent[i];
+}
+
+LOOP_KERNEL(mark_same_dest,
+    unsigned current_rank,
+    unsigned send,
+    unsigned const* dest_rank_of_sent,
+    unsigned* send_of_sent,
+    unsigned* to_rank,
+    unsigned* queued)
+  if (dest_rank_of_sent[i] == current_rank) {
+    send_of_sent[i] = send;
+    to_rank[i] = 1;
+    queued[i] = 0;
+  } else {
+    to_rank[i] = 0;
+  }
+}
+
+LOOP_KERNEL(number_same_dest,
+    unsigned const* to_rank,
+    unsigned const* send_idxs,
+    unsigned send_offset,
+    unsigned* send_order)
+  if (to_rank[i])
+    send_order[i] = send_idxs[i] + send_offset;
+}
+
 static void sends_from_dest_ranks(
     unsigned nsent,
     unsigned const* dest_rank_of_sent,
@@ -34,9 +73,7 @@ static void sends_from_dest_ranks(
     unsigned** p_send_offsets)
 {
   /* queued[i]==1 iff (i) is not part of a message yet */
-  unsigned* queued = LOOP_MALLOC(unsigned, nsent);
-  for (unsigned i = 0; i < nsent; ++i)
-    queued[i] = 1;
+  unsigned* queued = filled_array<unsigned>(nsent, 1);
   unsigned* send_of_sent = LOOP_MALLOC(unsigned, nsent);
   unsigned* send_order = LOOP_MALLOC(unsigned, nsent);
   unsigned* send_offsets = LOOP_MALLOC(unsigned, nsent + 1);
@@ -54,27 +91,17 @@ static void sends_from_dest_ranks(
       break; /* stop when all entries are part of a message */
     }
     /* process the rank of the first queued entry */
-    for (unsigned i = 0; i < nsent; ++i)
-      if ((queue_offsets[i + 1] - queue_offsets[i] == 1) &&
-          queue_offsets[i] == 0)
-        current_rank = dest_rank_of_sent[i];
+    LOOP_EXEC(get_first, nsent, queue_offsets, dest_rank_of_sent,
+        &current_rank); /* <-- host pointer ! */
     send_ranks[send] = current_rank;
     loop_free(queue_offsets);
     unsigned* to_rank = LOOP_MALLOC(unsigned, nsent);
-    for (unsigned i = 0; i < nsent; ++i) {
-      if (dest_rank_of_sent[i] == current_rank) {
-        send_of_sent[i] = send;
-        to_rank[i] = 1;
-        queued[i] = 0;
-      } else {
-        to_rank[i] = 0;
-      }
-    }
+    LOOP_EXEC(mark_same_dest, nsent, current_rank, send,
+        dest_rank_of_sent, send_of_sent, to_rank, queued);
     unsigned* send_idxs = uints_exscan(to_rank, nsent);
     send_offsets[send + 1] = send_offsets[send] + array_at(send_idxs, nsent);
-    for (unsigned i = 0; i < nsent; ++i)
-      if (to_rank[i])
-        send_order[i] = send_idxs[i] + send_offsets[send];
+    LOOP_EXEC(number_same_dest, nsent, to_rank, send_idxs, send_offsets[send],
+        send_order);
     loop_free(to_rank);
     loop_free(send_idxs);
   }
@@ -98,18 +125,25 @@ static void sends_from_dest_ranks(
    this is a slightly embarrassing thing to do, but
    is useful in writing user algorithms */
 
+/* FIXME this is parallelized over number of messages,
+   not number of items, so it really will do badly
+   on a GPU. it may be somewhat okay for OpenMP */
+LOOP_KERNEL(mark_recv_items,
+    unsigned const* recv_offsets,
+    unsigned* recv_of_recvd)
+  unsigned first = recv_offsets[i];
+  unsigned end = recv_offsets[i + 1];
+  for (unsigned j = first; j < end; ++j)
+    recv_of_recvd[j] = i;
+}
+
 static unsigned* make_recv_of_recvd(
     unsigned nrecvd,
     unsigned nrecvs,
     unsigned const* recv_offsets)
 {
   unsigned* recv_of_recvd = LOOP_MALLOC(unsigned, nrecvd);
-  for (unsigned i = 0; i < nrecvs; ++i) {
-    unsigned first = recv_offsets[i];
-    unsigned end = recv_offsets[i + 1];
-    for (unsigned j = first; j < end; ++j)
-      recv_of_recvd[j] = i;
-  }
+  LOOP_EXEC(mark_recv_items, nrecvs, recv_offsets, recv_of_recvd);
   return recv_of_recvd;
 }
 
@@ -263,6 +297,24 @@ double* exchange_doubles_max(struct exchanger* ex, unsigned width,
   enum exch_dir od = opp_dir(dir);
   double* out = LOOP_MALLOC(double, width * ex->nroots[od]);
   doubles_max_into(ex->nroots[od], width, to_reduce,
+      ex->items_of_roots_offsets[od], out);
+  loop_free(to_reduce);
+  return out;
+}
+
+double* exchange_doubles_add(struct exchanger* ex, unsigned width,
+    double const* data, enum exch_dir dir, enum exch_start start)
+{
+  double* to_reduce = exchange(ex, width, data, dir, start);
+  enum exch_dir od = opp_dir(dir);
+  /* accumulation leaves non-owned items with uninitialized
+     values, but most subsequent algorithms ignore those values.
+     however, if we write these values to file, then Valgrind
+     will flag the uninitialized value usage.
+     for easier debugging only, initialize values to zero here.
+     this is not necessary for correct operation. */
+  double* out = filled_array<double>(width * ex->nroots[od], 0.0);
+  doubles_add_into(ex->nroots[od], width, to_reduce,
       ex->items_of_roots_offsets[od], out);
   loop_free(to_reduce);
   return out;

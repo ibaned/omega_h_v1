@@ -107,15 +107,10 @@ struct exchanger* mesh_ask_exchanger(struct mesh* m, unsigned dim)
 
 static unsigned long* global_from_owners(
     struct exchanger* ex,
-    unsigned const* own_ranks)
+    unsigned const* owned)
 {
   unsigned nowners = ex->nroots[EX_FOR];
-  unsigned* owned = LOOP_MALLOC(unsigned, nowners);
-  unsigned rank = comm_rank();
-  for (unsigned i = 0; i < nowners; ++i)
-    owned[i] = (own_ranks[i] == rank);
   unsigned* offsets = uints_exscan(owned, nowners);
-  loop_free(owned);
   unsigned long* local_globals = globalize_offsets(offsets, nowners);
   loop_free(offsets);
   unsigned long* globals = exchange(ex, 1, local_globals,
@@ -126,9 +121,10 @@ static unsigned long* global_from_owners(
 
 void mesh_global_renumber(struct mesh* m, unsigned dim)
 {
+  unsigned* owned = mesh_get_owned(m, dim);
   unsigned long* new_globals = global_from_owners(
-      mesh_ask_exchanger(m, dim),
-      mesh_ask_own_ranks(m, dim));
+      mesh_ask_exchanger(m, dim), owned);
+  loop_free(owned);
   struct parallel_mesh* pm = mesh_parallel(m);
   if (pm->globals[dim])
     loop_free(pm->globals[dim]);
@@ -164,8 +160,6 @@ void mesh_conform_tag(struct mesh* m, unsigned dim, const char* name)
   push_tag(ex, t, mesh_tags(m, dim));
 }
 
-/* TODO: consolidate this with the reduction code
-   like doubles_max_into and exchange_doubles_max */
 void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
 {
   if (!mesh_is_parallel(m))
@@ -173,22 +167,8 @@ void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
   struct const_tag* t = mesh_find_tag(m, dim, name);
   assert(t->type == TAG_F64);
   struct exchanger* ex = mesh_ask_exchanger(m, dim);
-  double* in = exchange(ex, t->ncomps, t->d.f64, EX_REV, EX_ITEM);
-  unsigned nowners = mesh_count(m, dim);
-  unsigned const* copies_of_owners_offsets =
-    ex->items_of_roots_offsets[EX_FOR];
-  double* out = filled_array(nowners * t->ncomps, 0.0);
-  for (unsigned i = 0; i < nowners; ++i) {
-    unsigned f = copies_of_owners_offsets[i];
-    unsigned e = copies_of_owners_offsets[i + 1];
-    for (unsigned j = f; j < e; ++j)
-      add_vectors(
-          in + j * t->ncomps,
-          out + i * t->ncomps,
-          out + i * t->ncomps,
-          t->ncomps);
-  }
-  loop_free(in);
+  double* out = exchange_doubles_add(ex, t->ncomps, t->d.f64,
+      EX_REV, EX_ITEM);
   modify_tag(mesh_tags(m, dim), t->name, out);
 }
 
@@ -279,30 +259,14 @@ void mesh_parallel_from_tags(struct mesh* m, unsigned dim)
   mesh_free_tag(m, dim, "own_id");
 }
 
-void mesh_partition_out(struct mesh** p_m, unsigned factor)
+void mesh_partition_out(struct mesh** p_m, unsigned is_source)
 {
-  struct comm* oc = comm_using();
-  struct comm* bc = comm_split(oc, comm_rank() / factor, comm_rank() % factor);
-  comm_use(bc);
-  *p_m = bcast_mesh_metadata(*p_m);
-  comm_use(oc);
-  comm_free(bc);
-  if (comm_rank() % factor) {
+  *p_m = bcast_mesh_metadata(*p_m, is_source);
+  if (is_source) {
+    for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
+      invalidate_ranks(mesh_parallel(*p_m), d);
+  } else {
     mesh_make_parallel(*p_m);
-  } else {
-    for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
-      invalidate_ranks(mesh_parallel(*p_m), d);
-  }
-}
-
-void mesh_partition_in(struct mesh** p_m, unsigned factor)
-{
-  if (comm_rank() % factor) {
-    free_mesh(*p_m);
-    *p_m = 0;
-  } else {
-    for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
-      invalidate_ranks(mesh_parallel(*p_m), d);
   }
 }
 
@@ -316,9 +280,16 @@ struct mesh* read_and_partition_serial_mesh(char const* filename)
     mesh_make_parallel(m);
     comm_use(comm_world());
   }
-  mesh_partition_out(&m, comm_size());
+  mesh_partition_out(&m, comm_rank() == 0);
   balance_mesh_inertial(m);
   return m;
+}
+
+LOOP_KERNEL(mark_owned,
+    unsigned const* own_ranks,
+    unsigned rank,
+    unsigned* owned)
+  owned[i] = (own_ranks[i] == rank);
 }
 
 unsigned* mesh_get_owned(struct mesh* m, unsigned dim)
@@ -327,8 +298,7 @@ unsigned* mesh_get_owned(struct mesh* m, unsigned dim)
   unsigned* out = LOOP_MALLOC(unsigned, n);
   unsigned const* own_ranks = mesh_ask_own_ranks(m, dim);
   unsigned self = comm_rank();
-  for (unsigned i = 0; i < n; ++i)
-    out[i] = (own_ranks[i] == self);
+  LOOP_EXEC(mark_owned, n, own_ranks, self, out);
   return out;
 }
 
