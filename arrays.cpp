@@ -149,6 +149,23 @@ T array_at(T const* a, unsigned i)
 template unsigned char array_at(unsigned char const* a, unsigned i);
 template unsigned array_at(unsigned const* a, unsigned i);
 
+#if defined(LOOP_CUDA_HPP) || \
+    (defined(LOOP_KOKKOS_HPP) && defined(KOKKOS_HAVE_DEFAULT_DEVICE_TYPE_CUDA))
+template <typename T>
+void array_set(T* a, unsigned i, T val)
+{
+  CUDACALL(cudaMemcpy(a + i, &val, sizeof(T), cudaMemcpyHostToDevice));
+}
+#else
+template <typename T>
+void array_set(T* a, unsigned i, T val)
+{
+  a[i] = val;
+}
+#endif
+
+template void array_set(unsigned* a, unsigned i, unsigned val);
+
 template <typename T>
 LOOP_KERNEL(expand_kern, T const* a, unsigned width,
     unsigned const* offsets, T* out)

@@ -80,7 +80,7 @@ static void sends_from_dest_ranks(
   unsigned* send_ranks = LOOP_MALLOC(unsigned, nsent);
   /* loop over messages, we don't know how many but
      there certainly won't be more than (nsent) */
-  send_offsets[0] = 0;
+  array_set<unsigned>(send_offsets, 0, 0);
   unsigned send;
   for (send = 0; send < nsent; ++send) {
     unsigned current_rank = 0;
