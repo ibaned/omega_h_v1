@@ -80,7 +80,7 @@ static void sends_from_dest_ranks(
   unsigned* send_ranks = LOOP_MALLOC(unsigned, nsent);
   /* loop over messages, we don't know how many but
      there certainly won't be more than (nsent) */
-  send_offsets[0] = 0;
+  array_set<unsigned>(send_offsets, 0, 0);
   unsigned send;
   for (send = 0; send < nsent; ++send) {
     unsigned current_rank = 0;
@@ -93,13 +93,14 @@ static void sends_from_dest_ranks(
     /* process the rank of the first queued entry */
     LOOP_EXEC(get_first, nsent, queue_offsets, dest_rank_of_sent,
         &current_rank); /* <-- host pointer ! */
-    send_ranks[send] = current_rank;
+    array_set(send_ranks, send, current_rank);
     loop_free(queue_offsets);
     unsigned* to_rank = LOOP_MALLOC(unsigned, nsent);
     LOOP_EXEC(mark_same_dest, nsent, current_rank, send,
         dest_rank_of_sent, send_of_sent, to_rank, queued);
     unsigned* send_idxs = uints_exscan(to_rank, nsent);
-    send_offsets[send + 1] = send_offsets[send] + array_at(send_idxs, nsent);
+    array_set(send_offsets, send + 1,
+        array_at(send_offsets, send) + array_at(send_idxs, nsent));
     LOOP_EXEC(number_same_dest, nsent, to_rank, send_idxs, send_offsets[send],
         send_order);
     loop_free(to_rank);
