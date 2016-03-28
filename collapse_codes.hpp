@@ -9,7 +9,7 @@ enum {
   DONT_COLLAPSE  = 0,
   COLLAPSE_LEFT  = 1,
   COLLAPSE_RIGHT = 2,
-  COLLAPSE_BOTH  = 3,
+  COLLAPSE_BOTH  = 3
 };
 
 LOOP_INOUT static inline unsigned

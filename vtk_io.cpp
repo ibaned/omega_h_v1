@@ -33,7 +33,7 @@ enum cell_type {
   VTK_VOXEL          =11,
   VTK_HEXAHEDRON     =12,
   VTK_WEDGE          =13,
-  VTK_PYRAMID        =14,
+  VTK_PYRAMID        =14
 };
 
 static enum cell_type const simplex_types[4] = {

@@ -42,9 +42,9 @@ struct GetFirst {
   {}
   LOOP_IN void operator()(unsigned i, value_type& update) const
   {
-    if ((queue_offsets[i + 1] - queue_offsets[i] == 1) &&
-        queue_offsets[i] == 0)
-      update = dest_rank_of_sent[i];
+    if ((queue_offsets_[i + 1] - queue_offsets_[i] == 1) &&
+        queue_offsets_[i] == 0)
+      update = dest_rank_of_sent_[i];
   }
 };
 
