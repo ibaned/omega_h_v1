@@ -167,6 +167,22 @@ int main(int argc, char** argv)
   double t1 = get_time();
   printf("time for main code: %.5e seconds\n", t1 - t0);
   printf("time for reorder: %.5e seconds\n", reorder_time);
+  FILE* adj_file = fopen("adjs.txt", "w");
+  fprintf(adj_file, "%u\n", mesh_count(m, 3));
+  unsigned const* tet_verts = mesh_ask_down(m, 3, 0);
+  for (unsigned i = 0; i < mesh_count(m, 3); ++i)
+    for (unsigned j = 0; j < 4; ++j)
+      fprintf(adj_file, "%u\n", tet_verts[i * 4 + j]);
+  fprintf(adj_file, "%u\n", mesh_count(m, 2));
+  unsigned const* tri_verts = mesh_ask_down(m, 2, 0);
+  for (unsigned i = 0; i < mesh_count(m, 2); ++i)
+    for (unsigned j = 0; j < 3; ++j)
+      fprintf(adj_file, "%u\n", tri_verts[i * 3 + j]);
+  unsigned const* edge_verts = mesh_ask_down(m, 1, 0);
+  for (unsigned i = 0; i < mesh_count(m, 1); ++i)
+    for (unsigned j = 0; j < 2; ++j)
+      fprintf(adj_file, "%u\n", edge_verts[i * 2 + j]);
+  fclose(adj_file);
   free_mesh(m);
   for (unsigned i = 0; i < 4; ++i)
   for (unsigned j = 0; j < 4; ++j)
