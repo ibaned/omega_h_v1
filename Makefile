@@ -32,6 +32,7 @@ test_subdim.cpp \
 test_to_la.cpp
 
 lib_sources := \
+parallel_to_serial.cpp \
 jacobian.cpp \
 swap_fit.cpp \
 coarsen_fit.cpp \
