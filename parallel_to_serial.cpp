@@ -3,6 +3,7 @@
 #include "arrays.hpp"
 #include "comm.hpp"
 #include "loop.hpp"
+#include "ints.hpp"
 #include "mesh.hpp"
 #include "parallel_mesh.hpp"
 #include "exchanger.hpp"
