@@ -8,13 +8,40 @@
 #include "parallel_mesh.hpp"
 #include "exchanger.hpp"
 #include "migrate_mesh.hpp"
+#include "reorder_mesh.hpp"
 
 namespace omega_h {
 
 LOOP_KERNEL(copy_globals,
     unsigned long const* globals,
-    unsigned* dest_locals)
-  dest_locals[i] = static_cast<unsigned>(globals[i]);
+    unsigned* out)
+  out[i] = static_cast<unsigned>(globals[i]);
+}
+
+static unsigned* old_to_new_by_global(struct mesh* m, unsigned dim)
+{
+  unsigned long const* globals = mesh_ask_globals(m, dim);
+  unsigned* out = LOOP_MALLOC(unsigned, mesh_count(m, dim));
+  LOOP_EXEC(copy_globals, mesh_count(m, dim), globals, out);
+  return out;
+}
+
+/* migration brings the elements in the right order but
+   not the other entities.
+   we'll just reorder them. */
+static void reorder_lower_dims(struct mesh* m)
+{
+  unsigned dim = mesh_dim(m);
+  unsigned const* old_to_new_ents[4] = {0,0,0,0};
+  unsigned* to_free[4] = {0,0,0,0};
+  for (unsigned d = 0; d <= dim; ++d) {
+    if (!mesh_has_dim(m, d))
+      continue;
+    old_to_new_ents[d] = to_free[d] = old_to_new_by_global(m, d);
+  }
+  reorder_mesh(m, old_to_new_ents);
+  for (unsigned d = 0; d <= dim; ++d)
+    loop_free(to_free[d]);
 }
 
 void parallel_to_serial(struct mesh* m)
@@ -38,6 +65,7 @@ void parallel_to_serial(struct mesh* m)
   loop_free(sent_of_srcs_offsets);
   migrate_mesh(m, elem_push);
   free_exchanger(elem_push);
+  reorder_lower_dims(m);
 }
 
 }

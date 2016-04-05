@@ -65,20 +65,35 @@ static void reorder_ents(
   reorder_tags(m, m_out, ent_dim, old_to_new_ents);
 }
 
-void reorder_mesh(struct mesh* m, unsigned const* old_to_new_verts)
+void reorder_mesh(struct mesh* m, unsigned const* old_to_new_ents[4])
 {
   unsigned dim = mesh_dim(m);
   struct mesh* m_out = new_mesh(dim, mesh_get_rep(m), mesh_is_parallel(m));
   mesh_set_ents(m_out, 0, mesh_count(m, 0), 0);
+  unsigned const* old_to_new_verts = old_to_new_ents[0];
   reorder_tags(m, m_out, 0, old_to_new_verts);
   for (unsigned d = 1; d <= dim; ++d) {
     if (!mesh_has_dim(m, d))
       continue;
-    unsigned* old_to_new_ents = number_ents(m, d, old_to_new_verts);
-    reorder_ents(m, m_out, d, old_to_new_ents, old_to_new_verts);
-    loop_free(old_to_new_ents);
+    reorder_ents(m, m_out, d, old_to_new_ents[d], old_to_new_verts);
   }
   overwrite_mesh(m, m_out);
+}
+
+void reorder_mesh(struct mesh* m, unsigned const* old_to_new_verts)
+{
+  unsigned dim = mesh_dim(m);
+  unsigned const* old_to_new_ents[4] = {0,0,0,0};
+  unsigned* to_free[4] = {0,0,0,0};
+  old_to_new_ents[0] = old_to_new_verts;
+  for (unsigned d = 1; d <= dim; ++d) {
+    if (!mesh_has_dim(m, d))
+      continue;
+    old_to_new_ents[d] = to_free[d] = number_ents(m, d, old_to_new_verts);
+  }
+  reorder_mesh(m, old_to_new_ents);
+  for (unsigned d = 1; d <= dim; ++d)
+    loop_free(to_free[d]);
 }
 
 }

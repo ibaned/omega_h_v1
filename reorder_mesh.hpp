@@ -5,6 +5,7 @@ namespace omega_h {
 
 struct mesh;
 
+void reorder_mesh(struct mesh* m, unsigned const* old_to_new_ents[4]);
 void reorder_mesh(struct mesh* m, unsigned const* old_to_new_verts);
 
 }
