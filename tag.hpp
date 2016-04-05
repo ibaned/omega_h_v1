@@ -9,7 +9,7 @@ enum tag_type {
   TAG_U8,
   TAG_U32,
   TAG_U64,
-  TAG_F64,
+  TAG_F64
 };
 
 #define TAG_TYPES (TAG_F64+1)

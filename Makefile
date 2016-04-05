@@ -7,6 +7,7 @@
 include config.mk
 
 test_sources := \
+test_to_serial.cpp \
 test_mpi.cpp \
 test_flounder.cpp \
 test_one_refine.cpp \
@@ -32,6 +33,7 @@ test_subdim.cpp \
 test_to_la.cpp
 
 lib_sources := \
+parallel_to_serial.cpp \
 jacobian.cpp \
 swap_fit.cpp \
 coarsen_fit.cpp \

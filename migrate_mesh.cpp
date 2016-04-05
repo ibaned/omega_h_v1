@@ -131,16 +131,10 @@ static void move_ents(struct mesh* m, struct mesh* m_out, unsigned dim,
   mesh_parallel_from_tags(m_out, dim);
 }
 
-void migrate_mesh(
-    struct mesh* m,
-    unsigned nelems_recvd,
-    unsigned const* recvd_elem_ranks,
-    unsigned const* recvd_elem_ids)
+void migrate_mesh(struct mesh* m, struct exchanger* elem_push)
 {
   unsigned dim = mesh_dim(m);
-  unsigned nelems = mesh_count(m, dim);
-  struct exchanger* elem_push = make_reverse_exchanger(nelems,
-      nelems_recvd, recvd_elem_ranks, recvd_elem_ids);
+  unsigned nelems_recvd = elem_push->nitems[EX_REV];
   struct exchanger* vert_use_to_own = close_uses_from_above(
       m, dim, 0, elem_push);
   struct exchanger* vert_push = close_partition_exchanger(vert_use_to_own);
@@ -173,8 +167,21 @@ void migrate_mesh(
   }
   loop_free(lid_of_copies);
   free_exchanger(vert_push);
-  free_exchanger(elem_push);
   overwrite_mesh(m, m_out);
+}
+
+void migrate_mesh(
+    struct mesh* m,
+    unsigned nelems_recvd,
+    unsigned const* recvd_elem_ranks,
+    unsigned const* recvd_elem_ids)
+{
+  unsigned dim = mesh_dim(m);
+  unsigned nelems = mesh_count(m, dim);
+  struct exchanger* elem_push = make_reverse_exchanger(nelems,
+      nelems_recvd, recvd_elem_ranks, recvd_elem_ids);
+  migrate_mesh(m, elem_push);
+  free_exchanger(elem_push);
 }
 
 }

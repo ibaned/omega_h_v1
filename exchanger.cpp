@@ -12,24 +12,62 @@
 #include "loop.hpp"
 #include "tag.hpp"
 
+#ifdef LOOP_KOKKOS_HPP
+#else
+#include "tables.hpp"
+#endif
+
 namespace omega_h {
 
-/* given an array that indicates which rank an
-   entry is going to,
-   this function organizes them into one message
-   per destination rank.
-   we rely on the assumption that the number of
-   messages (nsends) is small to settle on a runtime
-   that is O(nsent * nsends * log(nsent)).
-   the log(nsent) comes from the runtime of uints_exscan.
-*/
+#ifdef LOOP_KOKKOS_HPP
+
+struct GetFirst {
+  typedef intptr_t value_type;
+  LOOP_IN void init(value_type& update) const
+  {
+    update = -1;
+  }
+  LOOP_IN void join(volatile value_type& update,
+      const volatile value_type& input) const
+  {
+    if (input > update)
+      update = input;
+  }
+  unsigned const* queue_offsets_;
+  unsigned const* dest_rank_of_sent_;
+  GetFirst(unsigned const* queue_offsets,
+      unsigned const* dest_rank_of_sent):
+    queue_offsets_(queue_offsets),
+    dest_rank_of_sent_(dest_rank_of_sent)
+  {}
+  LOOP_IN void operator()(unsigned i, value_type& update) const
+  {
+    if ((queue_offsets_[i + 1] - queue_offsets_[i] == 1) &&
+        queue_offsets_[i] == 0)
+      update = dest_rank_of_sent_[i];
+  }
+};
+
+static unsigned get_first(
+    unsigned nsent,
+    unsigned const* queue_offsets,
+    unsigned const* dest_rank_of_sent)
+{
+  GetFirst::value_type current_rank;
+  Kokkos::parallel_reduce(nsent, GetFirst(queue_offsets, dest_rank_of_sent),
+      current_rank);
+  return static_cast<unsigned>(current_rank);
+}
+
+#else
 
 /* FIXME: this will absolutely not work on the device
    (we would need a new array primitive to find the
     index of an entry which matches some criteria
-    (for example get the index of the max value)) */
+    (for example get the index of the max value)).
+   see the above Kokkos version */
 
-LOOP_KERNEL(get_first,
+LOOP_KERNEL(get_first_kern,
     unsigned const* queue_offsets,
     unsigned const* dest_rank_of_sent,
     unsigned* current_rank) /* <-- host pointer ! */
@@ -37,6 +75,19 @@ LOOP_KERNEL(get_first,
       queue_offsets[i] == 0)
     *current_rank = dest_rank_of_sent[i];
 }
+
+static unsigned get_first(
+    unsigned nsent,
+    unsigned const* queue_offsets,
+    unsigned const* dest_rank_of_sent)
+{
+  unsigned current_rank = INVALID;
+  LOOP_EXEC(get_first_kern, nsent, queue_offsets, dest_rank_of_sent,
+      &current_rank); /* <-- host pointer ! */
+  return current_rank;
+}
+
+#endif
 
 LOOP_KERNEL(mark_same_dest,
     unsigned current_rank,
@@ -63,6 +114,16 @@ LOOP_KERNEL(number_same_dest,
     send_order[i] = send_idxs[i] + send_offset;
 }
 
+/* given an array that indicates which rank an
+   entry is going to,
+   this function organizes them into one message
+   per destination rank.
+   we rely on the assumption that the number of
+   messages (nsends) is small to settle on a runtime
+   that is O(nsent * nsends * log(nsent)).
+   the log(nsent) comes from the runtime of uints_exscan.
+*/
+
 static void sends_from_dest_ranks(
     unsigned nsent,
     unsigned const* dest_rank_of_sent,
@@ -80,7 +141,7 @@ static void sends_from_dest_ranks(
   unsigned* send_ranks = LOOP_MALLOC(unsigned, nsent);
   /* loop over messages, we don't know how many but
      there certainly won't be more than (nsent) */
-  send_offsets[0] = 0;
+  array_set<unsigned>(send_offsets, 0, 0);
   unsigned send;
   for (send = 0; send < nsent; ++send) {
     unsigned current_rank = 0;
@@ -91,15 +152,15 @@ static void sends_from_dest_ranks(
       break; /* stop when all entries are part of a message */
     }
     /* process the rank of the first queued entry */
-    LOOP_EXEC(get_first, nsent, queue_offsets, dest_rank_of_sent,
-        &current_rank); /* <-- host pointer ! */
-    send_ranks[send] = current_rank;
+    current_rank = get_first(nsent, queue_offsets, dest_rank_of_sent);
+    array_set(send_ranks, send, current_rank);
     loop_free(queue_offsets);
     unsigned* to_rank = LOOP_MALLOC(unsigned, nsent);
     LOOP_EXEC(mark_same_dest, nsent, current_rank, send,
         dest_rank_of_sent, send_of_sent, to_rank, queued);
     unsigned* send_idxs = uints_exscan(to_rank, nsent);
-    send_offsets[send + 1] = send_offsets[send] + array_at(send_idxs, nsent);
+    array_set(send_offsets, send + 1,
+        array_at(send_offsets, send) + array_at(send_idxs, nsent));
     LOOP_EXEC(number_same_dest, nsent, to_rank, send_idxs, send_offsets[send],
         send_order);
     loop_free(to_rank);

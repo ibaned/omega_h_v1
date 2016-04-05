@@ -7,12 +7,12 @@ struct comm;
 
 enum exch_dir {
   EX_FOR,
-  EX_REV,
+  EX_REV
 };
 
 enum exch_start {
   EX_ROOT,
-  EX_ITEM,
+  EX_ITEM
 };
 
 #define EX_DIRS 2
