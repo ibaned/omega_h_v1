@@ -3,9 +3,11 @@
 #include <cstring>
 
 #include "include/omega_h.h"
+#include "comm.hpp"
 #include "mesh.hpp"
 #include "mesh_diff.hpp"
 #include "vtk_io.hpp"
+#include "parallel_to_serial.hpp"
 
 using namespace omega_h;
 
@@ -77,7 +79,14 @@ int main(int argc, char** argv)
   }
   struct mesh* a = read_mesh_vtk(filea);
   struct mesh* b = read_mesh_vtk(fileb);
-  unsigned differ = mesh_diff(a, b, tol, floor, allow_superset);
+  if (comm_size() > 1) {
+    parallel_to_serial(a);
+    parallel_to_serial(b);
+  }
+  unsigned differ = 0;
+  if (comm_rank() == 0)
+    differ = mesh_diff(a, b, tol, floor, allow_superset);
+  differ = comm_max_uint(differ);
   free_mesh(a);
   free_mesh(b);
   osh_fini();
