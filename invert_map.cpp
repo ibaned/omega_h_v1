@@ -114,6 +114,7 @@ LOOP_KERNEL(fill,
    an equally efficient implementation that is deterministic
    from the start */
 
+#if 0
 LOOP_KERNEL(sort,
     unsigned* offsets,
     unsigned* out)
@@ -129,6 +130,7 @@ LOOP_KERNEL(sort,
     out[min_k] = tmp;
   }
 }
+#endif
 
 void invert_map(
     unsigned nin,
@@ -139,10 +141,14 @@ void invert_map(
 {
   auto t0 = std::chrono::high_resolution_clock::now();
   unsigned* counts = filled_array<unsigned>(nout, 0);
+#ifdef LOOP_CUDA_HPP
   CUDACALL(cudaDeviceSynchronize());
+#endif
   auto c0 = std::chrono::high_resolution_clock::now();
   LOOP_EXEC(count, nin, nout, in, counts);
+#ifdef LOOP_CUDA_HPP
   CUDACALL(cudaDeviceSynchronize());
+#endif
   auto c1 = std::chrono::high_resolution_clock::now();
   auto diff = c1 - c0;
   invert_map_count_time += double(std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() * 1e-9);
@@ -152,17 +158,23 @@ void invert_map(
   counts = filled_array<unsigned>(nout, 0);
   auto f0 = std::chrono::high_resolution_clock::now();
   LOOP_EXEC(fill, nin, in, offsets, counts, out);
+#ifdef LOOP_CUDA_HPP
   CUDACALL(cudaDeviceSynchronize());
+#endif
   auto f1 = std::chrono::high_resolution_clock::now();
   diff = f1 - f0;
   invert_map_fill_time += double(std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() * 1e-9);
   loop_free(counts);
+#if 0
   auto s0 = std::chrono::high_resolution_clock::now();
   LOOP_EXEC(sort, nout, offsets, out);
+#ifdef LOOP_CUDA_HPP
   CUDACALL(cudaDeviceSynchronize());
+#endif
   auto s1 = std::chrono::high_resolution_clock::now();
   diff = s1 - s0;
   invert_map_sort_time += double(std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() * 1e-9);
+#endif
   *p_out = out;
   *p_offsets = offsets;
   auto t1 = std::chrono::high_resolution_clock::now();
