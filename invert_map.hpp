@@ -20,6 +20,9 @@ void invert_map(
 
 extern unsigned long invert_map_total_nin;
 extern double invert_map_time;
+extern double invert_map_count_time;
+extern double invert_map_fill_time;
+extern double invert_map_sort_time;
 
 }
 

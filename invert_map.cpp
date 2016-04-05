@@ -17,8 +17,11 @@ namespace omega_h {
 
 unsigned long invert_map_total_nin = 0;
 double invert_map_time = 0;
+double invert_map_count_time = 0;
+double invert_map_fill_time = 0;
+double invert_map_sort_time = 0;
 
-#if 1
+#if 0
 
 struct Counter
 {
@@ -61,7 +64,7 @@ void invert_map(
   struct Counter* counters = LOOP_MALLOC(Counter, nin);
   LOOP_EXEC(assign, nin, in, counters);
 #ifdef LOOP_CUDA_HPP
-  thrust::sort(thrust::device_ptr<Counter>(counters),
+  thrust::stable_sort(thrust::device_ptr<Counter>(counters),
       thrust::device_ptr<Counter>(counters + nin));
 #else
   std::sort(counters, counters + nin);
@@ -136,18 +139,34 @@ void invert_map(
 {
   auto t0 = std::chrono::high_resolution_clock::now();
   unsigned* counts = filled_array<unsigned>(nout, 0);
+  CUDACALL(cudaDeviceSynchronize());
+  auto c0 = std::chrono::high_resolution_clock::now();
   LOOP_EXEC(count, nin, nout, in, counts);
+  CUDACALL(cudaDeviceSynchronize());
+  auto c1 = std::chrono::high_resolution_clock::now();
+  auto diff = c1 - c0;
+  invert_map_count_time += double(std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() * 1e-9);
   unsigned* offsets = uints_exscan(counts, nout);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   loop_free(counts);
   counts = filled_array<unsigned>(nout, 0);
+  auto f0 = std::chrono::high_resolution_clock::now();
   LOOP_EXEC(fill, nin, in, offsets, counts, out);
+  CUDACALL(cudaDeviceSynchronize());
+  auto f1 = std::chrono::high_resolution_clock::now();
+  diff = f1 - f0;
+  invert_map_fill_time += double(std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() * 1e-9);
   loop_free(counts);
+  auto s0 = std::chrono::high_resolution_clock::now();
   LOOP_EXEC(sort, nout, offsets, out);
+  CUDACALL(cudaDeviceSynchronize());
+  auto s1 = std::chrono::high_resolution_clock::now();
+  diff = s1 - s0;
+  invert_map_sort_time += double(std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() * 1e-9);
   *p_out = out;
   *p_offsets = offsets;
   auto t1 = std::chrono::high_resolution_clock::now();
-  auto diff = t1 - t0;
+  diff = t1 - t0;
   invert_map_time += double(std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() * 1e-9);
   invert_map_total_nin += nin;
 }
