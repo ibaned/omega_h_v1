@@ -60,7 +60,12 @@ void invert_map(
   auto t0 = std::chrono::high_resolution_clock::now();
   struct Counter* counters = LOOP_MALLOC(Counter, nin);
   LOOP_EXEC(assign, nin, in, counters);
+#ifdef LOOP_CUDA_HPP
+  thrust::sort(thrust::device_ptr<Counter>(counters),
+      thrust::device_ptr<Counter>(counters + nin));
+#else
   std::sort(counters, counters + nin);
+#endif
   unsigned* aoffsets = filled_array<unsigned>(nout + 1, 0);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   LOOP_EXEC(fill,nin, aoffsets, out, counters);
