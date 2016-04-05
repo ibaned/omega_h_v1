@@ -12,6 +12,7 @@
 #include "eval_field.hpp"
 #include "mesh.hpp"
 #include "refine.hpp"
+#include "reflect_down.hpp"
 #include "reorder.hpp"
 #include "reorder_mesh.hpp"
 #include "vtk_io.hpp"
@@ -166,5 +167,15 @@ int main(int argc, char** argv)
   printf("time for main code: %.5e seconds\n", t1 - t0);
   printf("time for reorder: %.5e seconds\n", reorder_time);
   free_mesh(m);
+  for (unsigned i = 0; i < 4; ++i)
+  for (unsigned j = 0; j < 4; ++j)
+    if (reflect_down_times[i][j] > 0) {
+      printf("reflect_down(%u,%u) took %f seconds\n", i, j,
+         reflect_down_times[i][j]);
+      printf("processed %lu total %uD entities\n",
+         reflect_down_total_nhighs[i][j], i);
+      printf("meaning about %e seconds per %uD entity\n",
+         reflect_down_times[i][j] / reflect_down_total_nhighs[i][j], i);
+    }
   osh_fini();
 }

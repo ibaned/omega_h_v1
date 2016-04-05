@@ -16,6 +16,9 @@ unsigned* mesh_reflect_down(
     unsigned high_dim,
     unsigned low_dim);
 
+extern unsigned long reflect_down_total_nhighs[4][4];
+extern double reflect_down_times[4][4];
+
 }
 
 #endif

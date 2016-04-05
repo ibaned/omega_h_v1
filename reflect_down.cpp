@@ -1,6 +1,7 @@
 #include "reflect_down.hpp"
 
 #include <cassert>
+#include <chrono>
 
 #include "ints.hpp"
 #include "loop.hpp"
@@ -37,6 +38,9 @@ LOOP_KERNEL(reflect_down_entity,
   }
 }
 
+unsigned long reflect_down_total_nhighs[4][4] = {{0}};
+double reflect_down_times[4][4] = {{0}};
+
 static unsigned* reflect_down(
     unsigned high_dim,
     unsigned low_dim,
@@ -47,6 +51,7 @@ static unsigned* reflect_down(
     unsigned const* lows_of_verts,
     unsigned const* lows_of_verts_directions)
 {
+  auto t0 = std::chrono::high_resolution_clock::now();
   unsigned verts_per_high = the_down_degrees[high_dim][0];
   unsigned lows_per_high = the_down_degrees[high_dim][low_dim];
   unsigned verts_per_low = the_down_degrees[low_dim][0];
@@ -64,6 +69,10 @@ static unsigned* reflect_down(
       lows_per_high,
       verts_per_low,
       lows_of_highs);
+  auto t1 = std::chrono::high_resolution_clock::now();
+  auto diff = t1 - t0;
+  reflect_down_times[high_dim][low_dim] += double(std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() * 1e-9);
+  reflect_down_total_nhighs[high_dim][low_dim] += nhighs;
   return lows_of_highs;
 }
 
