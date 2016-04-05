@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <chrono>
+#include <algorithm>
 
 #include "arrays.hpp"
 #include "ints.hpp"
@@ -14,7 +15,10 @@
 
 namespace omega_h {
 
-#ifdef LOOP_CUDA_HPP
+unsigned long invert_map_total_nin = 0;
+double invert_map_time = 0;
+
+#if 1
 
 struct Counter
 {
@@ -53,19 +57,21 @@ void invert_map(
     unsigned** p_out,
     unsigned** p_offsets)
 {
+  auto t0 = std::chrono::high_resolution_clock::now();
   struct Counter* counters = LOOP_MALLOC(Counter, nin);
   LOOP_EXEC(assign, nin, in, counters);
-  thrust::sort(
-      thrust::device_ptr<Counter>(counters),
-      thrust::device_ptr<Counter>(counters + nin));
+  std::sort(counters, counters + nin);
   unsigned* aoffsets = filled_array<unsigned>(nout + 1, 0);
   unsigned* out = LOOP_MALLOC(unsigned, nin);
   LOOP_EXEC(fill,nin, aoffsets, out, counters);
-  CUDACALL(cudaMemcpy(aoffsets + nout, &(nin),
-        sizeof(unsigned), cudaMemcpyHostToDevice));
+  array_set(aoffsets, nout, nin);
   loop_free(counters);
   *p_out = out;
   *p_offsets = aoffsets;
+  auto t1 = std::chrono::high_resolution_clock::now();
+  auto diff = t1 - t0;
+  invert_map_time += double(std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() * 1e-9);
+  invert_map_total_nin += nin;
 }
 
 #else
@@ -115,9 +121,6 @@ LOOP_KERNEL(sort,
     out[min_k] = tmp;
   }
 }
-
-unsigned long invert_map_total_nin = 0;
-double invert_map_time = 0;
 
 void invert_map(
     unsigned nin,

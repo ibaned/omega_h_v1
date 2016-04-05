@@ -167,7 +167,9 @@ int main(int argc, char** argv)
   double t1 = get_time();
   printf("time for main code: %.5e seconds\n", t1 - t0);
   printf("time for reorder: %.5e seconds\n", reorder_time);
+#if 0
   FILE* adj_file = fopen("adjs.txt", "w");
+  fprintf(adj_file, "%u\n", mesh_count(m, 0));
   fprintf(adj_file, "%u\n", mesh_count(m, 3));
   unsigned const* tet_verts = mesh_ask_down(m, 3, 0);
   for (unsigned i = 0; i < mesh_count(m, 3); ++i)
@@ -183,6 +185,7 @@ int main(int argc, char** argv)
     for (unsigned j = 0; j < 2; ++j)
       fprintf(adj_file, "%u\n", edge_verts[i * 2 + j]);
   fclose(adj_file);
+#endif
   free_mesh(m);
   for (unsigned i = 0; i < 4; ++i)
   for (unsigned j = 0; j < 4; ++j)
@@ -194,7 +197,7 @@ int main(int argc, char** argv)
       printf("meaning about %e seconds per %uD entity\n",
          reflect_down_times[i][j] / reflect_down_total_nhighs[i][j], i);
     }
-  printf("invert_map took %f seconds\n", invert_map_time);
+  printf("invert_map(sort) took %f seconds\n", invert_map_time);
   printf("processed %lu total map entries\n", invert_map_total_nin);
   printf("meaning about %e seconds per entry\n",
       invert_map_time / invert_map_total_nin);
