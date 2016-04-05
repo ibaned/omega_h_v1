@@ -32,6 +32,9 @@ void parallel_to_serial(struct mesh* m)
     ndests = static_cast<unsigned>(total_elems);
   set_exchanger_dests(elem_push, ndests, dest_locals);
   loop_free(dest_locals);
+  unsigned* sent_of_srcs_offsets = uints_linear(nelems + 1, 1);
+  set_exchanger_srcs(elem_push, nelems, sent_of_srcs_offsets);
+  loop_free(sent_of_srcs_offsets);
   migrate_mesh(m, elem_push);
   free_exchanger(elem_push);
 }
