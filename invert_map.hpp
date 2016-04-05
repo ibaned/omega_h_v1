@@ -18,6 +18,9 @@ void invert_map(
     unsigned** p_out,
     unsigned** p_offsets);
 
+extern unsigned long invert_map_total_nin;
+extern double invert_map_time;
+
 }
 
 #endif

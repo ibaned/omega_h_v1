@@ -6,6 +6,7 @@
 #include "adapt.hpp"
 #include "algebra.hpp"
 #include "include/omega_h.h"
+#include "invert_map.hpp"
 #include "derive_model.hpp"
 #include "doubles.hpp"
 #include "element_field.hpp"
@@ -177,5 +178,9 @@ int main(int argc, char** argv)
       printf("meaning about %e seconds per %uD entity\n",
          reflect_down_times[i][j] / reflect_down_total_nhighs[i][j], i);
     }
+  printf("invert_map took %f seconds\n", invert_map_time);
+  printf("processed %lu total map entries\n", invert_map_total_nin);
+  printf("meaning about %e seconds per entry\n",
+      invert_map_time / invert_map_total_nin);
   osh_fini();
 }

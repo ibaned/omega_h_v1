@@ -1,6 +1,7 @@
 #include "invert_map.hpp"
 
 #include <cassert>
+#include <chrono>
 
 #include "arrays.hpp"
 #include "ints.hpp"
@@ -115,6 +116,9 @@ LOOP_KERNEL(sort,
   }
 }
 
+unsigned long invert_map_total_nin = 0;
+double invert_map_time = 0;
+
 void invert_map(
     unsigned nin,
     unsigned const* in,
@@ -122,6 +126,7 @@ void invert_map(
     unsigned** p_out,
     unsigned** p_offsets)
 {
+  auto t0 = std::chrono::high_resolution_clock::now();
   unsigned* counts = filled_array<unsigned>(nout, 0);
   LOOP_EXEC(count, nin, nout, in, counts);
   unsigned* offsets = uints_exscan(counts, nout);
@@ -133,6 +138,10 @@ void invert_map(
   LOOP_EXEC(sort, nout, offsets, out);
   *p_out = out;
   *p_offsets = offsets;
+  auto t1 = std::chrono::high_resolution_clock::now();
+  auto diff = t1 - t0;
+  invert_map_time += double(std::chrono::duration_cast<std::chrono::nanoseconds>(diff).count() * 1e-9);
+  invert_map_total_nin += nin;
 }
 
 #endif
