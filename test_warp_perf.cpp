@@ -197,7 +197,10 @@ int main(int argc, char** argv)
       printf("meaning about %e seconds per %uD entity\n",
          reflect_down_times[i][j] / reflect_down_total_nhighs[i][j], i);
     }
-  printf("invert_map(sort) took %f seconds\n", invert_map_time);
+  printf("invert_map(stable_sort) took %f seconds\n", invert_map_time);
+  printf("  %f seconds in count\n", invert_map_count_time);
+  printf("  %f seconds in fill\n", invert_map_fill_time);
+  printf("  %f seconds in sort\n", invert_map_sort_time);
   printf("processed %lu total map entries\n", invert_map_total_nin);
   printf("meaning about %e seconds per entry\n",
       invert_map_time / invert_map_total_nin);
