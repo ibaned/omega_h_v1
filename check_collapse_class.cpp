@@ -81,17 +81,19 @@ LOOP_KERNEL(check_for_exposed_side,
     unsigned const* ent_verts_of_edge =
       ent_verts_of_edges[dir];
     for (unsigned k = 0; k < 2; ++k) {
-      unsigned eev = ent_verts_of_edge[k];
-      unsigned va = verts_of_ents[ent * nverts_per_ent + eev];
+      if (!collapses(col_codes[i], k))
+        continue;
+      unsigned va = verts_of_edges[i * 2 + (1 - k)];
       unsigned l;
       for (l = 0; l < 2; ++l) {
-        unsigned vb = verts_of_edges[i * 2 + l];
+        unsigned eev = ent_verts_of_edge[l];
+        unsigned vb = verts_of_ents[ent * nverts_per_ent + eev];
         if (va == vb) {
           unsigned es = ent_sides_opp_verts[eev];
           unsigned side = sides_of_ents[ent * nsides_per_ent + es];
           unsigned side_class_dim = class_dim_of_sides[side];
           if (side_class_dim != ent_class_dim)
-            col_codes[i] = dont_collapse(col_codes[i], l);
+            col_codes[i] = dont_collapse(col_codes[i], k);
           break;
         }
       }
