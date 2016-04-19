@@ -1,9 +1,9 @@
-.TH osh_init 3 "2/16/2016" " " ""
+.TH osh_init 3 "4/19/2016" " " ""
 .SH NAME
 osh_init \-  Initializes omega_h. 
 .SH SYNOPSIS
 .nf
-void osh_init(void)
+void osh_init(int* argc, char*** argv)
 .fi
 If MPI was not already initialized, this
 will call MPI_Init.

@@ -50,7 +50,7 @@ LOOP_KERNEL(refine_domain_entity,
   unsigned const* dom_opps_of_src = dom_opps_of_srcs[direction];
   unsigned const* verts_of_dom = verts_of_doms + i * verts_per_dom;
   unsigned vert = vert_of_doms[i];
-  unsigned* verts_of_prod = verts_of_prods + 
+  unsigned* verts_of_prod = verts_of_prods +
     offset_of_doms[i] * opps_per_src * verts_per_prod;
   for (unsigned j = 0; j < opps_per_src; ++j) {
     unsigned opp = dom_opps_of_src[j];

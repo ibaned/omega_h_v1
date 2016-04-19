@@ -22,7 +22,8 @@ static unsigned exceeds_limit(
       min_element_quality(elem_dim, nelems,
           verts_of_elems, coords));
   if (qual < qual_floor) {
-    printf("quality %f exceeds limit\n", qual);
+    if (!comm_rank())
+      printf("quality %f exceeds limit\n", qual);
     return 1;
   }
   return 0;

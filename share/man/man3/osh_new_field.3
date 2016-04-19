@@ -1,9 +1,10 @@
-.TH osh_new_field 3 "2/16/2016" " " ""
+.TH osh_new_field 3 "4/19/2016" " " ""
 .SH NAME
 osh_new_field \-  Create a floating-point field unless it exists. 
 .SH SYNOPSIS
 .nf
-double* osh_new_field(osh_t m, unsigned dim, char const* name, unsigned ncomps)
+double* osh_new_field(osh_t m, unsigned dim, char const* name,
+    unsigned ncomps, enum osh_transfer tt)
 .fi
 If a field by this name does not exist over entities
 of the given dimension, one will be created.

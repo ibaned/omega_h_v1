@@ -61,7 +61,7 @@ static void satisfy_shape(
     unsigned nsliver_layers)
 {
   while (1) {
-    double prev_qual = mesh_min_quality(m);
+    double prev_qual = comm_min_double(mesh_min_quality(m));
     if (prev_qual >= qual_floor)
       return;
     if (mesh_dim(m) == 3 &&
@@ -84,7 +84,6 @@ unsigned mesh_adapt(struct mesh* m,
     unsigned nsliver_layers,
     unsigned max_ops)
 {
-  assert(!mesh_is_parallel(m));
   global_op_count = 0;
   global_max_ops = max_ops;
   adapt_summary(m);
