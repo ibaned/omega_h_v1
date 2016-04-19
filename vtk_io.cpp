@@ -66,11 +66,14 @@ static char const* format_name(enum vtk_format fmt)
 static unsigned try_read_attrib(char const* elem, char const* name,
     char* val)
 {
-  char const* pname = strstr(elem, name);
+  line_t storage;
+  char* name_eq_quot = storage;
+  sprintf(name_eq_quot, "%s=\"", name);
+  char const* pname = strstr(elem, name_eq_quot);
   if (!pname)
     return 0;
-  line_t assign;
-  assert(strlen(pname) < sizeof(assign));
+  char* assign = storage;
+  assert(strlen(pname) < sizeof(storage));
   strcpy(assign, pname);
   assert(assign[strlen(name) + 1] == '\"');
   char const* pval = strtok(assign + strlen(name) + 2, "\"");

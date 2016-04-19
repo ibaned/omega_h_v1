@@ -17,21 +17,32 @@ static struct comm self = { MPI_COMM_SELF };
 static struct comm* current = &world;
 
 template <typename T>
-struct TraitsMPI;
+struct TraitsMPI {
+  static MPI_Datatype get();
+};
 
 template <>
 struct TraitsMPI<unsigned> {
-  static MPI_Datatype constexpr type = MPI_UNSIGNED;
+  static MPI_Datatype get()
+  {
+    return MPI_UNSIGNED;
+  }
 };
 
 template <>
 struct TraitsMPI<unsigned long> {
-  static MPI_Datatype constexpr type = MPI_UNSIGNED_LONG;
+  static MPI_Datatype get()
+  {
+    return MPI_UNSIGNED_LONG;
+  }
 };
 
 template <>
 struct TraitsMPI<double> {
-  static MPI_Datatype constexpr type = MPI_DOUBLE;
+  static MPI_Datatype get()
+  {
+    return MPI_DOUBLE;
+  }
 };
 
 static int we_called_mpi_init = 0;
@@ -194,7 +205,7 @@ void comm_exchange(struct comm* c,
     T* in, unsigned const* incounts, unsigned const* inoffsets)
 {
   comm_exch_any(c, width, out, outcounts, outoffsets, in, incounts, inoffsets,
-      TraitsMPI<T>::type);
+      TraitsMPI<T>::get());
 }
 
 static void comm_sync_any(struct comm* c, void const* out, void* in, MPI_Datatype type)
