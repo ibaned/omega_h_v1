@@ -960,13 +960,39 @@ void osh_ghost(osh_t m, unsigned nlayers)
 + m - The mesh object.
 . size_quality_floor - Range [0.0 - 0.5], default 1/3. Edges shorter than this
                        times their desired size will attempt coarsening.
-. good_element_quality - Range [0.0 - 1.0], default 0.3. No elements will lower
+                       Setting this to zero effectively disables coarsening.
+
+. good_element_quality - Range [0.0 - 1.0], default 0.3. No elements with lower
                          quality will be created, and existing elements with
                          lower quality will attempt shape correction.
+                         In most unstructured meshes, having all elements above 30%
+                         is actually quite good. Elements below 10% are usually both
+                         undesirable numerically and hard for omega_h to fix.
+                         The warp_3d test keeps bad elements between 20% and 30%.
+                         Setting this to zero effectively disables shape correction.
+                         (currently the code will crash hard if it cannot satisfy
+                         this minimum quality requirement, I may remove that).
+
 . nsliver_layers - Range [0 - ?], default 4. Number of layers of elements around
                    a sliver to consider for correction.
+                   When trying to fix a low quality element,
+                   it can often help to improve the quality of neighboring
+                   elements first. Currently layers are based on
+                   element-to-element adjacency via faces.
+                   This parameter controls how many such layers will be
+                   considered for improvement around a bad element.
+
 - max_passes - Range [1 - 100], default 50. Maximum number of modification passes
-               before the program fails.
+               before the program fails. Omega_h combines many independent
+               operations into a batch which constructs a whole new
+               mesh from an old one. this is referred to as a pass.
+               In order to prevent an infinite loop in the case of
+               excessive size or quality demands by the user,
+               the code will fail hard after this many passes are done.
+               This is similar to a limit on numerical solver iterations.
+               Under active conditions 12 passes is not uncommon.
+               50 passes or more suggests bad
+               inputs, so that is a reasonable max value.
 
   Level: advanced
 

@@ -1,15 +1,20 @@
-.TH osh_free_field 3 "2/16/2016" " " ""
+.TH osh_free_field 3 "4/19/2016" " " ""
 .SH NAME
 osh_free_field \-  Destroy a field. 
 .SH SYNOPSIS
 .nf
-void osh_free_field(osh_t m, char const* name)
+void osh_free_field(osh_t m, unsigned dim, char const* name)
 .fi
 .SH INPUT PARAMETERS
 .PD 0
 .TP
 .B m 
 - mesh handle
+.PD 1
+.PD 0
+.TP
+.B dim 
+- the entity dimension over which the field is defined
 .PD 1
 .PD 0
 .TP
