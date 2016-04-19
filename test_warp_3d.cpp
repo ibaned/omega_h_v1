@@ -10,6 +10,8 @@
 #include "element_field.hpp"
 #include "eval_field.hpp"
 #include "mesh.hpp"
+#include "parallel_mesh.hpp"
+#include "parallel_inertial_bisect.hpp"
 #include "refine.hpp"
 #include "vtk_io.hpp"
 #include "warp_to_limit.hpp"
@@ -86,7 +88,8 @@ static void warped_adapt(struct mesh* m)
 {
   static unsigned const n = 6;
   for (unsigned i = 0; i < n; ++i) {
-    printf("\n WARP TO LIMIT %u\n", i);
+    if (!comm_rank())
+      printf("\n WARP TO LIMIT %u\n", i);
     unsigned done = mesh_warp_to_limit(m, warp_qual_floor);
     mesh_adapt(m, size_floor, good_qual_floor, nsliver_layers, max_ops);
     write_vtk_step(m);
@@ -105,11 +108,23 @@ int main(int argc, char** argv)
     path = argv[1];
   else
     path = ".";
-  struct mesh* m = new_box_mesh(3);
-  mesh_derive_model(m, PI / 4);
-  mesh_set_rep(m, MESH_FULL);
-  mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
-  while (refine_by_size(m, 0));
+  struct mesh* m = 0;
+  if (comm_rank() == 0) {
+    int was_parallel = (comm_size() > 1);
+    comm_use(comm_self());
+    m = new_box_mesh(3);
+    mesh_derive_model(m, PI / 4);
+    mesh_set_rep(m, MESH_FULL);
+    mesh_eval_field(m, 0, "adapt_size", 1, size_fun);
+    while (refine_by_size(m, 0));
+    if (was_parallel)
+      mesh_make_parallel(m);
+    comm_use(comm_world());
+  }
+  if (comm_size() > 1) {
+    mesh_partition_out(&m, comm_rank() == 0);
+    balance_mesh_inertial(m);
+  }
   char prefix[128];
   sprintf(prefix, "%s/warp", path);
   start_vtk_steps(prefix);
@@ -127,11 +142,14 @@ int main(int argc, char** argv)
   }
   write_vtk_step(m);
   for (unsigned i = 0; i < 2; ++i) {
-    printf("\nOUTER DIRECTION %u\n", i);
+    if (!comm_rank())
+      printf("\nOUTER DIRECTION %u\n", i);
     for (unsigned j = 0; j < 4; ++j) {
-      printf("\nWARP FIELD %u\n", j);
+      if (!comm_rank())
+        printf("\nWARP FIELD %u\n", j);
       mesh_eval_field(m, 0, "warp", 3, warp_fun);
-      printf("new warp field\n");
+      if (!comm_rank())
+        printf("new warp field\n");
       warped_adapt(m);
       mesh_free_tag(m, 0, "warp");
     }
