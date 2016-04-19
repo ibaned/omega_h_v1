@@ -542,11 +542,6 @@ static void write_vtu_opts(struct mesh* m, char const* filename, enum vtk_format
   fclose(file);
 }
 
-static void write_vtu(struct mesh* m, char const* filename)
-{
-  write_vtu_opts(m, filename, VTK_BINARY);
-}
-
 static char const* the_step_prefix = 0;
 static unsigned the_step = 0;
 
@@ -559,8 +554,11 @@ void start_vtk_steps(char const* prefix)
 void write_vtk_step(struct mesh* m)
 {
   char fname[64];
-  sprintf(fname, "%s_%04u.vtu", the_step_prefix, the_step);
-  write_vtu(m, fname);
+  if (comm_size() == 1)
+    sprintf(fname, "%s_%04u.vtu", the_step_prefix, the_step);
+  else
+    sprintf(fname, "%s_%04u.pvtu", the_step_prefix, the_step);
+  write_mesh_vtk(m, fname);
   ++the_step;
 }
 
