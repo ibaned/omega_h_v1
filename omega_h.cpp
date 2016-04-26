@@ -943,7 +943,7 @@ void osh_mark_classified(osh_t m, unsigned ent_dim,
 @*/
 void osh_ghost(osh_t m, unsigned nlayers)
 {
-  ghost_mesh(M(m), nlayers);
+  mesh_ensure_ghosting(M(m), nlayers);
 }
 
 /*@
