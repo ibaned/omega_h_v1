@@ -174,6 +174,8 @@ void mesh_accumulate_tag(struct mesh* m, unsigned dim, const char* name)
 
 unsigned mesh_ghost_layers(struct mesh* m)
 {
+  if (!mesh_is_parallel(m))
+    return 0;
   return mesh_parallel(m)->nghost_layers;
 }
 
