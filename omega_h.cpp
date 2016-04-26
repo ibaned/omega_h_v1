@@ -946,6 +946,11 @@ void osh_ghost(osh_t m, unsigned nlayers)
   mesh_ensure_ghosting(M(m), nlayers);
 }
 
+unsigned osh_num_ghost_layers(osh_t m)
+{
+  return mesh_ghost_layers(M(m));
+}
+
 /*@
   osh_adapt - Adapts the mesh to a given size field.
 

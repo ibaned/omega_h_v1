@@ -67,6 +67,7 @@ void osh_mark_classified(osh_t m, unsigned ent_dim,
     unsigned class_dim, unsigned class_id, unsigned* marked) OSH_PUBLIC;
 
 void osh_ghost(osh_t m, unsigned nlayers) OSH_PUBLIC;
+unsigned osh_num_ghost_layers(osh_t m) OSH_PUBLIC;
 
 unsigned osh_adapt(osh_t m,
     double size_ratio_floor,
