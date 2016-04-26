@@ -250,7 +250,17 @@ static void shift(double a[3][3], double mu)
     a[i][i] -= mu;
 }
 
-void qr_eigen(double a[3][3], double q[3][3], double l[3][3])
+static double max_abs_val(double a[3][3])
+{
+  double out = 0.0;
+  for (unsigned i = 0; i < 3; ++i)
+  for (unsigned j = 0; j < 3; ++j)
+    if (fabs(a[i][j]) > out)
+      out = fabs(a[i][j]);
+  return out;
+}
+
+static void qr_eigen2(double a[3][3], double q[3][3], double l[3][3])
 {
   hessenberg(a, q, l);
   double rk[3][3];
@@ -269,6 +279,24 @@ void qr_eigen(double a[3][3], double q[3][3], double l[3][3])
     copy(q2, q);
   }
   assert(0);
+}
+
+/* the qr_eigen2() algorithm has trouble
+   converging for matrices with large
+   magnitude entries due to the hardcoded
+   constant tolerances in reduce().
+   we can scale the matrix down by its largest
+   component, get the decomposition of the
+   "normalized" matrix, and then multiply the
+   resulting eigenvalues by the scale factor */
+
+void qr_eigen(double a[3][3], double q[3][3], double l[3][3])
+{
+  double s = max_abs_val(a);
+  double a2[3][3];
+  scale_3x3(a, 1.0 / s, a2);
+  qr_eigen2(a2, q, l);
+  scale_3x3(l, s, l);
 }
 
 }

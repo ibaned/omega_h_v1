@@ -33,7 +33,8 @@ void tags_subset(struct mesh* in, struct mesh* out,
         vals_out = expand_array(t->d.f64, offsets, nents, t->ncomps);
         break;
     }
-    mesh_add_tag(out, dim, t->type, t->name, t->ncomps, vals_out);
+    add_tag2(mesh_tags(out, dim), t->type, t->name, t->ncomps,
+        t->transfer_type, vals_out);
   }
   if (mesh_is_parallel(in)) {
     mesh_parallel_untag(in, dim);
