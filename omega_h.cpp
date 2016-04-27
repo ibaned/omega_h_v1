@@ -975,8 +975,6 @@ unsigned osh_num_ghost_layers(osh_t m)
                          undesirable numerically and hard for omega_h to fix.
                          The warp_3d test keeps bad elements between 20% and 30%.
                          Setting this to zero effectively disables shape correction.
-                         (currently the code will crash hard if it cannot satisfy
-                         this minimum quality requirement, I may remove that).
 
 . nsliver_layers - Range [0 - ?], default 4. Number of layers of elements around
                    a sliver to consider for correction.

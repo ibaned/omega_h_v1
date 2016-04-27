@@ -73,8 +73,6 @@ static void satisfy_shape(
       incr_op_count(m);
       continue;
     }
-    fprintf(stderr, "ran out of options!\n");
-    abort();
   }
 }
 
