@@ -115,7 +115,7 @@ double* coarsen_qualities(
       col_codes,
       out);
   Now t1 = now();
-  printf("coarsen_qualities took %f seconds\n", seconds_between(t1, t0));
+  printf("coarsen_qualities took %f seconds\n", seconds_between(t0, t1));
   return out;
 }
 

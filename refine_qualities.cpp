@@ -133,7 +133,7 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   mesh_conform_array(m, src_dim, 1, &src_quals);
   mesh_conform_array(m, src_dim, 1, p_candidates);
   Now t1 = now();
-  printf("refine_qualities took %f seconds\n", seconds_between(t1, t0));
+  printf("refine_qualities took %f seconds\n", seconds_between(t0, t1));
   return src_quals;
 }
 

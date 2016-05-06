@@ -124,7 +124,7 @@ void mesh_swap_qualities(
   loop_free(elem_quals);
   loop_free(owned_edges);
   Now t1 = now();
-  printf("swap_qualities took %f seconds\n", seconds_between(t1, t0));
+  printf("swap_qualities took %f seconds\n", seconds_between(t0, t1));
 }
 
 }
