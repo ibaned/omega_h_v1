@@ -1,6 +1,7 @@
 #include "indset.hpp"
 
 #include <cstdlib>
+#include <cstdio>
 
 #include "arrays.hpp"
 #include "comm.hpp"
@@ -110,8 +111,10 @@ static unsigned* find_indset(
         offsets, adj, goodness, global, old_state, state);
     loop_free(old_state);
     mesh_conform_array(m, ent_dim, 1, &state);
-    if (comm_max_uint(uints_max(state, nverts)) < UNKNOWN)
+    if (comm_max_uint(uints_max(state, nverts)) < UNKNOWN) {
+      printf("indset converged in %u iterations\n", it + 1);
       return state;
+    }
   }
   LOOP_NORETURN(0);
 }
