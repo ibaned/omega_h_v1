@@ -149,25 +149,24 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
     set_down(m, high_dim, low_dim, lows_of_highs);
   } else {
     if (low_dim > 0) {/* deriving intermediate downward adjacency */
+      Now t0 = now();
       set_down(m, high_dim, low_dim,
           mesh_reflect_down(m, high_dim, low_dim));
+      Now t1 = now();
+      printf("deriving down %u -> %u took %f seconds\n", high_dim, low_dim, seconds_between(t0,t1));
     } else {/* deriving implicit entity to vertex connectivity */
       assert(mesh_get_rep(m) == MESH_REDUCED);
       if (high_dim == 1 && m->elem_dim == 3) { /* deriving edges in 3D */
         struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
-        Now t0 = now();
         unsigned nverts = m->counts[0];
         unsigned nedges;
         unsigned* verts_of_edges;
         bridge_graph(nverts, verts_of_verts->offsets, verts_of_verts->adj,
             &nedges, &verts_of_edges);
         mesh_set_ents(m, 1, nedges, verts_of_edges);
-        Now t1 = now();
-        printf("deriving down %u -> %u took %f seconds\n", high_dim, low_dim, seconds_between(t0,t1));
       } else { /* deriving sides (2D edges, 3D faces) */
         assert(high_dim == m->elem_dim - 1);
         unsigned const* elems_of_elems = mesh_ask_dual(m);
-        Now t0 = now();
         unsigned nelems = m->counts[m->elem_dim];
         unsigned const* verts_of_elems = m->down[m->elem_dim][0];
         unsigned nsides;
@@ -180,8 +179,6 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
         loop_free(elems_of_sides);
         loop_free(elem_side_of_sides);
         mesh_set_ents(m, high_dim, nsides, verts_of_sides);
-        Now t1 = now();
-        printf("deriving down %u -> %u took %f seconds\n", high_dim, low_dim, seconds_between(t0,t1));
       }
     }
   }
