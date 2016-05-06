@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <cstdio>
 
 #include "arrays.hpp"
 #include "bridge_graph.hpp"
@@ -15,6 +16,7 @@
 #include "star.hpp"
 #include "tables.hpp"
 #include "up_from_down.hpp"
+#include "timer.hpp"
 
 namespace omega_h {
 
@@ -153,15 +155,19 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
       assert(mesh_get_rep(m) == MESH_REDUCED);
       if (high_dim == 1 && m->elem_dim == 3) { /* deriving edges in 3D */
         struct const_graph* verts_of_verts = mesh_ask_star(m, 0, m->elem_dim);
+        Now t0 = now();
         unsigned nverts = m->counts[0];
         unsigned nedges;
         unsigned* verts_of_edges;
         bridge_graph(nverts, verts_of_verts->offsets, verts_of_verts->adj,
             &nedges, &verts_of_edges);
         mesh_set_ents(m, 1, nedges, verts_of_edges);
+        Now t1 = now();
+        printf("deriving down %u -> %u took %f seconds\n", high_dim, low_dim, seconds_between(t0,t1));
       } else { /* deriving sides (2D edges, 3D faces) */
         assert(high_dim == m->elem_dim - 1);
         unsigned const* elems_of_elems = mesh_ask_dual(m);
+        Now t0 = now();
         unsigned nelems = m->counts[m->elem_dim];
         unsigned const* verts_of_elems = m->down[m->elem_dim][0];
         unsigned nsides;
@@ -174,6 +180,8 @@ unsigned const* mesh_ask_down(struct mesh* m, unsigned high_dim, unsigned low_di
         loop_free(elems_of_sides);
         loop_free(elem_side_of_sides);
         mesh_set_ents(m, high_dim, nsides, verts_of_sides);
+        Now t1 = now();
+        printf("deriving down %u -> %u took %f seconds\n", high_dim, low_dim, seconds_between(t0,t1));
       }
     }
   }
@@ -204,6 +212,7 @@ struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim
     set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
   } else {
     unsigned const* lows_of_highs = mesh_ask_down(m, high_dim, low_dim);
+    Now t0 = now();
     unsigned nhighs = m->counts[high_dim];
     unsigned nlows = m->counts[low_dim];
     unsigned* offsets;
@@ -211,6 +220,8 @@ struct const_up* mesh_ask_up(struct mesh* m, unsigned low_dim, unsigned high_dim
     unsigned* directions;
     up_from_down(high_dim, low_dim, nhighs, nlows, lows_of_highs,
         &offsets, &highs_of_lows, &directions);
+    Now t1 = now();
+    printf("deriving up %u -> %u took %f seconds\n", low_dim, high_dim, seconds_between(t0,t1));
     set_up(m, low_dim, high_dim, new_up(offsets, highs_of_lows, directions));
   }
   return reinterpret_cast<struct const_up*>(m->up[low_dim][high_dim]);
@@ -237,8 +248,11 @@ struct const_graph* mesh_ask_star(struct mesh* m, unsigned low_dim, unsigned hig
   } else {
     unsigned* offsets;
     unsigned* adj;
+    Now t0 = now();
     mesh_get_star(m, low_dim, high_dim, &offsets, &adj);
     set_star(m, low_dim, high_dim, new_graph(offsets, adj));
+    Now t1 = now();
+    printf("deriving star %u -> %u took %f seconds\n", low_dim, high_dim, seconds_between(t0,t1));
   }
   return reinterpret_cast<struct const_graph*>(m->star[low_dim][high_dim]);
 }
@@ -252,10 +266,17 @@ static void set_dual(struct mesh* m, unsigned* adj)
 unsigned const* mesh_ask_dual(struct mesh* m)
 {
   if (!m->dual) {
-    if (mesh_has_dim(m, mesh_dim(m) - 1))
+    if (mesh_has_dim(m, mesh_dim(m) - 1)) {
+      Now t0 = now();
       set_dual(m, mesh_get_dual_from_sides(m));
-    else
+      Now t1 = now();
+      printf("deriving dual from sides %u took %f seconds\n", mesh_dim(m), seconds_between(t0,t1));
+    } else {
+      Now t0 = now();
       set_dual(m, mesh_get_dual_from_verts(m));
+      Now t1 = now();
+      printf("deriving dual from verts %u took %f seconds\n", mesh_dim(m), seconds_between(t0,t1));
+    }
   }
   return m->dual;
 }
