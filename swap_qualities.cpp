@@ -1,5 +1,7 @@
 #include "swap_qualities.hpp"
 
+#include <cstdio>
+
 #include "algebra.hpp"
 #include "edge_ring.hpp"
 #include "edge_swap.hpp"
@@ -7,6 +9,7 @@
 #include "mesh.hpp"
 #include "parallel_mesh.hpp"
 #include "quality.hpp"
+#include "timer.hpp"
 
 namespace omega_h {
 
@@ -112,6 +115,7 @@ void mesh_swap_qualities(
   unsigned* owned_edges = 0;
   if (mesh_is_parallel(m))
     owned_edges = mesh_get_owned(m, 1);
+  Now t0 = now();
   swap_qualities(nedges, candidates,
       tets_of_edges_offsets, tets_of_edges, tets_of_edges_directions,
       verts_of_edges, verts_of_tets,
@@ -119,6 +123,8 @@ void mesh_swap_qualities(
       p_qualities, p_ring_sizes);
   loop_free(elem_quals);
   loop_free(owned_edges);
+  Now t1 = now();
+  printf("swap_qualities took %f seconds\n", seconds_between(t1, t0));
 }
 
 }

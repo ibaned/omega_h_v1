@@ -1,11 +1,14 @@
 #include "coarsen_qualities.hpp"
 
+#include <cstdio>
+
 #include "algebra.hpp"
 #include "arrays.hpp"
 #include "collapse_codes.hpp"
 #include "loop.hpp"
 #include "quality.hpp"
 #include "tables.hpp"
+#include "timer.hpp"
 
 namespace omega_h {
 
@@ -93,6 +96,7 @@ double* coarsen_qualities(
 {
   if (elem_dim < 2)
     return filled_array(nedges * 2, 1.0);
+  Now t0 = now();
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = elem_dim - 1;
   double* out = LOOP_MALLOC(double, nedges * 2);
@@ -110,6 +114,8 @@ double* coarsen_qualities(
       quality_floor,
       col_codes,
       out);
+  Now t1 = now();
+  printf("coarsen_qualities took %f seconds\n", seconds_between(t1, t0));
   return out;
 }
 
