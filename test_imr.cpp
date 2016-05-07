@@ -25,6 +25,7 @@ static void move_mesh(struct mesh* m)
   unsigned* object_verts = mesh_mark_class_closure_verts(m, 2, 21);
   double* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   LOOP_EXEC(move_object_vert, nverts, object_verts, coords);
+  loop_free(object_verts);
   mesh_smooth_field(m, "coordinates", 0.01, 50);
 }
 
