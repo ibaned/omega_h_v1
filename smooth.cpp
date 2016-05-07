@@ -61,10 +61,10 @@ static unsigned smooth_field_iter(
   double* data_out = LOOP_MALLOC(double, n * ncomps);
   LOOP_EXEC(smooth_field_vert, n, ncomps, interior, star_offsets, star,
       data_in, data_out);
-  loop_free(data_in);
-  *p_data = data_out;
   unsigned* diffs = LOOP_MALLOC(unsigned, n * ncomps);
   LOOP_EXEC(check_diff, n * ncomps, data_in, data_out, tol, diffs);
+  loop_free(data_in);
+  *p_data = data_out;
   unsigned not_done = uints_max(diffs, n * ncomps);
   loop_free(diffs);
   not_done = comm_max_uint(not_done);
