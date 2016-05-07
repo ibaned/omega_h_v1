@@ -67,6 +67,7 @@ unsigned mesh_smooth_field(struct mesh* m, char const* name,
     smooth_field_iter(n, ncomps, interior, star_offsets, star, &data);
     mesh_conform_doubles(m, 0, ncomps, &data);
   }
+  loop_free(interior);
   mesh_add_tag(m, 0, TAG_F64, name, ncomps, data);
   return i;
 }
