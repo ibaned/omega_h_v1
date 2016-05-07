@@ -1,6 +1,8 @@
 #include <cassert>
+#include <cstdio>
 
 #include "arrays.hpp"
+#include "algebra.hpp"
 #include "include/omega_h.h"
 #include "mark.hpp"
 #include "mesh.hpp"
@@ -12,11 +14,28 @@
 
 using namespace omega_h;
 
+#define MOTION 1
+
 LOOP_KERNEL(move_object_vert,
     unsigned const* object_verts,
     double* coords)
-  if (object_verts[i])
+  if (object_verts[i]) {
+#if MOTION == 0
     coords[i * 3 + 0] += 0.02;
+#elif MOTION == 1
+    double x[3];
+    double const mid[3] = {.5, .5, 0};
+    subtract_vectors(coords + i * 3, mid, x, 3);
+    double polar_a = atan2(x[1], x[0]);
+    double polar_r = vector_norm(x, 3);
+    double rot_a = PI / 16;
+    double dest_a = polar_a + rot_a;
+    x[0] = cos(dest_a) * polar_r;
+    x[1] = sin(dest_a) * polar_r;
+    x[2] = 0;
+    add_vectors(x, mid, coords + i * 3, 3);
+#endif
+  }
 }
 
 static void move_mesh(struct mesh* m)
@@ -38,9 +57,9 @@ int main(int argc, char** argv)
       filled_array(mesh_count(m, 0), 0.1));
   start_vtk_steps("imr");
   write_vtk_step(m);
-  for (unsigned i = 0; i < 11; ++i) {
+  for (unsigned i = 0; i < 16; ++i) {
     move_mesh(m);
-    mesh_adapt(m, 0.3, 0.3, 4, 50);
+  //mesh_adapt(m, 0.3, 0.3, 4, 50);
     write_vtk_step(m);
   }
   free_mesh(m);
