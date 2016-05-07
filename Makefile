@@ -113,7 +113,8 @@ close_partition.cpp \
 ghost_mesh.cpp \
 derive_model.cpp \
 compress.cpp \
-inherit.cpp
+inherit.cpp \
+smooth.cpp
 
 #handle optional features:
 PREFIX ?= /usr/local

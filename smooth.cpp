@@ -1,10 +1,15 @@
 #include "smooth.hpp"
 
+#include <cstdio>
+
 #include "algebra.hpp"
+#include "arrays.hpp"
+#include "ghost_mesh.hpp"
 #include "loop.hpp"
 #include "mark.hpp"
 #include "mesh.hpp"
 #include "parallel_mesh.hpp"
+#include "tables.hpp"
 
 namespace omega_h {
 
@@ -52,12 +57,12 @@ static void smooth_field_iter(
 unsigned mesh_smooth_field(struct mesh* m, char const* name,
     double tol, unsigned maxiter)
 {
-  if (mesh_is_paralle(m))
+  if (mesh_is_parallel(m))
     mesh_ensure_ghosting(m, 1);
   unsigned n = mesh_count(m, 0);
   struct const_tag* t = mesh_find_tag(m, 0, name);
   unsigned ncomps = t->ncomps;
-  double* data = doubles_copy(t->d.f64, n * ncomps);
+  double* data = copy_array(t->d.f64, n * ncomps);
   mesh_free_tag(m, 0, name);
   unsigned const* star_offsets = mesh_ask_star(m, 0, 1)->offsets;
   unsigned const* star = mesh_ask_star(m, 0, 1)->adj;
@@ -65,8 +70,9 @@ unsigned mesh_smooth_field(struct mesh* m, char const* name,
   unsigned i;
   for (i = 0; i < maxiter; ++i) {
     smooth_field_iter(n, ncomps, interior, star_offsets, star, &data);
-    mesh_conform_doubles(m, 0, ncomps, &data);
+    mesh_conform_array(m, 0, ncomps, &data);
   }
+  printf("smoothing converged in %u iterations\n", i);
   loop_free(interior);
   mesh_add_tag(m, 0, TAG_F64, name, ncomps, data);
   return i;
