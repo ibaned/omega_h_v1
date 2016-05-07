@@ -76,7 +76,7 @@ int main(int argc, char** argv)
   write_vtk_step(m);
   for (unsigned i = 0; i < 12; ++i) {
     move_mesh(m);
-  //mesh_adapt(m, 0.3, 0.3, 4, 50);
+    mesh_adapt(m, 0.3, 0.3, 4, 50);
     write_vtk_step(m);
   }
   free_mesh(m);
