@@ -14,7 +14,7 @@
 
 using namespace omega_h;
 
-#define MOTION 1
+#define MOTION 2
 
 LOOP_KERNEL(move_object_vert,
     unsigned const* object_verts,
@@ -34,17 +34,34 @@ LOOP_KERNEL(move_object_vert,
     x[1] = sin(dest_a) * polar_r;
     x[2] = 0;
     add_vectors(x, mid, coords + i * 3, 3);
+#elif MOTION == 2
+    coords[i * 3 + 1] += 0.02;
 #endif
   }
 }
 
+#if MOTION == 2
+LOOP_KERNEL(move_object_vert2,
+    unsigned const* object_verts,
+    double* coords)
+  if (object_verts[i]) {
+    coords[i * 3 + 1] -= 0.02;
+  }
+}
+#endif
+
 static void move_mesh(struct mesh* m)
 {
   unsigned nverts = mesh_count(m, 0);
-  unsigned* object_verts = mesh_mark_class_closure_verts(m, 2, 21);
   double* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
+  unsigned* object_verts = mesh_mark_class_closure_verts(m, 2, 21);
   LOOP_EXEC(move_object_vert, nverts, object_verts, coords);
   loop_free(object_verts);
+#if MOTION == 2
+  unsigned* object_verts2 = mesh_mark_class_closure_verts(m, 2, 32);
+  LOOP_EXEC(move_object_vert2, nverts, object_verts2, coords);
+  loop_free(object_verts2);
+#endif
   mesh_smooth_field(m, "coordinates", 1e-4, 50);
 }
 
@@ -57,9 +74,9 @@ int main(int argc, char** argv)
       filled_array(mesh_count(m, 0), 0.1));
   start_vtk_steps("imr");
   write_vtk_step(m);
-  for (unsigned i = 0; i < 16; ++i) {
+  for (unsigned i = 0; i < 12; ++i) {
     move_mesh(m);
-    mesh_adapt(m, 0.3, 0.3, 4, 50);
+  //mesh_adapt(m, 0.3, 0.3, 4, 50);
     write_vtk_step(m);
   }
   free_mesh(m);
