@@ -83,8 +83,8 @@ static void one_motion(struct mesh* m)
   gen_warp(m);
   for (unsigned i = 0; i < 3; ++i) {
     printf("sub-warp step %u starting\n", i);
-    unsigned done = mesh_warp_to_limit(m, 0.2);
-    mesh_adapt(m, 0.5, 0.3, 5, 40);
+    unsigned done = mesh_warp_to_limit(m, -10.0);
+  //mesh_adapt(m, 0.5, 0.3, 5, 40);
     if (done) {
       mesh_free_tag(m, 0, "warp");
       return;

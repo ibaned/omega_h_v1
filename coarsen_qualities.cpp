@@ -96,7 +96,6 @@ double* coarsen_qualities(
 {
   if (elem_dim < 2)
     return filled_array(nedges * 2, 1.0);
-  fprintf(stderr, "coarsen_qualities start...\n");
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   unsigned base_dim = elem_dim - 1;
   double* out = LOOP_MALLOC(double, nedges * 2);
@@ -114,7 +113,6 @@ double* coarsen_qualities(
       quality_floor,
       col_codes,
       out);
-  fprintf(stderr, "coarsen_qualities end...\n");
   return out;
 }
 

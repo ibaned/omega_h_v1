@@ -1,7 +1,5 @@
 #include "coarsen.hpp"
 
-#include <cstdio>
-
 #include "coarsen_common.hpp"
 #include "collapse_codes.hpp"
 #include "ghost_mesh.hpp"
@@ -68,7 +66,6 @@ unsigned coarsen_slivers(
       verts_of_edges, marked_verts, col_codes);
   loop_free(marked_verts);
   mesh_add_tag(m, 1, TAG_U32, "col_codes", 1, col_codes);
-  fprintf(stderr, "coarsen_slivers calling coarsen_common\n");
   return coarsen_common(m, 0.0, 1);
 }
 
