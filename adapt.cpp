@@ -73,6 +73,7 @@ static void satisfy_shape(
       incr_op_count(m);
       continue;
     }
+    break; //ran out of options, but return from adapt anyway
   }
 }
 
