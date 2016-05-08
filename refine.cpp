@@ -11,7 +11,7 @@ namespace omega_h {
 LOOP_KERNEL(refine_candidate,
     double const* edge_sizes,
     unsigned* candidates)
-  candidates[i] = edge_sizes[i] > 1.0;
+  candidates[i] = edge_sizes[i] > 1.5;
 }
 
 unsigned refine_by_size(struct mesh* m, double qual_floor)

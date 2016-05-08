@@ -80,14 +80,15 @@ static void one_motion(struct mesh* m)
 {
   gen_warp(m);
   for (unsigned i = 0; i < 3; ++i) {
-    unsigned done = mesh_warp_to_limit(m, -10.0);
-  //mesh_adapt(m, 0.3, 0.3, 5, 40);
+    printf("sub-warp step %u starting\n", i);
+    unsigned done = mesh_warp_to_limit(m, 0.2);
+    mesh_adapt(m, 0.5, 0.3, 5, 40);
     if (done) {
       mesh_free_tag(m, 0, "warp");
       return;
     }
   }
-  fprintf(stderr, "warped_adapt still not done after 3 iters\n");
+  fprintf(stderr, "sub-warping still not done after 3 iters\n");
   abort();
 }
 

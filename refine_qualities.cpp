@@ -111,7 +111,6 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   unsigned verts_per_elem = the_down_degrees[elem_dim][0];
   double* src_quals = LOOP_MALLOC(double, nsrcs);
   unsigned* candidates = *p_candidates;
-  Now t0 = now();
   LOOP_EXEC(refine_quality, nsrcs,
       elem_dim,
       src_dim,
@@ -132,8 +131,6 @@ double* mesh_refine_qualities(struct mesh* m, unsigned src_dim,
   loop_free(elem_quals);
   mesh_conform_array(m, src_dim, 1, &src_quals);
   mesh_conform_array(m, src_dim, 1, p_candidates);
-  Now t1 = now();
-  printf("refine_qualities took %f seconds\n", seconds_between(t0, t1));
   return src_quals;
 }
 

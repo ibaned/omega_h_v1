@@ -112,7 +112,7 @@ static unsigned* find_indset(
     loop_free(old_state);
     mesh_conform_array(m, ent_dim, 1, &state);
     if (comm_max_uint(uints_max(state, nverts)) < UNKNOWN) {
-      printf("indset converged in %u iterations\n", it + 1);
+    //printf("indset converged in %u iterations\n", it + 1);
       return state;
     }
   }
