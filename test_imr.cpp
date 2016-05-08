@@ -14,7 +14,7 @@
 
 using namespace omega_h;
 
-#define MOTION 2
+#define MOTION 0
 
 LOOP_KERNEL(move_object_vert,
     unsigned const* object_verts,
@@ -54,7 +54,7 @@ static void move_mesh(struct mesh* m)
 {
   unsigned nverts = mesh_count(m, 0);
   double* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
-  unsigned* object_verts = mesh_mark_class_closure_verts(m, 2, 21);
+  unsigned* object_verts = mesh_mark_class_closure_verts(m, 3, 72);
   LOOP_EXEC(move_object_vert, nverts, object_verts, coords);
   loop_free(object_verts);
 #if MOTION == 2
@@ -76,11 +76,10 @@ int main(int argc, char** argv)
   write_vtk_step(m);
   for (unsigned i = 0; i < 12; ++i) {
     move_mesh(m);
-    mesh_adapt(m, 0.3, 0.3, 4, 50);
+  //mesh_adapt(m, 0.3, 0.3, 4, 50);
     write_vtk_step(m);
   }
   free_mesh(m);
   osh_fini();
 }
-
 
