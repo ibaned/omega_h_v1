@@ -15,7 +15,7 @@
 
 using namespace omega_h;
 
-#define MOTION 1
+#define MOTION 2
 
 LOOP_KERNEL(move_object_vert,
     unsigned const* object_verts,
@@ -38,7 +38,7 @@ LOOP_KERNEL(move_object_vert,
     x[2] = z;
     add_vectors(x, mid, coords + i * 3, 3);
 #elif MOTION == 2
-    coords[i * 3 + 1] += 0.02;
+    coords[i * 3 + 2] += 0.02;
 #endif
   }
 }
@@ -48,7 +48,7 @@ LOOP_KERNEL(move_object_vert2,
     unsigned const* object_verts,
     double* coords)
   if (object_verts[i]) {
-    coords[i * 3 + 1] -= 0.02;
+    coords[i * 3 + 2] -= 0.02;
   }
 }
 #endif
@@ -68,7 +68,7 @@ static void gen_warp(struct mesh* m)
   LOOP_EXEC(move_object_vert, nverts, object_verts, dst_coords);
   loop_free(object_verts);
 #if MOTION == 2
-  unsigned* object_verts2 = mesh_mark_class_closure_verts(m, 2, 32);
+  unsigned* object_verts2 = mesh_mark_class_closure_verts(m, 3, 110);
   LOOP_EXEC(move_object_vert2, nverts, object_verts2, dst_coords);
   loop_free(object_verts2);
 #endif
@@ -83,8 +83,13 @@ static void one_motion(struct mesh* m)
   gen_warp(m);
   for (unsigned i = 0; i < 3; ++i) {
     printf("sub-warp step %u starting\n", i);
-    unsigned done = mesh_warp_to_limit(m, 0.2);
-    mesh_adapt(m, 0.5, 0.3, 5, 40);
+    unsigned done;
+    if ((1)) {
+      done = mesh_warp_to_limit(m, -10.0);
+    } else {
+      done = mesh_warp_to_limit(m, 0.2);
+      mesh_adapt(m, 0.5, 0.3, 5, 40);
+    }
     if (done) {
       mesh_free_tag(m, 0, "warp");
       return;
@@ -104,7 +109,7 @@ int main(int argc, char** argv)
   start_vtk_steps("imr");
   write_vtk_step(m);
   adapt_summary(m);
-  for (unsigned i = 0; i < 16; ++i) {
+  for (unsigned i = 0; i < 12; ++i) {
     printf("motion step %u starting\n", i);
     one_motion(m);
     write_vtk_step(m);
