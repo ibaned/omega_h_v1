@@ -73,6 +73,8 @@ static void satisfy_shape(
       incr_op_count(m);
       continue;
     }
+    if (comm_rank() == 0)
+      printf("warning: shape quality could not be satisfied\n");
     break; //ran out of options, but return from adapt anyway
   }
 }
