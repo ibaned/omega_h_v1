@@ -51,8 +51,10 @@ static void satisfy_size(struct mesh* m, double size_floor, double good_qual)
     qual_floor = good_qual;
   while (refine_by_size(m, qual_floor))
     incr_op_count(m);
-  while (coarsen_by_size(m, qual_floor, size_floor))
+  while (coarsen_by_size(m, qual_floor, size_floor)) {
+    fprintf(stderr, "coarsen_by_size returned nonzero, calling incr_op_count\n");
     incr_op_count(m);
+  }
 }
 
 static void satisfy_shape(
@@ -70,6 +72,7 @@ static void satisfy_shape(
       continue;
     }
     if (coarsen_slivers(m, qual_floor, nsliver_layers)) {
+      fprintf(stderr, "coarsen_slivers returned nonzero, calling incr_op_count\n");
       incr_op_count(m);
       continue;
     }
