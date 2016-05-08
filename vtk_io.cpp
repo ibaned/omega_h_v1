@@ -558,6 +558,7 @@ void write_vtk_step(struct mesh* m)
     sprintf(fname, "%s_%04u.vtu", the_step_prefix, the_step);
   else
     sprintf(fname, "%s_%04u.pvtu", the_step_prefix, the_step);
+  printf("writing step file \"%s\"\n", fname);
   write_mesh_vtk(m, fname);
   ++the_step;
 }
