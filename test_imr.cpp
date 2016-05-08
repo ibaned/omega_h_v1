@@ -11,6 +11,7 @@
 #include "adapt.hpp"
 #include "loop.hpp"
 #include "smooth.hpp"
+#include "warp_to_limit.hpp"
 
 using namespace omega_h;
 
@@ -50,19 +51,44 @@ LOOP_KERNEL(move_object_vert2,
 }
 #endif
 
-static void move_mesh(struct mesh* m)
+LOOP_KERNEL(subtract_coords,
+    double const* orig_coords,
+    double* dst_coords)
+  dst_coords[i] -= orig_coords[i];
+}
+
+static void gen_warp(struct mesh* m)
 {
   unsigned nverts = mesh_count(m, 0);
-  double* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
+  double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
+  double* dst_coords = copy_array(coords, nverts * 3);
   unsigned* object_verts = mesh_mark_class_closure_verts(m, 3, 72);
-  LOOP_EXEC(move_object_vert, nverts, object_verts, coords);
+  LOOP_EXEC(move_object_vert, nverts, object_verts, dst_coords);
   loop_free(object_verts);
 #if MOTION == 2
   unsigned* object_verts2 = mesh_mark_class_closure_verts(m, 2, 32);
-  LOOP_EXEC(move_object_vert2, nverts, object_verts2, coords);
+  LOOP_EXEC(move_object_vert2, nverts, object_verts2, dst_coords);
   loop_free(object_verts2);
 #endif
-  mesh_smooth_field(m, "coordinates", 1e-4, 50);
+  LOOP_EXEC(subtract_coords, nverts * 3, coords, dst_coords);
+  double* warp = dst_coords;
+  mesh_add_tag(m, 0, TAG_F64, "warp", 3, warp);
+  mesh_smooth_field(m, "warp", 1e-4, 50);
+}
+
+static void one_motion(struct mesh* m)
+{
+  gen_warp(m);
+  for (unsigned i = 0; i < 3; ++i) {
+    unsigned done = mesh_warp_to_limit(m, -10.0);
+  //mesh_adapt(m, 0.3, 0.3, 5, 40);
+    if (done) {
+      mesh_free_tag(m, 0, "warp");
+      return;
+    }
+  }
+  fprintf(stderr, "warped_adapt still not done after 3 iters\n");
+  abort();
 }
 
 int main(int argc, char** argv)
@@ -76,8 +102,8 @@ int main(int argc, char** argv)
   write_vtk_step(m);
   adapt_summary(m);
   for (unsigned i = 0; i < 12; ++i) {
-    move_mesh(m);
-  //mesh_adapt(m, 0.3, 0.3, 4, 50);
+    printf("motion step %u starting\n", i);
+    one_motion(m);
     write_vtk_step(m);
   }
   free_mesh(m);
