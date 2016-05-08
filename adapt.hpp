@@ -5,6 +5,8 @@ namespace omega_h {
 
 struct mesh;
 
+void adapt_summary(struct mesh* m);
+
 unsigned mesh_adapt(struct mesh* m,
     double size_ratio_floor,
     double good_qual,

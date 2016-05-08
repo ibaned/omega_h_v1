@@ -74,6 +74,7 @@ int main(int argc, char** argv)
       filled_array(mesh_count(m, 0), 0.1));
   start_vtk_steps("imr");
   write_vtk_step(m);
+  adapt_summary(m);
   for (unsigned i = 0; i < 12; ++i) {
     move_mesh(m);
   //mesh_adapt(m, 0.3, 0.3, 4, 50);

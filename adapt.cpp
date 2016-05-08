@@ -19,7 +19,7 @@ namespace omega_h {
 static unsigned global_op_count = 0;
 static unsigned global_max_ops = 0;
 
-static void adapt_summary(struct mesh* m)
+void adapt_summary(struct mesh* m)
 {
   unsigned long total_elems = comm_add_ulong(mesh_count(m, mesh_dim(m)));
   double minqual = comm_min_double(mesh_min_quality(m));
