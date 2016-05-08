@@ -84,7 +84,7 @@ static void one_motion(struct mesh* m)
   for (unsigned i = 0; i < 3; ++i) {
     printf("sub-warp step %u starting\n", i);
     unsigned done;
-    if ((1)) {
+    if ((0)) {
       done = mesh_warp_to_limit(m, -10.0);
     } else {
       done = mesh_warp_to_limit(m, 0.2);
