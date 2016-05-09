@@ -39,7 +39,7 @@ LOOP_KERNEL(move_object_vert,
     add_vectors(x, mid, coords + i * 3, 3);
 #elif MOTION == 2
     coords[i * 3 + 2] += 0.02;
-#elif MOTION == 3
+#elif MOTION == 3 || MOTION == 4
     coords[i * 3 + 1] += 0.02;
 #endif
   }
@@ -72,6 +72,9 @@ static void gen_warp(struct mesh* m)
 #elif MOTION == 3
   unsigned obj_dim = 2;
   unsigned obj1 = 20;
+#elif MOTION == 4
+  unsigned obj_dim = 3;
+  unsigned obj1 = 73;
 #endif
   unsigned* object_verts = mesh_mark_class_closure_verts(m, obj_dim, obj1);
   LOOP_EXEC(move_object_vert, nverts, object_verts, dst_coords);
@@ -87,7 +90,7 @@ static void gen_warp(struct mesh* m)
   mesh_smooth_field(m, "warp", 1e-4, 50);
 }
 
-#if MOTION == 3
+#if MOTION == 3 || MOTION == 4
 LOOP_KERNEL(set_object_size,
     unsigned const* object_verts,
     double* sf)
@@ -102,15 +105,21 @@ static void gen_size(struct mesh* m)
   unsigned nverts = mesh_count(m, 0);
   double* sf = filled_array(nverts, 0.1);
 #if MOTION == 3
+  unsigned obj_dim = 2;
   unsigned objs[3] = {20,30,40};
-  for (unsigned o = 0; o < 3; ++o) {
-    unsigned* object_verts = mesh_mark_class_closure_verts(m, 2, objs[o]);
+#elif MOTION == 4
+  unsigned obj_dim = 3;
+  unsigned objs[2] = {73,147};
+#endif
+#if MOTION == 3 || MOTION == 4
+  for (unsigned o = 0; o < sizeof(objs)/sizeof(objs[0]); ++o) {
+    unsigned* object_verts = mesh_mark_class_closure_verts(m, obj_dim, objs[o]);
     LOOP_EXEC(set_object_size, nverts, object_verts, sf);
     loop_free(object_verts);
   }
 #endif
   mesh_add_tag(m, 0, TAG_F64, "adapt_size", 1, sf);
-#if MOTION == 3
+#if MOTION == 3 || MOTION == 4
   mesh_smooth_field(m, "adapt_size", 1e-4, 50);
 #endif
 }
