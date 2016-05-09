@@ -15,7 +15,7 @@
 
 using namespace omega_h;
 
-#define MOTION 2
+#define MOTION 3
 
 LOOP_KERNEL(move_object_vert,
     unsigned const* object_verts,
@@ -39,6 +39,8 @@ LOOP_KERNEL(move_object_vert,
     add_vectors(x, mid, coords + i * 3, 3);
 #elif MOTION == 2
     coords[i * 3 + 2] += 0.02;
+#elif MOTION == 3
+    coords[i * 3 + 1] += 0.02;
 #endif
   }
 }
@@ -64,11 +66,18 @@ static void gen_warp(struct mesh* m)
   unsigned nverts = mesh_count(m, 0);
   double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   double* dst_coords = copy_array(coords, nverts * 3);
-  unsigned* object_verts = mesh_mark_class_closure_verts(m, 3, 72);
+#if MOTION == 2
+  unsigned obj_dim = 3;
+  unsigned obj1 = 72;
+#elif MOTION == 3
+  unsigned obj_dim = 2;
+  unsigned obj1 = 20;
+#endif
+  unsigned* object_verts = mesh_mark_class_closure_verts(m, obj_dim, obj1);
   LOOP_EXEC(move_object_vert, nverts, object_verts, dst_coords);
   loop_free(object_verts);
 #if MOTION == 2
-  unsigned* object_verts2 = mesh_mark_class_closure_verts(m, 3, 110);
+  unsigned* object_verts2 = mesh_mark_class_closure_verts(m, obj_dim, 110);
   LOOP_EXEC(move_object_vert2, nverts, object_verts2, dst_coords);
   loop_free(object_verts2);
 #endif
@@ -76,6 +85,31 @@ static void gen_warp(struct mesh* m)
   double* warp = dst_coords;
   mesh_add_tag(m, 0, TAG_F64, "warp", 3, warp);
   mesh_smooth_field(m, "warp", 1e-4, 50);
+}
+
+#if MOTION == 3
+LOOP_KERNEL(set_object_size,
+    unsigned const* object_verts,
+    double* sf)
+  if (object_verts[i]) {
+    sf[i] = 0.02;
+  }
+}
+#endif
+
+static void gen_size(struct mesh* m)
+{
+  unsigned nverts = mesh_count(m, 0);
+  double* sf = filled_array(nverts, 0.1);
+#if MOTION == 3
+  unsigned objs[3] = {20,30,40};
+  for (unsigned o = 0; o < 3; ++o) {
+    unsigned* object_verts = mesh_mark_class_closure_verts(m, 2, objs[o]);
+    LOOP_EXEC(set_object_size, nverts, object_verts, sf);
+    loop_free(object_verts);
+  }
+#endif
+  mesh_add_tag(m, 0, TAG_F64, "adapt_size", 1, sf);
 }
 
 static void one_motion(struct mesh* m)
@@ -104,8 +138,7 @@ int main(int argc, char** argv)
   assert(argc == 2);
   osh_init(&argc, &argv);
   struct mesh* m = read_mesh_vtk(argv[1]);
-  mesh_add_tag(m, 0, TAG_F64, "adapt_size", 1,
-      filled_array(mesh_count(m, 0), 0.1));
+  gen_size(m);
   start_vtk_steps("imr");
   write_vtk_step(m);
   adapt_summary(m);
