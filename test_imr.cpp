@@ -110,6 +110,9 @@ static void gen_size(struct mesh* m)
   }
 #endif
   mesh_add_tag(m, 0, TAG_F64, "adapt_size", 1, sf);
+#if MOTION == 3
+  mesh_smooth_field(m, "adapt_size", 1e-4, 50);
+#endif
 }
 
 static void one_motion(struct mesh* m)
