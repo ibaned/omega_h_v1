@@ -12,6 +12,7 @@
 #include "mesh.hpp"
 #include "parallel_mesh.hpp"
 #include "tables.hpp"
+#include "doubles.hpp"
 
 namespace omega_h {
 
@@ -40,12 +41,11 @@ LOOP_KERNEL(smooth_field_vert,
       data_out + i * ncomps, ncomps);
 }
 
-LOOP_KERNEL(check_diff,
+LOOP_KERNEL(take_diff,
     double const* a,
     double const* b,
-    double tol,
-    unsigned* diffs)
-  diffs[i] = (fabs(a[i] - b[i]) > tol);
+    double* diffs)
+  diffs[i] = fabs(a[i] - b[i]);
 }
 
 static unsigned smooth_field_iter(
@@ -61,14 +61,14 @@ static unsigned smooth_field_iter(
   double* data_out = LOOP_MALLOC(double, n * ncomps);
   LOOP_EXEC(smooth_field_vert, n, ncomps, interior, star_offsets, star,
       data_in, data_out);
-  unsigned* diffs = LOOP_MALLOC(unsigned, n * ncomps);
-  LOOP_EXEC(check_diff, n * ncomps, data_in, data_out, tol, diffs);
+  double* diffs = LOOP_MALLOC(double, n * ncomps);
+  LOOP_EXEC(take_diff, n * ncomps, data_in, data_out, diffs);
   loop_free(data_in);
   *p_data = data_out;
-  unsigned not_done = uints_max(diffs, n * ncomps);
+  double max_diff = comm_max_double(doubles_max(diffs, n * ncomps));
   loop_free(diffs);
-  not_done = comm_max_uint(not_done);
-  return not_done;
+  printf("max diff %e\n", max_diff);
+  return max_diff > tol;
 }
 
 unsigned mesh_smooth_field(struct mesh* m, char const* name,

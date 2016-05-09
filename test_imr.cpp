@@ -89,7 +89,11 @@ static void gen_warp(struct mesh* m)
   LOOP_EXEC(subtract_coords, nverts * 3, coords, dst_coords);
   double* warp = dst_coords;
   mesh_add_tag(m, 0, TAG_F64, "warp", 3, warp);
+#if MOTION == 4
+  mesh_smooth_field(m, "warp", 1e-3, 100);
+#else
   mesh_smooth_field(m, "warp", 1e-4, 50);
+#endif
 }
 
 #if MOTION == 3 || MOTION == 4
@@ -121,7 +125,9 @@ static void gen_size(struct mesh* m)
   }
 #endif
   mesh_add_tag(m, 0, TAG_F64, "adapt_size", 1, sf);
-#if MOTION == 3 || MOTION == 4
+#if MOTION == 4
+  mesh_smooth_field(m, "adapt_size", 1e-3, 100);
+#else
   mesh_smooth_field(m, "adapt_size", 1e-4, 50);
 #endif
 }
@@ -129,7 +135,12 @@ static void gen_size(struct mesh* m)
 static void one_motion(struct mesh* m)
 {
   gen_warp(m);
-  for (unsigned i = 0; i < 3; ++i) {
+#if MOTION == 4
+  unsigned max_subwarps = 10;
+#else
+  unsigned max_subwarps = 3;
+#endif
+  for (unsigned i = 0; i < max_subwarps; ++i) {
     printf("sub-warp step %u starting\n", i);
     unsigned done;
     if ((1)) {
@@ -143,7 +154,8 @@ static void one_motion(struct mesh* m)
       return;
     }
   }
-  fprintf(stderr, "sub-warping still not done after 3 iters\n");
+  fprintf(stderr, "sub-warping still not done after %u iters\n",
+      max_subwarps);
   abort();
 }
 
