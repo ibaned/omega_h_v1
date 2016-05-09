@@ -15,7 +15,7 @@
 
 using namespace omega_h;
 
-#define MOTION 3
+#define MOTION 4
 
 LOOP_KERNEL(move_object_vert,
     unsigned const* object_verts,
@@ -39,8 +39,10 @@ LOOP_KERNEL(move_object_vert,
     add_vectors(x, mid, coords + i * 3, 3);
 #elif MOTION == 2
     coords[i * 3 + 2] += 0.02;
-#elif MOTION == 3 || MOTION == 4
+#elif MOTION == 3
     coords[i * 3 + 1] += 0.02;
+#elif MOTION == 4
+    coords[i * 3 + 2] += 0.02;
 #endif
   }
 }
@@ -130,7 +132,7 @@ static void one_motion(struct mesh* m)
   for (unsigned i = 0; i < 3; ++i) {
     printf("sub-warp step %u starting\n", i);
     unsigned done;
-    if ((0)) {
+    if ((1)) {
       done = mesh_warp_to_limit(m, -10.0);
     } else {
       done = mesh_warp_to_limit(m, 0.2);
