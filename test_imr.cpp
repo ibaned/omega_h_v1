@@ -15,7 +15,7 @@
 
 using namespace omega_h;
 
-#define MOTION 4
+#define MOTION 0
 
 LOOP_KERNEL(move_object_vert,
     unsigned const* object_verts,
@@ -68,7 +68,7 @@ static void gen_warp(struct mesh* m)
   unsigned nverts = mesh_count(m, 0);
   double const* coords = mesh_find_tag(m, 0, "coordinates")->d.f64;
   double* dst_coords = copy_array(coords, nverts * 3);
-#if MOTION == 2
+#if MOTION == 0 || MOTION == 1 || MOTION == 2
   unsigned obj_dim = 3;
   unsigned obj1 = 72;
 #elif MOTION == 3
@@ -168,7 +168,12 @@ int main(int argc, char** argv)
   start_vtk_steps("imr");
   write_vtk_step(m);
   adapt_summary(m);
-  for (unsigned i = 0; i < 12; ++i) {
+#if MOTION == 1
+  unsigned nsteps = 16;
+#else
+  unsigned nsteps = 12;
+#endif
+  for (unsigned i = 0; i < nsteps; ++i) {
     printf("motion step %u starting\n", i);
     one_motion(m);
     write_vtk_step(m);
