@@ -31,17 +31,20 @@ static void print_stats(struct mesh* m)
   unsigned nelems = mesh_count(m, mesh_dim(m));
   unsigned long total = comm_add_ulong(nelems);
   unsigned max = comm_max_uint(nelems);
+  double minqual = comm_min_double(mesh_min_quality(m));
   if (!comm_rank())
-    printf("#elements: total %lu, max %u\n",
-        total, max);
+    printf("#elements: total %lu, max %u | min quality %e\n",
+        total, max, minqual);
 }
 
 int main(int argc, char** argv)
 {
   osh_init(&argc, &argv);
-  assert(argc == 3);
+  assert(argc == 5);
   const char* filename = argv[1];
-  unsigned const step_factor = static_cast<unsigned>(atoi(argv[2]));
+  unsigned const initial_refs = static_cast<unsigned>(atoi(argv[2]));
+  unsigned const step_factor = static_cast<unsigned>(atoi(argv[3]));
+  double const qual_floor = atof(argv[4]);
   unsigned world_size = comm_size();
   unsigned subcomm_size = 0;
   struct mesh* m = 0;
@@ -54,12 +57,19 @@ int main(int argc, char** argv)
     comm_use(comm_self());
     double q = get_time();
     m = read_mesh_vtk(filename);
+    print_stats(m);
+    starting_nelems = mesh_count(m, mesh_dim(m));
+    for (unsigned i = 0; i < initial_refs; ++i) {
+      starting_nelems *= 2;
+      do {
+        uniformly_refine(m, qual_floor);
+        print_stats(m);
+      } while (mesh_count(m, mesh_dim(m)) < starting_nelems);
+    }
     mesh_make_parallel(m);
     double r = get_time();
     printf("setup time %.4e seconds\n", r - q);
-    print_stats(m);
     comm_use(comm_world());
-    starting_nelems = mesh_count(m, mesh_dim(m));
   }
   target_nelems = comm_bcast_uint(starting_nelems);
   for (subcomm_size = step_factor;
@@ -67,7 +77,7 @@ int main(int argc, char** argv)
        subcomm_size *= step_factor) {
     double a = get_time();
     target_nelems *= step_factor;
-    if (!comm_rank())
+  //if (!comm_rank())
       printf("subcomm size %u, target %lu\n", subcomm_size, target_nelems);
     unsigned group = comm_rank() / subcomm_size;
     struct comm* subcomm = comm_split(comm_using(), group, comm_rank() % subcomm_size);
@@ -84,14 +94,13 @@ int main(int argc, char** argv)
       print_stats(m);
       do {
         double e = get_time();
-        uniformly_refine(m, 0.2);
+        uniformly_refine(m, qual_floor);
         double f = get_time();
+        print_stats(m);
         double refine_time = comm_max_double(f - e);
-        double minqual = comm_min_double(mesh_min_quality(m));
         total_refine_time += refine_time;
         if (!comm_rank())
-          printf("refine time %.4e seconds, minqual %e\n", refine_time, minqual);
-        print_stats(m);
+          printf("refine time %.4e seconds\n", refine_time);
       } while (comm_add_ulong(mesh_count(m, mesh_dim(m))) < target_nelems);
     }
     comm_use(comm_world());
