@@ -39,7 +39,8 @@ static void print_stats(struct mesh* m)
 int main(int argc, char** argv)
 {
   osh_init(&argc, &argv);
-  assert(argc == 2);
+  assert(argc == 3);
+  const char* filename = argv[1];
   unsigned const step_factor = static_cast<unsigned>(atoi(argv[2]));
   unsigned world_size = comm_size();
   unsigned subcomm_size = 0;
@@ -52,7 +53,7 @@ int main(int argc, char** argv)
   if (comm_rank() == 0) {
     comm_use(comm_self());
     double q = get_time();
-    m = read_mesh_vtk("10x10.vtu");
+    m = read_mesh_vtk(filename);
     mesh_make_parallel(m);
     double r = get_time();
     printf("setup time %.4e seconds\n", r - q);
@@ -83,7 +84,7 @@ int main(int argc, char** argv)
       print_stats(m);
       do {
         double e = get_time();
-        uniformly_refine(m);
+        uniformly_refine(m, 0.2);
         double f = get_time();
         double refine_time = comm_max_double(f - e);
         double minqual = comm_min_double(mesh_min_quality(m));

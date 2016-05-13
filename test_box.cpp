@@ -11,6 +11,7 @@
 #include "include/omega_h.h"
 #include "refine.hpp"
 #include "vtk_io.hpp"
+#include "quality.hpp"
 
 using namespace omega_h;
 
@@ -57,8 +58,10 @@ int main(int argc, char** argv)
     mesh_derive_model(m, PI / 4);
     mesh_set_rep(m, MESH_FULL);
   }
-  for (unsigned i = 0; i < nrefs; ++i)
-    uniformly_refine(m);
+  for (unsigned i = 0; i < nrefs; ++i) {
+    uniformly_refine(m, 0.0);
+    printf("minqual %e\n", mesh_min_quality(m));
+  }
   write_mesh_vtk(m, file);
   free_mesh(m);
   osh_fini();
