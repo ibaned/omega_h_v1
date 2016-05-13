@@ -6,6 +6,8 @@
 #include "refine.hpp"
 #include "derive_model.hpp"
 #include "algebra.hpp"
+#include "vtk_io.hpp"
+#include "quality.hpp"
 
 #include <cstdio>
 #include <cassert>
@@ -34,56 +36,62 @@ static void print_stats(struct mesh* m)
         total, max);
 }
 
-
 int main(int argc, char** argv)
 {
   osh_init(&argc, &argv);
   assert(argc == 2);
-  unsigned const initial_refines = static_cast<unsigned>(atoi(argv[1]));
+  unsigned const step_factor = static_cast<unsigned>(atoi(argv[2]));
   unsigned world_size = comm_size();
   unsigned subcomm_size = 0;
   struct mesh* m = 0;
   double total_time = 0;
   double total_balance_time = 0;
   double total_refine_time = 0;
-  for (subcomm_size = 1; subcomm_size <= world_size; subcomm_size *= 2) {
+  unsigned long target_nelems = 0;
+  unsigned starting_nelems = 0;
+  if (comm_rank() == 0) {
+    comm_use(comm_self());
+    double q = get_time();
+    m = read_mesh_vtk("10x10.vtu");
+    mesh_make_parallel(m);
+    double r = get_time();
+    printf("setup time %.4e seconds\n", r - q);
+    print_stats(m);
+    comm_use(comm_world());
+    starting_nelems = mesh_count(m, mesh_dim(m));
+  }
+  target_nelems = comm_bcast_uint(starting_nelems);
+  for (subcomm_size = step_factor;
+       subcomm_size <= world_size;
+       subcomm_size *= step_factor) {
     double a = get_time();
+    target_nelems *= step_factor;
     if (!comm_rank())
-      printf("subcomm size %u\n", subcomm_size);
+      printf("subcomm size %u, target %lu\n", subcomm_size, target_nelems);
     unsigned group = comm_rank() / subcomm_size;
     struct comm* subcomm = comm_split(comm_using(), group, comm_rank() % subcomm_size);
     comm_use(subcomm);
     if (!group) {
-      if (comm_size() == 1) {
-        double q = get_time();
-        m = new_box_mesh(3);
-        mesh_derive_model(m, PI / 4);
-        mesh_set_rep(m, MESH_FULL);
-        for (unsigned i = 0; i < initial_refines; ++i)
-          uniformly_refine(m);
-        mesh_make_parallel(m);
-        double r = get_time();
-        printf("setup time %.4e seconds\n", r - q);
-        print_stats(m);
-      } else {
-        mesh_partition_out(&m, m != 0);
-        double c = get_time();
-        balance_mesh_inertial(m);
-        double d = get_time();
-        double balance_time = comm_max_double(d - c);
-        total_balance_time += balance_time;
-        if (!comm_rank())
-          printf("balance time %.4e seconds\n", balance_time);
-        print_stats(m);
-      }
-      double e = get_time();
-      uniformly_refine(m);
-      double f = get_time();
-      double refine_time = comm_max_double(f - e);
-      total_refine_time += refine_time;
+      mesh_partition_out(&m, m != 0);
+      double c = get_time();
+      balance_mesh_inertial(m);
+      double d = get_time();
+      double balance_time = comm_max_double(d - c);
+      total_balance_time += balance_time;
       if (!comm_rank())
-        printf("refine time %.4e seconds\n", refine_time);
+        printf("balance time %.4e seconds\n", balance_time);
       print_stats(m);
+      do {
+        double e = get_time();
+        uniformly_refine(m);
+        double f = get_time();
+        double refine_time = comm_max_double(f - e);
+        double minqual = comm_min_double(mesh_min_quality(m));
+        total_refine_time += refine_time;
+        if (!comm_rank())
+          printf("refine time %.4e seconds, minqual %e\n", refine_time, minqual);
+        print_stats(m);
+      } while (comm_add_ulong(mesh_count(m, mesh_dim(m))) < target_nelems);
     }
     comm_use(comm_world());
     comm_free(subcomm);
