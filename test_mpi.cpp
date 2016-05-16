@@ -68,7 +68,7 @@ int main(int argc, char** argv)
     }
     mesh_make_parallel(m);
     double r = get_time();
-    printf("setup time %.4e seconds\n", r - q);
+    printf("setup time %f seconds\n", r - q);
     comm_use(comm_world());
   }
   target_nelems = comm_bcast_uint(starting_nelems);
@@ -77,7 +77,7 @@ int main(int argc, char** argv)
        subcomm_size *= step_factor) {
     double a = get_time();
     target_nelems *= step_factor;
-  //if (!comm_rank())
+    if (!comm_rank())
       printf("subcomm size %u, target %lu\n", subcomm_size, target_nelems);
     unsigned group = comm_rank() / subcomm_size;
     struct comm* subcomm = comm_split(comm_using(), group, comm_rank() % subcomm_size);
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
       double balance_time = comm_max_double(d - c);
       total_balance_time += balance_time;
       if (!comm_rank())
-        printf("balance time %.4e seconds\n", balance_time);
+        printf("balance time %f seconds\n", balance_time);
       print_stats(m);
       do {
         double e = get_time();
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
         double refine_time = comm_max_double(f - e);
         total_refine_time += refine_time;
         if (!comm_rank())
-          printf("refine time %.4e seconds\n", refine_time);
+          printf("refine time %f seconds\n", refine_time);
       } while (comm_add_ulong(mesh_count(m, mesh_dim(m))) < target_nelems);
     }
     comm_use(comm_world());
@@ -109,12 +109,12 @@ int main(int argc, char** argv)
     double step_time = comm_max_double(b - a);
     total_time += step_time;
     if (!comm_rank())
-      printf("step time %.4e seconds\n", step_time);
+      printf("step time %f seconds\n", step_time);
   }
   if (!comm_rank()) {
-    printf("total time %.4e seconds\n", total_time);
-    printf("total refine time %.4e seconds\n", total_refine_time);
-    printf("total balance time %.4e seconds\n", total_balance_time);
+    printf("total time %f seconds\n", total_time);
+    printf("total refine time %f seconds\n", total_refine_time);
+    printf("total balance time %f seconds\n", total_balance_time);
   }
   assert(m);
   free_mesh(m);
