@@ -140,6 +140,7 @@ static unsigned choose_refinement_indset(
   unsigned const* candidates = mesh_find_tag(m, src_dim, "candidate")->d.u32;
   if (!comm_max_uint(uints_max(candidates, nsrcs))) {
     mesh_free_tag(m, src_dim, "candidate");
+    fprintf(stderr, "no candidates at all\n");
     return 0;
   }
   unsigned* good_candidates = copy_array(candidates, nsrcs);
@@ -149,6 +150,7 @@ static unsigned choose_refinement_indset(
   if (!comm_max_uint(uints_max(good_candidates, nsrcs))) {
     loop_free(good_candidates);
     loop_free(src_quals);
+    fprintf(stderr, "quality checks failed\n");
     return 0;
   }
   unsigned* indset = mesh_find_indset(m, src_dim,
@@ -167,8 +169,10 @@ unsigned refine_common(
 {
   if (mesh_is_parallel(m))
     assert(mesh_get_rep(m) == MESH_FULL);
-  if (!choose_refinement_indset(m, src_dim, qual_floor, require_better))
+  if (!choose_refinement_indset(m, src_dim, qual_floor, require_better)) {
+    fprintf(stderr, "refine_common returning zero due to indset\n");
     return 0;
+  }
   if (mesh_is_parallel(m)) {
     set_own_ranks_by_indset(m, src_dim);
     unghost_mesh(m);
@@ -186,6 +190,7 @@ unsigned refine_common(
   if (comm_rank() == 0)
     printf("split %10lu %s\n", total, get_ent_name(src_dim, total));
   overwrite_mesh(m, m_out);
+  fprintf(stderr, "refine_common returning one after overwrite\n");
   return 1;
 }
 

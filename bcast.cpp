@@ -5,6 +5,7 @@
 
 #include "comm.hpp"
 #include "loop.hpp"
+#include "parallel_mesh.hpp"
 #include "mesh.hpp"
 #include "tag.hpp"
 #include "int_casts.hpp"
@@ -54,6 +55,8 @@ struct mesh* bcast_mesh_metadata(struct mesh* m, unsigned is_source)
     assert(m);
   else
     assert(!m);
+  if (!comm_rank())
+    assert(is_source);
   unsigned dim = 0;
   if (is_source)
     dim = mesh_dim(m);
@@ -76,6 +79,14 @@ struct mesh* bcast_mesh_metadata(struct mesh* m, unsigned is_source)
     struct tags* ts = mesh_tags(m, i);
     bcast_tags(ts, ts, is_source);
   }
+  if (!is_source)
+    mesh_make_parallel(m);
+  unsigned nghosts = 0;
+  if (is_source)
+    nghosts = mesh_ghost_layers(m);
+  nghosts = comm_bcast_uint(nghosts);
+  if (!is_source)
+    mesh_set_ghost_layers(m, nghosts);
   return m;
 }
 

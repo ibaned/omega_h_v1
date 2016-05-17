@@ -38,6 +38,7 @@ static void print_stats(struct mesh* m)
         total, max, minqual);
 }
 
+/*
 LOOP_KERNEL(decrease_vert_size_field,
     double* sf)
   sf[i] /= cbrt(2);
@@ -51,13 +52,14 @@ static void decrease_size_field(struct mesh* m)
   unsigned nverts = mesh_count(m, 0);
   LOOP_EXEC(decrease_vert_size_field, nverts, sf);
 }
+*/
 
 int main(int argc, char** argv)
 {
   osh_init(&argc, &argv);
   assert(argc == 6);
   const char* filename = argv[1];
-  unsigned const initial_refs = static_cast<unsigned>(atoi(argv[2]));
+//unsigned const initial_refs = static_cast<unsigned>(atoi(argv[2]));
   unsigned const step_factor = static_cast<unsigned>(atoi(argv[3]));
   double const qual_floor = atof(argv[4]);
   const char* outfile = argv[5];
@@ -73,12 +75,12 @@ int main(int argc, char** argv)
     m = read_mesh_vtk(filename);
     print_stats(m);
     mesh_identity_size_field(m, "adapt_size");
-    for (unsigned i = 0; i < initial_refs; ++i) {
-      decrease_size_field(m);
-      while (refine_by_size(m, qual_floor)) {
-        print_stats(m);
-      }
-    }
+  //for (unsigned i = 0; i < initial_refs; ++i) {
+  //  decrease_size_field(m);
+  //  while (refine_by_size(m, qual_floor)) {
+  //    print_stats(m);
+  //  }
+  //}
     mesh_make_parallel(m);
     double r = get_time();
     printf("setup time %f seconds\n", r - q);
@@ -103,19 +105,22 @@ int main(int argc, char** argv)
       if (!comm_rank())
         printf("balance time %f seconds\n", balance_time);
       print_stats(m);
-      decrease_size_field(m);
+    //decrease_size_field(m);
       while (1) {
-        double e = get_time();
+        fprintf(stderr, "trying a refine...\n");
+    //  double e = get_time();
         unsigned did = refine_by_size(m, qual_floor);
-        double f = get_time();
-        print_stats(m);
-        double refine_time = comm_max_double(f - e);
-        total_refine_time += refine_time;
-        if (!comm_rank())
-          printf("refine time %f seconds\n", refine_time);
+        fprintf(stderr, "did=%u\n", did);
+    //  double f = get_time();
+    //  print_stats(m);
+    //  double refine_time = comm_max_double(f - e);
+    //  total_refine_time += refine_time;
+    //  if (!comm_rank())
+    //    printf("refine time %f seconds\n", refine_time);
         if (!did)
           break;
       }
+      fprintf(stderr, "after refine while(1).\n");
     }
     comm_use(comm_world());
     comm_free(subcomm);

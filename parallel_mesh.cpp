@@ -267,8 +267,6 @@ void mesh_partition_out(struct mesh** p_m, unsigned is_source)
   if (is_source) {
     for (unsigned d = 0; d <= mesh_dim(*p_m); ++d)
       invalidate_ranks(mesh_parallel(*p_m), d);
-  } else {
-    mesh_make_parallel(*p_m);
   }
 }
 
