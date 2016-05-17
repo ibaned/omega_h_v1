@@ -67,8 +67,6 @@ int main(int argc, char** argv)
   double total_time = 0;
   double total_balance_time = 0;
   double total_refine_time = 0;
-  unsigned long target_nelems = 0;
-  unsigned starting_nelems = 0;
   if (comm_rank() == 0) {
     comm_use(comm_self());
     double q = get_time();
@@ -86,13 +84,12 @@ int main(int argc, char** argv)
     printf("setup time %f seconds\n", r - q);
     comm_use(comm_world());
   }
-  target_nelems = comm_bcast_uint(starting_nelems);
   for (subcomm_size = step_factor;
        subcomm_size <= world_size;
        subcomm_size *= step_factor) {
     double a = get_time();
     if (!comm_rank())
-      printf("subcomm size %u, target %lu\n", subcomm_size, target_nelems);
+      printf("subcomm size %u\n", subcomm_size);
     unsigned group = comm_rank() / subcomm_size;
     struct comm* subcomm = comm_split(comm_using(), group, comm_rank() % subcomm_size);
     comm_use(subcomm);
