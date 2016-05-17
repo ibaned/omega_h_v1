@@ -40,11 +40,12 @@ static void print_stats(struct mesh* m)
 int main(int argc, char** argv)
 {
   osh_init(&argc, &argv);
-  assert(argc == 5);
+  assert(argc == 6);
   const char* filename = argv[1];
   unsigned const initial_refs = static_cast<unsigned>(atoi(argv[2]));
   unsigned const step_factor = static_cast<unsigned>(atoi(argv[3]));
   double const qual_floor = atof(argv[4]);
+  const char* outfile = argv[5];
   unsigned world_size = comm_size();
   unsigned subcomm_size = 0;
   struct mesh* m = 0;
@@ -116,6 +117,7 @@ int main(int argc, char** argv)
     printf("total refine time %f seconds\n", total_refine_time);
     printf("total balance time %f seconds\n", total_balance_time);
   }
+  write_mesh_vtk(m, outfile);
   assert(m);
   free_mesh(m);
   osh_fini();
