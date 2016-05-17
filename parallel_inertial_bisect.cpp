@@ -1,7 +1,6 @@
 #include "parallel_inertial_bisect.hpp"
 
 #include <cassert>
-#include <cstdio>
 
 #include "arrays.hpp"
 #include "comm.hpp"
@@ -144,10 +143,7 @@ void recursive_inertial_bisect(
 void balance_mesh_inertial(struct mesh* m)
 {
   assert(mesh_is_parallel(m));
-  fprintf(stderr, "balance_mesh_inertial start...\n");
-  fprintf(stderr, "ghosting at %u\n", mesh_ghost_layers(m));
   mesh_ensure_ghosting(m, 0);
-  fprintf(stderr, "after zero ensured, ghosting at %u\n", mesh_ghost_layers(m));
   unsigned dim = mesh_dim(m);
   unsigned had_elem_coords =
     (0 != mesh_find_tag(m, dim, "coordinates"));
@@ -160,7 +156,6 @@ void balance_mesh_inertial(struct mesh* m)
     mesh_free_tag(m, dim, "coordinates");
   unsigned* orig_ranks = filled_array(n, comm_rank());
   unsigned* orig_ids = uints_linear(n, 1);
-  fprintf(stderr, "calling recursive_inertial_bisect....\n");
   recursive_inertial_bisect(&n, &coords, 0, &orig_ranks, &orig_ids);
   loop_free(coords);
   migrate_mesh(m, n, orig_ranks, orig_ids);

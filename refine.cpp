@@ -1,7 +1,5 @@
 #include "refine.hpp"
 
-#include <cstdio>
-
 #include "arrays.hpp"
 #include "loop.hpp"
 #include "mesh.hpp"
@@ -18,7 +16,6 @@ LOOP_KERNEL(refine_candidate,
 
 unsigned refine_by_size(struct mesh* m, double qual_floor)
 {
-  fprintf(stderr, "refine_by_size start...\n");
   double* edge_sizes = mesh_measure_edges_for_adapt(m);
   unsigned nedges = mesh_count(m, 1);
   unsigned* candidates = LOOP_MALLOC(unsigned, nedges);
@@ -26,7 +23,6 @@ unsigned refine_by_size(struct mesh* m, double qual_floor)
   loop_free(edge_sizes);
   mesh_add_tag(m, 1, TAG_U32, "candidate", 1, candidates);
   unsigned ret = refine_common(m, 1, qual_floor, 0);
-  fprintf(stderr, "refine_by_size returning ret=%u\n", ret);
   return ret;
 }
 
