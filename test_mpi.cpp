@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cassert>
 #include <cstdlib>
+#include <cmath>
 #include <sys/time.h>
 
 using namespace omega_h;
@@ -37,14 +38,27 @@ static void print_stats(struct mesh* m)
         total, max, minqual);
 }
 
+LOOP_KERNEL(decrease_vert_size_field,
+    double* sf)
+  sf[i] /= cbrt(2);
+}
+
+static void decrease_size_field(struct mesh* m)
+{
+  double* sf = mesh_find_tag(m, 0, "adapt_size")->d.f64;
+  unsigned nverts = mesh_count(m, 0);
+  LOOP_EXEC(decrease_vert_size_field, nverts, sf);
+}
+
 int main(int argc, char** argv)
 {
   osh_init(&argc, &argv);
-  assert(argc == 5);
+  assert(argc == 6);
   const char* filename = argv[1];
   unsigned const initial_refs = static_cast<unsigned>(atoi(argv[2]));
   unsigned const step_factor = static_cast<unsigned>(atoi(argv[3]));
   double const qual_floor = atof(argv[4]);
+  const char* outfile = argv[5];
   unsigned world_size = comm_size();
   unsigned subcomm_size = 0;
   struct mesh* m = 0;
@@ -58,13 +72,12 @@ int main(int argc, char** argv)
     double q = get_time();
     m = read_mesh_vtk(filename);
     print_stats(m);
-    starting_nelems = mesh_count(m, mesh_dim(m));
+    mesh_identity_size_field(m, "adapt_size");
     for (unsigned i = 0; i < initial_refs; ++i) {
-      starting_nelems *= 2;
-      do {
-        uniformly_refine(m, qual_floor);
+      decrease_size_field(m);
+      while (refine_by_size(m, qual_floor)) {
         print_stats(m);
-      } while (mesh_count(m, mesh_dim(m)) < starting_nelems);
+      }
     }
     mesh_make_parallel(m);
     double r = get_time();
@@ -76,7 +89,6 @@ int main(int argc, char** argv)
        subcomm_size <= world_size;
        subcomm_size *= step_factor) {
     double a = get_time();
-    target_nelems *= step_factor;
     if (!comm_rank())
       printf("subcomm size %u, target %lu\n", subcomm_size, target_nelems);
     unsigned group = comm_rank() / subcomm_size;
@@ -92,16 +104,19 @@ int main(int argc, char** argv)
       if (!comm_rank())
         printf("balance time %f seconds\n", balance_time);
       print_stats(m);
-      do {
+      decrease_size_field(m);
+      while (1) {
         double e = get_time();
-        uniformly_refine(m, qual_floor);
+        unsigned did = refine_by_size(m, qual_floor);
         double f = get_time();
         print_stats(m);
         double refine_time = comm_max_double(f - e);
         total_refine_time += refine_time;
         if (!comm_rank())
           printf("refine time %f seconds\n", refine_time);
-      } while (comm_add_ulong(mesh_count(m, mesh_dim(m))) < target_nelems);
+        if (!did)
+          break;
+      }
     }
     comm_use(comm_world());
     comm_free(subcomm);
@@ -116,6 +131,7 @@ int main(int argc, char** argv)
     printf("total refine time %f seconds\n", total_refine_time);
     printf("total balance time %f seconds\n", total_balance_time);
   }
+  write_mesh_vtk(m, outfile);
   assert(m);
   free_mesh(m);
   osh_fini();
