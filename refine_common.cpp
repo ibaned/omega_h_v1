@@ -167,8 +167,9 @@ unsigned refine_common(
 {
   if (mesh_is_parallel(m))
     assert(mesh_get_rep(m) == MESH_FULL);
-  if (!choose_refinement_indset(m, src_dim, qual_floor, require_better))
+  if (!choose_refinement_indset(m, src_dim, qual_floor, require_better)) {
     return 0;
+  }
   if (mesh_is_parallel(m)) {
     set_own_ranks_by_indset(m, src_dim);
     unghost_mesh(m);

@@ -12,6 +12,7 @@
 #include "inertia.hpp"
 #include "ints.hpp"
 #include "loop.hpp"
+#include "parallel_mesh.hpp"
 #include "mesh.hpp"
 #include "migrate_mesh.hpp"
 
