@@ -45,6 +45,8 @@ LOOP_KERNEL(decrease_vert_size_field,
 
 static void decrease_size_field(struct mesh* m)
 {
+  if (!comm_rank())
+    printf("decreasing size field by 2^(1/3)\n");
   double* sf = mesh_find_tag(m, 0, "adapt_size")->d.f64;
   unsigned nverts = mesh_count(m, 0);
   LOOP_EXEC(decrease_vert_size_field, nverts, sf);
